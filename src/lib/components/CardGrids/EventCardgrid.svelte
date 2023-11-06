@@ -31,12 +31,12 @@
 				{/if}
 
 				<div class="flex items-center justify-center pt-4">
-					<!-- {#if event.registrationLink}
+					{#if event.registrationLink}
 						<a href={event.registrationLink} target="_blank">
-							<button class="bg-brand rounded-xl px-4 py-2 text-white duration-200 hover:scale-110"> Register Now </button>
+							<button class="rounded-xl bg-brand px-4 py-2 text-white duration-200 hover:scale-110"> Register Now </button>
 						</a>
-					{/if} -->
-					<button class="rounded-xl bg-brand px-4 py-2 text-white">Registration Closed! Spot Registrations are Available</button>
+					{/if}
+					<!-- <button class="rounded-xl bg-brand px-4 py-2 text-white">Registration Closed! Spot Registrations are Available</button> -->
 				</div>
 			</div>
 		</div>
