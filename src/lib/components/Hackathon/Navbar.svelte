@@ -17,7 +17,6 @@
 				<div class="transition duration-300 hover:drop-shadow-[0_0_0.2rem_#d2b863]"><a href="/snh2023#home" class="scroll-smooth underline-offset-8 transition duration-300 hover:drop-shadow-[0_0_0.2rem_#460a07]">Home</a></div>
 				<div class="transition duration-300 hover:drop-shadow-[0_0_0.2rem_#d2b863]"><a href="/snh2023#date" class="scroll-smooth underline-offset-8 transition duration-300 hover:drop-shadow-[0_0_0.2rem_#460a07]">About</a></div>
 				<div class="transition duration-300 hover:drop-shadow-[0_0_0.2rem_#d2b863]"><a href="/snh2023#timeline" class="scroll-smooth underline-offset-8 transition duration-300 hover:drop-shadow-[0_0_0.2rem_#460a07]">Timeline</a></div>
-				<div class="transition duration-300 hover:drop-shadow-[0_0_0.2rem_#d2b863]"><a href="/snh2023#ps" class="scroll-smooth underline-offset-8 transition duration-300 hover:drop-shadow-[0_0_0.2rem_#460a07]">Problem Statements</a></div>
 				<!-- <div class="transition duration-300 hover:drop-shadow-[0_0_0.2rem_#d2b863]"><a href="/snh2023#themes" class="scroll-smooth underline-offset-8 transition duration-300 hover:drop-shadow-[0_0_0.2rem_#460a07]">Themes</a></div> -->
 				<div class="transition duration-300 hover:drop-shadow-[0_0_0.2rem_#d2b863]"><a href="/snh2023#goodies" class="scroll-smooth underline-offset-8 transition duration-300 hover:drop-shadow-[0_0_0.2rem_#460a07]">Rewards</a></div>
 				{#if $user && $userData && $userProfileData && !$userProfileData.snh2023}
@@ -43,7 +42,6 @@
 					<a class="mb-10 mt-10 font-jbBold text-2xl" href="/snh2023#home" on:click={closeMenu}> Home </a>
 					<a class="mb-10 font-jbBold text-2xl" href="/snh2023#date" on:click={closeMenu}> About </a>
 					<a class="mb-10 font-jbBold text-2xl" href="/snh2023#timeline" on:click={closeMenu}> Timeline </a>
-					<a class="mb-10 font-jbBold text-2xl" href="/snh2023#ps" on:click={closeMenu}> ProblemStatements </a>
 					<!-- <a class="font-jbBold mb-10 text-2xl" href="/snh2023#themes" on:click={closeMenu}> Themes </a> -->
 					<a class="mb-10 font-jbBold text-2xl" href="/snh2023#goodies" on:click={closeMenu}> Rewards </a>
 					{#if $user && $userData && $userProfileData && !$userProfileData.snh2023}

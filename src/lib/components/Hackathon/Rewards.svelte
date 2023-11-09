@@ -38,7 +38,7 @@
 						<div class="flex flex-col items-center justify-center md:flex-row">
 							<div class="text-2xl text-[#fffba4] transition duration-300 lg:text-3xl">Total Prize Pool of</div>
 						</div>
-						<ul class="mt-5 w-fit text-3xl lg:text-4xl">₹ 30,000</ul>
+						<ul class="mt-5 w-fit text-3xl lg:text-4xl">₹ 50,000</ul>
 					</div>
 				</div>
 			</div>
