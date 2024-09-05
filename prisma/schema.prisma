@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -25,22 +19,24 @@ model User {
   accounts      Account[]
   sessions      Session[]
 
-  displayName  String?
-  bio          String?
-  phone        String?
-  username     String?
-  college      String?  @default("N.M.A.M. Institute of Technology")
-  usn          String?
-  lightTheme   String?
-  darkTheme    String?
-  role         String?  @default("user")
-  links        Links?
-  organizers   Event[]
+  displayName String?
+  bio         String?
+  phone       String?
+  username    String?
+  college     String? @default("N.M.A.M. Institute of Technology")
+  usn         String?
+  lightTheme  String?
+  darkTheme   String?
+  role        String? @default("user")
+  links       Links?
+  organizers  Event[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  Core      Core[]
-  Team      Team[]
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  Core         Core[]
+  Team         Team[]
+  Placements   Placements? @relation(fields: [placementsId], references: [id])
+  placementsId String?
 }
 
 model Account {
@@ -75,26 +71,26 @@ model Session {
 }
 
 model Core {
-  id       String  @id @default(cuid())
-  year     String
-  post     String
-  image    String
-  quote    String?
-  User     User    @relation(fields: [userId], references: [id])
+  id    String  @id @default(cuid())
+  year  String
+  post  String
+  image String
+  quote String?
+  User  User    @relation(fields: [userId], references: [id])
 
-  order  Int     
+  order  Int
   userId String
 }
 
 model Faculty {
   id String @id @default(cuid())
 
-  name        String
-  email       String
-  designation String
+  name         String
+  email        String
+  designation  String
   designation2 String?
-  image       String
-  about       String[]
+  image        String
+  about        String[]
 
   order     Int     @unique
   published Boolean @default(false)
@@ -154,4 +150,20 @@ model Winners {
 
   event Event @relation(fields: [eventId], references: [id])
   team  Team  @relation(fields: [teamId], references: [id])
+}
+
+model Placements {
+  id String @id @default(cuid())
+
+  name   User
+  offer Offers[]
+}
+
+model Offers {
+  id String @id @default(cuid())
+
+  company     String
+  package     String
+  placementId String
+  placement   Placements @relation(fields: [placementId], references: [id])
 }
