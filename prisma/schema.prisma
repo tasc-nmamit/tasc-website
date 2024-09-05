@@ -159,6 +159,7 @@ model Placements {
   userId String   @unique
   year   String
   offer  Offers[]
+  order       Int        @unique
 }
 
 model Offers {
@@ -168,5 +169,4 @@ model Offers {
   package     String
   placementId String
   placement   Placements @relation(fields: [placementId], references: [id])
-  order       Int        @unique
 }
