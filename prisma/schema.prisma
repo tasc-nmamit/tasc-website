@@ -36,7 +36,7 @@ model User {
   Core      Core[]
   Team      Team[]
 
-  placement Placements?
+  placement Placement?
 }
 
 model Account {
@@ -180,6 +180,7 @@ model Company {
 model Offer {
   id String @id @default(cuid())
 
+  placements Placement[]
   companyId String
   company   Company @relation(fields: [companyId], references: [id])
   package   String
