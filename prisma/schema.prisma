@@ -158,19 +158,20 @@ model Placement {
   name      User      @relation(fields: [userId], references: [id])
   userId    String    @unique
   companies Company[]
+  offers    Offer[]
   order     Int       @unique
 
-  yearId    String    @unique
-  year      Year      @relation("PlacementYear", fields: [yearId], references: [id])
+  yearId String @unique
+  year   Year   @relation("PlacementYear", fields: [yearId], references: [id])
 }
 
 model Company {
   id String @id @default(cuid())
 
   companyName String
-  offers       Offer[]
-  yearId      String     @unique
-  year        Year       @relation("CompanyYear", fields: [yearId], references: [id])
+  offers      Offer[]
+  yearId      String  @unique
+  year        Year    @relation("CompanyYear", fields: [yearId], references: [id])
 
   placementId String
   placement   Placement @relation(fields: [placementId], references: [id])
@@ -188,6 +189,6 @@ model Year {
   id String @id @default(cuid())
 
   year       String
-  companies  Company[]    @relation("CompanyYear")
+  companies  Company[]   @relation("CompanyYear")
   placements Placement[] @relation("PlacementYear")
 }
