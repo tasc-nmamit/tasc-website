@@ -31,12 +31,11 @@ model User {
   links       Links?
   organizers  Event[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   Core      Core[]
   Team      Team[]
-
-  placement Placement?
+  Student   Student[]
 }
 
 model Account {
@@ -68,6 +67,16 @@ model Session {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Student {
+  id String @id @default(cuid())
+
+  name        User       @relation(fields: [userId], references: [id])
+  userId      String     @unique
+  image       String
+  placement   Placement? @relation(fields: [placementId], references: [id])
+  placementId String
 }
 
 model Core {
@@ -155,13 +164,11 @@ model Winners {
 model Placement {
   id String @id @default(cuid())
 
-  name      User      @relation(fields: [userId], references: [id])
-  userId    String    @unique
-  companies Company[]
-  offers    Offer[]
+  offers Offer[]
 
-  yearId String @unique
-  year   Year   @relation("PlacementYear", fields: [yearId], references: [id])
+  year    Year      @relation("PlacementYear", fields: [yearId], references: [id])
+  yearId  String    @unique
+  Student Student[]
 }
 
 model Company {
@@ -169,20 +176,17 @@ model Company {
 
   companyName String
   offers      Offer[]
+  year        Year[]  @relation("CompanyYear")
   yearId      String  @unique
-  year        Year    @relation("CompanyYear", fields: [yearId], references: [id])
-
-  placementId String
-  placement   Placement @relation(fields: [placementId], references: [id])
 }
 
 model Offer {
   id String @id @default(cuid())
 
   placements Placement[]
-  companyId String
-  company   Company @relation(fields: [companyId], references: [id])
-  package   String
+  company    Company     @relation(fields: [companyId], references: [id])
+  companyId  String
+  package    String
 }
 
 model Year {
