@@ -159,7 +159,6 @@ model Placement {
   userId    String    @unique
   companies Company[]
   offers    Offer[]
-  order     Int       @unique
 
   yearId String @unique
   year   Year   @relation("PlacementYear", fields: [yearId], references: [id])
