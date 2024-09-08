@@ -193,7 +193,7 @@ model Offer {
 model Year {
   id String @id @default(cuid())
 
-  year       Int
+  year       String
   companies  Company[]   @relation("CompanyYear")
   placements Placement[] @relation("PlacementYear")
 }
