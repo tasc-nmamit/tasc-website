@@ -76,7 +76,6 @@ model Student {
   userId      String     @unique
   image       String
   placement   Placement?
-  placementId String
 }
 
 model Core {
@@ -167,7 +166,7 @@ model Placement {
   offers Offer[]
 
   year      Year    @relation("PlacementYear", fields: [yearId], references: [id])
-  yearId    String  @unique
+  yearId    String
   student   Student @relation(fields: [studentId], references: [id])
   studentId String  @unique
 }
@@ -178,7 +177,6 @@ model Company {
   companyName String
   offers      Offer[]
   year        Year[]  @relation("CompanyYear")
-  yearId      String  @unique
 }
 
 model Offer {
