@@ -75,7 +75,7 @@ model Student {
   name        User       @relation(fields: [userId], references: [id])
   userId      String     @unique
   image       String
-  placement   Placement? @relation(fields: [placementId], references: [id])
+  placement   Placement?
   placementId String
 }
 
@@ -166,9 +166,10 @@ model Placement {
 
   offers Offer[]
 
-  year    Year      @relation("PlacementYear", fields: [yearId], references: [id])
-  yearId  String    @unique
-  Student Student[]
+  year      Year    @relation("PlacementYear", fields: [yearId], references: [id])
+  yearId    String  @unique
+  student   Student @relation(fields: [studentId], references: [id])
+  studentId String  @unique
 }
 
 model Company {
