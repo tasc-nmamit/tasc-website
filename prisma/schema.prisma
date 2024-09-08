@@ -33,6 +33,7 @@ model User {
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+
   Core      Core[]
   Team      Team[]
   Student   Student[]
@@ -91,7 +92,7 @@ model Core {
 }
 
 model Faculty {
-  id String @id @default(cuid())
+  id           String        @id @default(cuid())
 
   name         String
   email        String
@@ -100,8 +101,9 @@ model Faculty {
   image        String
   about        String[]
 
-  order     Int     @unique
-  published Boolean @default(false)
+  publications Publication[] @relation("FacultyPublications")
+  order        Int           @unique
+  published    Boolean       @default(false)
 
   @@index([name], name: "name_index")
 }
@@ -194,4 +196,22 @@ model Year {
   year       Int
   companies  Company[]   @relation("CompanyYear")
   placements Placement[] @relation("PlacementYear")
+}
+
+model Publication {
+  id                   String        @id @default(cuid())
+  facultyId            String?
+  authors              String[]
+  title                String
+  publish_date         String
+  publisher            String?
+  journal              String?
+  conference           String?
+  link                 String
+  ranking              String?
+  impact_factor        String?
+  indexed              String
+  publisher_conference String?
+  year                 Int
+  faculty              Faculty[] @relation("FacultyPublications")
 }
