@@ -2,6 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+	font-family: "Koulen";
+	src: url("/fonts/Koulen-Regular.ttf");
+}
+
+@font-face {
+	font-family: "LuxuriousScript";
+	src: url("/fonts/LuxuriousScript-Regular.ttf");
+}
+
 @layer base {
 	:root {
 		--background: 0 0% 100%;
@@ -73,6 +83,7 @@
 	* {
 		@apply border-border;
 	}
+
 	body {
 		@apply bg-background text-foreground;
 	}
@@ -84,6 +95,7 @@
 			20px 20px 40px 10px rgba(0, 0, 0, 0.2),
 			-2px -2px 20px 0 rgba(0, 0, 0, 0.2);
 	}
+
 	.custom-shadow-white {
 		box-shadow:
 			20px 20px 40px 10px rgba(255, 255, 255, 0.2),
@@ -93,6 +105,7 @@
 	.custom-drop-shadow-white {
 		filter: drop-shadow(0 0 0.3rem #ffffff);
 	}
+
 	.custom-drop-shadow-black {
 		filter: drop-shadow(1px 0 0.4rem #000000);
 	}

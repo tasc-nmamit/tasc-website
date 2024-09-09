@@ -100,7 +100,7 @@ model Faculty {
   designation2 String?
   image        String
   about        String[]
-
+  patents      Patents[]     @relation("FacultyPatents")
   publications Publication[] @relation("FacultyPublications")
   order        Int           @unique
   published    Boolean       @default(false)
@@ -161,6 +161,27 @@ model Winners {
   event Event @relation(fields: [eventId], references: [id])
   team  Team  @relation(fields: [teamId], references: [id])
 }
+model Student {
+  id String @id @default(cuid())
+
+  name    String
+  image   String
+  patents Patents[] @relation("StudentPatents")
+}
+
+model Patents {
+  id String @id @default(cuid())
+
+  patentId         String
+  year             String
+  faculty          Faculty[]  @relation("FacultyPatents")
+  title            String
+  authors          String[]
+  student         Student[] @relation("StudentPatents")
+  inventorsName    String[]
+  inventorsAddress String[]
+  certificate      String?
+}
 
 model Placement {
   id String @id @default(cuid())
@@ -213,4 +234,3 @@ model Publication {
   publisher_conference String?
   year                 Int
   faculty              Faculty[] @relation("FacultyPublications")
-}

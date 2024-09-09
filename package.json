@@ -39,6 +39,7 @@
     "svelte-typewriter": "^3.1.8",
     "tailwindcss": "^3.3.3",
     "tslib": "^2.4.1",
+    "tsx": "^4.19.0",
     "typescript": "^5.0.0",
     "vite": "^4.4.2",
     "vite-node": "^2.0.5"
@@ -52,6 +53,7 @@
     "@vercel/analytics": "^1.1.1",
     "axios": "^1.5.1",
     "bits-ui": "^0.5.7",
+    "caniuse-lite": "^1.0.30001655",
     "clsx": "^2.0.0",
     "downloadjs": "^1.4.7",
     "firebase": "^10.4.0",
@@ -68,5 +70,9 @@
   },
   "prisma": {
     "seed": "vite-node ./prisma/seed.ts"
-  }
+  },
+  "trustedDependencies": [
+    "protobufjs",
+    "svelte-preprocess"
+  ]
 }
