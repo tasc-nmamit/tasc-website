@@ -73,10 +73,10 @@ model Session {
 model Student {
   id String @id @default(cuid())
 
-  name        User       @relation(fields: [userId], references: [id])
-  userId      String     @unique
-  image       String
-  placement   Placement?
+  name      User       @relation(fields: [userId], references: [id])
+  userId    String     @unique
+  image     String
+  placement Placement?
 }
 
 model Core {
@@ -178,7 +178,6 @@ model Company {
 
   companyName String
   offers      Offer[]
-  year        Year[]  @relation("CompanyYear")
 }
 
 model Offer {
@@ -194,7 +193,7 @@ model Year {
   id String @id @default(cuid())
 
   year       String
-  companies  Company[]   @relation("CompanyYear")
+  companies  String[]
   placements Placement[] @relation("PlacementYear")
 }
 

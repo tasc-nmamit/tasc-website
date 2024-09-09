@@ -4,61 +4,64 @@
 	import type { PlacementOffer } from '$lib/components/types/AchievementData';
 	import { NAME_TO_IMAGE as images } from '$lib/data/Images';
 
-	export let companies: Record<string, string[]>;
-	export let offers: Record<string, PlacementOffer[]>;
+	export let offers: Record<string, any[]>;
 	export let companyNames: string[];
 
 	onMount(() => {
-		const containers = document.querySelectorAll('.carousel-container');
+		// Ensure that the code only runs in the browser
+		if (typeof window !== 'undefined') {
+			const containers = document.querySelectorAll('.carousel-container');
 
-		containers.forEach((container) => {
-			const inner = container.querySelector('.carousel-inner');
-			if (!inner) return;
+			containers.forEach((container) => {
+				const inner = container.querySelector('.carousel-inner');
+				if (!inner) return;
 
-			const items = Array.from(inner.children) as HTMLElement[];
-			const totalItems = items.length;
+				const items = Array.from(inner.children) as HTMLElement[];
+				const totalItems = items.length;
 
-			// Get the current screen size
-			const isSmallScreen = window.innerWidth < 640;
+				// Get the current screen size
+				const isSmallScreen = window.innerWidth < 640;
 
-			// Disable animation if there are less than or equal to required items
-			if ((isSmallScreen && totalItems === 1) || (!isSmallScreen && totalItems <= 2)) return;
+				// Disable animation if there are less than or equal to required items
+				if ((isSmallScreen && totalItems === 1) || (!isSmallScreen && totalItems <= 2)) return;
 
-			// Duplicate items for seamless looping
-			for (let i = 0; i < totalItems; i++) {
-				const clone = items[i].cloneNode(true) as HTMLElement;
-				inner.appendChild(clone);
-			}
-			
-			// Recalculate the total items after duplication
-			const totalDuplicatedItems = inner.children.length;
-
-			const tl = gsap.timeline({ repeat: -1, paused: true });
-			tl.to(inner, {
-				duration: totalDuplicatedItems * 4, // Adjust duration based on the number of duplicated items
-				xPercent: -100 * totalDuplicatedItems / 2,
-				ease: 'none',
-				modifiers: {
-					xPercent: gsap.utils.unitize(value => {
-						return parseFloat(value) % (100 * totalDuplicatedItems / 2);
-					})
+				// Duplicate items for seamless looping
+				for (let i = 0; i < totalItems; i++) {
+					const clone = items[i].cloneNode(true) as HTMLElement;
+					inner.appendChild(clone);
 				}
-			});
 
-			tl.play();
+				// Recalculate the total items after duplication
+				const totalDuplicatedItems = inner.children.length;
 
-			container.addEventListener('mouseenter', () => {
-				tl.pause();
-			});
+				const tl = gsap.timeline({ repeat: -1, paused: true });
+				tl.to(inner, {
+					duration: totalDuplicatedItems * 4, // Adjust duration based on the number of duplicated items
+					xPercent: -100 * totalDuplicatedItems / 2,
+					ease: 'none',
+					modifiers: {
+						xPercent: gsap.utils.unitize(value => {
+							return parseFloat(value) % (100 * totalDuplicatedItems / 2);
+						})
+					}
+				});
 
-			container.addEventListener('mouseleave', () => {
-				tl.resume();
+				tl.play();
+
+				container.addEventListener('mouseenter', () => {
+					tl.pause();
+				});
+
+				container.addEventListener('mouseleave', () => {
+					tl.resume();
+				});
 			});
-		});
+		}
 	});
 
-    onDestroy(() => {
-            const containers = document.querySelectorAll('.carousel-container');
+	onDestroy(() => {
+		if (typeof window !== 'undefined') {
+			const containers = document.querySelectorAll('.carousel-container');
 			containers.forEach((container) => {
 				const inner = container.querySelector('.carousel-inner');
 				if (!inner) return;
@@ -69,8 +72,10 @@
 				if (totalItems > 2) 
 					gsap.killTweensOf(inner);
 			});
-		});
+		}
+	});
 </script>
+
 
 <style>
 	.carousel-container {
@@ -102,7 +107,7 @@
 			</div>
 			<div class="col-span-3 carousel-container rounded-lg grid justify-around sm:justify-normal">
 				<div class="carousel-inner self-center">
-					{#each companies[company] as student}
+					{#each offers[company] as student}
 						<div class="carousel-item grid">
 							<div class="bg-card w-[95%] sm:h-full h-[90%] self-center object-contain sm:border-2 border border-[#d2b863] md:rounded-[17px] sm:rounded-[13px] rounded-[8px] grid grid-cols-5">
                                 <div class="col-span-2 w-full h-full sm:aspect-[7/9] aspect-square relative">
@@ -110,8 +115,8 @@
                                     <div class="absolute inset-0 sm:ml-[75%] ml-[50%] sm:h-full h-[89.5%] bg-gradient-to-r from-transparent to-card"></div>
                                 </div>
                                 <div class="flex flex-col col-span-3 justify-around sm:h-full h-[90%]">
-                                    <p class="lg:text-xl md:text-lg sm:text-md text-sm text-center md:font-bold sm:font-semibold">{student}</p>
-							        <p class="lg:text-xl md:text-lg sm:text-md text-sm text-center md:font-bold sm:font-semibold">{offers[student].find(c => c.company === company)?.package || ''}</p>
+                                    <p class="lg:text-xl md:text-lg sm:text-md text-sm text-center md:font-bold sm:font-semibold">{student.studentName}</p>
+							        <p class="lg:text-xl md:text-lg sm:text-md text-sm text-center md:font-bold sm:font-semibold">{student.studentPackage}</p>
                                 </div>
                             </div>
 						</div>
