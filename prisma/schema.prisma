@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -25,22 +19,24 @@ model User {
   accounts      Account[]
   sessions      Session[]
 
-  displayName  String?
-  bio          String?
-  phone        String?
-  username     String?
-  college      String?  @default("N.M.A.M. Institute of Technology")
-  usn          String?
-  lightTheme   String?
-  darkTheme    String?
-  role         String?  @default("user")
-  links        Links?
-  organizers   Event[]
+  displayName String?
+  bio         String?
+  phone       String?
+  username    String?
+  college     String? @default("N.M.A.M. Institute of Technology")
+  usn         String?
+  lightTheme  String?
+  darkTheme   String?
+  role        String? @default("user")
+  links       Links?
+  organizers  Event[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
   Core      Core[]
   Team      Team[]
+  Student   Student[]
 }
 
 model Account {
@@ -74,30 +70,40 @@ model Session {
   updatedAt DateTime @updatedAt
 }
 
-model Core {
-  id       String  @id @default(cuid())
-  year     String
-  post     String
-  image    String
-  quote    String?
-  User     User    @relation(fields: [userId], references: [id])
+model Student {
+  id String @id @default(cuid())
 
-  order  Int     
+  name      User       @relation(fields: [userId], references: [id])
+  userId    String     @unique
+  image     String
+  placement Placement?
+}
+
+model Core {
+  id    String  @id @default(cuid())
+  year  String
+  post  String
+  image String
+  quote String?
+  User  User    @relation(fields: [userId], references: [id])
+
+  order  Int
   userId String
 }
 
 model Faculty {
-  id String @id @default(cuid())
+  id           String        @id @default(cuid())
 
-  name        String
-  email       String
-  designation String
+  name         String
+  email        String
+  designation  String
   designation2 String?
-  image       String
-  about       String[]
+  image        String
+  about        String[]
 
-  order     Int     @unique
-  published Boolean @default(false)
+  publications Publication[] @relation("FacultyPublications")
+  order        Int           @unique
+  published    Boolean       @default(false)
 
   @@index([name], name: "name_index")
 }
@@ -154,4 +160,57 @@ model Winners {
 
   event Event @relation(fields: [eventId], references: [id])
   team  Team  @relation(fields: [teamId], references: [id])
+}
+
+model Placement {
+  id String @id @default(cuid())
+
+  offers Offer[]
+
+  year      Year    @relation("PlacementYear", fields: [yearId], references: [id])
+  yearId    String
+  student   Student @relation(fields: [studentId], references: [id])
+  studentId String  @unique
+}
+
+model Company {
+  id String @id @default(cuid())
+
+  companyName String
+  offers      Offer[]
+}
+
+model Offer {
+  id String @id @default(cuid())
+
+  placements Placement[]
+  company    Company     @relation(fields: [companyId], references: [id])
+  companyId  String
+  package    String
+}
+
+model Year {
+  id String @id @default(cuid())
+
+  year       String
+  companies  String[]
+  placements Placement[] @relation("PlacementYear")
+}
+
+model Publication {
+  id                   String        @id @default(cuid())
+  facultyId            String?
+  authors              String[]
+  title                String
+  publish_date         String
+  publisher            String?
+  journal              String?
+  conference           String?
+  link                 String
+  ranking              String?
+  impact_factor        String?
+  indexed              String
+  publisher_conference String?
+  year                 Int
+  faculty              Faculty[] @relation("FacultyPublications")
 }
