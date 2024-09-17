@@ -1,46 +1,63 @@
 <script lang="ts">
 	import type EventData from '$lib/types/EventData';
+	import * as Accordion from '$lib/components/ui/accordion';
+	import EventCardgridChild from '$lib/components/CardGrids/EventCardgridChild.svelte';
 
-	const options: Intl.DateTimeFormatOptions = {
-		day: 'numeric',
-		month: 'long',
-		year: 'numeric'
-	};
-
+	export let eventType: string;
 	export let events: EventData[];
+	let openItem = 'item-2'; 
+	let includedMonths = [1, 2, 3, 4, 5, 6];
 </script>
 
-<div class={`grid-container mx-20 gap-10 py-16 `}>
-	{#each events as event}
-		<div class="flex w-full flex-col">
-			<div class="dark:custom-shadow-black bg-muted-light dark:bg-muted-dark flex-1 rounded-lg px-5 py-8 shadow-xl dark:drop-shadow-md">
-				<div class="flex justify-center">
-					{#if event.image}
-						<img src={event?.image} alt={event.title} class="border-muted-light dark:border-muted-dark border object-cover" />
-					{/if}
+<div class="sm:mx-20 my-20 sm:px-10 px-5">
+	{#if eventType ==='previous'}
+	<Accordion.Root value={openItem}>
+		<!-- <Accordion.Item value="item-1">
+			<Accordion.Trigger class="text-2xl"">2024-25</Accordion.Trigger>
+			<Accordion.Content >
+				<div class={`grid-container sm:mx-20 mx-5 gap-x-10  sm:gap-y-10`}>
+					{#each events as event}
+						{#if event.date && ((event.date.getFullYear() == 2024 && !includedMonths.includes(event.date.getMonth())) || (event.date.getFullYear() == 2025 && includedMonths.includes(event.date.getMonth())))}
+							<EventCardgridChild {event} />
+						{/if}
+					{/each}
 				</div>
-				<h1 class="py-4 text-center text-2xl font-bold">{event.title}</h1>
-				{#if event.date}
-					<h2 class="text-center text-xl">Date: {event.date.toLocaleDateString(undefined, options)}</h2>
-				{/if}
-				{#if event.time}
-					<h2 class="text-center text-xl">Time: {event.time}</h2>
-				{/if}
-				{#if event.venue}
-					<h2 class="text-center text-xl">Venue: {event?.venue}</h2>
-				{/if}
-
-				<div class="flex items-center justify-center pt-4">
-					<!-- {#if event.registrationLink}
-						<a href={event.registrationLink} target="_blank">
-							<button class="rounded-xl bg-brand px-4 py-2 text-white duration-200 hover:scale-110"> Register Now </button>
-						</a>
-					{/if} -->
-					<!-- <button class="rounded-xl bg-brand px-4 py-2 text-white">Registration Closed! Spot Registrations are Available</button> -->
+			</Accordion.Content>
+		</Accordion.Item> -->
+		<Accordion.Item value="item-2" class="border-b-2">
+			<Accordion.Trigger class="text-2xl sm:ml-10">2023-24</Accordion.Trigger>
+			<Accordion.Content>
+				<div class={`grid-container sm:mx-20 mx-5 gap-x-10 sm:gap-y-10`}>
+					{#each events as event}
+						{#if event.date && ((event.date.getFullYear() == 2023 && !includedMonths.includes(event.date.getMonth())) || (event.date.getFullYear() == 2024 && includedMonths.includes(event.date.getMonth())))}
+							<EventCardgridChild {event} />
+						{/if}
+					{/each}
 				</div>
-			</div>
+			</Accordion.Content>
+		</Accordion.Item>
+		<Accordion.Item value="item-3" class="border-b-2">
+			<Accordion.Trigger class="text-2xl sm:ml-10" on:click={()=>{
+				scrollTo(0,0);
+			}}>2022-23</Accordion.Trigger>
+			<Accordion.Content>
+				<div class={`grid-container sm:mx-20 mx-5 gap-x-10  sm:gap-y-10`}>
+					{#each events as event}
+						{#if event.date && ((event.date.getFullYear() == 2022 && !includedMonths.includes(event.date.getMonth())) || (event.date.getFullYear() == 2023 && includedMonths.includes(event.date.getMonth())))}
+							<EventCardgridChild {event} />
+						{/if}
+					{/each}
+				</div>
+			</Accordion.Content>
+		</Accordion.Item>
+	</Accordion.Root>
+	{:else}
+		<div class={`grid-container mx-20 gap-10 py-16 `}>
+			{#each events as event}
+				<EventCardgridChild {event} />
+			{/each}
 		</div>
-	{/each}
+	{/if}
 </div>
 
 <style>
@@ -50,6 +67,6 @@
 		justify-items: center;
 		justify-content: end;
 		align-content: end;
-		row-gap: 4rem;
+		/* row-gap: 4rem; */
 	}
 </style>
