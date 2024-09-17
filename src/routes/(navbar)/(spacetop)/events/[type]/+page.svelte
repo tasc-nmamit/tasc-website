@@ -21,7 +21,7 @@
 
 		<!-- <p class="mt-3 text-center">(This page will soon be deprecated.)</p> -->
 
-		<EventCardgrid events={data.events} />
+		<EventCardgrid events={data.events} eventType={eventType}/>
 	</div>
 {:else}
 	<Prompting />
