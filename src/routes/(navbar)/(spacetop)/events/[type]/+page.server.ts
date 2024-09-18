@@ -3,13 +3,14 @@
 import { db } from '$lib/db/db';
 import type EventData from '$lib/types/EventData';
 import { ServerLoad } from '@sveltejs/kit';
+import { EventCategory } from '@prisma/client';
 
 // @ts-ignore
 export const load = (async ({ params }) => {
 	const eventSnapshot = await db.event.groupBy({
-		by: ['id', 'title', 'description', 'date', 'time', 'image', 'reportLink', 'venue', 'category'],
+		by: ['id', 'title', 'description', 'date', 'time', 'image', 'reportLink', 'venue', 'category', 'guests'],
 		orderBy: { date: params.type === 'upcoming' ? 'asc' : 'desc' },
-		where: { published: true, category: params.type }
+		where: { published: true, category: params.type?.toUpperCase() as EventCategory }
 	})
 	
 	const events: EventData[] = [];
@@ -23,7 +24,7 @@ export const load = (async ({ params }) => {
 			time: event.time,
 			venue: event.venue,
 			description: event.description,
-			guests: [],
+			guests: event.guests,
 			reportLink: event.reportLink
 		});
 	});

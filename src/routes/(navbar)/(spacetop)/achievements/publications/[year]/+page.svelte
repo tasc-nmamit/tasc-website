@@ -1,5 +1,6 @@
 <script lang="ts">
     import { page } from '$app/stores';
+    let { faculties } = $page.data.body;//To get faculty data
 	import PublicationCardGrid from '$lib/components/CardGrids/PublicationCardGrid.svelte';
     let year = $page.params.year;
 </script>
@@ -19,5 +20,6 @@
             <button class={`text-md sm:text-xl md:text-2xl ${year === '2024' ? 'underline underline-offset-4' : 'no-underline'}`}> 2024-25 </button>
         </a>
         </div>
-    <PublicationCardGrid year={year} />
+    <PublicationCardGrid faculties={faculties}/>
+
 </div>

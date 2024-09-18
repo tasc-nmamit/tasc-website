@@ -20,6 +20,7 @@ const authOptions: SvelteKitAuthConfig = {
 			}
 		})
 	],
+	trustHost: true,
 	callbacks: {
 		async signIn({ user, account }) {
 			const email = user.email;

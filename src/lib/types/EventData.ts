@@ -9,3 +9,5 @@ export default interface EventData {
 	guests: string[];
 	reportLink: string | null;
 }
+
+

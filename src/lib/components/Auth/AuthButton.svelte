@@ -6,9 +6,12 @@
 
 	import { user, userData , userLoaded} from "$lib/auth/stores"
 	import { signIn, signOut } from "@auth/sveltekit/client"
-	
+	import { redirectTo } from '$lib/stores/redirect';
+	import { page } from '$app/stores';
+
 
 	async function signInWithGoogle() {
+		redirectTo.set($page.url.pathname)
 		await signIn("google")
 		loggedIn = true;
 	}

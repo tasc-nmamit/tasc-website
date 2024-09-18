@@ -13,6 +13,13 @@ const config = {
 				'2xl': '1400px'
 			}
 		},
+		backgroundSize: {
+			'auto': 'auto',
+			'cover': 'cover',
+			'contain': 'contain',
+			'custom': '60%',
+			'16': '4rem',
+		},
 		extend: {
 			colors: {
 				brand: '#5E20AB',
@@ -56,9 +63,13 @@ const config = {
 				md: 'calc(var(--radius) - 2px)',
 				sm: 'calc(var(--radius) - 4px)'
 			},
+
 			fontFamily: {
-				sans: [...fontFamily.sans]
-			}
+				sans: [...fontFamily.sans],
+				koulen: ["Koulen", "sans"],
+				luxuriousScript: ["LuxuriousScript", "sans"],
+			},
+
 		}
 	}
 };

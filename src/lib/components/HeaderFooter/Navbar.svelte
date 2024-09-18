@@ -58,7 +58,7 @@
 				<span class="bg-black dark:bg-white"></span>
 				<span class="bg-black dark:bg-white"></span>
 
-				<ul id="menu" class=" bg-white bg-opacity-5 pr-4 text-right drop-shadow-xl backdrop-blur-lg">
+				<ul id="menu" class="bg-[rgb(2,8,23)] opacity-95 pr-4 text-right drop-shadow-xl">
 					{#each NAVITEM as nav}
 						<a class="mt-10 text-2xl" href={`${nav.href}`} on:click={closeMenu}> {nav.title} </a>
 					{/each}

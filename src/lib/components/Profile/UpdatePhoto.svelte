@@ -5,6 +5,7 @@
 	import { cn } from '$lib/utils';
 	import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 	import { userProfileData, user, setUser } from '$lib/auth/stores';
+	import * as Dialog from '$lib/components/ui/dialog-publications';
 
 	let previewURL: string;
 	let uploading = false;
@@ -47,16 +48,39 @@
 	}
 </script>
 
-<form class="w-full lg:min-h-[428px]">
-	<img src={previewURL ?? $userProfileData?.photoURL ?? '/user.png'} alt="photoURL" class="mx-auto aspect-square h-56 w-56 rounded-xl border border-primary object-cover" />
-	<h1 class="pt-4 text-2xl font-medium">Change your Profile Photo</h1>
+<form class="w-full lg:min-h-[228px]">
+	<Dialog.Root>
+		<Dialog.Trigger>
+			<div class="relative">
+				<img src={previewURL ?? $userProfileData?.photoURL ?? '/user.png'} alt="photoURL" class="mx-auto aspect-square h-56 w-56 rounded-3xl border border-primary object-cover" />
+				<div class="absolute -right-2 -bottom-2 dark:bg-slate-600 bg-slate-400 p-2 rounded-full">
+					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pencil size-5">
+						<path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"></path><path d="m15 5 4 4"></path>
+					</svg>
+				</div>
+			</div>
+		</Dialog.Trigger>
+		<Dialog.Content class="lg:w-[35%] md:w-[45%] sm:w-[55%] w-[65%]">
+			<h1 class="pt-4 text-2xl font-medium">Change your Profile Photo</h1>
+
+			<p class="mb-2 dark:text-muted">Choose a new photo to change your profile picture</p>
+
+			<div class="mx-auto flex w-full items-center justify-center">
+				<label for="dropzone-file" class="flex cursor-pointer items-center justify-center gap-2 rounded-lg">
+					<svg class="h-8 w-8 text-muted-foreground" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+						<path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2" />
+					</svg>
+					<p class="mb-2 mt-2 text-sm text-muted-foreground">Click to upload</p>
+				</label>
+				<input name="photoURL" id="dropzone-file" type="file" class="hidden" accept="image/png, image/jpeg, image/gif, image/webp" on:change={upload} />
+			</div>
+
+			<p class="mt-2 animate-pulse font-medium text-red-500 hover:animate-none">Max file size limit 500kB</p>
+		</Dialog.Content>
+	</Dialog.Root>
+	<!-- <h1 class="pt-4 text-2xl font-medium">Change your Profile Photo</h1>
 
 	<p class="mb-2 dark:text-muted">Choose a new photo to change your profile picture</p>
-
-	<!-- <Label for="photoURL">Choose a file</Label> -->
-
-	<!-- <label class="mb-2 block text-sm font-medium text-gray-900 dark:text-white" for="file_input">Upload file</label>
-	<input accept="image/png, image/jpeg, image/gif, image/webp" class="flex w-1/2 mx-auto cursor-pointer rounded-lg border border-gray-300 text-sm text-gray-900 focus:outline-none dark:border-gray-600 dark:bg-transparent dark:text-gray-400 dark:placeholder-gray-200" id="file_input" type="file" on:change={upload} /> -->
 
 	<div class="mx-auto flex w-full items-center justify-center">
 		<label for="dropzone-file" class="flex cursor-pointer items-center justify-center gap-2 rounded-lg">
@@ -68,8 +92,7 @@
 		<input name="photoURL" id="dropzone-file" type="file" class="hidden" accept="image/png, image/jpeg, image/gif, image/webp" on:change={upload} />
 	</div>
 
-	<!-- <Input on:change={upload} name="photoURL" type="file" accept="image/png, image/jpeg, image/gif, image/webp" class="w-auto flex justify-center items-center h-14 mx-auto"/> -->
-	<p class="mt-2 animate-pulse font-medium text-red-500 hover:animate-none">Max file size limit 500kB</p>
+	<p class="mt-2 animate-pulse font-medium text-red-500 hover:animate-none">Max file size limit 500kB</p> -->
 	{#if uploading}
 		<p>Uploading...</p>
 		<div class="mx-auto flex w-full justify-center"><img src={LoadingSVG} alt="spin" class="w-16" /></div>

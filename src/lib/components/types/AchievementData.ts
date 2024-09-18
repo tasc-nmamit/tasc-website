@@ -35,13 +35,25 @@ export interface PlacementDetails {
     placements: Placement[];
 }
 
-export interface Patent {
+export interface Patent_backup {
     id: string;
     faculty: string[];
     students?: string[];
     authors?: string[];
     inventors?: { address: string, names: string[] }[];
     title: string;
+}
+
+export interface Patent {
+    id:string;
+    patentId: string;
+    year:string;
+    faculty: string[];
+    students?: string[];
+    authors?: string[];
+    inventors?: { address: string, names: string[] }[];
+    title: string;
+    certificate:string;
 }
 
 export interface PatentDetails {

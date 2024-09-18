@@ -37,11 +37,14 @@ const userProfileData:Readable<UserProfileData | null> = derived(user, ($user, s
 		set(null);
 	} else {
 		const data: UserProfileData = {
+			displayName: $user.displayName,
             photoURL: $user.image,
 			id: $user.id,
 			bio: $user.bio,
 			phone: $user.phone,
+			email: $user.email,
 			usn: $user.usn,
+			username: $user.username,
 			college: $user.college,
 			instagram: links?.instagram,
 			linkedin: links?.linkedin,

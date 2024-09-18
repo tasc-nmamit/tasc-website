@@ -35,8 +35,8 @@ model User {
   updatedAt DateTime  @updatedAt
 
   Core      Core[]
-  Team      Team[]
   Student   Student[]
+  Team      Team[]   @relation("UserTeam")
 }
 
 model Account {
@@ -77,6 +77,7 @@ model Student {
   userId    String     @unique
   image     String
   placement Placement?
+  patents Patents[] @relation("StudentPatents")
 }
 
 model Core {
@@ -101,6 +102,7 @@ model Faculty {
   image        String
   about        String[]
 
+  patents      Patents[]     @relation("FacultyPatents")
   publications Publication[] @relation("FacultyPublications")
   order        Int           @unique
   published    Boolean       @default(false)
@@ -118,7 +120,10 @@ model Event {
   time         String?
   reportLink   String?
   venue        String?
-  category     String
+  category     EventCategory
+  minTeamSize  Int     @default(1)
+  maxTeamSize  Int     @default(1)
+  type         EventType
   participants Team[]
   winners      Winners[]
   organizers   User[]
@@ -143,9 +148,10 @@ model Links {
 model Team {
   id String @id @default(cuid())
 
-  user     User[]
+  name     String?
+  user     User[]    @relation("UserTeam")
   event    Event     @relation(fields: [eventId], references: [id])
-  winner   Winners[]
+  winner   Winners?
   attended Boolean   @default(false)
 
   eventId String
@@ -155,7 +161,7 @@ model Winners {
   id String @id @default(cuid())
 
   position Int
-  teamId   String
+  teamId   String   @unique
   eventId  String
 
   event Event @relation(fields: [eventId], references: [id])
@@ -197,8 +203,23 @@ model Year {
   placements Placement[] @relation("PlacementYear")
 }
 
+model Patents {
+  id String @id @default(cuid())
+
+  patentId         String
+  year             String
+  faculty          Faculty[]  @relation("FacultyPatents")
+  title            String
+  authors          String[]
+  student         Student[] @relation("StudentPatents")
+  inventorsName    String[]
+  inventorsAddress String[]
+  certificate      String?
+}
+
 model Publication {
   id                   String        @id @default(cuid())
+
   facultyId            String?
   authors              String[]
   title                String
@@ -213,4 +234,20 @@ model Publication {
   publisher_conference String?
   year                 Int
   faculty              Faculty[] @relation("FacultyPublications")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum EventType {
+  SOLO
+  TEAM
+}
+
+enum EventCategory {
+  PREVIOUS
+  UPCOMING
+  CURRENT
 }

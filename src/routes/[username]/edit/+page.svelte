@@ -11,6 +11,7 @@
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import { userData, userProfileData } from '$lib/auth/stores';
 	import { darkTheme } from '$lib/stores/theme';
+	import UpdataUsername from '$lib/components/Profile/UpdataUsername.svelte';
 </script>
 
 <svelte:body
@@ -26,6 +27,8 @@
 		<div class="custom-shadow-black dark:custom-shadow-white mx-auto flex flex-1 flex-col gap-x-8 rounded-2xl border border-primary bg-card bg-opacity-80 p-10 text-center md:mx-4 md:max-w-6xl lg:flex-row">
 			<div class="flex flex-col lg:w-1/2">
 				<UpdatePhoto />
+				<Separator class="my-4 bg-slate-500 dark:bg-muted" />
+				<UpdataUsername />
 				<Separator class="my-4 bg-slate-500 dark:bg-muted" />
 				<UpdatePhone />
 			</div>
