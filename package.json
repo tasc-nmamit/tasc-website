@@ -58,7 +58,7 @@
     "clsx": "^2.0.0",
     "cmdk-sv": "^0.0.18",
     "downloadjs": "^1.4.7",
-    "firebase": "^10.4.0",
+    "firebase": "^10.9.0",
     "formsnap": "^1.0.1",
     "googleapis": "^128.0.0",
     "gsap": "^3.12.5",
