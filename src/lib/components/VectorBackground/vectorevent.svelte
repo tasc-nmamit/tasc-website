@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" class="absolute w-full bottom-0 h-full opacity-[0.15] blur-sm rounded-xl" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:svgjs="http://svgjs.dev/svgjs" version="1.1" viewBox="0 0 2400 800" opacity="0.86">
+<svg xmlns="http://www.w3.org/2000/svg" class="absolute w-full bottom-0 h-full dark:opacity-[0.25] opacity-[0.10] blur-sm rounded-xl" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:svgjs="http://svgjs.dev/svgjs" version="1.1" viewBox="0 0 2400 800" opacity="0.86">
     <defs>
         <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="sssurf-grad">
             <stop stop-color="hsla(272, 99%, 54%, 1.00)" stop-opacity="1" offset="0%" data-darkreader-inline-stopcolor="" style="--darkreader-inline-stopcolor: #6501bf;"/>

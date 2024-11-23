@@ -9,6 +9,9 @@ export default interface EventData {
 	venue: string | null;
 	description: string | null;
 	brief:string|null;
+	minTeamSize: number | null;
+	maxTeamSize: number | null;
+	maxTeamCount: number | null;
 	guests: string[];
 	reportLink: string | null;
 }

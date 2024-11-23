@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { navigating } from '$app/stores';
-	// import { called, user, userData, userLoaded, userProfileData } from '$lib/firebase/firebase';
 	import DarkLoader from '$lib/loader/DarkLoader.svelte';
 	import LightLoader from '$lib/loader/LightLoader.svelte';
 	import { loading } from '$lib/stores/loading';

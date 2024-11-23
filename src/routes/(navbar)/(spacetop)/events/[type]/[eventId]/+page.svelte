@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { exclaim, success } from '$lib/components/Toast/toast';
+	import { exclaim, failure, success } from '$lib/components/Toast/toast';
 	import { onMount } from 'svelte';
 	import { MapPin, CalendarCheck2, Ticket, Crown } from 'lucide-svelte';
 	import * as Dialog from '$lib/components/ui/dialog';
@@ -92,12 +92,16 @@
 			},
 			body: JSON.stringify({
 				teamId: team.id,
+				minTeamSize: event.minTeamSize
 			})
 		});
 		const res = await response.json();
 		if (res.success) {
 			success('Team confirmed successfully');
 			window.location.reload();
+		} else {
+			exclaim(res.error);
+			failure('Failed to confirm team');
 		}
 	};
 </script>

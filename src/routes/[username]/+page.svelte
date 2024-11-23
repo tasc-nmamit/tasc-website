@@ -23,6 +23,8 @@
 		darkTheme: $darkTheme
 	}}
 />
+
+
 <div class="mx-2 flex flex-col items-center justify-center sm:my-6">
 	<!-- <h1 class="mt-2 text-center text-3xl sm:text-4xl">Profile</h1> -->
 	<div class="custom-shadow-black dark:custom-shadow-white flex h-auto w-full flex-col items-center gap-y-3 rounded-md border border-primary bg-primary bg-opacity-5 p-10 sm:w-3/4 md:w-[550px]">

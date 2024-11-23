@@ -5,6 +5,7 @@
 
 	export let eventType: string;
 	export let events: EventData[];
+
 	let openItem = 'item-1'; 
 	let includedMonths = [1, 2, 3, 4, 5, 6];
     let yearRanges = [

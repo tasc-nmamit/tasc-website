@@ -58,7 +58,7 @@
 
 	async function addLink(e: SubmitEvent) {
 		const body: any = { id: $user?.id }
-		body.order = [...($userProfileData?.order || []), $formData.title]
+		body.order = [...($userProfileData?.order || []), $formData.icon === 'custom' ? $formData.title : $formData.icon]
 		if ($formData.icon === 'custom') body.custom = { [$formData.title]: $formData.url }
 		else body[$formData.icon] = $formData.url
 
@@ -123,7 +123,7 @@
 	}
 
 	function getItemTitle(item: string): string {
-		if ($userProfileData?.[item] || $userProfileData?.custom?.[item]) return item.charAt(0).toUpperCase() + item.slice(1);
+		if ($userProfileData?.[item] || $userProfileData?.custom?.[item]) return icons.find((icon) => icon.value === item)?.label ?? '';
 		else return 'Unknown';
 	}
 </script>

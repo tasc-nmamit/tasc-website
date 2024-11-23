@@ -4,7 +4,7 @@
 	import { Crown } from 'lucide-svelte';
 	import { onMount } from 'svelte';
 	import * as Dialog from '$lib/components/ui/dialog';
-	import { exclaim, success } from '$lib/components/Toast/toast';
+	import { exclaim, failure, success } from '$lib/components/Toast/toast';
 	import Button from '../ui/button/button.svelte';
 	import VectorEvent from '$lib/components/VectorBackground/vectorevent.svelte';
 
@@ -98,18 +98,22 @@
 			},
 			body: JSON.stringify({
 				teamId: team.id,
+				minTeamSize: event.minTeamSize
 			})
 		});
 		const res = await response.json();
 		if (res.success) {
 			success('Team confirmed successfully');
 			window.location.reload();
+		} else {
+			exclaim(res.error);
+			failure('Failed to confirm team');
 		}
 	};
 </script>
 
 {#if eventType === 'upcoming'}
-	<div class="flex h-full w-full flex-col relative backdrop-blur-xl">
+	<div class="flex h-full w-full flex-col relative backdrop-blur-xl dark:border border-purple-950 rounded-xl">
 		<VectorEvent />
 		<div class="dark:custom-shadow-black bg-muted-light dark:bg-muted-dark m-auto w-full rounded-2xl bg-opacity-10 dark:bg-opacity-30 px-5 py-6 shadow-xl dark:drop-shadow-md md:grid grid-cols-5">
 			<div class="self-center col-span-2">
@@ -119,7 +123,7 @@
 			</div>
 			<div class="w-full sm:px-10 h-[80%] col-span-3 flex-wrap">
 				<h1 class="mb-5 text-center lg:text-5xl md:text-4xl text-3xl font-bold text-brand dark:text-purple-600">{event.title}</h1>
-				<div class="m-auto lg:text-2xl md:text-xl bg-card bg-opacity-50 rounded-xl md:p-5 p-2 h-full justify-around grid lg:w-[90%] gap-y-4">
+				<div class="m-auto lg:text-2xl md:text-xl bg-card dark:bg-opacity-50 bg-opacity-70 rounded-xl md:p-5 p-2 h-full justify-around grid lg:w-[90%] gap-y-4 backdrop-blur-lg">
 					<p class="lg:text-2xl md:text-xl text-lg text-center">{event.brief}</p>
 					<div class="w-full grid justify-around lg:text-2xl md:text-xl text-lg">
 						{#if event.date}
@@ -144,12 +148,12 @@
 							</div>
 						{/if}
 					</div>
-					<div class={`${(registered && event.type === 'SOLO' ? 'flex-col' : '')} justify-evenly pt-4 space-x-2 flex w-full`}>
-						<button class={`rounded-lg z-20 bg-brand px-3 py-2 lg:text-2xl md:text-xl sm:text-lg text-md text-white duration-200 hover:scale-110 ${(registered && event.type === 'SOLO' ? 'self-center' : 'self-end')}`} on:click={()=>goto(`/events/upcoming/${event.id}`)}>View Details</button>
+					<div class={`${(registered && event.type === 'SOLO' ? 'flex-col' : '')} justify-evenly space-x-2 flex w-full`}>
+						<button class={`rounded-lg bg-brand px-3 py-2 lg:text-2xl md:text-xl sm:text-lg text-md text-white duration-200 hover:scale-110 ${(registered && event.type === 'SOLO' ? 'self-center' : 'self-end')}`} on:click={()=>goto(`/events/upcoming/${event.id}`)}>View Details</button>
 						{#if registered}
 							{#if event.type === 'TEAM' && team}
 								<Dialog.Root>
-									<Dialog.Trigger>
+									<Dialog.Trigger class="self-end">
 										<button class="rounded-lg bg-brand px-3 py-2 lg:text-2xl md:text-xl sm:text-lg text-md text-white duration-200 hover:scale-110 self-end">Team Details</button>
 									</Dialog.Trigger>
 									<Dialog.Content class="max-w-[80%]">

@@ -54,16 +54,23 @@
 	$: disabled = true;
 
 	$:{
-		const isFieldsPresent = (userInfo.name?.length ?? 0) > 0 && (userInfo.phone?.length ?? 0) > 0 && (userInfo.usn?.length ?? 0) > 0 && (username.length ?? 0) > 0;
-		let isValidTeam = true;
+		const isFieldsPresent = (userInfo.name?.length ?? 0) > 0
+			&& (userInfo.phone?.length ?? 0) > 0
+			&& (userInfo.usn?.length ?? 0) > 0
+			&& ($userData?.username === null ? ((username.length ?? 0) > 0): true);
+
+		let isValidTeam = false;
 		if(data.event.type === "TEAM"){
 			if(userInfo.team === 'create'){
-				isValidTeam = (userInfo.teamName?.length ?? 0) > 0 && isValidTeamName as boolean && (userInfo.transactionId?.length ?? 0) > 0 && isValidTransactionId as boolean;
-			}else{
+				isValidTeam = (userInfo.teamName?.length ?? 0) > 0
+					&& isValidTeamName as boolean
+					&& (data.event.entryFee ? (userInfo.transactionId?.length ?? 0) > 0 && isValidTransactionId as boolean : true);
+			}else if(userInfo.team == 'join') {
 				isValidTeam = (userInfo.teamId?.length ?? 0) > 0 && isValidTeamId as boolean;
 			}
-		}
-		disabled =  !isFieldsPresent || !isValidTeam || isTakenUsername;
+		} else if(data.event.type == "SOLO") 
+			isValidTeam = true && (data.event.entryFee ? (userInfo.transactionId?.length ?? 0) > 0 && isValidTransactionId as boolean : true);;
+		disabled =  !isFieldsPresent || !isValidTeam || !($userData?.username === null ? isTakenUsername : true);
 	}
 	
 	let loading = false;
@@ -181,6 +188,7 @@
 					teamName: userInfo.teamName,
 					teamId: userInfo.teamId,
 					maxTeamSize: data.event.maxTeamSize,
+					maxTeamCount: data.event.maxTeams,
 					transactionId: userInfo.transactionId
 				})
 			});
@@ -190,21 +198,21 @@
 				success('Team created successfully');
 				if (userInfo.teamName) teamDetails = { name: userInfo.teamName, id: res.team.id };
 				setTimeout(() => {
-					goto('/events/upcoming/' + data.event.id);
+					goto('/events/upcoming/');
 
 					// disabled = false;
-				}, 3000);
+				}, 5000);
 			} else if (res.joined) {
 				success(`Joined team ${res.team.name} successfully`);
 				setTimeout(() => {
-					goto('/events/upcoming');
+					goto('/events/upcoming/');
 
 					// disabled = false;
 				}, 3000);
 			} else if (res.success) {
 				success(`Registered for ${data.event.title} successfully`);
 				setTimeout(() => {
-					goto('/events/upcoming');
+					goto('/events/upcoming/');
 
 					// disabled = false;
 				}, 3000);
@@ -212,7 +220,7 @@
 				exclaim(res.error);
 				failure('Failed to register for the event');
 				setTimeout(() => {
-					goto('/events/upcoming');
+					goto('/events/upcoming/');
 
 					// disabled = false;
 				}, 3000);
@@ -321,12 +329,24 @@
 				<p class="text-sm text-muted-foreground">USN must be 2-14 characters long and alphanumeric (CAPITAL letters only)</p>
 			</div>
 		{/if}
+		{#if $page.data.event.entryFee && data.event.type === 'SOLO'}
+			<div class="h-50 w-50 mx-auto my-5">
+				<p class="text-center text-xl">Scan and pay the entry fee</p>
+				<br />
+				<div class="m-auto w-fit">
+					<img src={qrCodeDataUrl} alt="QR Code" />
+				</div>
+				<br />
+				<label for="transactionId">UPI Transaction ID</label>
+				<Input type="text" name="transactionId" placeholder="UPI Transaction Id" bind:value={userInfo.transactionId} class={cn(`${!isValidTransactionId && isTouchedTransactionId ? 'bg-red-200 dark:bg-red-900' : ''}`, '')} required />
+			</div>
+		{/if}
 		{#if data.event.type === 'TEAM'}
 			<br />
 			<label for="team" class="text-xl">Create or join a team</label>
 			<Popover.Root bind:open>
 				<Popover.Trigger asChild let:builder>
-					<Button builders={[builder]} variant="outline" role="combobox" aria-expanded={open} class="w-[200px] justify-between hover:bg-brand">
+					<Button builders={[builder]} variant="outline" role="combobox" aria-expanded={open} class="w-[200px] justify-between dark:hover:bg-brand hover:bg-[rgb(234,172,255)]">
 						{selectedValue}
 						<ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />
 					</Button>
@@ -336,7 +356,7 @@
 						<Command.Group>
 							{#each options as option}
 								<Command.Item
-									class="aria-selected:bg-brand hover:aria-selected:bg-brand"
+									class="dark:aria-selected:bg-brand dark:hover:aria-selected:bg-brand aria-selected:bg-[rgb(234,172,255)] hover:aria-selected:bg-[rgb(234,172,255)]"
 									value={option.value}
 									onSelect={(currentValue) => {
 										value = currentValue;
@@ -388,16 +408,20 @@
 
 			{#if teamDetails}
 				<br />
-				<p class="text-xl">Team Name: {teamDetails.name}</p>
-				<div class="flex flex-row flex-nowrap">
-					<p class="text-nowrap text-xl">Team ID:</p>
-					<Input type="text" readonly value={teamDetails.id} />
-					<button on:click={copyToClipboard} class="ml-2"
+				<div class="grid grid-cols-9 mb-2">
+					<p class="md:text-xl sm:text-lg text-md self-center col-span-2">Team Name</p>
+					<Input type="text" readonly value={teamDetails.name} class="col-span-6" />
+				</div>
+				<div class="grid grid-cols-9 col-span-2 mb-2">
+					<p class="md:text-xl sm:text-lg text-md self-center col-span-2">Team ID</p>
+					<Input type="text" readonly value={teamDetails.id} class="col-span-6" />
+					<button on:click={copyToClipboard} class="justify-self-center self-center"
 						><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path fill="white" d="M15.24 2h-3.894c-1.764 0-3.162 0-4.255.148c-1.126.152-2.037.472-2.755 1.193c-.719.721-1.038 1.636-1.189 2.766C3 7.205 3 8.608 3 10.379v5.838c0 1.508.92 2.8 2.227 3.342c-.067-.91-.067-2.185-.067-3.247v-5.01c0-1.281 0-2.386.118-3.27c.127-.948.413-1.856 1.147-2.593s1.639-1.024 2.583-1.152c.88-.118 1.98-.118 3.257-.118h3.07c1.276 0 2.374 0 3.255.118A3.6 3.6 0 0 0 15.24 2" /><path fill="white" d="M6.6 11.397c0-2.726 0-4.089.844-4.936c.843-.847 2.2-.847 4.916-.847h2.88c2.715 0 4.073 0 4.917.847S21 8.671 21 11.397v4.82c0 2.726 0 4.089-.843 4.936c-.844.847-2.202.847-4.917.847h-2.88c-2.715 0-4.073 0-4.916-.847c-.844-.847-.844-2.21-.844-4.936z" /></svg></button
 					>
 					<!-- <button on:click={copyToClipboard} class=" ml-2 rounded-md bg-[rgb(240,240,240)] p-2 font-bold text-black">Copy</button> -->
 				</div>
-				<p>Ask your friends to join your team using this team id</p>
+				<p>Ask your friends to join your team using this team id.</p>
+				<p>You can also check the team details in the event details page.</p>
 			{/if}
 		{/if}
 

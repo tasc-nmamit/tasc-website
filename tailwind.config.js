@@ -68,6 +68,7 @@ const config = {
 				sans: [...fontFamily.sans],
 				koulen: ["Koulen", "sans"],
 				luxuriousScript: ["LuxuriousScript", "sans"],
+				jockey: ["Jockey One"],
 			},
 
 		}

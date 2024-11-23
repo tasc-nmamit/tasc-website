@@ -55,6 +55,8 @@ export async function POST({ request, cookies }) {
     }
 
     if(data.team === 'create'){
+        const teamCount = await db.team.count({ where: { eventId: data.eventId } });
+        if(teamCount >= data.maxTeamCount) return new Response(JSON.stringify({ error: 'Max team limit reached' }), { status: 201 });
         const team = await db.team.create({
             data: {
                 eventId: data.eventId,
@@ -84,6 +86,8 @@ export async function POST({ request, cookies }) {
         }
         return new Response(JSON.stringify({ error: 'Team is full' }), { status: 201 });
     }else {
+        const teamCount = await db.team.count({ where: { eventId: data.eventId } });
+        if(teamCount >= data.maxTeamCount) return new Response(JSON.stringify({ error: 'Max participant limit reached' }), { status: 201 });
         const team = await db.team.create({
             data: {
                 eventId: data.eventId,
@@ -123,9 +127,14 @@ export async function DELETE({request}){
 
 export async function PATCH({request}){
     const data=await request.json()
+
+    const teamMemberCount = await db.user.count({ where: { Team: { some: { id: data.teamId } } } });
+
+    if(teamMemberCount < data.minTeamSize) return new Response(JSON.stringify({ error: 'Team is not full' }), { status: 201 });
+
     const updateTeam = await db.team.update({
         where: {
-            id: data.teamId
+            id: data.teamId,
         },
         data: {
             isConfirmed: true

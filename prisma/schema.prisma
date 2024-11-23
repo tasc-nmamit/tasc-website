@@ -124,6 +124,8 @@ model Event {
   venue        String?
   qr           String?
   entryFee     String?
+  maxTeams     Int?
+  notification String?
   category     EventCategory
   minTeamSize  Int           @default(1)
   maxTeamSize  Int           @default(1)

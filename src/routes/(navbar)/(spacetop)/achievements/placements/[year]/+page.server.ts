@@ -2,30 +2,6 @@ import { db } from '$lib/db/db';
 import type { ServerLoad } from "@sveltejs/kit"
 
 export const load = (async ({ params }) => {
-
-	// const placement = await db.year.findFirst({
-	// 	where: {
-	// 		year: params.year,
-	// 	},
-	// 	include: {
-	// 		placements: {
-	// 			include: {
-	// 				student: {
-	// 					select: { id: true, name: true }
-	// 				},
-	// 				offers: {
-	// 					include: {
-	// 						company: { select: { companyName: true } }
-	// 					},
-	// 				}
-	// 			}
-	// 		},
-	// 		companies: { select: { companyName: true } }
-	// 	}
-	// })
-
-	// console.log(placement);
-
 	const placement = await db.year.findFirst({
 		where: { year: params.year },
 		include: {
