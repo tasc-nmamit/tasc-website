@@ -1,15 +1,23 @@
 import { success } from '$lib/components/Toast/toast.js';
 import { db } from '$lib/db/db';
 
-export async function GET({ url }) {
+export async function GET({ url, cookies }) {
     const eventId= url.searchParams.get('eventId') || '';
     const studentId = url.searchParams.get('studentId') || '';
+    const sessionId = cookies.get('__Secure-authjs.session-token');
 
     const registration = await db.team.findFirst({
         where: {
             eventId: eventId,
             user: {
-                some: { id: studentId }
+                some: { 
+                    id: studentId,
+                    sessions: {
+                        some: {
+                            sessionToken: sessionId
+                        }
+                    }
+                },
             }
         },
         include: { user: true }
@@ -22,12 +30,20 @@ export async function GET({ url }) {
     }
 }
 
-export async function POST({ request }) {
+export async function POST({ request, cookies }) {
     const data = await request.json();
+    const sessionId = cookies.get('__Secure-authjs.session-token');
 
     if (data.userCreate) {
         await db.user.update({
-            where: { id: data.userId },
+            where: { 
+                id: data.userId,
+                sessions: {
+                    some: {
+                        sessionToken: sessionId
+                    }
+                }
+            },
             data: {
                 displayName: data.userName,
                 phone: data.userPhone,
