@@ -1,0 +1,243 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../.generated/client"
+}
+
+datasource db {
+  provider = "cockroachdb"
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  bio           String?
+  phone         String?
+  username      String?
+  usn           String?
+  lightTheme    String?
+  darkTheme     String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  displayName   String?
+  college       String?   @default("N.M.A.M. Institute of Technology")
+  role          Role      @default(USER)
+  accounts      Account[]
+  Core          Core[]
+  links         Links?
+  sessions      Session[]
+  Student       Student?
+  organizers    Event[]   @relation("EventToUser")
+  Team          Team[]    @relation("UserTeam")
+}
+
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([provider, providerAccountId])
+}
+
+model Session {
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Student {
+  id        String     @id @default(cuid())
+  image     String
+  userId    String     @unique
+  placement Placement?
+  user      User       @relation(fields: [userId], references: [id])
+  patents   Patents[]  @relation("StudentPatents")
+}
+
+model Core {
+  id     String  @id @default(cuid())
+  year   String
+  userId String
+  image  String
+  order  Int
+  post   String
+  quote  String?
+  User   User    @relation(fields: [userId], references: [id])
+}
+
+model Faculty {
+  id           String        @id @default(cuid())
+  name         String
+  email        String
+  designation  String
+  image        String
+  about        String[]
+  order        Int           @unique
+  published    Boolean       @default(false)
+  designation2 String?
+  patents      Patents[]     @relation("FacultyPatents")
+  publications Publication[] @relation("FacultyPublications")
+
+  @@index([name], map: "name_index")
+}
+
+model Event {
+  id                     String        @id @default(cuid())
+  title                  String
+  description            String?
+  image                  String
+  date                   DateTime
+  time                   String?
+  reportLink             String?
+  venue                  String?
+  guests                 String[]
+  published              Boolean       @default(false)
+  type                   EventType
+  category               EventCategory
+  maxTeamSize            Int           @default(1)
+  minTeamSize            Int           @default(1)
+  brief                  String?
+  entryFee               String?
+  qr                     String?
+  registrationsAvailable Boolean       @default(true)
+  endDate                DateTime?
+  maxTeams               Int?
+  notification           String?
+  participants           Team[]
+  winners                Winners[]
+  organizers             User[]        @relation("EventToUser")
+}
+
+model Links {
+  id        String   @id @default(cuid())
+  instagram String?
+  linkedin  String?
+  github    String?
+  userId    String   @unique
+  twitter   String?
+  order     String[]
+  custom    Json?
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Team {
+  id            String   @id @default(cuid())
+  attended      Boolean  @default(false)
+  eventId       String
+  name          String?
+  leaderId      String?
+  transactionId String?
+  isConfirmed   Boolean  @default(false)
+  event         Event    @relation(fields: [eventId], references: [id])
+  winner        Winners?
+  user          User[]   @relation("UserTeam")
+}
+
+model Winners {
+  id       String     @id @default(cuid())
+  teamId   String     @unique
+  eventId  String
+  position WinnerType
+  event    Event      @relation(fields: [eventId], references: [id])
+  team     Team       @relation(fields: [teamId], references: [id])
+}
+
+model Placement {
+  id        String  @id @default(cuid())
+  yearId    String
+  studentId String  @unique
+  student   Student @relation(fields: [studentId], references: [id])
+  year      Year    @relation("PlacementYear", fields: [yearId], references: [id])
+  offers    Offer[] @relation("OfferToPlacement")
+}
+
+model Company {
+  id          String  @id @default(cuid())
+  companyName String
+  image       String
+  offers      Offer[]
+}
+
+model Offer {
+  id         String      @id @default(cuid())
+  companyId  String
+  package    String
+  company    Company     @relation(fields: [companyId], references: [id])
+  placements Placement[] @relation("OfferToPlacement")
+}
+
+model Year {
+  id         String      @id @default(cuid())
+  year       String
+  companies  String[]
+  placements Placement[] @relation("PlacementYear")
+}
+
+model Patents {
+  id               String    @id @default(cuid())
+  patentId         String
+  year             String
+  title            String
+  authors          String[]
+  inventorsName    String[]
+  inventorsAddress String[]
+  certificate      String?
+  faculty          Faculty[] @relation("FacultyPatents")
+  student          Student[] @relation("StudentPatents")
+}
+
+model Publication {
+  id                   String    @id @default(cuid())
+  authors              String[]
+  title                String
+  publish_date         String
+  publisher            String?
+  journal              String?
+  conference           String?
+  link                 String
+  ranking              String?
+  impact_factor        String?
+  indexed              String
+  publisher_conference String?
+  year                 Int
+  faculty              Faculty[] @relation("FacultyPublications")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum EventType {
+  SOLO
+  TEAM
+}
+
+enum EventCategory {
+  PREVIOUS
+  UPCOMING
+  CURRENT
+}
+
+enum WinnerType {
+  FIRST
+  SECOND
+  THIRD
+  PARTICIPATION
+}
