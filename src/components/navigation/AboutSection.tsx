@@ -4,10 +4,10 @@ import Image from "next/image";
 
 export default function AboutSection() {
   return (
-    <div className="w-[100vw]">
+    <div className="w-screen">
       <div className="mx-6 flex space-y-10 rounded-xl px-6 py-10 md:mx-16 md:px-14">
         <div className="flex flex-col">
-          <h1 className="text-center text-4xl font-extrabold lg:text-5xl">
+          <h1 className="text-center text-4xl font-extrabold lg:text-5xl pb-12">
             About Us
           </h1>
           <div className="items-center space-y-10 md:grid md:grid-cols-2 md:gap-x-10">

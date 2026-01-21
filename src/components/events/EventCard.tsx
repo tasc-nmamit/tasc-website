@@ -117,7 +117,7 @@ export function EventCard({
           </div>
         </div>
       </CardHeader>
-      <CardContent className="flex-grow space-y-2">
+      <CardContent className="grow space-y-2">
         {event.time && (
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <ClockIcon className="w-4 h-4" />

@@ -87,18 +87,6 @@ export default function Home() {
                 <p className="text-transparent">Students</p>
                 <p className="text-transparent">Committee</p>
               </div>
-              <div className="w-full text-center">
-                <p className="pt-6 text-center text-lg">
-                  Browse for glimpses of our 24 hour hackathon!
-                </p>
-                <div className="flex w-full justify-center pt-4">
-                  <Link href="/snh2023">
-                    <button className="rounded-full bg-accent text-accent-foreground px-4 py-2 font-semibold">
-                      Hackathon
-                    </button>
-                  </Link>
-                </div>
-              </div>
             </div>
           </div>
 
