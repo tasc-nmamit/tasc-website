@@ -16,7 +16,7 @@ export function TeamView({ initialMembers, year, teamYears }: TeamViewProps) {
   const router = useRouter();
 
   return (
-    <div className="flex flex-col min-h-screen w-full pt-20 px-6 md:px-20 pb-20 bg-transparent text-foreground">
+    <div className="flex flex-col min-h-screen w-full pt-20 px-6 md:px-20 lg:px-30 pb-20 bg-transparent text-foreground">
       {/* Year Navigation */}
       <div className="flex flex-wrap w-full justify-center gap-4 md:gap-8 py-10 font-bold">
         {teamYears.map((teamYear) => (

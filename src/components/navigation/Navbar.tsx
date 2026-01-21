@@ -105,9 +105,9 @@ export default function Navbar() {
             <div className="burger-icon cursor-pointer z-10 relative">
               <span
                 className={cn(
-                  "block w-[33px] h-[4px] mb-[5px] relative rounded-[3px] z-10 transform origin-[4px_0px] transition-transform duration-500 bg-black dark:bg-white",
+                  "block w-[33px] h-[4px] mb-[5px] relative rounded-[3px] z-10 transform origin-[6px_6px] transition-transform duration-500 bg-black dark:bg-white",
                   mobileMenuOpen &&
-                    "rotate-45 translate-x-[-2px] translate-y-[-1px]",
+                    "rotate-45 translate-x-[-2px] -translate-y-px",
                 )}
               ></span>
               <span
@@ -119,15 +119,14 @@ export default function Navbar() {
               <span
                 className={cn(
                   "block w-[33px] h-[4px] mb-[5px] relative rounded-[3px] z-10 transform origin-[4px_0px] transition-transform duration-500 bg-black dark:bg-white",
-                  mobileMenuOpen &&
-                    "-rotate-45 translate-x-0 translate-y-[-1px]",
+                  mobileMenuOpen && "-rotate-45 translate-x-0 -translate-y-px",
                 )}
               ></span>
             </div>
 
             <ul
               className={cn(
-                "flex flex-col absolute w-[70vw] pt-20 pr-8 z-0 top-0 right-[-1rem] h-[100vh] list-none bg-[#fde6d1] dark:bg-[#020817] opacity-95 text-right drop-shadow-xl transform origin-[0%_0%] transition-transform duration-500",
+                "flex flex-col absolute w-[70vw] pt-20 pr-8 z-0 top-0 -right-4 h-screen list-none bg-background text-foreground text-right drop-shadow-xl transform origin-[0%_0%] transition-transform duration-500",
                 mobileMenuOpen ? "translate-x-0" : "translate-x-[120%]",
               )}
             >

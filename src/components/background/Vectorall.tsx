@@ -18,7 +18,7 @@ export default function Vectorall() {
 
   return (
     <div className="fixed -z-50 w-full overflow-x-hidden">
-      <div className="min-h-[100dvh] flex-grow flex-col">
+      <div className="min-h-dvh grow flex-col">
         <div className="absolute bottom-0 -left-4 z-0 hidden md:flex w-72">
           <svg
             width="399"
@@ -651,7 +651,7 @@ export default function Vectorall() {
           </g>
         </svg>
       </div>
-      <div className="absolute top-0 z-0 mx-auto flex h-[100dvh] w-[100vw] items-center justify-center opacity-75">
+      <div className="absolute top-0 z-0 mx-auto flex h-dvh w-screen items-center justify-center opacity-75">
         <svg
           width="735"
           height="668"

@@ -8,10 +8,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Faculty } from "@prisma/client";
 import Image from "next/image";
 import { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Faculty } from "../../../.generated/client";
 
 interface FacultyCardProps {
   faculty: Faculty;
@@ -76,7 +76,7 @@ export default function FacultyCard({ faculty }: FacultyCardProps) {
           </div>
 
           <div className="flex grow flex-col overflow-y-auto space-y-4 px-4 pr-6">
-            {about.map((para, index) => (
+            {about.map((para: string, index: number) => (
               <p key={index}>{para}</p>
             ))}
           </div>

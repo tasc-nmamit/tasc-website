@@ -1,4 +1,4 @@
-import { Faculty } from "@prisma/client";
+import { Faculty } from "../../../.generated/client";
 import FacultyCard from "./FacultyCard";
 
 interface FacultyViewProps {

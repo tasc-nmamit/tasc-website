@@ -168,6 +168,5 @@
   justify-items: center;
   justify-content: end;
   align-content: end;
-  /* Define your column size and minimum width */
-  row-gap: 4rem;
+  row-gap: 8rem;
 }

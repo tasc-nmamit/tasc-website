@@ -20,7 +20,7 @@ export function VectorBackground() {
 
   return (
     <div className="fixed inset-0 -z-50 w-full overflow-hidden pointer-events-none">
-      <div className="min-h-[100dvh] flex-grow flex-col relative w-full h-full">
+      <div className="min-h-dvh grow flex-col relative w-full h-full">
         {/* Bottom Left */}
         <div className="absolute bottom-0 -left-4 z-0 hidden md:flex w-72">
           <svg

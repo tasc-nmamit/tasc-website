@@ -6,7 +6,7 @@ import AboutSection from "@/components/navigation/AboutSection";
 
 export default function Home() {
   return (
-    <main className="min-h-[100dvh] overflow-x-hidden">
+    <main className="min-h-dvh overflow-x-hidden">
       <div className="relative hidden min-h-screen w-full items-center justify-center md:flex">
         <div className="z-30 flex translate-y-[-10%] flex-col items-center md:flex-row-reverse">
           <Image
@@ -18,22 +18,12 @@ export default function Home() {
             priority
           />
           <div className="z-50 flex flex-col md:pl-6">
-            <div className="istok_web bg-gradient-to-r from-brand to-[#C850AF] to-[22%] bg-clip-text md:text-6xl lg:text-[5rem] font-bold">
+            <div className="istok_web bg-linear-to-r from-brand to-[#C850AF] to-22% bg-clip-text md:text-6xl lg:text-[5rem] font-bold">
               <p className="text-transparent">Turing</p>
               <p className="text-transparent">Artificial Intelligence</p>
               <p className="text-transparent">Students</p>
               <p className="text-transparent">Committee</p>
             </div>
-            {/* <div>
-              <p className="text-xl">Browse for glimpses of our 24 hour hackathon!</p>
-              <div className="pt-4">
-                <Link href="/snh2023">
-                  <button className="rounded-full bg-accent text-accent-foreground px-4 py-2 font-semibold duration-300 hover:scale-105">
-                    Hackathon
-                  </button>
-                </Link>
-              </div>
-            </div> */}
           </div>
         </div>
 
@@ -80,7 +70,7 @@ export default function Home() {
       </div>
 
       {/* Mobile View */}
-      <div className="flex min-h-[100dvh] flex-grow flex-col md:hidden pt-20">
+      <div className="flex min-h-dvh grow flex-col md:hidden pt-20">
         <div className="z-0 flex flex-col">
           <div className="flex w-full translate-y-[-10%] flex-col items-center px-2">
             <Image
@@ -90,7 +80,7 @@ export default function Home() {
               height={300}
               className="translate-y-[10dvh] scale-50 brightness-90 md:translate-y-[12dvh]"
             />
-            <div className="z-50 flex w-full flex-col items-center justify-center bg-gradient-to-r from-brand to-[#C850AF] to-[20%] bg-clip-text md:ml-16 md:py-10">
+            <div className="z-50 flex w-full flex-col items-center justify-center bg-linear-to-r from-brand to-[#C850AF] to-20% bg-clip-text md:ml-16 md:py-10">
               <div className="istok_web mt-10 pl-[5vw] text-left text-5xl sm:mt-4 sm:text-5xl font-bold">
                 <p className="text-transparent">Turing</p>
                 <p className="text-transparent">Artificial Intelligence</p>
