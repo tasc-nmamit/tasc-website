@@ -43,8 +43,7 @@ export default async function TeamPage({ params }: PageProps) {
     github: core.User.links?.github || undefined,
   }));
 
-  // In legacy, year param like '2025' means '2025-26'.
-  // We pass year and members to the view.
+  // In legacy, ye2d members to the view.
   return (
     <TeamView initialMembers={members} year={year} teamYears={teamYears} />
   );
