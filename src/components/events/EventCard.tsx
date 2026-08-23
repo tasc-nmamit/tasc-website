@@ -38,6 +38,15 @@ export function EventCard({
             <h1 className="mb-5 text-center lg:text-5xl md:text-4xl text-3xl font-bold text-brand dark:text-purple-600">
               {event.title}
             </h1>
+            <div className="flex justify-center mb-6">
+              <span className={`px-3 py-1 text-sm font-bold rounded-full uppercase tracking-widest ${
+                event.status === "COMPLETED" ? "bg-green-500/10 text-green-500" :
+                event.status === "ONGOING" ? "bg-brand/10 text-brand" :
+                "bg-blue-500/10 text-blue-500"
+              }`}>
+                {event.status || "EVENT"}
+              </span>
+            </div>
             <div className="m-auto lg:text-2xl md:text-xl bg-card dark:bg-opacity-50 bg-opacity-70 rounded-xl md:p-5 p-2 h-full justify-around grid lg:w-[90%] gap-y-4 backdrop-blur-lg w-full">
               <p className="lg:text-xl md:text-lg text-base text-center line-clamp-3">
                 {event.brief}
@@ -76,7 +85,7 @@ export function EventCard({
                   asChild
                 >
                   <NextLink
-                    href={`/events/${(event.type || "upcoming").toLowerCase()}/${event.id}`}
+                    href={`/events/${event.id}`}
                   >
                     View Details
                   </NextLink>
@@ -103,6 +112,15 @@ export function EventCard({
       <CardHeader>
         <div className="flex justify-between items-start">
           <div>
+            <div className="flex gap-2 mb-2">
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${
+                event.status === "COMPLETED" ? "bg-green-500/10 text-green-500" :
+                event.status === "ONGOING" ? "bg-brand/10 text-brand" :
+                "bg-blue-500/10 text-blue-500"
+              }`}>
+                {event.status || "EVENT"}
+              </span>
+            </div>
             <CardTitle className="line-clamp-2 text-xl mb-2">
               {event.title}
             </CardTitle>

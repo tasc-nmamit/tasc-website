@@ -1,15 +1,19 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import Image from "next/image";
 import { NAVITEM } from "@/lib/data/NavbarItems";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import SignInButton from "@/components/auth/SignInButton";
+import UserMenu from "@/components/auth/UserMenu";
 import { cn } from "@/lib/utils";
 
 export default function Navbar() {
   const [y, setY] = useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { data: session, status } = useSession();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -22,6 +26,19 @@ export default function Navbar() {
   const closeMenu = () => {
     setMobileMenuOpen(false);
   };
+
+  // Filter nav items based on auth state
+  const visibleNavItems = NAVITEM.filter((item) => {
+    if (item.authRequired && status !== "authenticated") return false;
+    if (item.aimlOnly && !session?.user?.isAiml) return false;
+    if (
+      item.adminOnly &&
+      session?.user?.role !== "ADMIN" &&
+      session?.user?.role !== "OWNER"
+    )
+      return false;
+    return true;
+  });
 
   return (
     <div className="z-50">
@@ -51,7 +68,7 @@ export default function Navbar() {
             </Link>
           </div>
           <ul className="flex flex-wrap items-center space-x-6 md:text-lg">
-            {NAVITEM.map((nav) => (
+            {visibleNavItems.map((nav) => (
               <li
                 key={nav.title}
                 className="hover:dark:drop-shadow-[0_0_0.3rem_#ffffff] hover:scale-110 transition-transform"
@@ -62,8 +79,15 @@ export default function Navbar() {
               </li>
             ))}
           </ul>
-          <div className="absolute right-10 flex w-28 justify-center gap-2 items-center">
+          <div className="absolute right-10 flex items-center justify-center gap-3">
             <ThemeToggle />
+            {status === "loading" ? (
+              <div className="h-8 w-8 animate-pulse rounded-full bg-muted" />
+            ) : session?.user ? (
+              <UserMenu user={session.user as UserMenuUser} />
+            ) : (
+              <SignInButton />
+            )}
           </div>
         </div>
       </div>
@@ -130,7 +154,7 @@ export default function Navbar() {
                 mobileMenuOpen ? "translate-x-0" : "translate-x-[120%]",
               )}
             >
-              {NAVITEM.map((nav) => (
+              {visibleNavItems.map((nav) => (
                 <Link
                   key={nav.title}
                   href={nav.href}
@@ -144,6 +168,15 @@ export default function Navbar() {
                 <div className="max-w-sm">
                   <ThemeToggle />
                 </div>
+                <div className="max-w-sm">
+                  {status === "loading" ? (
+                    <div className="h-8 w-20 animate-pulse rounded-lg bg-muted" />
+                  ) : session?.user ? (
+                    <UserMenu user={session.user as UserMenuUser} />
+                  ) : (
+                    <SignInButton />
+                  )}
+                </div>
               </div>
             </ul>
           </div>
@@ -152,3 +185,13 @@ export default function Navbar() {
     </div>
   );
 }
+
+// Helper type to satisfy UserMenu props from session user
+type UserMenuUser = {
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
+  role: string;
+  isAiml: boolean;
+  onboardingComplete: boolean;
+};

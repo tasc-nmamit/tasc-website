@@ -1,4 +1,12 @@
-export const NAVITEM = [
+export interface NavItem {
+  title: string;
+  href: string;
+  authRequired?: boolean;
+  aimlOnly?: boolean;
+  adminOnly?: boolean;
+}
+
+export const NAVITEM: NavItem[] = [
   {
     title: "Home",
     href: "/",
@@ -13,7 +21,7 @@ export const NAVITEM = [
   },
   {
     title: "Events",
-    href: "/events/previous",
+    href: "/events",
   },
   // {
   // 	title: 'SNH 2023',
@@ -26,5 +34,22 @@ export const NAVITEM = [
   {
     title: "Intel AI Lab",
     href: "/intel-ai-lab",
+  },
+  {
+    title: "Announcements",
+    href: "/announcements",
+    authRequired: true,
+    aimlOnly: true,
+  },
+  {
+    title: "Marathon",
+    href: "/marathon",
+    authRequired: true,
+    aimlOnly: true,
+  },
+  {
+    title: "Forms",
+    href: "/forms",
+    authRequired: true,
   },
 ];

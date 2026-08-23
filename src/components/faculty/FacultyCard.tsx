@@ -11,7 +11,7 @@ import {
 import Image from "next/image";
 import { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Faculty } from "../../../.generated/client";
+import { Faculty } from "@prisma";
 
 interface FacultyCardProps {
   faculty: Faculty;

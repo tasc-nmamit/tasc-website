@@ -134,7 +134,26 @@ exports.Prisma.UserScalarFieldEnum = {
   updatedAt: 'updatedAt',
   displayName: 'displayName',
   college: 'college',
-  role: 'role'
+  role: 'role',
+  year: 'year',
+  branch: 'branch',
+  isAiml: 'isAiml',
+  isLateral: 'isLateral',
+  onboardingComplete: 'onboardingComplete',
+  hackerrankUsername: 'hackerrankUsername',
+  leetcodeProfile: 'leetcodeProfile',
+  githubProfile: 'githubProfile',
+  skills: 'skills',
+  languages: 'languages',
+  careerIntent: 'careerIntent',
+  marathonStreak: 'marathonStreak',
+  marathonTotalScore: 'marathonTotalScore'
+};
+
+exports.Prisma.VerificationTokenScalarFieldEnum = {
+  identifier: 'identifier',
+  token: 'token',
+  expires: 'expires'
 };
 
 exports.Prisma.AccountScalarFieldEnum = {
@@ -201,7 +220,7 @@ exports.Prisma.EventScalarFieldEnum = {
   guests: 'guests',
   published: 'published',
   type: 'type',
-  category: 'category',
+  status: 'status',
   maxTeamSize: 'maxTeamSize',
   minTeamSize: 'minTeamSize',
   brief: 'brief',
@@ -211,6 +230,16 @@ exports.Prisma.EventScalarFieldEnum = {
   endDate: 'endDate',
   maxTeams: 'maxTeams',
   notification: 'notification'
+};
+
+exports.Prisma.EventCustomFieldScalarFieldEnum = {
+  id: 'id',
+  eventId: 'eventId',
+  label: 'label',
+  fieldType: 'fieldType',
+  isRequired: 'isRequired',
+  options: 'options',
+  order: 'order'
 };
 
 exports.Prisma.LinksScalarFieldEnum = {
@@ -231,7 +260,99 @@ exports.Prisma.TeamScalarFieldEnum = {
   name: 'name',
   leaderId: 'leaderId',
   transactionId: 'transactionId',
+  isConfirmed: 'isConfirmed',
+  teamCode: 'teamCode',
+  status: 'status',
+  customFieldResponses: 'customFieldResponses'
+};
+
+exports.Prisma.EventRegistrationScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  teamId: 'teamId',
+  customFieldResponses: 'customFieldResponses',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.FormScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  description: 'description',
+  published: 'published',
+  startTime: 'startTime',
+  endTime: 'endTime',
+  requireAiml: 'requireAiml',
+  allowEdit: 'allowEdit',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.FormFieldScalarFieldEnum = {
+  id: 'id',
+  formId: 'formId',
+  label: 'label',
+  type: 'type',
+  options: 'options',
+  isRequired: 'isRequired',
+  order: 'order'
+};
+
+exports.Prisma.FormResponseScalarFieldEnum = {
+  id: 'id',
+  formId: 'formId',
+  userId: 'userId',
+  answers: 'answers',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.AnnouncementScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  content: 'content',
+  published: 'published',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  authorId: 'authorId'
+};
+
+exports.Prisma.MarathonDailyContestScalarFieldEnum = {
+  id: 'id',
+  dayNumber: 'dayNumber',
+  targetYear: 'targetYear',
+  date: 'date',
+  title: 'title',
+  description: 'description',
+  link: 'link',
   isConfirmed: 'isConfirmed'
+};
+
+exports.Prisma.MarathonDailyScoreScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  contestId: 'contestId',
+  score: 'score',
+  completed: 'completed',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.MarathonWeeklyContestScalarFieldEnum = {
+  id: 'id',
+  weekNumber: 'weekNumber',
+  targetYear: 'targetYear',
+  date: 'date',
+  deadline: 'deadline',
+  title: 'title',
+  description: 'description',
+  link: 'link',
+  isConfirmed: 'isConfirmed'
+};
+
+exports.Prisma.MarathonWeeklyScoreScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  contestId: 'contestId',
+  score: 'score',
+  completed: 'completed',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.WinnersScalarFieldEnum = {
@@ -302,6 +423,10 @@ exports.Prisma.NullableJsonNullValueInput = {
   JsonNull: Prisma.JsonNull
 };
 
+exports.Prisma.JsonNullValueInput = {
+  JsonNull: Prisma.JsonNull
+};
+
 exports.Prisma.QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
@@ -319,7 +444,14 @@ exports.Prisma.JsonNullValueFilter = {
 };
 exports.Role = exports.$Enums.Role = {
   USER: 'USER',
-  ADMIN: 'ADMIN'
+  ADMIN: 'ADMIN',
+  OWNER: 'OWNER'
+};
+
+exports.CareerIntent = exports.$Enums.CareerIntent = {
+  PLACEMENT: 'PLACEMENT',
+  HIGHER_STUDIES: 'HIGHER_STUDIES',
+  NO: 'NO'
 };
 
 exports.EventType = exports.$Enums.EventType = {
@@ -327,10 +459,17 @@ exports.EventType = exports.$Enums.EventType = {
   TEAM: 'TEAM'
 };
 
-exports.EventCategory = exports.$Enums.EventCategory = {
-  PREVIOUS: 'PREVIOUS',
+exports.EventStatus = exports.$Enums.EventStatus = {
+  DRAFT: 'DRAFT',
   UPCOMING: 'UPCOMING',
-  CURRENT: 'CURRENT'
+  ONGOING: 'ONGOING',
+  COMPLETED: 'COMPLETED'
+};
+
+exports.TeamStatus = exports.$Enums.TeamStatus = {
+  PENDING: 'PENDING',
+  CONFIRMED: 'CONFIRMED',
+  CANCELLED: 'CANCELLED'
 };
 
 exports.WinnerType = exports.$Enums.WinnerType = {
@@ -342,14 +481,25 @@ exports.WinnerType = exports.$Enums.WinnerType = {
 
 exports.Prisma.ModelName = {
   User: 'User',
+  VerificationToken: 'VerificationToken',
   Account: 'Account',
   Session: 'Session',
   Student: 'Student',
   Core: 'Core',
   Faculty: 'Faculty',
   Event: 'Event',
+  EventCustomField: 'EventCustomField',
   Links: 'Links',
   Team: 'Team',
+  EventRegistration: 'EventRegistration',
+  Form: 'Form',
+  FormField: 'FormField',
+  FormResponse: 'FormResponse',
+  Announcement: 'Announcement',
+  MarathonDailyContest: 'MarathonDailyContest',
+  MarathonDailyScore: 'MarathonDailyScore',
+  MarathonWeeklyContest: 'MarathonWeeklyContest',
+  MarathonWeeklyScore: 'MarathonWeeklyScore',
   Winners: 'Winners',
   Placement: 'Placement',
   Company: 'Company',

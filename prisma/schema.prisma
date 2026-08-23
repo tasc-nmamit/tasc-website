@@ -8,29 +8,56 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String    @unique
-  emailVerified DateTime?
-  image         String?
-  bio           String?
-  phone         String?
-  username      String?
-  usn           String?
-  lightTheme    String?
-  darkTheme     String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  displayName   String?
-  college       String?   @default("N.M.A.M. Institute of Technology")
-  role          Role      @default(USER)
-  accounts      Account[]
-  Core          Core[]
-  links         Links?
-  sessions      Session[]
-  Student       Student?
-  organizers    Event[]   @relation("EventToUser")
-  Team          Team[]    @relation("UserTeam")
+  id                 String       @id @default(cuid())
+  name               String?
+  email              String       @unique
+  emailVerified      DateTime?
+  image              String?
+  bio                String?
+  phone              String?
+  username           String?
+  usn                String?
+  lightTheme         String?
+  darkTheme          String?
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+  displayName        String?
+  college            String?      @default("N.M.A.M. Institute of Technology")
+  role               Role         @default(USER)
+  // AIML student profile fields
+  year               Int?
+  branch             String?
+  isAiml             Boolean      @default(false)
+  isLateral          Boolean      @default(false)
+  onboardingComplete Boolean      @default(false)
+  hackerrankUsername  String?
+  leetcodeProfile    String?
+  githubProfile      String?
+  skills             String[]
+  languages          String[]
+  careerIntent       CareerIntent?
+  marathonStreak     Int          @default(0)
+  marathonTotalScore Int          @default(0)
+  // Relations
+  accounts           Account[]
+  Core               Core[]
+  links              Links?
+  sessions           Session[]
+  Student            Student?
+  organizers         Event[]             @relation("EventToUser")
+  registrations      EventRegistration[]
+  formResponses      FormResponse[]
+  announcements      Announcement[]
+  marathonDailyScores  MarathonDailyScore[]
+  marathonWeeklyScores MarathonWeeklyScore[]
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
 }
 
 model Account {
@@ -98,7 +125,7 @@ model Faculty {
 }
 
 model Event {
-  id                     String        @id @default(cuid())
+  id                     String             @id @default(cuid())
   title                  String
   description            String?
   image                  String
@@ -107,21 +134,33 @@ model Event {
   reportLink             String?
   venue                  String?
   guests                 String[]
-  published              Boolean       @default(false)
+  published              Boolean            @default(false)
   type                   EventType
-  category               EventCategory
-  maxTeamSize            Int           @default(1)
-  minTeamSize            Int           @default(1)
+  status                 EventStatus        @default(DRAFT)
+  maxTeamSize            Int                @default(1)
+  minTeamSize            Int                @default(1)
   brief                  String?
   entryFee               String?
   qr                     String?
-  registrationsAvailable Boolean       @default(true)
+  registrationsAvailable Boolean            @default(true)
   endDate                DateTime?
   maxTeams               Int?
   notification           String?
   participants           Team[]
   winners                Winners[]
-  organizers             User[]        @relation("EventToUser")
+  organizers             User[]             @relation("EventToUser")
+  customFields           EventCustomField[]
+}
+
+model EventCustomField {
+  id         String  @id @default(cuid())
+  eventId    String
+  label      String
+  fieldType  String  @default("TEXT")
+  isRequired Boolean @default(false)
+  options    Json?
+  order      Int     @default(0)
+  event      Event   @relation(fields: [eventId], references: [id], onDelete: Cascade)
 }
 
 model Links {
@@ -137,16 +176,135 @@ model Links {
 }
 
 model Team {
-  id            String   @id @default(cuid())
-  attended      Boolean  @default(false)
-  eventId       String
-  name          String?
-  leaderId      String?
-  transactionId String?
-  isConfirmed   Boolean  @default(false)
-  event         Event    @relation(fields: [eventId], references: [id])
-  winner        Winners?
-  user          User[]   @relation("UserTeam")
+  id                   String     @id @default(cuid())
+  attended             Boolean    @default(false)
+  eventId              String
+  name                 String?
+  leaderId             String?
+  transactionId        String?
+  isConfirmed          Boolean    @default(false)
+  teamCode             String?    @unique
+  status               TeamStatus @default(PENDING)
+  customFieldResponses Json?
+  event                Event      @relation(fields: [eventId], references: [id])
+  winner               Winners?
+  registrations        EventRegistration[]
+}
+
+model EventRegistration {
+  id                   String   @id @default(cuid())
+  userId               String
+  teamId               String
+  customFieldResponses Json?
+  createdAt            DateTime @default(now())
+  user                 User     @relation(fields: [userId], references: [id])
+  team                 Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, teamId])
+}
+
+model Form {
+  id          String         @id @default(cuid())
+  title       String
+  description String?
+  published   Boolean        @default(false)
+  startTime   DateTime?
+  endTime     DateTime?
+  requireAiml Boolean        @default(false)
+  allowEdit   Boolean        @default(false)
+  createdAt   DateTime       @default(now())
+  fields      FormField[]
+  responses   FormResponse[]
+}
+
+model FormField {
+  id         String  @id @default(cuid())
+  formId     String
+  label      String
+  type       String  @default("TEXT") // TEXT, NUMBER, SELECT, IMAGE_POLL
+  options    Json?
+  isRequired Boolean @default(false)
+  order      Int     @default(0)
+  form       Form    @relation(fields: [formId], references: [id], onDelete: Cascade)
+}
+
+model FormResponse {
+  id        String   @id @default(cuid())
+  formId    String
+  userId    String
+  answers   Json
+  createdAt DateTime @default(now())
+  form      Form     @relation(fields: [formId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([formId, userId])
+}
+
+model Announcement {
+  id        String   @id @default(cuid())
+  title     String
+  content   String
+  published Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id])
+}
+
+model MarathonDailyContest {
+  id          String   @id @default(cuid())
+  dayNumber   Int
+  targetYear  Int      // 2, 3, or 4
+  date        DateTime // Scheduled release at 5:30 AM IST
+  title       String
+  description String?
+  link        String   // HackerRank Link
+  isConfirmed Boolean  @default(false)
+  scores      MarathonDailyScore[]
+  
+  @@unique([dayNumber, targetYear])
+}
+
+model MarathonDailyScore {
+  id          String               @id @default(cuid())
+  userId      String
+  contestId   String
+  score       Int                  @default(0)
+  completed   Boolean              @default(false)
+  updatedAt   DateTime             @updatedAt
+  user        User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contest     MarathonDailyContest @relation(fields: [contestId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, contestId])
+}
+
+model MarathonWeeklyContest {
+  id          String   @id @default(cuid())
+  weekNumber  Int
+  targetYear  Int      // 2, 3, or 4
+  date        DateTime
+  deadline    DateTime
+  title       String
+  description String?
+  link        String
+  isConfirmed Boolean @default(false)
+  
+  scores      MarathonWeeklyScore[]
+  
+  @@unique([weekNumber, targetYear])
+}
+
+model MarathonWeeklyScore {
+  id          String                @id @default(cuid())
+  userId      String
+  contestId   String
+  score       Int                   @default(0)
+  completed   Boolean               @default(false)
+  updatedAt   DateTime              @updatedAt
+  user        User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contest     MarathonWeeklyContest @relation(fields: [contestId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, contestId])
 }
 
 model Winners {
@@ -222,17 +380,32 @@ model Publication {
 enum Role {
   USER
   ADMIN
+  OWNER
 }
+
+enum CareerIntent {
+  PLACEMENT
+  HIGHER_STUDIES
+  NO
+}
+
 
 enum EventType {
   SOLO
   TEAM
 }
 
-enum EventCategory {
-  PREVIOUS
+enum TeamStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+enum EventStatus {
+  DRAFT
   UPCOMING
-  CURRENT
+  ONGOING
+  COMPLETED
 }
 
 enum WinnerType {
