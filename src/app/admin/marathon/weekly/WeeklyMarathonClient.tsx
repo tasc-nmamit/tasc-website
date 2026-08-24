@@ -14,11 +14,16 @@ export default function WeeklyMarathonClient({ initialContests, aimlUsers }: { i
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [link, setLink] = useState("");
+  const [slug, setSlug] = useState("");
   const [loading, setLoading] = useState(false);
 
   // Scores State
   const [selectedContest, setSelectedContest] = useState("");
   const [scoreLoading, setScoreLoading] = useState(false);
+  const [fetchedLeaderboard, setFetchedLeaderboard] = useState<any[] | null>(null);
+  const [unmatchedUsernames, setUnmatchedUsernames] = useState<string[]>([]);
+  const [editingSlug, setEditingSlug] = useState(false);
+  const [editSlugValue, setEditSlugValue] = useState("");
 
   const handleCreateContest = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,7 +33,7 @@ export default function WeeklyMarathonClient({ initialContests, aimlUsers }: { i
       const res = await fetch("/api/admin/marathon/weekly", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ weekNumber, targetYear, date, deadline, title, description, link }),
+        body: JSON.stringify({ weekNumber, targetYear, date, deadline, title, description, link, slug }),
       });
 
       if (!res.ok) {
@@ -152,7 +157,18 @@ export default function WeeklyMarathonClient({ initialContests, aimlUsers }: { i
 
               <div>
                 <label className="mb-1.5 block text-sm font-medium">Contest Link (HackerRank URL) *</label>
-                <input required type="url" value={link} onChange={e => setLink(e.target.value)} className="w-full rounded-lg border border-border bg-background px-4 py-2" />
+                <input required type="url" value={link} onChange={e => {
+                  setLink(e.target.value);
+                  if (!slug) {
+                    const extracted = e.target.value.split("/contests/")[1]?.split("/")[0] || e.target.value.split("/").pop();
+                    if (extracted) setSlug(extracted);
+                  }
+                }} className="w-full rounded-lg border border-border bg-background px-4 py-2" />
+              </div>
+              
+              <div>
+                <label className="mb-1.5 block text-sm font-medium">HackerRank Slug (Auto-extracted or Manual)</label>
+                <input type="text" value={slug} onChange={e => setSlug(e.target.value)} className="w-full rounded-lg border border-border bg-background px-4 py-2" placeholder="dsa-sprint-week-1" />
               </div>
 
               <button type="submit" disabled={loading} className="w-full rounded-xl bg-brand px-6 py-3 text-center font-semibold text-white hover:bg-brand/90 disabled:opacity-50">
@@ -173,15 +189,59 @@ export default function WeeklyMarathonClient({ initialContests, aimlUsers }: { i
               </div>
               
               <div className="space-y-4">
-                {selectedContest && (
-                  <div className="rounded-lg bg-brand/10 p-4 border border-brand/20">
-                    <p className="font-bold text-brand">Syncing Contest:</p>
-                    <p className="text-sm text-foreground">{contests.find(c => c.id === selectedContest)?.title}</p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Slug: {contests.find(c => c.id === selectedContest)?.link?.split("/contests/")[1]?.split("/")[0] || "Unknown"}
-                    </p>
-                  </div>
-                )}
+                {selectedContest && (() => {
+                  const contest = contests.find(c => c.id === selectedContest);
+                  const displaySlug = contest?.slug || contest?.link?.split("/contests/")[1]?.split("/")[0] || contest?.link?.split("/").pop() || "Unknown";
+                  return (
+                    <div className="rounded-lg bg-brand/10 p-4 border border-brand/20">
+                      <p className="font-bold text-brand">Syncing Contest:</p>
+                      <p className="text-sm text-foreground">{contest?.title}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <p className="text-xs text-muted-foreground font-mono">
+                          Slug: {displaySlug}
+                        </p>
+                        <button 
+                          onClick={() => { setEditingSlug(true); setEditSlugValue(contest?.slug || ""); }}
+                          className="text-xs bg-brand/20 text-brand px-2 py-0.5 rounded hover:bg-brand/30"
+                        >
+                          Edit
+                        </button>
+                      </div>
+                      
+                      {editingSlug && (
+                        <div className="mt-2 flex gap-2">
+                          <input 
+                            type="text" 
+                            value={editSlugValue} 
+                            onChange={(e) => setEditSlugValue(e.target.value)} 
+                            className="flex-1 rounded border border-border bg-background px-2 py-1 text-xs" 
+                            placeholder="Enter new slug"
+                          />
+                          <button 
+                            onClick={async () => {
+                              try {
+                                const res = await fetch(`/api/admin/marathon/weekly/${selectedContest}`, {
+                                  method: "PATCH",
+                                  headers: { "Content-Type": "application/json" },
+                                  body: JSON.stringify({ slug: editSlugValue }),
+                                });
+                                if (!res.ok) throw new Error("Failed to update");
+                                alert("Slug updated!");
+                                window.location.reload();
+                              } catch (e: any) {
+                                alert(e.message);
+                              }
+                            }}
+                            className="bg-brand text-white text-xs px-2 py-1 rounded"
+                          >
+                            Save
+                          </button>
+                          <button onClick={() => setEditingSlug(false)} className="text-muted-foreground text-xs px-2 py-1">Cancel</button>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
                 
                 <div>
                   <label className="mb-1.5 block text-sm font-medium">HackerRank Cookie String *</label>
@@ -193,11 +253,13 @@ export default function WeeklyMarathonClient({ initialContests, aimlUsers }: { i
                     onClick={async () => {
                       if (!selectedContest) return alert("Select a contest first");
                       const contest = contests.find(c => c.id === selectedContest);
-                      const contestSlug = contest?.link?.split("/contests/")[1]?.split("/")[0];
+                      const contestSlug = contest?.slug || contest?.link?.split("/contests/")[1]?.split("/")[0] || contest?.link?.split("/").pop();
                       const cookieString = (document.getElementById("hrCookie") as HTMLInputElement).value;
                       if (!contestSlug || !cookieString) return alert("Missing slug or cookie. Ensure link is valid.");
                       
                       setScoreLoading(true);
+                      setFetchedLeaderboard(null);
+                      setUnmatchedUsernames([]);
                       try {
                         const res = await fetch("/api/admin/marathon/weekly/sync", {
                           method: "POST",
@@ -206,7 +268,10 @@ export default function WeeklyMarathonClient({ initialContests, aimlUsers }: { i
                         });
                         const data = await res.json();
                         if (!res.ok) throw new Error(data.error);
-                        alert(`Synced! Fetched ${data.fetchedCount} users, updated ${data.matchedCount} records for the target year.`);
+                        
+                        setFetchedLeaderboard(data.leaderboard);
+                        setUnmatchedUsernames(data.unmatchedUsernames);
+                        alert(`Fetched ${data.fetchedCount} users! Check the preview before publishing.`);
                       } catch (err: any) {
                         alert("Sync Error: " + err.message);
                       } finally {
@@ -240,12 +305,57 @@ export default function WeeklyMarathonClient({ initialContests, aimlUsers }: { i
                         setScoreLoading(false);
                       }
                     }}
-                    disabled={scoreLoading || !selectedContest || contests.find(c => c.id === selectedContest)?.isConfirmed} 
+                    disabled={scoreLoading || !selectedContest || !fetchedLeaderboard || contests.find(c => c.id === selectedContest)?.isConfirmed} 
                     className="flex-1 rounded-xl bg-green-600 px-4 py-3 text-sm font-semibold text-white hover:bg-green-700 disabled:opacity-50"
                   >
                     Confirm & Publish
                   </button>
                 </div>
+                
+                {unmatchedUsernames.length > 0 && (
+                  <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-4">
+                    <p className="font-bold text-amber-500 text-sm mb-2">Unmatched HackerRank Usernames ({unmatchedUsernames.length}):</p>
+                    <p className="text-xs text-muted-foreground">These usernames participated but are not linked to any 2nd/3rd year AIML student on TASC.</p>
+                    <div className="flex flex-wrap gap-2 mt-2 max-h-32 overflow-y-auto">
+                      {unmatchedUsernames.map(u => (
+                        <span key={u} className="bg-background px-2 py-1 rounded text-xs border border-border/50">{u}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {fetchedLeaderboard && (
+                  <div className="rounded-xl border border-border/50 bg-background/50 overflow-hidden mt-4">
+                    <div className="bg-muted p-3 border-b border-border/50 flex justify-between items-center">
+                      <h4 className="font-bold text-sm">Leaderboard Preview</h4>
+                      <span className="text-xs bg-brand/10 text-brand px-2 py-1 rounded-full font-bold">{fetchedLeaderboard.filter(x => x.matched).length} matched</span>
+                    </div>
+                    <div className="max-h-[300px] overflow-y-auto">
+                      <table className="w-full text-left text-sm">
+                        <thead className="bg-muted/30 sticky top-0">
+                          <tr>
+                            <th className="px-3 py-2 font-semibold text-xs">Rank</th>
+                            <th className="px-3 py-2 font-semibold text-xs">Username</th>
+                            <th className="px-3 py-2 font-semibold text-xs">Score</th>
+                            <th className="px-3 py-2 font-semibold text-xs">Status</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-border/50">
+                          {fetchedLeaderboard.map((hr, idx) => (
+                            <tr key={hr.hacker} className={hr.matched ? "bg-green-500/5" : "bg-red-500/5 opacity-70"}>
+                              <td className="px-3 py-2">{idx + 1}</td>
+                              <td className="px-3 py-2 font-mono text-xs">{hr.hacker}</td>
+                              <td className="px-3 py-2 font-bold">{hr.score}</td>
+                              <td className="px-3 py-2 text-xs font-semibold">
+                                {hr.matched ? <span className="text-green-500">Matched</span> : <span className="text-red-500">Unlinked</span>}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>

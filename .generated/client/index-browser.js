@@ -322,6 +322,7 @@ exports.Prisma.MarathonDailyContestScalarFieldEnum = {
   title: 'title',
   description: 'description',
   link: 'link',
+  slug: 'slug',
   isConfirmed: 'isConfirmed'
 };
 
@@ -343,6 +344,7 @@ exports.Prisma.MarathonWeeklyContestScalarFieldEnum = {
   title: 'title',
   description: 'description',
   link: 'link',
+  slug: 'slug',
   isConfirmed: 'isConfirmed'
 };
 

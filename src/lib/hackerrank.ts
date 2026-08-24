@@ -10,7 +10,7 @@ export async function fetchHackerRankLeaderboard(
   cookieString: string
 ): Promise<HackerRankUser[]> {
   const baseUrl = `https://www.hackerrank.com/rest/contests/${contestSlug}/leaderboard`;
-  const limit = 100;
+  const limit = 200;
   let offset = 0;
   let allUsers: HackerRankUser[] = [];
 
@@ -22,7 +22,7 @@ export async function fetchHackerRankLeaderboard(
 
   while (true) {
     const url = `${baseUrl}?offset=${offset}&limit=${limit}`;
-    
+
     const response = await fetch(url, { headers });
 
     if (!response.ok) {
@@ -49,7 +49,7 @@ export async function fetchHackerRankLeaderboard(
     );
 
     offset += limit;
-    
+
     // Slight delay to avoid aggressive rate limiting
     await new Promise((resolve) => setTimeout(resolve, 500));
   }

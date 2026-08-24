@@ -131,7 +131,7 @@ export default async function MarathonDashboard() {
                 <div className="relative overflow-hidden rounded-2xl border border-brand/30 bg-background/80 p-8 shadow-xl backdrop-blur-xl">
                   <div className="flex flex-col sm:flex-row justify-between items-start mb-6">
                     <div>
-                      <div className="text-brand font-bold mb-1">Day {todayContest.dayNumber}</div>
+                      <div className="text-brand font-bold mb-1">Day {todayContest.dayNumber} ({new Date(todayContest.date).toLocaleDateString(undefined, { weekday: 'long' })})</div>
                       <h3 className="text-2xl font-bold text-foreground">{todayContest.title}</h3>
                     </div>
                     <a 

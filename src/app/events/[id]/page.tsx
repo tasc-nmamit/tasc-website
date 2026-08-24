@@ -24,8 +24,14 @@ export default async function EventDetailsPage({ params }: PageProps) {
 
   if (!event) return notFound();
 
-  const isPast = new Date(event.date) < new Date();
-  
+  let eventDateTime = new Date(event.date);
+  if (event.time) {
+    const [hours, minutes] = event.time.split(':').map(Number);
+    if (!isNaN(hours) && !isNaN(minutes)) {
+      eventDateTime.setHours(hours, minutes, 0, 0);
+    }
+  }
+  const isPast = eventDateTime < new Date();
   // Check if registered
   let isRegistered = false;
   let userTeam = null;

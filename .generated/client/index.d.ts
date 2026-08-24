@@ -22552,6 +22552,7 @@ export namespace Prisma {
     title: string | null
     description: string | null
     link: string | null
+    slug: string | null
     isConfirmed: boolean | null
   }
 
@@ -22563,6 +22564,7 @@ export namespace Prisma {
     title: string | null
     description: string | null
     link: string | null
+    slug: string | null
     isConfirmed: boolean | null
   }
 
@@ -22574,6 +22576,7 @@ export namespace Prisma {
     title: number
     description: number
     link: number
+    slug: number
     isConfirmed: number
     _all: number
   }
@@ -22597,6 +22600,7 @@ export namespace Prisma {
     title?: true
     description?: true
     link?: true
+    slug?: true
     isConfirmed?: true
   }
 
@@ -22608,6 +22612,7 @@ export namespace Prisma {
     title?: true
     description?: true
     link?: true
+    slug?: true
     isConfirmed?: true
   }
 
@@ -22619,6 +22624,7 @@ export namespace Prisma {
     title?: true
     description?: true
     link?: true
+    slug?: true
     isConfirmed?: true
     _all?: true
   }
@@ -22717,6 +22723,7 @@ export namespace Prisma {
     title: string
     description: string | null
     link: string
+    slug: string | null
     isConfirmed: boolean
     _count: MarathonDailyContestCountAggregateOutputType | null
     _avg: MarathonDailyContestAvgAggregateOutputType | null
@@ -22747,6 +22754,7 @@ export namespace Prisma {
     title?: boolean
     description?: boolean
     link?: boolean
+    slug?: boolean
     isConfirmed?: boolean
     scores?: boolean | MarathonDailyContest$scoresArgs<ExtArgs>
     _count?: boolean | MarathonDailyContestCountOutputTypeDefaultArgs<ExtArgs>
@@ -22760,6 +22768,7 @@ export namespace Prisma {
     title?: boolean
     description?: boolean
     link?: boolean
+    slug?: boolean
     isConfirmed?: boolean
   }, ExtArgs["result"]["marathonDailyContest"]>
 
@@ -22771,6 +22780,7 @@ export namespace Prisma {
     title?: boolean
     description?: boolean
     link?: boolean
+    slug?: boolean
     isConfirmed?: boolean
   }, ExtArgs["result"]["marathonDailyContest"]>
 
@@ -22782,10 +22792,11 @@ export namespace Prisma {
     title?: boolean
     description?: boolean
     link?: boolean
+    slug?: boolean
     isConfirmed?: boolean
   }
 
-  export type MarathonDailyContestOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "dayNumber" | "targetYear" | "date" | "title" | "description" | "link" | "isConfirmed", ExtArgs["result"]["marathonDailyContest"]>
+  export type MarathonDailyContestOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "dayNumber" | "targetYear" | "date" | "title" | "description" | "link" | "slug" | "isConfirmed", ExtArgs["result"]["marathonDailyContest"]>
   export type MarathonDailyContestInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     scores?: boolean | MarathonDailyContest$scoresArgs<ExtArgs>
     _count?: boolean | MarathonDailyContestCountOutputTypeDefaultArgs<ExtArgs>
@@ -22806,6 +22817,7 @@ export namespace Prisma {
       title: string
       description: string | null
       link: string
+      slug: string | null
       isConfirmed: boolean
     }, ExtArgs["result"]["marathonDailyContest"]>
     composites: {}
@@ -23238,6 +23250,7 @@ export namespace Prisma {
     readonly title: FieldRef<"MarathonDailyContest", 'String'>
     readonly description: FieldRef<"MarathonDailyContest", 'String'>
     readonly link: FieldRef<"MarathonDailyContest", 'String'>
+    readonly slug: FieldRef<"MarathonDailyContest", 'String'>
     readonly isConfirmed: FieldRef<"MarathonDailyContest", 'Boolean'>
   }
     
@@ -24823,6 +24836,7 @@ export namespace Prisma {
     title: string | null
     description: string | null
     link: string | null
+    slug: string | null
     isConfirmed: boolean | null
   }
 
@@ -24835,6 +24849,7 @@ export namespace Prisma {
     title: string | null
     description: string | null
     link: string | null
+    slug: string | null
     isConfirmed: boolean | null
   }
 
@@ -24847,6 +24862,7 @@ export namespace Prisma {
     title: number
     description: number
     link: number
+    slug: number
     isConfirmed: number
     _all: number
   }
@@ -24871,6 +24887,7 @@ export namespace Prisma {
     title?: true
     description?: true
     link?: true
+    slug?: true
     isConfirmed?: true
   }
 
@@ -24883,6 +24900,7 @@ export namespace Prisma {
     title?: true
     description?: true
     link?: true
+    slug?: true
     isConfirmed?: true
   }
 
@@ -24895,6 +24913,7 @@ export namespace Prisma {
     title?: true
     description?: true
     link?: true
+    slug?: true
     isConfirmed?: true
     _all?: true
   }
@@ -24994,6 +25013,7 @@ export namespace Prisma {
     title: string
     description: string | null
     link: string
+    slug: string | null
     isConfirmed: boolean
     _count: MarathonWeeklyContestCountAggregateOutputType | null
     _avg: MarathonWeeklyContestAvgAggregateOutputType | null
@@ -25025,6 +25045,7 @@ export namespace Prisma {
     title?: boolean
     description?: boolean
     link?: boolean
+    slug?: boolean
     isConfirmed?: boolean
     scores?: boolean | MarathonWeeklyContest$scoresArgs<ExtArgs>
     _count?: boolean | MarathonWeeklyContestCountOutputTypeDefaultArgs<ExtArgs>
@@ -25039,6 +25060,7 @@ export namespace Prisma {
     title?: boolean
     description?: boolean
     link?: boolean
+    slug?: boolean
     isConfirmed?: boolean
   }, ExtArgs["result"]["marathonWeeklyContest"]>
 
@@ -25051,6 +25073,7 @@ export namespace Prisma {
     title?: boolean
     description?: boolean
     link?: boolean
+    slug?: boolean
     isConfirmed?: boolean
   }, ExtArgs["result"]["marathonWeeklyContest"]>
 
@@ -25063,10 +25086,11 @@ export namespace Prisma {
     title?: boolean
     description?: boolean
     link?: boolean
+    slug?: boolean
     isConfirmed?: boolean
   }
 
-  export type MarathonWeeklyContestOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "weekNumber" | "targetYear" | "date" | "deadline" | "title" | "description" | "link" | "isConfirmed", ExtArgs["result"]["marathonWeeklyContest"]>
+  export type MarathonWeeklyContestOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "weekNumber" | "targetYear" | "date" | "deadline" | "title" | "description" | "link" | "slug" | "isConfirmed", ExtArgs["result"]["marathonWeeklyContest"]>
   export type MarathonWeeklyContestInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     scores?: boolean | MarathonWeeklyContest$scoresArgs<ExtArgs>
     _count?: boolean | MarathonWeeklyContestCountOutputTypeDefaultArgs<ExtArgs>
@@ -25088,6 +25112,7 @@ export namespace Prisma {
       title: string
       description: string | null
       link: string
+      slug: string | null
       isConfirmed: boolean
     }, ExtArgs["result"]["marathonWeeklyContest"]>
     composites: {}
@@ -25521,6 +25546,7 @@ export namespace Prisma {
     readonly title: FieldRef<"MarathonWeeklyContest", 'String'>
     readonly description: FieldRef<"MarathonWeeklyContest", 'String'>
     readonly link: FieldRef<"MarathonWeeklyContest", 'String'>
+    readonly slug: FieldRef<"MarathonWeeklyContest", 'String'>
     readonly isConfirmed: FieldRef<"MarathonWeeklyContest", 'Boolean'>
   }
     
@@ -34972,6 +34998,7 @@ export namespace Prisma {
     title: 'title',
     description: 'description',
     link: 'link',
+    slug: 'slug',
     isConfirmed: 'isConfirmed'
   };
 
@@ -34999,6 +35026,7 @@ export namespace Prisma {
     title: 'title',
     description: 'description',
     link: 'link',
+    slug: 'slug',
     isConfirmed: 'isConfirmed'
   };
 
@@ -36622,6 +36650,7 @@ export namespace Prisma {
     title?: StringFilter<"MarathonDailyContest"> | string
     description?: StringNullableFilter<"MarathonDailyContest"> | string | null
     link?: StringFilter<"MarathonDailyContest"> | string
+    slug?: StringNullableFilter<"MarathonDailyContest"> | string | null
     isConfirmed?: BoolFilter<"MarathonDailyContest"> | boolean
     scores?: MarathonDailyScoreListRelationFilter
   }
@@ -36634,6 +36663,7 @@ export namespace Prisma {
     title?: SortOrder
     description?: SortOrderInput | SortOrder
     link?: SortOrder
+    slug?: SortOrderInput | SortOrder
     isConfirmed?: SortOrder
     scores?: MarathonDailyScoreOrderByRelationAggregateInput
   }
@@ -36650,6 +36680,7 @@ export namespace Prisma {
     title?: StringFilter<"MarathonDailyContest"> | string
     description?: StringNullableFilter<"MarathonDailyContest"> | string | null
     link?: StringFilter<"MarathonDailyContest"> | string
+    slug?: StringNullableFilter<"MarathonDailyContest"> | string | null
     isConfirmed?: BoolFilter<"MarathonDailyContest"> | boolean
     scores?: MarathonDailyScoreListRelationFilter
   }, "id" | "dayNumber_targetYear">
@@ -36662,6 +36693,7 @@ export namespace Prisma {
     title?: SortOrder
     description?: SortOrderInput | SortOrder
     link?: SortOrder
+    slug?: SortOrderInput | SortOrder
     isConfirmed?: SortOrder
     _count?: MarathonDailyContestCountOrderByAggregateInput
     _avg?: MarathonDailyContestAvgOrderByAggregateInput
@@ -36681,6 +36713,7 @@ export namespace Prisma {
     title?: StringWithAggregatesFilter<"MarathonDailyContest"> | string
     description?: StringNullableWithAggregatesFilter<"MarathonDailyContest"> | string | null
     link?: StringWithAggregatesFilter<"MarathonDailyContest"> | string
+    slug?: StringNullableWithAggregatesFilter<"MarathonDailyContest"> | string | null
     isConfirmed?: BoolWithAggregatesFilter<"MarathonDailyContest"> | boolean
   }
 
@@ -36762,6 +36795,7 @@ export namespace Prisma {
     title?: StringFilter<"MarathonWeeklyContest"> | string
     description?: StringNullableFilter<"MarathonWeeklyContest"> | string | null
     link?: StringFilter<"MarathonWeeklyContest"> | string
+    slug?: StringNullableFilter<"MarathonWeeklyContest"> | string | null
     isConfirmed?: BoolFilter<"MarathonWeeklyContest"> | boolean
     scores?: MarathonWeeklyScoreListRelationFilter
   }
@@ -36775,6 +36809,7 @@ export namespace Prisma {
     title?: SortOrder
     description?: SortOrderInput | SortOrder
     link?: SortOrder
+    slug?: SortOrderInput | SortOrder
     isConfirmed?: SortOrder
     scores?: MarathonWeeklyScoreOrderByRelationAggregateInput
   }
@@ -36792,6 +36827,7 @@ export namespace Prisma {
     title?: StringFilter<"MarathonWeeklyContest"> | string
     description?: StringNullableFilter<"MarathonWeeklyContest"> | string | null
     link?: StringFilter<"MarathonWeeklyContest"> | string
+    slug?: StringNullableFilter<"MarathonWeeklyContest"> | string | null
     isConfirmed?: BoolFilter<"MarathonWeeklyContest"> | boolean
     scores?: MarathonWeeklyScoreListRelationFilter
   }, "id" | "weekNumber_targetYear">
@@ -36805,6 +36841,7 @@ export namespace Prisma {
     title?: SortOrder
     description?: SortOrderInput | SortOrder
     link?: SortOrder
+    slug?: SortOrderInput | SortOrder
     isConfirmed?: SortOrder
     _count?: MarathonWeeklyContestCountOrderByAggregateInput
     _avg?: MarathonWeeklyContestAvgOrderByAggregateInput
@@ -36825,6 +36862,7 @@ export namespace Prisma {
     title?: StringWithAggregatesFilter<"MarathonWeeklyContest"> | string
     description?: StringNullableWithAggregatesFilter<"MarathonWeeklyContest"> | string | null
     link?: StringWithAggregatesFilter<"MarathonWeeklyContest"> | string
+    slug?: StringNullableWithAggregatesFilter<"MarathonWeeklyContest"> | string | null
     isConfirmed?: BoolWithAggregatesFilter<"MarathonWeeklyContest"> | boolean
   }
 
@@ -38765,6 +38803,7 @@ export namespace Prisma {
     title: string
     description?: string | null
     link: string
+    slug?: string | null
     isConfirmed?: boolean
     scores?: MarathonDailyScoreCreateNestedManyWithoutContestInput
   }
@@ -38777,6 +38816,7 @@ export namespace Prisma {
     title: string
     description?: string | null
     link: string
+    slug?: string | null
     isConfirmed?: boolean
     scores?: MarathonDailyScoreUncheckedCreateNestedManyWithoutContestInput
   }
@@ -38789,6 +38829,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     link?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
     isConfirmed?: BoolFieldUpdateOperationsInput | boolean
     scores?: MarathonDailyScoreUpdateManyWithoutContestNestedInput
   }
@@ -38801,6 +38842,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     link?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
     isConfirmed?: BoolFieldUpdateOperationsInput | boolean
     scores?: MarathonDailyScoreUncheckedUpdateManyWithoutContestNestedInput
   }
@@ -38813,6 +38855,7 @@ export namespace Prisma {
     title: string
     description?: string | null
     link: string
+    slug?: string | null
     isConfirmed?: boolean
   }
 
@@ -38824,6 +38867,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     link?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
     isConfirmed?: BoolFieldUpdateOperationsInput | boolean
   }
 
@@ -38835,6 +38879,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     link?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
     isConfirmed?: BoolFieldUpdateOperationsInput | boolean
   }
 
@@ -38908,6 +38953,7 @@ export namespace Prisma {
     title: string
     description?: string | null
     link: string
+    slug?: string | null
     isConfirmed?: boolean
     scores?: MarathonWeeklyScoreCreateNestedManyWithoutContestInput
   }
@@ -38921,6 +38967,7 @@ export namespace Prisma {
     title: string
     description?: string | null
     link: string
+    slug?: string | null
     isConfirmed?: boolean
     scores?: MarathonWeeklyScoreUncheckedCreateNestedManyWithoutContestInput
   }
@@ -38934,6 +38981,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     link?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
     isConfirmed?: BoolFieldUpdateOperationsInput | boolean
     scores?: MarathonWeeklyScoreUpdateManyWithoutContestNestedInput
   }
@@ -38947,6 +38995,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     link?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
     isConfirmed?: BoolFieldUpdateOperationsInput | boolean
     scores?: MarathonWeeklyScoreUncheckedUpdateManyWithoutContestNestedInput
   }
@@ -38960,6 +39009,7 @@ export namespace Prisma {
     title: string
     description?: string | null
     link: string
+    slug?: string | null
     isConfirmed?: boolean
   }
 
@@ -38972,6 +39022,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     link?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
     isConfirmed?: BoolFieldUpdateOperationsInput | boolean
   }
 
@@ -38984,6 +39035,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     link?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
     isConfirmed?: BoolFieldUpdateOperationsInput | boolean
   }
 
@@ -40703,6 +40755,7 @@ export namespace Prisma {
     title?: SortOrder
     description?: SortOrder
     link?: SortOrder
+    slug?: SortOrder
     isConfirmed?: SortOrder
   }
 
@@ -40719,6 +40772,7 @@ export namespace Prisma {
     title?: SortOrder
     description?: SortOrder
     link?: SortOrder
+    slug?: SortOrder
     isConfirmed?: SortOrder
   }
 
@@ -40730,6 +40784,7 @@ export namespace Prisma {
     title?: SortOrder
     description?: SortOrder
     link?: SortOrder
+    slug?: SortOrder
     isConfirmed?: SortOrder
   }
 
@@ -40797,6 +40852,7 @@ export namespace Prisma {
     title?: SortOrder
     description?: SortOrder
     link?: SortOrder
+    slug?: SortOrder
     isConfirmed?: SortOrder
   }
 
@@ -40814,6 +40870,7 @@ export namespace Prisma {
     title?: SortOrder
     description?: SortOrder
     link?: SortOrder
+    slug?: SortOrder
     isConfirmed?: SortOrder
   }
 
@@ -40826,6 +40883,7 @@ export namespace Prisma {
     title?: SortOrder
     description?: SortOrder
     link?: SortOrder
+    slug?: SortOrder
     isConfirmed?: SortOrder
   }
 
@@ -46613,6 +46671,7 @@ export namespace Prisma {
     title: string
     description?: string | null
     link: string
+    slug?: string | null
     isConfirmed?: boolean
   }
 
@@ -46624,6 +46683,7 @@ export namespace Prisma {
     title: string
     description?: string | null
     link: string
+    slug?: string | null
     isConfirmed?: boolean
   }
 
@@ -46746,6 +46806,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     link?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
     isConfirmed?: BoolFieldUpdateOperationsInput | boolean
   }
 
@@ -46757,6 +46818,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     link?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
     isConfirmed?: BoolFieldUpdateOperationsInput | boolean
   }
 
@@ -46900,6 +46962,7 @@ export namespace Prisma {
     title: string
     description?: string | null
     link: string
+    slug?: string | null
     isConfirmed?: boolean
   }
 
@@ -46912,6 +46975,7 @@ export namespace Prisma {
     title: string
     description?: string | null
     link: string
+    slug?: string | null
     isConfirmed?: boolean
   }
 
@@ -47035,6 +47099,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     link?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
     isConfirmed?: BoolFieldUpdateOperationsInput | boolean
   }
 
@@ -47047,6 +47112,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     link?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
     isConfirmed?: BoolFieldUpdateOperationsInput | boolean
   }
 

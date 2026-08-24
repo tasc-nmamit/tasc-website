@@ -99,7 +99,8 @@ export function EventCard({
   }
 
   return (
-    <Card className="overflow-hidden flex flex-col h-full hover:shadow-lg transition-shadow duration-300 bg-background">
+    <NextLink href={`/events/${event.id}`} className="block h-full outline-none focus:ring-2 focus:ring-brand rounded-xl transition-all duration-300 hover:scale-[1.02]">
+      <Card className="overflow-hidden flex flex-col h-full hover:shadow-lg transition-shadow duration-300 bg-background">
       {/* Same as before but cleaner */}
       <div className="relative w-full aspect-square">
         <Image
@@ -135,25 +136,35 @@ export function EventCard({
           </div>
         </div>
       </CardHeader>
-      <CardContent className="grow space-y-2">
-        {event.time && (
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <ClockIcon className="w-4 h-4" />
-            <span>{event.time}</span>
-          </div>
-        )}
-        {event.venue && (
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <MapPinIcon className="w-4 h-4" />
-            <span>{event.venue}</span>
-          </div>
-        )}
-        {/* {event.description && (
-                     <p className="text-sm text-foreground mt-4 line-clamp-3">
-                        {event.description}
-                     </p>
-                )} */}
+      <CardContent className="grow flex flex-col space-y-2">
+        <div className="space-y-2 grow">
+          {event.time && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <ClockIcon className="w-4 h-4" />
+              <span>{event.time}</span>
+            </div>
+          )}
+          {event.venue && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <MapPinIcon className="w-4 h-4" />
+              <span>{event.venue}</span>
+            </div>
+          )}
+        </div>
+        <div className="pt-4 mt-auto w-full">
+          <Button 
+            className={`w-full transition-colors ${
+              event.registrationsAvailable 
+                ? "bg-brand text-white hover:bg-brand/90" 
+                : "bg-brand/10 text-brand hover:bg-brand hover:text-white"
+            }`}
+            variant="ghost"
+          >
+            {event.registrationsAvailable ? "Register Now" : "View Details"}
+          </Button>
+        </div>
       </CardContent>
     </Card>
+    </NextLink>
   );
 }

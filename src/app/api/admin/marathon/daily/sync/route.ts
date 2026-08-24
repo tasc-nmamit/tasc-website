@@ -32,17 +32,29 @@ export async function POST(request: Request) {
     const hrLeaderboard = await fetchHackerRankLeaderboard(contestSlug, cookieString);
     const hrUsernames = hrLeaderboard.map(hr => hr.hacker);
     
-    // Find users with matching HackerRank usernames AND matching the targetYear
+    // Find users with matching HackerRank usernames AND matching the targetYear AND they must be students (role: USER)
     const users = await db.user.findMany({
       where: {
         hackerrankUsername: { in: hrUsernames },
         year: contest.targetYear,
-        isAiml: true
+        isAiml: true,
+        role: "USER"
       },
       select: { id: true, hackerrankUsername: true }
     });
 
     const hrToUserId = new Map(users.map(u => [u.hackerrankUsername, u.id]));
+    const matchedUsernames = new Set(users.map(u => u.hackerrankUsername));
+    
+    // Unmatched are those in HR leaderboard but not found in our users list
+    const unmatchedUsernames = hrUsernames.filter(username => !matchedUsernames.has(username));
+    
+    // Prepare leaderboard for preview
+    const leaderboard = hrLeaderboard.map(hr => ({
+      hacker: hr.hacker,
+      score: hr.score,
+      matched: matchedUsernames.has(hr.hacker)
+    }));
     let updatedCount = 0;
 
     await db.$transaction(async (tx) => {
@@ -73,7 +85,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ 
       success: true, 
       fetchedCount: hrLeaderboard.length,
-      matchedCount: updatedCount 
+      matchedCount: matchedUsernames.size,
+      leaderboard,
+      unmatchedUsernames
     });
   } catch (error: any) {
     console.error("HackerRank Daily Sync Error:", error);

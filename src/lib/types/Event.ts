@@ -14,4 +14,6 @@ export interface Event {
   maxTeamCount?: number | null;
   guests?: string[];
   reportLink?: string | null;
+  status?: string;
+  registrationsAvailable?: boolean;
 }

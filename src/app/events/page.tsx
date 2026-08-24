@@ -12,24 +12,35 @@ export default async function EventsPage() {
     },
   });
 
-  // Map Prisma result to our Event interface
-  const events: Event[] = eventsData.map((e) => ({
-    id: e.id,
-    title: e.title,
-    image: e.image,
-    date: e.date,
-    endDate: e.endDate,
-    time: e.time,
-    type: e.type,
-    venue: e.venue,
-    description: e.description,
-    status: e.status, // We need to add status here, let's update Event type if needed
-    minTeamSize: e.minTeamSize,
-    maxTeamSize: e.maxTeamSize,
-    maxTeamCount: e.maxTeams,
-    guests: e.guests,
-    reportLink: e.reportLink,
-  }));
+  const events: Event[] = eventsData.map((e) => {
+    let eventDateTime = new Date(e.date);
+    if (e.time) {
+      const [hours, minutes] = e.time.split(':').map(Number);
+      if (!isNaN(hours) && !isNaN(minutes)) {
+        eventDateTime.setHours(hours, minutes, 0, 0);
+      }
+    }
+    const isPast = eventDateTime < new Date();
+
+    return {
+      id: e.id,
+      title: e.title,
+      image: e.image,
+      date: e.date,
+      endDate: e.endDate,
+      time: e.time,
+      type: e.type,
+      venue: e.venue,
+      description: e.description,
+      status: e.status, // We need to add status here, let's update Event type if needed
+      minTeamSize: e.minTeamSize,
+      maxTeamSize: e.maxTeamSize,
+      maxTeamCount: e.maxTeams,
+      guests: e.guests,
+      reportLink: e.reportLink,
+      registrationsAvailable: e.registrationsAvailable && !isPast,
+    };
+  });
 
   return <EventsView initialEvents={events} />;
 }

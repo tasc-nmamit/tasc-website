@@ -259,6 +259,7 @@ model MarathonDailyContest {
   title       String
   description String?
   link        String // HackerRank Link
+  slug        String? // Extracted or manually set HackerRank Slug
   isConfirmed Boolean              @default(false)
   scores      MarathonDailyScore[]
 
@@ -287,6 +288,7 @@ model MarathonWeeklyContest {
   title       String
   description String?
   link        String
+  slug        String?
   isConfirmed Boolean  @default(false)
 
   scores MarathonWeeklyScore[]

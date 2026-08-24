@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { downloadCSV, downloadExcel } from "@/lib/export";
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { storage } from "@/lib/firebase";
 
 export default function AdminFormsClient({ initialForms }: { initialForms: any[] }) {
   const [activeTab, setActiveTab] = useState<"LIST" | "CREATE">("LIST");
@@ -20,6 +22,7 @@ export default function AdminFormsClient({ initialForms }: { initialForms: any[]
 
   const [loading, setLoading] = useState(false);
   const [exporting, setExporting] = useState<string | null>(null);
+  const [uploadingImage, setUploadingImage] = useState<string | null>(null);
 
   const addField = () => {
     setFields([
@@ -80,6 +83,32 @@ export default function AdminFormsClient({ initialForms }: { initialForms: any[]
     const updated = [...fields];
     updated[fieldIndex].options.splice(optIndex, 1);
     setFields(updated);
+  };
+
+  const handleImageUpload = async (fieldIndex: number, optIndex: number, file: File) => {
+    if (!file) return;
+    
+    const uploadId = `${fieldIndex}-${optIndex}`;
+    setUploadingImage(uploadId);
+    
+    const fileExtension = file.name.split('.').pop();
+    const fileName = `poll-images/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExtension}`;
+    const storageRef = ref(storage, fileName);
+    const uploadTask = uploadBytesResumable(storageRef, file);
+
+    uploadTask.on(
+      "state_changed",
+      (snapshot) => {},
+      (error) => {
+        alert("Upload failed: " + error.message);
+        setUploadingImage(null);
+      },
+      async () => {
+        const url = await getDownloadURL(uploadTask.snapshot.ref);
+        updateImageOption(fieldIndex, optIndex, "imageUrl", url);
+        setUploadingImage(null);
+      }
+    );
   };
 
   const handleCreate = async (e: React.FormEvent) => {
@@ -328,10 +357,33 @@ export default function AdminFormsClient({ initialForms }: { initialForms: any[]
                           <button type="button" onClick={() => addImageOption(index)} className="text-xs font-semibold text-brand hover:underline">+ Add Option</button>
                         </div>
                         {(Array.isArray(cf.options) ? cf.options : []).map((opt: any, optIndex: number) => (
-                          <div key={optIndex} className="flex gap-2">
+                          <div key={optIndex} className="flex gap-2 items-center">
                             <input type="text" required value={opt.label || ""} onChange={e => updateImageOption(index, optIndex, "label", e.target.value)} placeholder="Label (e.g. Logo 1)" className="w-1/3 rounded-lg border border-border bg-muted/50 px-3 py-1.5 text-sm outline-none focus:border-brand" />
-                            <input type="url" required value={opt.imageUrl || ""} onChange={e => updateImageOption(index, optIndex, "imageUrl", e.target.value)} placeholder="Image URL (https://...)" className="flex-1 rounded-lg border border-border bg-muted/50 px-3 py-1.5 text-sm outline-none focus:border-brand" />
-                            <button type="button" onClick={() => removeImageOption(index, optIndex)} className="rounded text-red-500 hover:bg-red-500/10 px-2">&times;</button>
+                            
+                            {opt.imageUrl ? (
+                              <div className="flex-1 flex items-center gap-2 overflow-hidden">
+                                <img src={opt.imageUrl} alt="preview" className="h-8 w-8 object-cover rounded border border-border" />
+                                <span className="text-xs text-muted-foreground truncate flex-1">{opt.imageUrl}</span>
+                                <button type="button" onClick={() => updateImageOption(index, optIndex, "imageUrl", "")} className="text-xs text-red-500 underline flex-shrink-0">Change</button>
+                              </div>
+                            ) : (
+                              <div className="flex-1 flex items-center gap-2">
+                                <input 
+                                  type="file" 
+                                  required
+                                  accept="image/*" 
+                                  onChange={e => {
+                                    if (e.target.files && e.target.files[0]) {
+                                      handleImageUpload(index, optIndex, e.target.files[0]);
+                                    }
+                                  }} 
+                                  className="flex-1 text-sm file:mr-2 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-brand/10 file:text-brand hover:file:bg-brand/20 cursor-pointer" 
+                                />
+                                {uploadingImage === `${index}-${optIndex}` && <span className="text-xs text-brand font-semibold animate-pulse">Uploading...</span>}
+                              </div>
+                            )}
+
+                            <button type="button" onClick={() => removeImageOption(index, optIndex)} className="rounded text-red-500 hover:bg-red-500/10 px-2 flex-shrink-0">&times;</button>
                           </div>
                         ))}
                       </div>

@@ -17,7 +17,13 @@ export async function POST(request: Request) {
 
     const contest = await db.marathonDailyContest.findUnique({
       where: { id: contestId },
-      include: { scores: true }
+      include: { 
+        scores: {
+          include: {
+            user: { select: { role: true, hackerrankUsername: true } }
+          }
+        }
+      }
     });
 
     if (!contest) {
@@ -36,9 +42,17 @@ export async function POST(request: Request) {
     }
 
     let updatedCount = 0;
+    const skippedNonStudents: string[] = [];
 
     await db.$transaction(async (tx) => {
       for (const score of contest.scores) {
+        if (score.user.role === "ADMIN" || score.user.role === "OWNER") {
+          if (score.user.hackerrankUsername) {
+            skippedNonStudents.push(score.user.hackerrankUsername);
+          }
+          continue; // Skip counting scores for admin/owner
+        }
+
         if (score.score > 0) {
           await tx.user.update({
             where: { id: score.userId },
@@ -65,7 +79,7 @@ export async function POST(request: Request) {
       });
     });
 
-    return NextResponse.json({ success: true, updatedCount });
+    return NextResponse.json({ success: true, updatedCount, skippedNonStudents });
   } catch (error: any) {
     console.error("Confirm Scores Error:", error);
     return NextResponse.json({ error: error.message || "Failed to confirm scores" }, { status: 500 });
