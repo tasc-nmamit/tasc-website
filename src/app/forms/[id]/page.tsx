@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
+import { ArrowLeftIcon, CheckCircle2Icon, AlertCircleIcon, SendIcon } from "lucide-react";
+import Link from "next/link";
 
 export default function FormPage() {
   const { id } = useParams() as { id: string };
@@ -22,7 +24,7 @@ export default function FormPage() {
       router.push("/auth/signin");
       return;
     }
-    
+
     if (status === "authenticated") {
       fetchForm();
     }
@@ -30,15 +32,9 @@ export default function FormPage() {
 
   async function fetchForm() {
     try {
-      // Using a quick server action/API to fetch form data
-      // For simplicity in this implementation, we can just use a server action or an API route.
-      // Wait, we don't have a GET route for a specific form for public users yet.
-      // Let's create an inline server action since this is a client component, or we can use a dedicated API.
-      // Actually, since I didn't create a GET /api/forms/[id] yet, I'll fetch it by calling a new route or I can use a Next.js Server Component to pass data down.
-      // Let's fetch from a new endpoint: `/api/forms/${id}`
       const res = await fetch(`/api/forms/${id}`);
       const data = await res.json();
-      
+
       if (!res.ok) throw new Error(data.error);
       setForm(data);
       if (data.existingAnswers) {
@@ -75,8 +71,8 @@ export default function FormPage() {
 
   if (loading || status === "loading") {
     return (
-      <main className="flex min-h-dvh items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand border-t-transparent" />
+      <main className="flex min-h-dvh items-center justify-center bg-transparent">
+        <div className="h-8 w-8 animate-spin border-2 border-purple-500 border-t-transparent" />
       </main>
     );
   }
@@ -84,17 +80,19 @@ export default function FormPage() {
   if (error && !form) {
     if (error === "You have already submitted a response for this form") {
       return (
-        <main className="flex min-h-dvh items-center justify-center px-4">
-          <div className="rounded-2xl bg-green-500/10 p-10 text-center border border-green-500/20 max-w-md w-full shadow-2xl">
-            <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-green-500/20 text-green-500">
-              <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
+        <main className="flex min-h-dvh items-center justify-center px-4 bg-transparent font-valley">
+          <div className="rounded-none bg-black/80 p-10 text-center border border-purple-500/30 max-w-md w-full shadow-2xl backdrop-blur-md space-y-4">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-none bg-purple-950/60 border border-purple-500/40 text-purple-400">
+              <CheckCircle2Icon className="h-8 w-8" />
             </div>
-            <h2 className="text-2xl font-bold text-green-500 mb-2">Form Already Filled</h2>
-            <p className="text-muted-foreground mb-8">You have already submitted your response for this form.</p>
-            <button onClick={() => router.push("/forms")} className="rounded-xl bg-background border border-border px-6 py-2.5 font-semibold transition-colors hover:bg-muted">
-              Back to Forms
+            <h2 className="text-2xl font-bold text-white font-valley">Form Already Submitted</h2>
+            <p className="text-slate-300 text-sm">You have already submitted your response for this form.</p>
+            <button
+              onClick={() => router.push("/forms")}
+              className="mt-4 inline-flex items-center gap-2 rounded-none bg-purple-600 hover:bg-purple-500 px-6 py-2.5 font-bold text-white transition-colors cursor-pointer text-sm"
+            >
+              <ArrowLeftIcon className="h-4 w-4" />
+              <span>Back to Forms</span>
             </button>
           </div>
         </main>
@@ -102,10 +100,18 @@ export default function FormPage() {
     }
 
     return (
-      <main className="flex min-h-dvh items-center justify-center px-4">
-        <div className="rounded-2xl bg-red-500/10 p-8 text-center text-red-500 border border-red-500/20 max-w-md w-full">
-          <h2 className="text-xl font-bold mb-2">Error Loading Form</h2>
-          <p>{error}</p>
+      <main className="flex min-h-dvh items-center justify-center px-4 bg-transparent font-valley">
+        <div className="rounded-none bg-black/80 p-8 text-center border border-red-500/30 max-w-md w-full backdrop-blur-md space-y-3">
+          <AlertCircleIcon className="h-8 w-8 text-red-400 mx-auto" />
+          <h2 className="text-xl font-bold text-white">Error Loading Form</h2>
+          <p className="text-slate-300 text-sm">{error}</p>
+          <Link
+            href="/forms"
+            className="mt-4 inline-flex items-center gap-2 text-xs font-bold text-purple-400 hover:text-purple-300 uppercase tracking-wider"
+          >
+            <ArrowLeftIcon className="h-3.5 w-3.5" />
+            <span>Back to Forms</span>
+          </Link>
         </div>
       </main>
     );
@@ -113,17 +119,19 @@ export default function FormPage() {
 
   if (success) {
     return (
-      <main className="flex min-h-dvh items-center justify-center px-4">
-        <div className="rounded-2xl bg-green-500/10 p-10 text-center border border-green-500/20 max-w-md w-full shadow-2xl">
-          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-green-500/20 text-green-500">
-            <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-            </svg>
+      <main className="flex min-h-dvh items-center justify-center px-4 bg-transparent font-valley">
+        <div className="rounded-none bg-black/80 p-10 text-center border border-purple-500/40 max-w-md w-full shadow-2xl backdrop-blur-md space-y-4">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-none bg-purple-950/60 border border-purple-500/40 text-purple-400">
+            <CheckCircle2Icon className="h-8 w-8" />
           </div>
-          <h2 className="text-2xl font-bold text-green-500 mb-2">Submission Successful!</h2>
-          <p className="text-muted-foreground mb-8">Your response has been recorded.</p>
-          <button onClick={() => router.push("/forms")} className="rounded-xl bg-background border border-border px-6 py-2.5 font-semibold transition-colors hover:bg-muted">
-            Back to Forms
+          <h2 className="text-2xl font-bold text-white font-valley">Submission Successful!</h2>
+          <p className="text-slate-300 text-sm">Your response has been recorded in the system.</p>
+          <button
+            onClick={() => router.push("/forms")}
+            className="mt-4 inline-flex items-center gap-2 rounded-none bg-purple-600 hover:bg-purple-500 px-6 py-2.5 font-bold text-white transition-colors cursor-pointer text-sm"
+          >
+            <ArrowLeftIcon className="h-4 w-4" />
+            <span>Back to Forms</span>
           </button>
         </div>
       </main>
@@ -131,91 +139,122 @@ export default function FormPage() {
   }
 
   return (
-    <main className="min-h-dvh px-4 pt-28 pb-16">
-      <div className="mx-auto max-w-3xl">
-        <div className="mb-8 rounded-2xl border border-border/50 bg-background/80 p-8 shadow-xl backdrop-blur-xl border-t-4 border-t-brand">
-          <h1 className="text-3xl font-bold text-foreground mb-3">{form.title}</h1>
-          {form.description && (
-            <p className="text-muted-foreground">{form.description}</p>
-          )}
+    <main className="min-h-dvh px-4 pt-28 pb-20 relative bg-transparent text-slate-100 font-valley">
+      <div className="relative z-10 mx-auto max-w-3xl space-y-8">
+
+        {/* Navigation & Header */}
+        <div className="space-y-4">
+          <Link
+            href="/forms"
+            className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-white transition-colors"
+          >
+            <ArrowLeftIcon className="h-3.5 w-3.5" />
+            <span>Back to Forms</span>
+          </Link>
+
+          <div className="rounded-none border border-white/20 bg-black/75 p-6 sm:p-8 backdrop-blur-md space-y-2 border-t-4 border-t-purple-500">
+            <h1 className="text-2xl sm:text-3xl font-bold text-white font-valley">{form.title}</h1>
+            {form.description && (
+              <p className="text-sm sm:text-base text-slate-300 leading-relaxed whitespace-pre-wrap">{form.description}</p>
+            )}
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {error && (
-            <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-500">
+            <div className="rounded-none border border-red-500/40 bg-red-950/40 px-4 py-3 text-sm text-red-300 font-mono">
               {error}
             </div>
           )}
 
           {form.fields.map((field: any) => (
-            <div key={field.id} className="rounded-2xl border border-border/50 bg-background/80 p-6 sm:p-8 shadow-sm">
-              <label className="mb-4 block text-lg font-medium text-foreground">
-                {field.label} {field.isRequired && <span className="text-red-500">*</span>}
+            <div
+              key={field.id}
+              className="rounded-none border border-white/15 bg-black/75 p-6 sm:p-8 backdrop-blur-md space-y-4"
+            >
+              <label className="block text-base sm:text-lg font-bold text-white font-valley">
+                {field.label} {field.isRequired && <span className="text-purple-400">*</span>}
               </label>
 
               {field.type === "TEXT" && (
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   required={field.isRequired}
                   value={answers[field.id] || ""}
-                  onChange={(e) => setAnswers({...answers, [field.id]: e.target.value})}
-                  className="w-full rounded-lg border border-border bg-background px-4 py-3 outline-none focus:border-brand"
-                  placeholder="Your answer"
+                  onChange={(e) => setAnswers({ ...answers, [field.id]: e.target.value })}
+                  className="w-full rounded-none border border-white/20 bg-white/5 px-4 py-3 outline-none focus:border-purple-400 text-white placeholder:text-slate-500 font-valley text-sm"
+                  placeholder="Your answer..."
                 />
               )}
 
               {field.type === "NUMBER" && (
-                <input 
-                  type="number" 
+                <input
+                  type="number"
                   required={field.isRequired}
                   value={answers[field.id] || ""}
-                  onChange={(e) => setAnswers({...answers, [field.id]: e.target.value})}
-                  className="w-full rounded-lg border border-border bg-background px-4 py-3 outline-none focus:border-brand"
-                  placeholder="Your number"
+                  onChange={(e) => setAnswers({ ...answers, [field.id]: e.target.value })}
+                  className="w-full rounded-none border border-white/20 bg-white/5 px-4 py-3 outline-none focus:border-purple-400 text-white placeholder:text-slate-500 font-valley text-sm"
+                  placeholder="Your number..."
                 />
               )}
 
               {field.type === "TEXTAREA" && (
-                <textarea 
+                <textarea
                   required={field.isRequired}
                   rows={4}
                   value={answers[field.id] || ""}
-                  onChange={(e) => setAnswers({...answers, [field.id]: e.target.value})}
-                  className="w-full rounded-lg border border-border bg-background px-4 py-3 outline-none focus:border-brand"
-                  placeholder="Your long answer"
+                  onChange={(e) => setAnswers({ ...answers, [field.id]: e.target.value })}
+                  className="w-full rounded-none border border-white/20 bg-white/5 px-4 py-3 outline-none focus:border-purple-400 text-white placeholder:text-slate-500 font-valley text-sm leading-relaxed"
+                  placeholder="Your detailed response..."
                 />
               )}
 
               {field.type === "SELECT" && (
-                <div className="space-y-3">
+                <div className="space-y-2.5">
                   {field.options?.map((opt: string) => (
-                    <label key={opt} className="flex cursor-pointer items-center gap-3 rounded-lg border border-border p-4 transition-colors hover:bg-muted/50">
-                      <input 
-                        type="radio" 
-                        name={field.id} 
+                    <label
+                      key={opt}
+                      className={`flex cursor-pointer items-center gap-3.5 rounded-none border p-4 transition-all ${
+                        answers[field.id] === opt
+                          ? "border-purple-500/60 bg-purple-950/40 text-white"
+                          : "border-white/10 bg-white/5 text-slate-300 hover:border-white/25"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name={field.id}
                         value={opt}
                         required={field.isRequired}
                         checked={answers[field.id] === opt}
-                        onChange={(e) => setAnswers({...answers, [field.id]: e.target.value})}
-                        className="h-5 w-5 text-brand focus:ring-brand"
+                        onChange={(e) => setAnswers({ ...answers, [field.id]: e.target.value })}
+                        className="h-4 w-4 rounded-none text-purple-600 focus:ring-purple-500"
                       />
-                      <span className="text-foreground">{opt}</span>
+                      <span className="font-valley font-medium text-sm sm:text-base">{opt}</span>
                     </label>
                   ))}
                 </div>
               )}
 
               {field.type === "MULTI_SELECT" && (
-                <div className="space-y-3">
+                <div className="space-y-2.5">
                   {field.options?.map((opt: string) => {
                     const currentSelected = answers[field.id] ? JSON.parse(answers[field.id] || "[]") : [];
+                    const isChecked = currentSelected.includes(opt);
+
                     return (
-                      <label key={opt} className="flex cursor-pointer items-center gap-3 rounded-lg border border-border p-4 transition-colors hover:bg-muted/50">
-                        <input 
-                          type="checkbox" 
-                          name={field.id} 
+                      <label
+                        key={opt}
+                        className={`flex cursor-pointer items-center gap-3.5 rounded-none border p-4 transition-all ${
+                          isChecked
+                            ? "border-purple-500/60 bg-purple-950/40 text-white"
+                            : "border-white/10 bg-white/5 text-slate-300 hover:border-white/25"
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          name={field.id}
                           value={opt}
-                          checked={currentSelected.includes(opt)}
+                          checked={isChecked}
                           onChange={(e) => {
                             let newSelected = [...currentSelected];
                             if (e.target.checked) {
@@ -223,55 +262,54 @@ export default function FormPage() {
                             } else {
                               newSelected = newSelected.filter((v: string) => v !== opt);
                             }
-                            setAnswers({...answers, [field.id]: JSON.stringify(newSelected)});
+                            setAnswers({ ...answers, [field.id]: JSON.stringify(newSelected) });
                           }}
-                          className="h-5 w-5 rounded text-brand focus:ring-brand"
+                          className="h-4 w-4 rounded-none text-purple-600 focus:ring-purple-500"
                         />
-                        <span className="text-foreground">{opt}</span>
+                        <span className="font-valley font-medium text-sm sm:text-base">{opt}</span>
                       </label>
                     );
                   })}
-                  {/* Hidden input to enforce required on multi_select if empty */}
-                  {field.isRequired && (!answers[field.id] || JSON.parse(answers[field.id] || "[]").length === 0) && (
-                     <input type="checkbox" required className="hidden" />
-                  )}
                 </div>
               )}
 
               {field.type === "IMAGE_POLL" && (
                 <div className="grid gap-4 sm:grid-cols-2">
                   {field.options?.map((opt: { label: string, imageUrl: string }) => (
-                    <label 
-                      key={opt.label} 
-                      className={`cursor-pointer overflow-hidden rounded-xl border-2 transition-all ${
-                        answers[field.id] === opt.label 
-                          ? "border-brand shadow-lg shadow-brand/20 scale-[1.02]" 
-                          : "border-border hover:border-brand/50"
+                    <label
+                      key={opt.label}
+                      className={`cursor-pointer overflow-hidden rounded-none border-2 transition-all ${
+                        answers[field.id] === opt.label
+                          ? "border-purple-500 shadow-lg shadow-purple-950/40 scale-[1.02]"
+                          : "border-white/15 hover:border-purple-500/50"
                       }`}
                     >
-                      <input 
-                        type="radio" 
-                        name={field.id} 
+                      <input
+                        type="radio"
+                        name={field.id}
                         value={opt.label}
                         required={field.isRequired}
                         checked={answers[field.id] === opt.label}
-                        onChange={(e) => setAnswers({...answers, [field.id]: e.target.value})}
-                        className="sr-only"
+                        onChange={(e) => setAnswers({ ...answers, [field.id]: e.target.value })}
+                        className="hidden"
                       />
-                      <div className="relative aspect-video w-full border-b border-border group">
-                        <Image src={opt.imageUrl} alt={opt.label} fill className="object-cover" />
-                        <a 
-                          href={opt.imageUrl} 
-                          target="_blank" 
-                          rel="noreferrer"
-                          title="View full image"
-                          className="absolute top-2 right-2 p-1.5 bg-black/60 text-white rounded-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/80"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
-                        </a>
+                      <div className="relative aspect-video w-full overflow-hidden rounded-none bg-black/60">
+                        {opt.imageUrl ? (
+                          <Image
+                            src={opt.imageUrl}
+                            alt={opt.label}
+                            fill
+                            className="object-cover transition-transform duration-300 hover:scale-105"
+                          />
+                        ) : (
+                          <div className="flex h-full items-center justify-center text-xs text-slate-500 font-mono">
+                            NO IMAGE ATTACHED
+                          </div>
+                        )}
                       </div>
-                      <div className="p-4 text-center font-semibold">
+                      <div className={`p-3.5 text-center font-valley font-bold text-sm sm:text-base ${
+                        answers[field.id] === opt.label ? "bg-purple-950/80 text-white" : "bg-black/60 text-slate-300"
+                      }`}>
                         {opt.label}
                       </div>
                     </label>
@@ -281,19 +319,28 @@ export default function FormPage() {
             </div>
           ))}
 
-          <div className="flex justify-between items-center pt-4">
-            <button type="button" onClick={() => setAnswers({})} className="text-sm font-medium text-muted-foreground hover:text-foreground">
-              Clear form
-            </button>
+          {/* Submit Button */}
+          <div className="pt-2">
             <button
               type="submit"
               disabled={submitting}
-              className="rounded-xl bg-brand px-8 py-3.5 font-semibold text-white shadow-lg transition-all hover:bg-brand/90 hover:shadow-brand/25 disabled:opacity-50"
+              className="w-full flex items-center justify-center gap-2 rounded-none bg-purple-600 hover:bg-purple-500 disabled:opacity-50 py-3.5 text-center font-valley font-bold text-sm uppercase tracking-wider text-white shadow-lg shadow-purple-950/40 transition-all cursor-pointer hover:scale-[1.01]"
             >
-              {submitting ? "Submitting..." : "Submit Response"}
+              {submitting ? (
+                <>
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  <span>Submitting Response...</span>
+                </>
+              ) : (
+                <>
+                  <span>Submit Response</span>
+                  <SendIcon className="h-4 w-4" />
+                </>
+              )}
             </button>
           </div>
         </form>
+
       </div>
     </main>
   );

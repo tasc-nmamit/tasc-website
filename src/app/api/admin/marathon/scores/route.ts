@@ -4,23 +4,23 @@ import { db } from "@/lib/db";
 
 export async function POST(request: Request) {
   const session = await auth();
-  if (!session?.user?.id || session.user.role === "USER") {
+  if (!session?.user?.id || (session.user.role !== "ADMIN" && session.user.role !== "OWNER")) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 
   try {
-    const { userId, problemId, scoreIncrement, maintainStreak } = await request.json();
+    const { userId, contestId, scoreIncrement, maintainStreak } = await request.json();
 
-    if (!userId || !problemId || scoreIncrement === undefined) {
+    if (!userId || !contestId || scoreIncrement === undefined) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
     // Use a transaction to ensure data integrity
     await db.$transaction(async (tx) => {
-      // 1. Upsert the score for the specific problem
-      await tx.marathonScore.upsert({
+      // 1. Upsert the score for the specific contest
+      await tx.marathonDailyScore.upsert({
         where: {
-          userId_problemId: { userId, problemId }
+          userId_contestId: { userId, contestId }
         },
         update: {
           score: { increment: Number(scoreIncrement) },
@@ -28,7 +28,7 @@ export async function POST(request: Request) {
         },
         create: {
           userId,
-          problemId,
+          contestId,
           score: Number(scoreIncrement),
           completed: true,
         }

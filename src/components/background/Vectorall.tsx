@@ -6,6 +6,9 @@ import { useSyncExternalStore } from "react";
 const emptySubscribe = () => () => {};
 
 export default function Vectorall() {
+  // Disabled for now
+  return null;
+
   const { resolvedTheme } = useTheme();
   const mounted = useSyncExternalStore(
     emptySubscribe,

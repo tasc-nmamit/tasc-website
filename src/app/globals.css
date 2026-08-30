@@ -1,24 +1,24 @@
-/* @tailwind base;
-@tailwind components;
-@tailwind utilities; */
 @import "tailwindcss";
 @variant dark (&:where(.dark, .dark *));
-
-/* .svg-gradient-dark {
-    fill: url(#paint0_linear_9_563);
-}
-
-.svg-gradient-light {
-    fill: url(#paint0_linear_light);
-} */
 
 @theme inline {
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
+  --font-sans: "Valley Sans", sans-serif;
+  --font-space-grotesk: "Valley Sans", sans-serif;
+  --font-inter: "Valley Sans", sans-serif;
+  --font-jetbrains-mono: var(--font-jetbrains-mono), "JetBrains Mono", monospace;
   --font-koulen: "Koulen", sans-serif;
   --font-luxurious-script: "LuxuriousScript", sans-serif;
-  --font-jockey: "Jockey One", sans-serif;
-  --color-brand: #5e20ab;
+  --font-playfair: var(--font-playfair), "Playfair Display", serif;
+  --font-valley: "Valley Sans", sans-serif;
+
+  --color-brand: #5b35a0;
+  --color-brand-accent: #8b5cf6;
+  --color-lavender-soft: #b8a4e3;
+  --color-lavender-muted: #93869f;
+  --color-antique-gold: #c9a15a;
+
   --color-border: hsl(var(--border) / <alpha-value>);
   --color-input: hsl(var(--input) / <alpha-value>);
   --color-ring: hsl(var(--ring) / <alpha-value>);
@@ -46,108 +46,147 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Light Mode: Warm parchment / engineering technical notebook */
+    --background: 38 32% 95%; /* #F7F3EC */
+    --foreground: 260 50% 12%; /* Deep violet-grey text */
 
-    --muted: 210 16% 40%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 260 15% 82%;
+    --muted-foreground: 268 15% 42%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 38 32% 95%;
+    --popover-foreground: 260 50% 12%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 38 25% 92%;
+    --card-foreground: 260 50% 12%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
+    --border: 261 40% 80%;
+    --input: 261 30% 85%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 261 50% 42%; /* #5B35A0 */
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 260 30% 88%;
+    --secondary-foreground: 261 50% 30%;
 
-    --accent: 206 90% 47%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 258 90% 66%; /* #8B5CF6 */
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 72.2% 50.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 72% 50%;
+    --destructive-foreground: 0 0% 100%;
 
-    --ring: 222.2 84% 4.9%;
+    --ring: 258 90% 66%;
 
     --radius: 0.5rem;
+    --site-bg-image: none;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    /* Dark Mode: Near-black deep violet #050308 to #120A22 */
+    --background: 264 45% 3%; /* #050308 */
+    --foreground: 260 40% 95%;
 
-    /* --muted: 217.2 32.6% 17.5%; */
-    --muted: 215 16% 47%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 260 30% 16%;
+    --muted-foreground: 268 11% 62%; /* #93869F */
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 260 54% 8%;
+    --popover-foreground: 260 40% 95%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 260 50% 7%; /* #0E071A */
+    --card-foreground: 260 40% 95%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
+    --border: 261 50% 28%; /* #5B35A0 structural border */
+    --input: 261 40% 22%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 261 50% 42%; /* #5B35A0 */
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 260 40% 14%;
+    --secondary-foreground: 260 48% 77%; /* #B8A4E3 */
 
-    --accent: 206 90% 47%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 258 90% 66%; /* #8B5CF6 */
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
 
-    --ring: 212.7 26.8% 83.9%;
+    --ring: 258 90% 66%;
   }
-}
 
-@layer base {
   * {
     @apply border-border;
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans relative min-h-screen;
+    font-family: "Valley Sans", sans-serif;
+    font-optical-sizing: auto;
+    font-style: normal;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: "Valley Sans", sans-serif;
+    font-optical-sizing: auto;
+    font-style: normal;
   }
 }
 
 @layer utilities {
+  .font-playfair {
+    font-family: var(--font-playfair), "Playfair Display", serif;
+  }
+
+  .font-valley {
+    font-family: var(--font-valley), "Valley Sans", sans-serif;
+    font-optical-sizing: auto;
+    font-style: normal;
+  }
+
+  .font-space-grotesk {
+    font-family: var(--font-space-grotesk), sans-serif;
+  }
+  
+  .font-mono-tech {
+    font-family: var(--font-jetbrains-mono), monospace;
+    letter-spacing: 0.08em;
+  }
+
+  /* Engineering Blueprint Grid Background */
+  .bg-blueprint-grid {
+    background-image: 
+      linear-gradient(to right, rgba(91, 53, 160, 0.07) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(91, 53, 160, 0.07) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+
+  .dark .bg-blueprint-grid {
+    background-image: 
+      linear-gradient(to right, rgba(139, 92, 246, 0.08) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(139, 92, 246, 0.08) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+
   .custom-shadow-black {
     box-shadow:
-      20px 20px 40px 10px rgba(0, 0, 0, 0.2),
-      -2px -2px 20px 0 rgba(0, 0, 0, 0.2);
+      0 12px 32px -4px rgba(5, 3, 8, 0.5),
+      0 0 0 1px rgba(91, 53, 160, 0.3);
   }
 
   .custom-shadow-white {
     box-shadow:
-      20px 20px 40px 10px rgba(255, 255, 255, 0.2),
-      -2px -2px 20px 0 rgba(255, 255, 255, 0.2);
+      0 12px 32px -4px rgba(201, 161, 90, 0.15),
+      0 0 0 1px rgba(91, 53, 160, 0.2);
   }
 
-  .custom-drop-shadow-white {
-    filter: drop-shadow(0 0 0.3rem #ffffff);
+  .text-gold {
+    color: #c9a15a;
   }
 
-  .custom-drop-shadow-black {
-    filter: drop-shadow(1px 0 0.4rem #000000);
+  .border-gold {
+    border-color: #c9a15a;
   }
 
-  .svg-gradient-dark {
-    fill: url(#paint0_linear_9_563);
-  }
-
-  .svg-gradient-light {
-    fill: url(#paint0_linear_light);
+  .bg-gold {
+    background-color: #c9a15a;
   }
 }
 

@@ -1,7 +1,20 @@
 import { requireAiml } from "@/lib/auth-guards";
 import { db } from "@/lib/db";
 import Link from "next/link";
-import { format, isToday, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth } from "date-fns";
+import {
+  TrophyIcon,
+  FlameIcon,
+  ZapIcon,
+  ArrowRightIcon,
+  SparklesIcon,
+  AlertCircleIcon,
+  TimerIcon,
+} from "lucide-react";
+import CountdownTimer from "@/components/marathon/CountdownTimer";
+import MarathonCalendarGrid, { CalendarContest } from "@/components/marathon/MarathonCalendarGrid";
+import MarathonJourney, { JourneyDay } from "@/components/marathon/MarathonJourney";
+import Scanner from "@/components/background/Scanner";
+import { startOfMonth, endOfMonth, eachDayOfInterval, isSameDay } from "date-fns";
 
 export default async function MarathonDashboard() {
   const session = await requireAiml();
@@ -12,290 +25,513 @@ export default async function MarathonDashboard() {
 
   const targetYear = user?.year || 2; // Default to 2 if not set
 
+  // Ineligible / Restricted View for 4th Year or non-eligible students
   if (targetYear >= 4) {
     return (
-      <main className="min-h-dvh px-4 pt-28 pb-16 flex items-center justify-center">
-        <div className="text-center bg-red-500/10 p-12 rounded-2xl border border-red-500/20 max-w-xl">
-          <h1 className="text-2xl font-bold text-red-500 mb-4">Marathon Unavailable</h1>
-          <p className="text-muted-foreground">
-            The Coding Marathon is currently only available for 2nd and 3rd year students. Focus on your placements and projects!
+      <main className="min-h-dvh px-4 pt-32 pb-20 flex items-center justify-center relative overflow-hidden bg-slate-950">
+        {/* Highlighted Background Image */}
+        <div
+          className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-80 pointer-events-none"
+          style={{ backgroundImage: "url('/Marathon-bg.jpg')" }}
+        />
+        <div className="fixed inset-0 z-0 bg-black/50 pointer-events-none" />
+
+        <div className="relative z-10 mx-auto max-w-lg text-center border border-white/20 bg-black/80 backdrop-blur-md p-8 md:p-10 shadow-2xl">
+          <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center bg-white/10 border border-white/20 text-white">
+            <TrophyIcon className="h-7 w-7 text-white" />
+          </div>
+          <span className="text-xs font-bold uppercase tracking-widest text-slate-400">
+            TASC CODING MARATHON
+          </span>
+          <h1 className="mt-2 font-valley text-2xl md:text-3xl font-bold text-white">
+            This competition is currently unavailable to you.
+          </h1>
+          <p className="mt-4 text-sm text-slate-300 leading-relaxed">
+            The TASC Coding Marathon is currently reserved for 2nd and 3rd year AIML students. If you believe this is an error, please update your academic profile.
           </p>
+          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Link
+              href="/"
+              className="w-full sm:w-auto bg-white/10 hover:bg-white/20 border border-white/20 px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-white transition-colors"
+            >
+              Return Home
+            </Link>
+            <Link
+              href="/profile"
+              className="w-full sm:w-auto bg-purple-600 hover:bg-purple-500 px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-white transition-colors"
+            >
+              Edit Profile
+            </Link>
+          </div>
         </div>
       </main>
     );
   }
 
   const now = new Date();
-
-  // Fetch all daily contests for this month for the calendar
   const startMonth = startOfMonth(now);
   const endMonth = endOfMonth(now);
   const daysInMonth = eachDayOfInterval({ start: startMonth, end: endMonth });
 
+  // Fetch all daily contests for this month
   const monthlyDailyContests = await db.marathonDailyContest.findMany({
     where: {
       targetYear,
       date: {
         gte: startMonth,
-        lte: endMonth
-      }
+        lte: endMonth,
+      },
     },
-    orderBy: { date: "asc" }
+    orderBy: { date: "asc" },
   });
+
+  // Fetch current user's daily scores for this month
+  const userMonthlyScores = user?.id
+    ? await db.marathonDailyScore.findMany({
+        where: {
+          userId: user.id,
+          contest: {
+            date: {
+              gte: startMonth,
+              lte: endMonth,
+            },
+          },
+        },
+        select: {
+          contestId: true,
+          score: true,
+        },
+      })
+    : [];
+
+  const scoreMap = new Map(userMonthlyScores.map((s) => [s.contestId, s.score]));
+
+  // Build Journey Timeline Data
+  const journeyDays: JourneyDay[] = daysInMonth.map((day) => {
+    const contest = monthlyDailyContests.find((c) => isSameDay(c.date, day));
+    return {
+      date: day,
+      contestTitle: contest?.title,
+      dayNumber: contest?.dayNumber,
+      hasContest: Boolean(contest),
+      score: contest ? scoreMap.get(contest.id) : undefined,
+      link: contest?.link,
+    };
+  });
+
+  // Calendar contests data
+  const calendarContests: CalendarContest[] = monthlyDailyContests.map((c) => ({
+    id: c.id,
+    title: c.title,
+    dayNumber: c.dayNumber,
+    date: new Date(c.date),
+    link: c.link,
+  }));
 
   // Fetch Today's Daily Contest
   const todayContest = await db.marathonDailyContest.findFirst({
     where: {
       targetYear,
-      date: { lte: now }
+      date: { lte: now },
     },
     orderBy: { date: "desc" },
-    include: {
-      scores: {
-        where: { score: { gt: 0 } },
-        include: { user: { select: { name: true, usn: true, marathonStreak: true } } },
-        orderBy: { score: "desc" },
-        take: 10
-      }
-    }
   });
 
-  // Fetch Current Active Weekly Contest
+  // Fetch Current Active Weekly Sprint Contest
   const currentWeeklyContest = await db.marathonWeeklyContest.findFirst({
     where: {
       targetYear,
-      date: { lte: now }
+      date: { lte: now },
     },
     orderBy: { date: "desc" },
-    include: {
-      scores: {
-        where: { score: { gt: 0 } },
-        include: { user: { select: { name: true, usn: true } } },
-        orderBy: { score: "desc" },
-        take: 10
-      }
-    }
+  });
+
+  // Calculate Global Rank
+  const userScore = user?.marathonTotalScore || 0;
+  const userRank =
+    userScore > 0
+      ? (await db.user.count({
+          where: {
+            isAiml: true,
+            marathonTotalScore: { gt: userScore },
+          },
+        })) + 1
+      : null;
+
+  // Fetch Top 5 Performers for Preview
+  const topLeaders = await db.user.findMany({
+    where: {
+      isAiml: true,
+      marathonTotalScore: { gt: 0 },
+    },
+    select: {
+      id: true,
+      name: true,
+      usn: true,
+      marathonTotalScore: true,
+      marathonStreak: true,
+    },
+    orderBy: [
+      { marathonTotalScore: "desc" },
+      { marathonStreak: "desc" },
+    ],
+    take: 5,
   });
 
   return (
-    <main className="min-h-dvh px-4 pt-28 pb-16 bg-[url('/grid-pattern.svg')] bg-fixed">
-      <div className="mx-auto max-w-6xl">
-        <div className="flex flex-col md:flex-row gap-8 items-start justify-between mb-12">
-          <div>
-            <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-brand to-purple-600 mb-2">
-              TASC Coding Marathon
-            </h1>
-            <p className="text-lg text-muted-foreground">
-              Year {targetYear} Dashboard • Daily & Weekly HackerRank Contests
-            </p>
-          </div>
-
-          <div className="flex gap-4">
-            <div className="rounded-2xl border border-brand/20 bg-brand/5 p-4 text-center min-w-[120px] backdrop-blur-sm">
-              <p className="text-sm font-semibold text-brand mb-1">Total Score</p>
-              <p className="text-3xl font-bold text-foreground">{user?.marathonTotalScore || 0}</p>
-            </div>
-            <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-4 text-center min-w-[120px] backdrop-blur-sm">
-              <p className="text-sm font-semibold text-amber-500 mb-1">🔥 Streak</p>
-              <p className="text-3xl font-bold text-foreground">{user?.marathonStreak || 0}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="mb-8 flex gap-4">
-          <Link href="/marathon/leaderboard" className="rounded-xl bg-muted/80 backdrop-blur-md px-6 py-3 font-semibold text-foreground transition-all hover:bg-muted border border-border/50 shadow-sm flex items-center gap-2">
-            🏆 View Global Leaderboard
-          </Link>
-          {!user?.hackerrankUsername && (
-            <Link href="/profile" className="rounded-xl bg-red-500/10 text-red-500 px-6 py-3 font-semibold transition-all hover:bg-red-500/20 border border-red-500/20 flex items-center gap-2">
-              ⚠️ Link HackerRank Username to Participate
-            </Link>
-          )}
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Content Area */}
-          <div className="lg:col-span-2 space-y-12">
+    <main className="min-h-dvh px-4 pt-28 pb-20 relative bg-transparent text-slate-100">
+      {/* Main Container */}
+      <div className="relative z-10 mx-auto max-w-6xl space-y-8">
+        
+        {/* ========================================================================= */}
+        {/* TOP HERO & PERFORMANCE METRICS */}
+        {/* ========================================================================= */}
+        <section className="border border-white/20 bg-black/75 backdrop-blur-md p-6 sm:p-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             
-            {/* Today's Daily Contest Section */}
-            <section>
-              <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
-                <span className="relative flex h-3 w-3">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
-                </span>
-                Today's Daily Contest
-              </h2>
-              
-              {todayContest ? (
-                <div className="relative overflow-hidden rounded-2xl border border-brand/30 bg-background/80 p-8 shadow-xl backdrop-blur-xl">
-                  <div className="flex flex-col sm:flex-row justify-between items-start mb-6">
-                    <div>
-                      <div className="text-brand font-bold mb-1">Day {todayContest.dayNumber} ({new Date(todayContest.date).toLocaleDateString(undefined, { weekday: 'long' })})</div>
-                      <h3 className="text-2xl font-bold text-foreground">{todayContest.title}</h3>
-                    </div>
-                    <a 
-                      href={todayContest.link} 
-                      target="_blank" 
-                      rel="noreferrer"
-                      className="mt-4 sm:mt-0 inline-block rounded-xl bg-brand px-6 py-2.5 font-semibold text-white shadow-lg transition-all hover:bg-brand/90 hover:shadow-brand/25"
-                    >
-                      Join Contest on HackerRank
-                    </a>
-                  </div>
-                  
-                  {todayContest.description && (
-                    <p className="text-muted-foreground mb-6 whitespace-pre-wrap">{todayContest.description}</p>
-                  )}
-
-                  <div className="mt-8">
-                    <h4 className="font-semibold text-lg border-b border-border/50 pb-2 mb-4">Today's Leaderboard</h4>
-                    {todayContest.scores.length === 0 ? (
-                      <p className="text-muted-foreground text-sm italic">No scores synced yet.</p>
-                    ) : (
-                      <div className="space-y-3">
-                        {todayContest.scores.map((score, i) => (
-                          <div key={score.id} className="flex justify-between items-center bg-muted/30 p-3 rounded-xl border border-border/50">
-                            <div className="flex items-center gap-3">
-                              <span className="text-sm font-bold text-muted-foreground w-4">{i + 1}</span>
-                              <div>
-                                <p className="font-semibold">{score.user.name}</p>
-                                <p className="text-xs text-muted-foreground">{score.user.usn}</p>
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              <p className="font-bold text-brand">{score.score} pts</p>
-                              {score.user.marathonStreak > 0 && <p className="text-xs font-medium text-amber-500">🔥 {score.user.marathonStreak}</p>}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ) : (
-                <div className="rounded-2xl border border-border/50 bg-background/80 p-8 text-center shadow-lg backdrop-blur-xl">
-                  <h3 className="text-xl font-bold mb-2">No Daily Contest Active</h3>
-                  <p className="text-muted-foreground">Check back later for today's contest.</p>
-                </div>
-              )}
-            </section>
-
-            {/* Current Weekly Contest Section */}
-            <section>
-              <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
-                <span className="text-purple-500">★</span> Current Weekly Sprint
-              </h2>
-              
-              {currentWeeklyContest ? (
-                <div className="relative overflow-hidden rounded-2xl border border-purple-500/30 bg-background/80 p-8 shadow-xl backdrop-blur-xl">
-                  <div className="flex flex-col sm:flex-row justify-between items-start mb-6">
-                    <div>
-                      <div className="text-purple-500 font-bold mb-1">Week {currentWeeklyContest.weekNumber}</div>
-                      <h3 className="text-2xl font-bold text-foreground">{currentWeeklyContest.title}</h3>
-                      <p className="text-xs font-medium text-red-400 mt-1 bg-red-400/10 inline-block px-2 py-1 rounded">
-                        Deadline: {new Date(currentWeeklyContest.deadline).toLocaleString()}
-                      </p>
-                    </div>
-                    <a 
-                      href={currentWeeklyContest.link} 
-                      target="_blank" 
-                      rel="noreferrer"
-                      className="mt-4 sm:mt-0 inline-block rounded-xl bg-purple-600 px-6 py-2.5 font-semibold text-white shadow-lg transition-all hover:bg-purple-700 hover:shadow-purple-600/25"
-                    >
-                      Join Weekly Sprint
-                    </a>
-                  </div>
-                  
-                  {currentWeeklyContest.description && (
-                    <p className="text-muted-foreground mb-6 whitespace-pre-wrap">{currentWeeklyContest.description}</p>
-                  )}
-
-                  <div className="mt-8">
-                    <h4 className="font-semibold text-lg border-b border-border/50 pb-2 mb-4">Sprint Leaderboard</h4>
-                    {currentWeeklyContest.scores.length === 0 ? (
-                      <p className="text-muted-foreground text-sm italic">No scores synced yet.</p>
-                    ) : (
-                      <div className="space-y-3">
-                        {currentWeeklyContest.scores.map((score, i) => (
-                          <div key={score.id} className="flex justify-between items-center bg-muted/30 p-3 rounded-xl border border-border/50">
-                            <div className="flex items-center gap-3">
-                              <span className="text-sm font-bold text-muted-foreground w-4">{i + 1}</span>
-                              <div>
-                                <p className="font-semibold">{score.user.name}</p>
-                                <p className="text-xs text-muted-foreground">{score.user.usn}</p>
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              <p className="font-bold text-purple-500">{score.score} pts</p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ) : (
-                <div className="rounded-2xl border border-border/50 bg-background/80 p-8 text-center shadow-lg backdrop-blur-xl">
-                  <h3 className="text-xl font-bold mb-2">No Active Weekly Sprint</h3>
-                  <p className="text-muted-foreground">The next sprint will be announced soon.</p>
-                </div>
-              )}
-            </section>
-          </div>
-
-          {/* Sidebar Area - Calendar */}
-          <div>
-            <div className="sticky top-24 rounded-2xl border border-border/50 bg-background/80 p-6 shadow-xl backdrop-blur-xl">
-              <h3 className="text-xl font-bold mb-4">{format(now, 'MMMM yyyy')}</h3>
-              
-              <div className="grid grid-cols-7 gap-1 text-center text-xs font-semibold text-muted-foreground mb-2">
-                <div>Su</div><div>Mo</div><div>Tu</div><div>We</div><div>Th</div><div>Fr</div><div>Sa</div>
+            {/* Left: Competition Title */}
+            <div className="lg:col-span-7 space-y-3">
+              <div className="inline-flex items-center gap-2 border border-white/20 bg-white/5 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-slate-300">
+                <span>YEAR {targetYear} ARENA</span>
               </div>
-              
-              <div className="grid grid-cols-7 gap-1">
-                {/* Empty slots for start of month padding */}
-                {Array.from({ length: startMonth.getDay() }).map((_, i) => (
-                  <div key={`empty-${i}`} className="aspect-square" />
-                ))}
-                
-                {daysInMonth.map(day => {
-                  const hasContest = monthlyDailyContests.some(c => 
-                    c.date.getFullYear() === day.getFullYear() && 
-                    c.date.getMonth() === day.getMonth() && 
-                    c.date.getDate() === day.getDate()
-                  );
-                  const isCurrentDay = isToday(day);
 
-                  return (
-                    <div 
-                      key={day.toISOString()} 
-                      className={`flex aspect-square items-center justify-center rounded-lg text-sm transition-all
-                        ${!isSameMonth(day, now) ? 'text-muted-foreground/30' : ''}
-                        ${isCurrentDay ? 'bg-brand text-white font-bold shadow-md shadow-brand/20' : 'text-foreground'}
-                        ${hasContest && !isCurrentDay ? 'border-2 border-brand/50 font-bold bg-brand/5' : ''}
-                        ${!hasContest && !isCurrentDay && isSameMonth(day, now) ? 'hover:bg-muted' : ''}
-                      `}
-                    >
-                      {format(day, 'd')}
-                    </div>
-                  );
-                })}
-              </div>
-              
-              <div className="mt-6 flex flex-col gap-2 text-xs text-muted-foreground">
-                <div className="flex items-center gap-2">
-                  <div className="h-3 w-3 rounded-sm bg-brand"></div>
-                  <span>Today</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="h-3 w-3 rounded-sm border-2 border-brand/50 bg-brand/5"></div>
-                  <span>Contest Scheduled</span>
-                </div>
+              <h1 className="font-valley text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-white leading-tight">
+                Compete. Solve. Climb.
+              </h1>
+
+              <p className="text-sm text-slate-300 max-w-xl leading-relaxed">
+                Take on daily coding challenges, build your streak, and climb the university rankings at TASC.
+              </p>
+
+              <div className="pt-2 flex flex-wrap items-center gap-3">
+                <Link
+                  href="/marathon/leaderboard"
+                  className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-500 px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white transition-colors"
+                >
+                  <TrophyIcon className="h-4 w-4" />
+                  <span>VIEW LEADERBOARD</span>
+                  <ArrowRightIcon className="h-3.5 w-3.5" />
+                </Link>
+
+                {!user?.hackerrankUsername && (
+                  <Link
+                    href="/profile"
+                    className="inline-flex items-center gap-2 border border-amber-500/40 bg-amber-500/15 px-3.5 py-2 text-xs font-semibold text-amber-300 hover:bg-amber-500/25 transition-colors"
+                  >
+                    <AlertCircleIcon className="h-4 w-4 shrink-0 text-amber-400" />
+                    <span>Link HackerRank ID to Sync</span>
+                  </Link>
+                )}
               </div>
             </div>
+
+            {/* Right: Sharp Editorial Stats */}
+            <div className="lg:col-span-5 grid grid-cols-3 gap-2 bg-black/60 border border-white/15 p-4">
+              {/* Total Points */}
+              <div className="flex flex-col items-center justify-center text-center p-2 border border-white/5">
+                <span className="font-sans text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                  {(user?.marathonTotalScore || 0).toLocaleString()}
+                </span>
+                <span className="mt-1 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                  POINTS
+                </span>
+              </div>
+
+              {/* Day Streak */}
+              <div className="flex flex-col items-center justify-center text-center p-2 border border-white/5">
+                <div className="flex items-center gap-1">
+                  <FlameIcon className="h-4 w-4 fill-amber-500 text-amber-500" />
+                  <span className="font-sans text-2xl sm:text-3xl font-extrabold text-amber-400 tracking-tight">
+                    {user?.marathonStreak || 0}
+                  </span>
+                </div>
+                <span className="mt-1 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                  DAY STREAK
+                </span>
+              </div>
+
+              {/* Global Rank */}
+              <div className="flex flex-col items-center justify-center text-center p-2 border border-white/5">
+                <span className="font-sans text-2xl sm:text-3xl font-extrabold text-purple-400 tracking-tight">
+                  {userRank ? `#${userRank}` : "—"}
+                </span>
+                <span className="mt-1 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                  GLOBAL RANK
+                </span>
+              </div>
+            </div>
+
           </div>
+        </section>
+
+        {/* ========================================================================= */}
+        {/* MAIN CONTENT (SPLIT VIEW) */}
+        {/* Left: Large Current Weekly Sprint Card */}
+        {/* Right: Minimalist Monthly Calendar Grid */}
+        {/* ========================================================================= */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+          
+          {/* LEFT SIDE: Large Current Weekly Sprint Card */}
+          <div className="lg:col-span-7 flex flex-col">
+            <div className="flex-1 border border-white/20 bg-black/75 backdrop-blur-md p-6 sm:p-8 flex flex-col justify-between">
+              
+              {/* Sprint Content */}
+              <div>
+                <div className="flex items-center justify-between gap-3 mb-4">
+                  <div className="inline-flex items-center gap-1.5 border border-white/15 bg-white/5 px-2.5 py-1 text-xs font-bold text-slate-300">
+                    <ZapIcon className="h-3.5 w-3.5 text-purple-400" />
+                    <span>
+                      {currentWeeklyContest
+                        ? `WEEK ${String(currentWeeklyContest.weekNumber).padStart(2, "0")} SPRINT`
+                        : "WEEKLY SPRINT"}
+                    </span>
+                  </div>
+
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                    ACTIVE CHALLENGE
+                  </span>
+                </div>
+
+                <h2 className="font-valley text-2xl sm:text-3xl font-bold text-white tracking-tight">
+                  {currentWeeklyContest ? currentWeeklyContest.title : "Weekly Engineering Sprint"}
+                </h2>
+
+                <p className="mt-3 text-sm text-slate-300 leading-relaxed">
+                  {currentWeeklyContest?.description ||
+                    "Take on this week's algorithmic sprint to earn massive point rewards and boost your competitive standing."}
+                </p>
+              </div>
+
+              {/* Timer & Action Bar */}
+              <div className="mt-8 pt-6 border-t border-white/15 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-black/60 border border-white/10 p-4">
+                
+                {/* Red Deadline Timer */}
+                <div>
+                  <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-red-400 mb-1.5">
+                    <TimerIcon className="h-3.5 w-3.5" />
+                    <span>DEADLINE COUNTDOWN</span>
+                  </div>
+                  {currentWeeklyContest ? (
+                    <CountdownTimer deadline={currentWeeklyContest.deadline} variant="red" />
+                  ) : (
+                    <span className="text-xs text-slate-400 font-semibold">
+                      Sprint launching soon
+                    </span>
+                  )}
+                </div>
+
+                {/* Sharp "Join Sprint" Button */}
+                {currentWeeklyContest ? (
+                  <a
+                    href={currentWeeklyContest.link}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-500 px-6 py-3 text-xs font-bold uppercase tracking-wider text-white transition-colors shrink-0"
+                  >
+                    <span>JOIN SPRINT</span>
+                    <ArrowRightIcon className="h-3.5 w-3.5" />
+                  </a>
+                ) : (
+                  <button
+                    disabled
+                    className="w-full sm:w-auto bg-white/5 border border-white/10 px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-slate-500 cursor-not-allowed"
+                  >
+                    COMING SOON
+                  </button>
+                )}
+
+              </div>
+
+            </div>
+          </div>
+
+          {/* RIGHT SIDE: Minimalist Monthly Calendar Grid */}
+          <div className="lg:col-span-5 flex flex-col">
+            <div className="flex-1 border border-white/20 bg-black/75 backdrop-blur-md p-6">
+              <MarathonCalendarGrid
+                currentDate={now}
+                startMonth={startMonth}
+                daysInMonth={daysInMonth}
+                contests={calendarContests}
+              />
+            </div>
+          </div>
+
         </div>
+
+        {/* ========================================================================= */}
+        {/* TODAY'S DAILY CHALLENGE */}
+        {/* ========================================================================= */}
+        {todayContest && (
+          <section className="border border-white/20 bg-black/75 backdrop-blur-md p-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+              <div className="space-y-1.5 max-w-2xl">
+                <div className="flex items-center gap-2">
+                  <span className="h-2 w-2 bg-emerald-500" />
+                  <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">
+                    TODAY&apos;S DAILY CHALLENGE • DAY {todayContest.dayNumber}
+                  </span>
+                </div>
+
+                <h3 className="font-valley text-xl sm:text-2xl font-bold text-white">
+                  {todayContest.title}
+                </h3>
+
+                {todayContest.description && (
+                  <p className="text-sm text-slate-300 line-clamp-2">
+                    {todayContest.description}
+                  </p>
+                )}
+              </div>
+
+              <div className="flex items-center gap-4 shrink-0">
+                <div className="text-right hidden sm:block">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                    REWARD
+                  </span>
+                  <span className="font-sans text-base font-bold text-white">
+                    +100 PTS
+                  </span>
+                </div>
+
+                <a
+                  href={todayContest.link}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-500 px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white transition-colors"
+                >
+                  <span>SOLVE TODAY</span>
+                  <ArrowRightIcon className="h-3.5 w-3.5" />
+                </a>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* ========================================================================= */}
+        {/* ACTIVITY TIMELINE / MARATHON JOURNEY */}
+        {/* ========================================================================= */}
+        <section className="space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+            <div>
+              <h2 className="font-valley text-xl sm:text-2xl font-bold tracking-tight text-white">
+                Marathon Journey
+              </h2>
+              <p className="text-xs text-slate-400">
+                Track your active streaks, solved problems, and upcoming contests across the month.
+              </p>
+            </div>
+            <div className="flex items-center gap-4 text-xs text-slate-400 pt-1 sm:pt-0">
+              <span className="flex items-center gap-1.5">
+                <span className="h-2 w-2 bg-purple-500" /> Solved
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="h-2 w-2 bg-emerald-500" /> Live
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="h-2 w-2 border border-white/40" /> Scheduled
+              </span>
+            </div>
+          </div>
+
+          <div className="border border-white/20 bg-black/75 backdrop-blur-md p-5">
+            <MarathonJourney days={journeyDays} />
+          </div>
+        </section>
+
+        {/* ========================================================================= */}
+        {/* LIVE RANKINGS STANDINGS PREVIEW */}
+        {/* ========================================================================= */}
+        <section className="space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+            <div>
+              <span className="text-xs font-bold uppercase tracking-widest text-slate-400">
+                STANDINGS
+              </span>
+              <h2 className="font-valley text-xl sm:text-2xl font-bold tracking-tight text-white mt-0.5">
+                Who&apos;s Leading?
+              </h2>
+            </div>
+
+            <Link
+              href="/marathon/leaderboard"
+              className="inline-flex items-center gap-2 border border-white/20 bg-white/5 hover:bg-white/10 px-4 py-2 text-xs font-bold uppercase tracking-wider text-white transition-colors shrink-0"
+            >
+              <span>VIEW FULL LEADERBOARD</span>
+              <ArrowRightIcon className="h-3.5 w-3.5" />
+            </Link>
+          </div>
+
+          {topLeaders.length === 0 ? (
+            <div className="border border-white/15 bg-black/60 p-8 text-center text-slate-400 text-sm">
+              No scores recorded yet. Complete today&apos;s contest to claim the top spot!
+            </div>
+          ) : (
+            <div className="border border-white/20 bg-black/75 backdrop-blur-md overflow-hidden divide-y divide-white/10">
+              {topLeaders.map((leader, index) => {
+                const isCurrentUser = leader.id === user?.id;
+                const isTop3 = index < 3;
+                const medals = ["🥇", "🥈", "🥉"];
+
+                return (
+                  <div
+                    key={leader.id}
+                    className={`flex items-center justify-between p-4 transition-colors ${
+                      isCurrentUser
+                        ? "bg-purple-600/15 border-l-4 border-l-purple-500"
+                        : "hover:bg-white/5"
+                    }`}
+                  >
+                    {/* Rank & User Info */}
+                    <div className="flex items-center gap-4 sm:gap-6 min-w-0">
+                      <div className="flex h-7 w-7 rounded-full items-center justify-center bg-white/10 border border-white/15 font-sans font-bold text-xs text-white shrink-0">
+                        {isTop3 ? (
+                          <span>{medals[index]}</span>
+                        ) : (
+                          index + 1
+                        )}
+                      </div>
+
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="font-sans font-bold text-white truncate text-sm sm:text-base">
+                            {leader.name}
+                          </span>
+                          {isCurrentUser && (
+                            <span className="text-[10px] font-bold text-purple-400 shrink-0 uppercase tracking-wider">
+                              (YOU)
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-xs text-slate-400 truncate block">
+                          {leader.usn || "AIML STUDENT"}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Score & Streak */}
+                    <div className="flex items-center gap-6 sm:gap-8 shrink-0 text-right">
+                      <div className="flex items-center gap-1 font-sans text-xs sm:text-sm font-semibold text-amber-400">
+                        <FlameIcon className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
+                        <span>{leader.marathonStreak}d</span>
+                      </div>
+
+                      <div>
+                        <span className="font-sans text-sm sm:text-base font-extrabold text-white">
+                          {leader.marathonTotalScore.toLocaleString()}
+                        </span>
+                        <span className="hidden sm:inline text-[10px] font-bold text-slate-400 uppercase ml-1">
+                          pts
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </section>
+
       </div>
     </main>
   );

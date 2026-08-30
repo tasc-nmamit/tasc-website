@@ -1,16 +1,19 @@
 import { requireAiml } from "@/lib/auth-guards";
 import { db } from "@/lib/db";
 import Link from "next/link";
-import { TrophyIcon, FlameIcon } from "lucide-react";
+import { ArrowLeftIcon, TrophyIcon } from "lucide-react";
+import LeaderboardPodium, { PodiumUser } from "@/components/marathon/LeaderboardPodium";
+import CircularLeaderboard, { LeaderboardStudent } from "@/components/marathon/CircularLeaderboard";
+import Scanner from "@/components/background/Scanner";
 
 export default async function MarathonLeaderboard() {
-  await requireAiml();
+  const session = await requireAiml();
 
   // Fetch top users sorted by score, then streak
-  const users = await db.user.findMany({
-    where: { 
+  const rawUsers = await db.user.findMany({
+    where: {
       isAiml: true,
-      marathonTotalScore: { gt: 0 } // Only show people with points
+      marathonTotalScore: { gt: 0 }, // Only show people with points
     },
     select: {
       id: true,
@@ -18,85 +21,102 @@ export default async function MarathonLeaderboard() {
       usn: true,
       marathonTotalScore: true,
       marathonStreak: true,
-      image: true
+      image: true,
     },
     orderBy: [
       { marathonTotalScore: "desc" },
-      { marathonStreak: "desc" }
+      { marathonStreak: "desc" },
     ],
-    take: 100 // Limit to top 100
+    take: 100, // Limit to top 100
   });
 
+  const students: LeaderboardStudent[] = rawUsers.map((user, idx) => ({
+    ...user,
+    rank: idx + 1,
+  }));
+
+  const top3Users: PodiumUser[] = students.slice(0, 3);
+
   return (
-    <main className="min-h-dvh px-4 pt-28 pb-16 bg-[url('/grid-pattern.svg')] bg-fixed">
-      <div className="mx-auto max-w-4xl">
-        <div className="mb-8">
-          <Link href="/marathon" className="text-sm font-medium text-muted-foreground hover:text-foreground mb-4 inline-block">
-            ← Back to Marathon Dashboard
+    <main className="min-h-dvh px-4 pt-28 pb-20 relative bg-transparent text-slate-100">
+      <div className="relative z-10 mx-auto max-w-5xl space-y-8">
+        
+        {/* Navigation & Header */}
+        <div className="space-y-4">
+          <Link
+            href="/marathon"
+            className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-300 hover:text-white transition-colors"
+          >
+            <ArrowLeftIcon className="h-3.5 w-3.5" />
+            <span>Back to Marathon</span>
           </Link>
-          <div className="flex items-center gap-3">
-            <TrophyIcon className="h-10 w-10 text-yellow-500" />
-            <h1 className="text-4xl font-extrabold text-foreground">Global Leaderboard</h1>
+
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/15 pb-6">
+            <div>
+              <span className="text-xs font-bold uppercase tracking-widest text-slate-400">
+                COMPETITION STANDINGS
+              </span>
+              <h1 className="mt-1 font-valley text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-white">
+                Global Leaderboard
+              </h1>
+              <p className="mt-2 text-sm text-slate-300">
+                Official standings verified across all daily algorithmic challenges and weekly engineering sprints.
+              </p>
+            </div>
+
+            <div className="text-left md:text-right shrink-0 bg-black/60 border border-white/20 px-5 py-2.5 rounded-full">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                TOTAL PARTICIPANTS
+              </span>
+              <span className="font-sans text-2xl font-bold text-white">
+                {students.length}
+              </span>
+            </div>
           </div>
-          <p className="mt-2 text-lg text-muted-foreground">
-            Top 100 AIML students in the Coding Marathon.
-          </p>
         </div>
 
-        <div className="rounded-2xl border border-border/50 bg-background/80 shadow-xl backdrop-blur-xl overflow-hidden">
-          {users.length === 0 ? (
-            <div className="p-12 text-center text-muted-foreground">
-              <p className="text-xl">No scores recorded yet.</p>
-              <p className="mt-2 text-sm">The leaderboard will update once participants complete their first problem!</p>
-            </div>
-          ) : (
-            <div className="divide-y divide-border/50">
-              <div className="grid grid-cols-12 gap-4 px-6 py-4 text-sm font-semibold text-muted-foreground bg-muted/30">
-                <div className="col-span-2 sm:col-span-1 text-center">Rank</div>
-                <div className="col-span-6 sm:col-span-7">Student</div>
-                <div className="col-span-2 text-center">Score</div>
-                <div className="col-span-2 text-center">Streak</div>
+        {/* Empty State */}
+        {students.length === 0 ? (
+          <div className="rounded-none border border-white/20 bg-black/75 backdrop-blur-md p-16 text-center text-slate-400">
+            <TrophyIcon className="h-10 w-10 mx-auto text-white mb-3" />
+            <h3 className="font-sans text-lg font-bold text-white">
+              No contest scores recorded yet
+            </h3>
+            <p className="mt-2 text-sm max-w-md mx-auto">
+              The competition leaderboard will update automatically as soon as students complete their first challenge.
+            </p>
+          </div>
+        ) : (
+          <>
+            {/* Top 3 Visual Podium */}
+            {top3Users.length > 0 && (
+              <section>
+                <LeaderboardPodium
+                  topUsers={top3Users}
+                  currentUserId={session.user.id}
+                />
+              </section>
+            )}
+
+            {/* Circular Grid Leaderboard with Interactive Profile View on Click */}
+            <section className="space-y-4">
+              <div className="flex items-center justify-between px-2">
+                <h2 className="font-valley text-xl font-bold text-white">
+                  Rankings Directory
+                </h2>
+                <span className="text-xs text-slate-400">
+                  Click any circle to view complete profile
+                </span>
               </div>
 
-              {users.map((user, index) => {
-                let rankStyle = "text-muted-foreground";
-                let bgStyle = "hover:bg-muted/30";
-                
-                if (index === 0) { rankStyle = "text-yellow-500 font-extrabold text-2xl"; bgStyle = "bg-yellow-500/5 hover:bg-yellow-500/10"; }
-                else if (index === 1) { rankStyle = "text-slate-400 font-extrabold text-xl"; bgStyle = "bg-slate-500/5 hover:bg-slate-500/10"; }
-                else if (index === 2) { rankStyle = "text-amber-700 font-extrabold text-xl"; bgStyle = "bg-amber-700/5 hover:bg-amber-700/10"; }
+              <CircularLeaderboard
+                students={students}
+                currentUserId={session.user.id}
+              />
+            </section>
+          </>
+        )}
 
-                return (
-                  <div key={user.id} className={`grid grid-cols-12 gap-4 px-6 py-4 items-center transition-colors ${bgStyle}`}>
-                    <div className={`col-span-2 sm:col-span-1 text-center font-bold ${rankStyle}`}>
-                      #{index + 1}
-                    </div>
-                    
-                    <div className="col-span-6 sm:col-span-7 flex flex-col justify-center">
-                      <span className="font-bold text-foreground truncate">{user.name}</span>
-                      <span className="text-xs text-muted-foreground truncate">{user.usn || "No USN"}</span>
-                    </div>
-
-                    <div className="col-span-2 text-center font-bold text-brand text-lg">
-                      {user.marathonTotalScore}
-                    </div>
-
-                    <div className="col-span-2 text-center flex justify-center items-center gap-1 font-semibold text-amber-500">
-                      {user.marathonStreak > 0 ? (
-                        <>
-                          <FlameIcon className="h-4 w-4" />
-                          {user.marathonStreak}
-                        </>
-                      ) : (
-                        <span className="text-muted-foreground font-normal">0</span>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
       </div>
     </main>
   );

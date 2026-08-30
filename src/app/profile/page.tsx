@@ -19,9 +19,16 @@ export default async function ProfilePage() {
   }
 
   return (
-    <main className="min-h-dvh px-4 pt-28 pb-16 bg-[url('/grid-pattern.svg')] bg-fixed">
+    <main className="min-h-dvh px-4 pt-28 pb-16 bg-blueprint-grid">
       <div className="mx-auto max-w-2xl">
-        <h1 className="text-3xl font-bold mb-8 text-foreground">Edit Profile</h1>
+        <div className="mb-6 text-center">
+          <span className="font-mono-tech text-xs text-brand-accent uppercase tracking-widest block mb-1">
+            [ STUDENT_PROFILE // DATA_CENTER ]
+          </span>
+          <h1 className="text-3xl md:text-4xl font-bold font-space-grotesk text-foreground">
+            Edit <span className="text-gold">Profile</span>
+          </h1>
+        </div>
         <ProfileClient user={user} />
       </div>
     </main>
