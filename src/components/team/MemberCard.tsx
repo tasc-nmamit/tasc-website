@@ -7,9 +7,10 @@ import CircuitTrace from "@/components/ui/circuit-ink/CircuitTrace";
 
 interface MemberCardProps {
   member: Member;
+  featured?: boolean;
 }
 
-export function MemberCard({ member }: MemberCardProps) {
+export function MemberCard({ member, featured = false }: MemberCardProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -18,12 +19,16 @@ export function MemberCard({ member }: MemberCardProps) {
       {/* Main Card */}
       <div
         onClick={() => setIsOpen(true)}
-        className="w-72 cursor-pointer overflow-hidden rounded-xl border border-brand/30 bg-card p-5 shadow-xl transition-all duration-300 hover:border-brand-accent/60 hover:scale-105 relative group bg-blueprint-grid"
+        className={`cursor-pointer overflow-hidden rounded-xl border border-brand/30 bg-card p-5 shadow-xl transition-all duration-300 hover:border-brand-accent/60 hover:scale-105 relative group bg-blueprint-grid ${
+          featured ? "w-80 md:w-96" : "w-72"
+        }`}
       >
         <CircuitTrace corners={true} />
 
         <div className="mx-auto flex items-center justify-center relative z-10">
-          <div className="relative aspect-square w-32 rounded-full overflow-hidden border-2 border-brand-accent/40 shadow-inner">
+          <div className={`relative aspect-square rounded-full overflow-hidden border-2 border-brand-accent/40 shadow-inner ${
+            featured ? "w-40" : "w-32"
+          }`}>
             {isLoading && (
               <Skeleton className="absolute inset-0 rounded-full bg-muted/40" />
             )}
@@ -41,9 +46,11 @@ export function MemberCard({ member }: MemberCardProps) {
 
         <div className="flex flex-col items-center justify-center pt-4 relative z-10">
           <span className="font-mono-tech text-[10px] text-muted-foreground uppercase tracking-widest mb-1">
-            NODE_MEMBER // AIML
+            {member.section ? `${member.section}_TEAM // AIML` : "TEAM_MEMBER // AIML"}
           </span>
-          <h3 className="text-lg font-bold font-space-grotesk text-foreground text-center">
+          <h3 className={`font-bold font-space-grotesk text-foreground text-center ${
+            featured ? "text-xl md:text-2xl" : "text-lg"
+          }`}>
             {member.name}
           </h3>
           <p className="mt-1 px-2 py-0.5 rounded text-xs font-mono-tech text-brand-accent bg-brand/10 border border-brand/20 text-center uppercase tracking-wider">

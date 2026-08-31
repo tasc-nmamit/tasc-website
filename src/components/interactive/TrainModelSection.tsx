@@ -334,7 +334,7 @@ export default function TrainModelSection() {
             </div>
             <div
               ref={logRef}
-              className="bg-[#050308]/80 border border-brand/30 rounded-lg p-3.5 font-mono-tech text-xs text-muted-foreground leading-relaxed max-h-[130px] overflow-y-auto space-y-1 scrollbar-thin shadow-inner"
+              className="bg-background/80 border border-brand/30 rounded-lg p-3.5 font-mono-tech text-xs text-muted-foreground leading-relaxed max-h-[130px] overflow-y-auto space-y-1 scrollbar-thin shadow-inner"
             >
               {logs.map((logMsg, idx) => (
                 <div key={idx} className="text-[#B8A4E3]">

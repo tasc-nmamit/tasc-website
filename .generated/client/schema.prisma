@@ -97,15 +97,27 @@ model Student {
   patents   Patents[]  @relation("StudentPatents")
 }
 
+enum TeamSection {
+  ADMIN
+  TECHNICAL
+  SPORTS
+  CULTURAL
+  GRAPHICS
+  MEDIA
+  EVENT
+  REPRESENTATIVE
+}
+
 model Core {
-  id     String  @id @default(cuid())
-  year   String
-  userId String
-  image  String
-  order  Int
-  post   String
-  quote  String?
-  User   User    @relation(fields: [userId], references: [id])
+  id      String      @id @default(cuid())
+  year    String
+  userId  String
+  image   String
+  order   Int
+  post    String
+  quote   String?
+  section TeamSection @default(ADMIN)
+  User    User        @relation(fields: [userId], references: [id])
 }
 
 model Faculty {

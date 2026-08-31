@@ -41,6 +41,7 @@ export default async function TeamPage({ params }: PageProps) {
     instagram: core.User.links?.instagram || undefined,
     linkedin: core.User.links?.linkedin || undefined,
     github: core.User.links?.github || undefined,
+    section: core.section as any,
   }));
 
   // In legacy, ye2d members to the view.

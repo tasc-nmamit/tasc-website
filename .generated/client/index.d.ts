@@ -153,7 +153,21 @@ export type Publication = $Result.DefaultSelection<Prisma.$PublicationPayload>
  * Enums
  */
 export namespace $Enums {
-  export const Role: {
+  export const TeamSection: {
+  ADMIN: 'ADMIN',
+  TECHNICAL: 'TECHNICAL',
+  SPORTS: 'SPORTS',
+  CULTURAL: 'CULTURAL',
+  GRAPHICS: 'GRAPHICS',
+  MEDIA: 'MEDIA',
+  EVENT: 'EVENT',
+  REPRESENTATIVE: 'REPRESENTATIVE'
+};
+
+export type TeamSection = (typeof TeamSection)[keyof typeof TeamSection]
+
+
+export const Role: {
   USER: 'USER',
   ADMIN: 'ADMIN',
   OWNER: 'OWNER'
@@ -208,6 +222,10 @@ export const WinnerType: {
 export type WinnerType = (typeof WinnerType)[keyof typeof WinnerType]
 
 }
+
+export type TeamSection = $Enums.TeamSection
+
+export const TeamSection: typeof $Enums.TeamSection
 
 export type Role = $Enums.Role
 
@@ -9950,6 +9968,7 @@ export namespace Prisma {
     order: number | null
     post: string | null
     quote: string | null
+    section: $Enums.TeamSection | null
   }
 
   export type CoreMaxAggregateOutputType = {
@@ -9960,6 +9979,7 @@ export namespace Prisma {
     order: number | null
     post: string | null
     quote: string | null
+    section: $Enums.TeamSection | null
   }
 
   export type CoreCountAggregateOutputType = {
@@ -9970,6 +9990,7 @@ export namespace Prisma {
     order: number
     post: number
     quote: number
+    section: number
     _all: number
   }
 
@@ -9990,6 +10011,7 @@ export namespace Prisma {
     order?: true
     post?: true
     quote?: true
+    section?: true
   }
 
   export type CoreMaxAggregateInputType = {
@@ -10000,6 +10022,7 @@ export namespace Prisma {
     order?: true
     post?: true
     quote?: true
+    section?: true
   }
 
   export type CoreCountAggregateInputType = {
@@ -10010,6 +10033,7 @@ export namespace Prisma {
     order?: true
     post?: true
     quote?: true
+    section?: true
     _all?: true
   }
 
@@ -10107,6 +10131,7 @@ export namespace Prisma {
     order: number
     post: string
     quote: string | null
+    section: $Enums.TeamSection
     _count: CoreCountAggregateOutputType | null
     _avg: CoreAvgAggregateOutputType | null
     _sum: CoreSumAggregateOutputType | null
@@ -10136,6 +10161,7 @@ export namespace Prisma {
     order?: boolean
     post?: boolean
     quote?: boolean
+    section?: boolean
     User?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["core"]>
 
@@ -10147,6 +10173,7 @@ export namespace Prisma {
     order?: boolean
     post?: boolean
     quote?: boolean
+    section?: boolean
     User?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["core"]>
 
@@ -10158,6 +10185,7 @@ export namespace Prisma {
     order?: boolean
     post?: boolean
     quote?: boolean
+    section?: boolean
     User?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["core"]>
 
@@ -10169,9 +10197,10 @@ export namespace Prisma {
     order?: boolean
     post?: boolean
     quote?: boolean
+    section?: boolean
   }
 
-  export type CoreOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "year" | "userId" | "image" | "order" | "post" | "quote", ExtArgs["result"]["core"]>
+  export type CoreOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "year" | "userId" | "image" | "order" | "post" | "quote" | "section", ExtArgs["result"]["core"]>
   export type CoreInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     User?: boolean | UserDefaultArgs<ExtArgs>
   }
@@ -10195,6 +10224,7 @@ export namespace Prisma {
       order: number
       post: string
       quote: string | null
+      section: $Enums.TeamSection
     }, ExtArgs["result"]["core"]>
     composites: {}
   }
@@ -10626,6 +10656,7 @@ export namespace Prisma {
     readonly order: FieldRef<"Core", 'Int'>
     readonly post: FieldRef<"Core", 'String'>
     readonly quote: FieldRef<"Core", 'String'>
+    readonly section: FieldRef<"Core", 'TeamSection'>
   }
     
 
@@ -34836,7 +34867,8 @@ export namespace Prisma {
     image: 'image',
     order: 'order',
     post: 'post',
-    quote: 'quote'
+    quote: 'quote',
+    section: 'section'
   };
 
   export type CoreScalarFieldEnum = (typeof CoreScalarFieldEnum)[keyof typeof CoreScalarFieldEnum]
@@ -35251,6 +35283,20 @@ export namespace Prisma {
    * Reference to a field of type 'CareerIntent[]'
    */
   export type ListEnumCareerIntentFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CareerIntent[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'TeamSection'
+   */
+  export type EnumTeamSectionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TeamSection'>
+    
+
+
+  /**
+   * Reference to a field of type 'TeamSection[]'
+   */
+  export type ListEnumTeamSectionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TeamSection[]'>
     
 
 
@@ -35806,6 +35852,7 @@ export namespace Prisma {
     order?: IntFilter<"Core"> | number
     post?: StringFilter<"Core"> | string
     quote?: StringNullableFilter<"Core"> | string | null
+    section?: EnumTeamSectionFilter<"Core"> | $Enums.TeamSection
     User?: XOR<UserScalarRelationFilter, UserWhereInput>
   }
 
@@ -35817,6 +35864,7 @@ export namespace Prisma {
     order?: SortOrder
     post?: SortOrder
     quote?: SortOrderInput | SortOrder
+    section?: SortOrder
     User?: UserOrderByWithRelationInput
   }
 
@@ -35831,6 +35879,7 @@ export namespace Prisma {
     order?: IntFilter<"Core"> | number
     post?: StringFilter<"Core"> | string
     quote?: StringNullableFilter<"Core"> | string | null
+    section?: EnumTeamSectionFilter<"Core"> | $Enums.TeamSection
     User?: XOR<UserScalarRelationFilter, UserWhereInput>
   }, "id">
 
@@ -35842,6 +35891,7 @@ export namespace Prisma {
     order?: SortOrder
     post?: SortOrder
     quote?: SortOrderInput | SortOrder
+    section?: SortOrder
     _count?: CoreCountOrderByAggregateInput
     _avg?: CoreAvgOrderByAggregateInput
     _max?: CoreMaxOrderByAggregateInput
@@ -35860,6 +35910,7 @@ export namespace Prisma {
     order?: IntWithAggregatesFilter<"Core"> | number
     post?: StringWithAggregatesFilter<"Core"> | string
     quote?: StringNullableWithAggregatesFilter<"Core"> | string | null
+    section?: EnumTeamSectionWithAggregatesFilter<"Core"> | $Enums.TeamSection
   }
 
   export type FacultyWhereInput = {
@@ -37876,6 +37927,7 @@ export namespace Prisma {
     order: number
     post: string
     quote?: string | null
+    section?: $Enums.TeamSection
     User: UserCreateNestedOneWithoutCoreInput
   }
 
@@ -37887,6 +37939,7 @@ export namespace Prisma {
     order: number
     post: string
     quote?: string | null
+    section?: $Enums.TeamSection
   }
 
   export type CoreUpdateInput = {
@@ -37896,6 +37949,7 @@ export namespace Prisma {
     order?: IntFieldUpdateOperationsInput | number
     post?: StringFieldUpdateOperationsInput | string
     quote?: NullableStringFieldUpdateOperationsInput | string | null
+    section?: EnumTeamSectionFieldUpdateOperationsInput | $Enums.TeamSection
     User?: UserUpdateOneRequiredWithoutCoreNestedInput
   }
 
@@ -37907,6 +37961,7 @@ export namespace Prisma {
     order?: IntFieldUpdateOperationsInput | number
     post?: StringFieldUpdateOperationsInput | string
     quote?: NullableStringFieldUpdateOperationsInput | string | null
+    section?: EnumTeamSectionFieldUpdateOperationsInput | $Enums.TeamSection
   }
 
   export type CoreCreateManyInput = {
@@ -37917,6 +37972,7 @@ export namespace Prisma {
     order: number
     post: string
     quote?: string | null
+    section?: $Enums.TeamSection
   }
 
   export type CoreUpdateManyMutationInput = {
@@ -37926,6 +37982,7 @@ export namespace Prisma {
     order?: IntFieldUpdateOperationsInput | number
     post?: StringFieldUpdateOperationsInput | string
     quote?: NullableStringFieldUpdateOperationsInput | string | null
+    section?: EnumTeamSectionFieldUpdateOperationsInput | $Enums.TeamSection
   }
 
   export type CoreUncheckedUpdateManyInput = {
@@ -37936,6 +37993,7 @@ export namespace Prisma {
     order?: IntFieldUpdateOperationsInput | number
     post?: StringFieldUpdateOperationsInput | string
     quote?: NullableStringFieldUpdateOperationsInput | string | null
+    section?: EnumTeamSectionFieldUpdateOperationsInput | $Enums.TeamSection
   }
 
   export type FacultyCreateInput = {
@@ -40109,6 +40167,13 @@ export namespace Prisma {
     userId?: SortOrder
   }
 
+  export type EnumTeamSectionFilter<$PrismaModel = never> = {
+    equals?: $Enums.TeamSection | EnumTeamSectionFieldRefInput<$PrismaModel>
+    in?: $Enums.TeamSection[] | ListEnumTeamSectionFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TeamSection[] | ListEnumTeamSectionFieldRefInput<$PrismaModel>
+    not?: NestedEnumTeamSectionFilter<$PrismaModel> | $Enums.TeamSection
+  }
+
   export type CoreCountOrderByAggregateInput = {
     id?: SortOrder
     year?: SortOrder
@@ -40117,6 +40182,7 @@ export namespace Prisma {
     order?: SortOrder
     post?: SortOrder
     quote?: SortOrder
+    section?: SortOrder
   }
 
   export type CoreAvgOrderByAggregateInput = {
@@ -40131,6 +40197,7 @@ export namespace Prisma {
     order?: SortOrder
     post?: SortOrder
     quote?: SortOrder
+    section?: SortOrder
   }
 
   export type CoreMinOrderByAggregateInput = {
@@ -40141,10 +40208,21 @@ export namespace Prisma {
     order?: SortOrder
     post?: SortOrder
     quote?: SortOrder
+    section?: SortOrder
   }
 
   export type CoreSumOrderByAggregateInput = {
     order?: SortOrder
+  }
+
+  export type EnumTeamSectionWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.TeamSection | EnumTeamSectionFieldRefInput<$PrismaModel>
+    in?: $Enums.TeamSection[] | ListEnumTeamSectionFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TeamSection[] | ListEnumTeamSectionFieldRefInput<$PrismaModel>
+    not?: NestedEnumTeamSectionWithAggregatesFilter<$PrismaModel> | $Enums.TeamSection
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumTeamSectionFilter<$PrismaModel>
+    _max?: NestedEnumTeamSectionFilter<$PrismaModel>
   }
 
   export type PublicationListRelationFilter = {
@@ -41799,6 +41877,10 @@ export namespace Prisma {
     connect?: UserWhereUniqueInput
   }
 
+  export type EnumTeamSectionFieldUpdateOperationsInput = {
+    set?: $Enums.TeamSection
+  }
+
   export type UserUpdateOneRequiredWithoutCoreNestedInput = {
     create?: XOR<UserCreateWithoutCoreInput, UserUncheckedCreateWithoutCoreInput>
     connectOrCreate?: UserCreateOrConnectWithoutCoreInput
@@ -43138,6 +43220,23 @@ export namespace Prisma {
     not?: NestedFloatFilter<$PrismaModel> | number
   }
 
+  export type NestedEnumTeamSectionFilter<$PrismaModel = never> = {
+    equals?: $Enums.TeamSection | EnumTeamSectionFieldRefInput<$PrismaModel>
+    in?: $Enums.TeamSection[] | ListEnumTeamSectionFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TeamSection[] | ListEnumTeamSectionFieldRefInput<$PrismaModel>
+    not?: NestedEnumTeamSectionFilter<$PrismaModel> | $Enums.TeamSection
+  }
+
+  export type NestedEnumTeamSectionWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.TeamSection | EnumTeamSectionFieldRefInput<$PrismaModel>
+    in?: $Enums.TeamSection[] | ListEnumTeamSectionFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TeamSection[] | ListEnumTeamSectionFieldRefInput<$PrismaModel>
+    not?: NestedEnumTeamSectionWithAggregatesFilter<$PrismaModel> | $Enums.TeamSection
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumTeamSectionFilter<$PrismaModel>
+    _max?: NestedEnumTeamSectionFilter<$PrismaModel>
+  }
+
   export type NestedEnumEventTypeFilter<$PrismaModel = never> = {
     equals?: $Enums.EventType | EnumEventTypeFieldRefInput<$PrismaModel>
     in?: $Enums.EventType[] | ListEnumEventTypeFieldRefInput<$PrismaModel>
@@ -43291,6 +43390,7 @@ export namespace Prisma {
     order: number
     post: string
     quote?: string | null
+    section?: $Enums.TeamSection
   }
 
   export type CoreUncheckedCreateWithoutUserInput = {
@@ -43300,6 +43400,7 @@ export namespace Prisma {
     order: number
     post: string
     quote?: string | null
+    section?: $Enums.TeamSection
   }
 
   export type CoreCreateOrConnectWithoutUserInput = {
@@ -43629,6 +43730,7 @@ export namespace Prisma {
     order?: IntFilter<"Core"> | number
     post?: StringFilter<"Core"> | string
     quote?: StringNullableFilter<"Core"> | string | null
+    section?: EnumTeamSectionFilter<"Core"> | $Enums.TeamSection
   }
 
   export type LinksUpsertWithoutUserInput = {
@@ -47771,6 +47873,7 @@ export namespace Prisma {
     order: number
     post: string
     quote?: string | null
+    section?: $Enums.TeamSection
   }
 
   export type SessionCreateManyUserInput = {
@@ -47871,6 +47974,7 @@ export namespace Prisma {
     order?: IntFieldUpdateOperationsInput | number
     post?: StringFieldUpdateOperationsInput | string
     quote?: NullableStringFieldUpdateOperationsInput | string | null
+    section?: EnumTeamSectionFieldUpdateOperationsInput | $Enums.TeamSection
   }
 
   export type CoreUncheckedUpdateWithoutUserInput = {
@@ -47880,6 +47984,7 @@ export namespace Prisma {
     order?: IntFieldUpdateOperationsInput | number
     post?: StringFieldUpdateOperationsInput | string
     quote?: NullableStringFieldUpdateOperationsInput | string | null
+    section?: EnumTeamSectionFieldUpdateOperationsInput | $Enums.TeamSection
   }
 
   export type CoreUncheckedUpdateManyWithoutUserInput = {
@@ -47889,6 +47994,7 @@ export namespace Prisma {
     order?: IntFieldUpdateOperationsInput | number
     post?: StringFieldUpdateOperationsInput | string
     quote?: NullableStringFieldUpdateOperationsInput | string | null
+    section?: EnumTeamSectionFieldUpdateOperationsInput | $Enums.TeamSection
   }
 
   export type SessionUpdateWithoutUserInput = {

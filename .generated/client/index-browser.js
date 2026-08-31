@@ -193,7 +193,8 @@ exports.Prisma.CoreScalarFieldEnum = {
   image: 'image',
   order: 'order',
   post: 'post',
-  quote: 'quote'
+  quote: 'quote',
+  section: 'section'
 };
 
 exports.Prisma.FacultyScalarFieldEnum = {
@@ -454,6 +455,17 @@ exports.CareerIntent = exports.$Enums.CareerIntent = {
   PLACEMENT: 'PLACEMENT',
   HIGHER_STUDIES: 'HIGHER_STUDIES',
   NO: 'NO'
+};
+
+exports.TeamSection = exports.$Enums.TeamSection = {
+  ADMIN: 'ADMIN',
+  TECHNICAL: 'TECHNICAL',
+  SPORTS: 'SPORTS',
+  CULTURAL: 'CULTURAL',
+  GRAPHICS: 'GRAPHICS',
+  MEDIA: 'MEDIA',
+  EVENT: 'EVENT',
+  REPRESENTATIVE: 'REPRESENTATIVE'
 };
 
 exports.EventType = exports.$Enums.EventType = {

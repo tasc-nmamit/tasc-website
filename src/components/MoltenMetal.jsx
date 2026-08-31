@@ -1,3 +1,4 @@
+'use client'
 import { useEffect, useRef } from 'react';
 import { Renderer, Program, Mesh, Triangle } from 'ogl';
 import './MoltenMetal.css';
@@ -259,7 +260,7 @@ const MoltenMetal = ({
       ctxMap.delete(container);
       try {
         container.removeChild(canvas);
-      } catch {}
+      } catch { }
       gl.getExtension('WEBGL_lose_context')?.loseContext();
     };
   }, []);

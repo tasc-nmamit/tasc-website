@@ -9,4 +9,5 @@ export interface Member {
   linkedin?: string;
   github?: string;
   order?: number;
+  section?: "ADMIN" | "TECHNICAL" | "SPORTS" | "CULTURAL" | "GRAPHICS" | "MEDIA" | "EVENT" | "REPRESENTATIVE";
 }

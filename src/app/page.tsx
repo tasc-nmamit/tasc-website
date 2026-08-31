@@ -1,115 +1,85 @@
-"use client";
-
+import HeroSection from "@/components/home/HeroSection";
 import Link from "next/link";
 import AboutSection from "@/components/navigation/AboutSection";
 import TrainModelSection from "@/components/interactive/TrainModelSection";
-import MoltenMetal from "@/components/MoltenMetal";
-import ScrollExpand from "@/components/ui/ScrollExpand";
+import ScrollReveal from "@/components/ui/ScrollReveal";
+import { db } from "@/lib/db";
+import { CalendarIcon, UsersIcon, TrophyIcon, ArrowRightIcon } from "lucide-react";
 
-export default function Home() {
+export default async function Home() {
+  const [totalUsers, totalEvents, coreMembers] = await Promise.all([
+    db.user.count(),
+    db.event.count(),
+    db.core.count(),
+  ]);
+
   return (
-    <main className="min-h-dvh overflow-x-hidden relative bg-[#050308]">
-      {/* Official React Bits ScrollExpand Hero Section */}
-      <ScrollExpand
-        useWindowScroll={true}
-        src="/CenterGraphic.png"
-        alt="TASC Handshake"
-        title="TASC"
-        scrollHint="Scroll to explore"
-        startWidth={38}
-        startHeight={50}
-        startRadius={24}
-        endRadius={0}
-        mediaZoom={1.2}
-        scrollDistance={1.0}
-        holdDistance={0.2}
-        overlayScrim={0.55}
-      >
-        {/* Background Atmosphere Layer inside Expanded Frame Overlay */}
-        <div className="absolute inset-0 z-0 bg-[#050308]/60 pointer-events-none" />
+    <main className="min-h-dvh overflow-x-hidden relative bg-background">
+      <HeroSection />
 
-        {/* Blueprint Grid Background Overlay */}
-        <div className="absolute inset-0 z-0 bg-blueprint-grid opacity-40 pointer-events-none" />
+      {/* About Section */}
+      <section id="about" className="flex max-w-[100vw] py-16 justify-center overflow-hidden">
+        <ScrollReveal variant="fadeUp" duration={800}>
+          <AboutSection />
+        </ScrollReveal>
+      </section>
 
-        {/* MoltenMetal Shader Layer */}
-        <div className="absolute inset-0 z-10 opacity-50 pointer-events-none">
-          <MoltenMetal
-            color1="#5B35A0"
-            color2="#8B5CF6"
-            color3="#C9A15A"
-            speed={0.3}
-            scale={3}
-            detail={3}
-            glow={1.2}
-            coreSize={0.08}
-            swirl={1}
-            fold={-0.2}
-            opacity={0.65}
-            mouseInteraction={true}
-          />
-        </div>
+      {/* Dynamic Stats Section */}
+      <section className="w-full py-16 px-4 relative">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <ScrollReveal variant="slideRight" delay={100} className="bg-card/50 backdrop-blur-md border border-brand/20 p-8 rounded-2xl text-center shadow-lg hover:border-brand-accent/50 transition-colors">
+              <div className="mx-auto w-16 h-16 rounded-full bg-brand/20 flex items-center justify-center mb-4 text-brand-accent">
+                <UsersIcon className="w-8 h-8" />
+              </div>
+              <h3 className="text-5xl font-bold font-space-grotesk text-foreground mb-2">{totalUsers}</h3>
+              <p className="text-muted-foreground font-mono-tech uppercase tracking-widest text-xs">Registered Members</p>
+            </ScrollReveal>
 
-        {/* Revealed Full Hero Content */}
-        <div className="relative z-30 flex flex-col items-center justify-center max-w-6xl w-full text-center px-4 font-valley">
-          <div className="font-valley bg-linear-to-r from-[#5B35A0] via-[#8B5CF6] to-[#C9A15A] bg-clip-text text-4xl sm:text-5xl md:text-6xl lg:text-[5.5rem] font-bold tracking-tight leading-tight">
-            <p className="text-transparent">Turing</p>
-            <p className="text-transparent">Artificial Intelligence</p>
-            <p className="text-transparent">Students</p>
-            <p className="text-transparent">Committee</p>
-          </div>
+            <ScrollReveal variant="fadeUp" delay={200} className="bg-card/50 backdrop-blur-md border border-brand/20 p-8 rounded-2xl text-center shadow-lg hover:border-brand-accent/50 transition-colors">
+              <div className="mx-auto w-16 h-16 rounded-full bg-brand/20 flex items-center justify-center mb-4 text-brand-accent">
+                <CalendarIcon className="w-8 h-8" />
+              </div>
+              <h3 className="text-5xl font-bold font-space-grotesk text-foreground mb-2">{totalEvents}+</h3>
+              <p className="text-muted-foreground font-mono-tech uppercase tracking-widest text-xs">Events Organized</p>
+            </ScrollReveal>
 
-          <div className="mt-8 text-center px-4">
-            <p className="text-xs sm:text-sm md:text-xl font-valley text-foreground">
-              Welcome to the official website of TASC,
-              <br />
-              <span className="font-bold text-brand-accent">
-                Department of Artificial Intelligence and Machine Learning
-              </span>
-            </p>
-          </div>
-
-          {/* Bouncing Scroll Down Arrow */}
-          <div className="mt-8 flex items-center justify-center animate-bounce">
-            <Link href="/#about" aria-label="Scroll down to about section">
-              <svg
-                width="40"
-                height="40"
-                viewBox="0 0 74 74"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                className="hidden dark:block"
-              >
-                <path
-                  d="M65.2726 18.5L69.375 22.1445L37 55.5L4.625 22.1445L8.72738 18.5L37 47.6283L65.2726 18.5Z"
-                  fill="white"
-                />
-              </svg>
-              <svg
-                width="40"
-                height="40"
-                viewBox="0 0 74 74"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                className="block dark:hidden"
-              >
-                <path
-                  d="M65.2726 18.5L69.375 22.1445L37 55.5L4.625 22.1445L8.72738 18.5L37 47.6283L65.2726 18.5Z"
-                  fill="black"
-                />
-              </svg>
-            </Link>
+            <ScrollReveal variant="slideLeft" delay={300} className="bg-card/50 backdrop-blur-md border border-brand/20 p-8 rounded-2xl text-center shadow-lg hover:border-brand-accent/50 transition-colors">
+              <div className="mx-auto w-16 h-16 rounded-full bg-brand/20 flex items-center justify-center mb-4 text-brand-accent">
+                <TrophyIcon className="w-8 h-8" />
+              </div>
+              <h3 className="text-5xl font-bold font-space-grotesk text-foreground mb-2">{coreMembers}</h3>
+              <p className="text-muted-foreground font-mono-tech uppercase tracking-widest text-xs">Core Team Members</p>
+            </ScrollReveal>
           </div>
         </div>
-      </ScrollExpand>
-
-      {/* Subsequent Homepage Sections (Strictly Preserved) */}
-      <section id="about" className="flex max-w-[100vw] py-10 justify-center">
-        <AboutSection />
       </section>
 
       {/* Signature Interactive Centerpiece: Train the Model */}
-      <section id="train-model" className="w-full py-6">
-        <TrainModelSection />
+      <section id="train-model" className="w-full py-16 overflow-hidden">
+        <ScrollReveal variant="fadeUp" duration={1000}>
+          <TrainModelSection />
+        </ScrollReveal>
+      </section>
+
+      {/* Quick Links Section */}
+      <section className="w-full py-16 px-4 mb-20 relative">
+        <div className="max-w-4xl mx-auto">
+          <ScrollReveal variant="scaleUp" className="bg-gradient-to-r from-brand/20 to-brand-accent/20 border border-brand/30 rounded-3xl p-8 md:p-12 text-center backdrop-blur-xl relative overflow-hidden">
+            <div className="absolute inset-0 bg-blueprint-grid opacity-20" />
+            <div className="relative z-10">
+              <h2 className="text-3xl md:text-5xl font-bold font-space-grotesk mb-6 text-foreground">Explore More</h2>
+              <div className="flex flex-col sm:flex-row justify-center gap-4">
+                <Link href="/events" className="group flex items-center justify-center gap-2 bg-foreground text-background px-8 py-4 rounded-xl font-bold hover:scale-105 transition-transform">
+                  Events <ArrowRightIcon className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </Link>
+                <Link href="/team/2024" className="group flex items-center justify-center gap-2 bg-transparent border border-foreground text-foreground px-8 py-4 rounded-xl font-bold hover:bg-foreground/10 transition-colors">
+                  Our Team <ArrowRightIcon className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </div>
+            </div>
+          </ScrollReveal>
+        </div>
       </section>
     </main>
   );

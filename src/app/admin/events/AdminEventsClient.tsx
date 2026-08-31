@@ -259,21 +259,27 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
                     )}
                   </div>
                   <div className="flex gap-2">
+                    <Link
+                      href={`/admin/events/${event.id}/registrations`}
+                      className="rounded-lg border border-brand bg-brand/10 text-brand px-4 py-2 text-sm font-medium transition-colors hover:bg-brand/20 flex items-center justify-center"
+                    >
+                      Manage Registrations
+                    </Link>
                     <button
                       onClick={() => handleExport(event.id, "csv")}
                       disabled={exporting === event.id}
-                    className="rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent disabled:opacity-50"
-                  >
-                    Export CSV
-                  </button>
-                  <button
-                    onClick={() => handleExport(event.id, "excel")}
-                    disabled={exporting === event.id}
-                    className="rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent disabled:opacity-50"
-                  >
-                    Export Excel
-                  </button>
-                </div>
+                      className="rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent disabled:opacity-50"
+                    >
+                      Export CSV
+                    </button>
+                    <button
+                      onClick={() => handleExport(event.id, "excel")}
+                      disabled={exporting === event.id}
+                      className="rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent disabled:opacity-50"
+                    >
+                      Export Excel
+                    </button>
+                  </div>
               </div>
             </div>
             ))
