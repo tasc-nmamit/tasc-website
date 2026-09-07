@@ -2,10 +2,12 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { SearchIcon, ShieldCheckIcon, UserMinusIcon, Trash2Icon } from "lucide-react";
 
 interface User {
   id: string;
   name: string | null;
+  displayName?: string | null;
   email: string;
   image: string | null;
   role: string;
@@ -20,12 +22,6 @@ interface UserRoleManagerProps {
   users: User[];
 }
 
-const ROLE_STYLES: Record<string, string> = {
-  OWNER: "bg-gradient-to-r from-amber-500 to-orange-500 text-white",
-  ADMIN: "bg-gradient-to-r from-purple-500 to-brand text-white",
-  USER: "bg-muted text-muted-foreground",
-};
-
 export default function UserRoleManager({ users: initialUsers }: UserRoleManagerProps) {
   const [users, setUsers] = useState(initialUsers);
   const [search, setSearch] = useState("");
@@ -33,9 +29,8 @@ export default function UserRoleManager({ users: initialUsers }: UserRoleManager
   const [filter, setFilter] = useState<"ALL" | "ADMIN" | "USER">("ALL");
 
   const filtered = users.filter((user) => {
-    const matchesSearch =
-      (user.name?.toLowerCase() || "").includes(search.toLowerCase()) ||
-      user.email.toLowerCase().includes(search.toLowerCase());
+    const searchTarget = `${user.name || ""} ${user.displayName || ""} ${user.email}`.toLowerCase();
+    const matchesSearch = searchTarget.includes(search.toLowerCase());
     const matchesFilter = filter === "ALL" || user.role === filter;
     return matchesSearch && matchesFilter;
   });
@@ -64,7 +59,7 @@ export default function UserRoleManager({ users: initialUsers }: UserRoleManager
 
   async function deleteUser(userId: string) {
     if (!confirm("Are you sure you want to completely remove this user? This cannot be undone.")) return;
-    
+
     setUpdating(userId);
     try {
       const res = await fetch(`/api/admin/users?userId=${userId}`, {
@@ -84,18 +79,16 @@ export default function UserRoleManager({ users: initialUsers }: UserRoleManager
 
   return (
     <div className="space-y-6">
-      {/* Search & Filter */}
-      <div className="flex flex-col gap-4 sm:flex-row">
+      {/* Search & Filter Bar */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
         <div className="relative flex-1">
-          <svg className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
+          <SearchIcon className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <input
             type="text"
-            placeholder="Search by name or email..."
+            placeholder="Search by name, display name, or NMAMIT email..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-lg border border-border bg-background py-2.5 pl-10 pr-4 text-sm outline-none transition-colors focus:border-brand focus:ring-1 focus:ring-brand/30"
+            className="w-full rounded-xl border border-brand/30 bg-card/60 pl-10 pr-4 py-2.5 text-sm text-foreground backdrop-blur-md outline-none focus:border-brand-accent font-space-grotesk"
           />
         </div>
         <div className="flex gap-2">
@@ -103,13 +96,13 @@ export default function UserRoleManager({ users: initialUsers }: UserRoleManager
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={`rounded-lg px-4 py-2.5 text-sm font-medium transition-all ${
+              className={`rounded-xl px-4 py-2 text-xs font-bold font-mono-tech uppercase tracking-wider transition-all cursor-pointer ${
                 filter === f
-                  ? "bg-brand text-white shadow-md shadow-brand/25"
-                  : "border border-border bg-background text-foreground hover:bg-accent/50"
+                  ? "bg-brand/20 text-brand-accent border border-brand/40 shadow-sm"
+                  : "border border-brand/20 bg-card/40 text-muted-foreground hover:text-foreground hover:bg-card/70"
               }`}
             >
-              {f === "ALL" ? `All (${users.length})` : f}
+              {f === "ALL" ? `ALL (${users.length})` : f}
             </button>
           ))}
         </div>
@@ -120,73 +113,83 @@ export default function UserRoleManager({ users: initialUsers }: UserRoleManager
         {filtered.map((user) => (
           <div
             key={user.id}
-            className="flex items-center gap-4 rounded-xl border border-border/50 bg-background/80 p-4 backdrop-blur-sm transition-all hover:border-brand/20 hover:shadow-md"
+            className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-brand/20 bg-card/70 backdrop-blur-xl p-4 sm:p-5 shadow-md transition-all hover:border-brand-accent/40"
           >
-            {/* Avatar */}
-            {user.image ? (
-              <Image
-                src={user.image}
-                alt={user.name || ""}
-                width={40}
-                height={40}
-                className="rounded-full"
-              />
-            ) : (
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand/20 text-sm font-bold text-brand">
-                {(user.name || user.email)[0].toUpperCase()}
-              </div>
-            )}
+            <div className="flex items-center gap-4 min-w-0">
+              {/* Avatar */}
+              {user.image ? (
+                <Image
+                  src={user.image}
+                  alt={user.name || ""}
+                  width={44}
+                  height={44}
+                  className="rounded-full border border-brand/30 shrink-0"
+                />
+              ) : (
+                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-brand/20 border border-brand/30 text-sm font-bold font-mono-tech text-brand-accent shrink-0">
+                  {(user.displayName || user.name || user.email)[0].toUpperCase()}
+                </div>
+              )}
 
-            {/* Info */}
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
-                <p className="truncate font-medium text-foreground">
-                  {user.name || "Unnamed"}
-                </p>
-                <span
-                  className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
-                    ROLE_STYLES[user.role] || ROLE_STYLES.USER
-                  }`}
-                >
-                  {user.role}
-                </span>
-                {user.isAiml && (
-                  <span className="rounded-full bg-blue-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-blue-500">
-                    AIML
+              {/* Info */}
+              <div className="min-w-0 space-y-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="truncate font-bold font-space-grotesk text-foreground">
+                    {user.displayName || user.name || "Unnamed Student"}
+                  </p>
+                  <span
+                    className={`rounded-lg px-2.5 py-0.5 text-[10px] font-bold font-mono-tech uppercase tracking-wider border ${
+                      user.role === "OWNER"
+                        ? "bg-gold/15 text-gold border-gold/40"
+                        : user.role === "ADMIN"
+                        ? "bg-purple-500/15 text-purple-400 border-purple-500/40"
+                        : "bg-muted text-muted-foreground border-border/40"
+                    }`}
+                  >
+                    {user.role}
                   </span>
-                )}
+                  {user.isAiml && (
+                    <span className="rounded-lg bg-blue-500/15 text-blue-400 border border-blue-500/40 px-2 py-0.5 text-[10px] font-bold font-mono-tech uppercase tracking-wider">
+                      AIML
+                    </span>
+                  )}
+                </div>
+                <p className="truncate text-xs font-mono-tech text-muted-foreground">
+                  {user.email}
+                </p>
               </div>
-              <p className="truncate text-sm text-muted-foreground">
-                {user.email}
-              </p>
             </div>
 
             {/* Actions */}
             {user.role !== "OWNER" && (
-              <div className="flex gap-2">
+              <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
                 {user.role === "USER" ? (
                   <button
                     onClick={() => updateRole(user.id, "ADMIN")}
                     disabled={updating === user.id}
-                    className="rounded-lg border border-purple-500/30 bg-purple-500/10 px-4 py-2 text-sm font-medium text-purple-500 transition-all hover:bg-purple-500/20 disabled:opacity-50"
+                    className="rounded-xl border border-brand/30 bg-brand/15 px-3.5 py-1.5 text-xs font-bold font-space-grotesk text-brand-accent transition-all hover:bg-brand/25 disabled:opacity-50 flex items-center gap-1.5 cursor-pointer shadow-sm"
                   >
-                    {updating === user.id ? "..." : "Make Admin"}
+                    <ShieldCheckIcon className="w-3.5 h-3.5" />
+                    {updating === user.id ? "Updating..." : "Make Admin"}
                   </button>
                 ) : (
                   <button
                     onClick={() => updateRole(user.id, "USER")}
                     disabled={updating === user.id}
-                    className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-2 text-sm font-medium text-amber-500 transition-all hover:bg-amber-500/20 disabled:opacity-50"
+                    className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-3.5 py-1.5 text-xs font-bold font-space-grotesk text-amber-400 transition-all hover:bg-amber-500/20 disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
                   >
-                    {updating === user.id ? "..." : "Remove Admin"}
+                    <UserMinusIcon className="w-3.5 h-3.5" />
+                    {updating === user.id ? "Updating..." : "Revoke Admin"}
                   </button>
                 )}
+
                 <button
                   onClick={() => deleteUser(user.id)}
                   disabled={updating === user.id}
-                  className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm font-medium text-red-500 transition-all hover:bg-red-500/20 disabled:opacity-50"
+                  className="rounded-xl border border-red-500/30 bg-red-500/10 p-2 text-red-400 hover:bg-red-500/20 transition-all disabled:opacity-50 cursor-pointer"
+                  title="Delete User"
                 >
-                  {updating === user.id ? "..." : "Delete"}
+                  <Trash2Icon className="w-4 h-4" />
                 </button>
               </div>
             )}
@@ -194,7 +197,7 @@ export default function UserRoleManager({ users: initialUsers }: UserRoleManager
         ))}
 
         {filtered.length === 0 && (
-          <div className="py-12 text-center text-muted-foreground">
+          <div className="rounded-2xl border border-brand/20 bg-card/60 backdrop-blur-xl p-12 text-center text-sm text-muted-foreground font-space-grotesk">
             No users found matching your search.
           </div>
         )}

@@ -103,17 +103,47 @@ export async function POST(request: Request, context: Context) {
       );
     }
 
-    // Helper to validate custom fields
-    const customFields = await db.eventCustomField.findMany({
-      where: { eventId: id },
-    });
+    const isLeaderOrSolo = event.type === "SOLO" || action === "CREATE";
 
-    for (const field of customFields) {
-      if (field.isRequired && !responses[field.id]) {
-        return NextResponse.json(
-          { error: `Field '${field.label}' is required` },
-          { status: 400 }
-        );
+    if (isLeaderOrSolo) {
+      // Validate custom fields and number thresholds
+      const customFields = await db.eventCustomField.findMany({
+        where: { eventId: id },
+      });
+
+      const fieldResponses = responses || {};
+
+      for (const field of customFields) {
+        const val = fieldResponses[field.id];
+        if (field.isRequired && (val === undefined || val === null || val === "" || (Array.isArray(val) && val.length === 0))) {
+          return NextResponse.json(
+            { error: `Field '${field.label}' is required` },
+            { status: 400 }
+          );
+        }
+
+        if (field.fieldType === "NUMBER" && val !== undefined && val !== null && val !== "") {
+          const numVal = Number(val);
+          if (isNaN(numVal)) {
+            return NextResponse.json(
+              { error: `Field '${field.label}' must be a valid number` },
+              { status: 400 }
+            );
+          }
+          const opts = (field.options as { min?: number | null; max?: number | null }) || {};
+          if (opts.min !== undefined && opts.min !== null && numVal < opts.min) {
+            return NextResponse.json(
+              { error: `Field '${field.label}' cannot be less than ${opts.min}` },
+              { status: 400 }
+            );
+          }
+          if (opts.max !== undefined && opts.max !== null && numVal > opts.max) {
+            return NextResponse.json(
+              { error: `Field '${field.label}' cannot exceed ${opts.max}` },
+              { status: 400 }
+            );
+          }
+        }
       }
     }
 
@@ -124,6 +154,7 @@ export async function POST(request: Request, context: Context) {
           eventId: id,
           leaderId: session.user.id,
           status: "CONFIRMED", // Solo teams are auto-confirmed
+          customFieldResponses: responses ?? undefined,
         },
       });
 
@@ -131,7 +162,7 @@ export async function POST(request: Request, context: Context) {
         data: {
           userId: session.user.id,
           teamId: team.id,
-          customFieldResponses: responses,
+          customFieldResponses: responses ?? undefined,
         },
       });
 
@@ -147,7 +178,8 @@ export async function POST(request: Request, context: Context) {
             name: teamName,
             leaderId: session.user.id,
             teamCode: newTeamCode,
-            status: event.minTeamSize === 1 ? "CONFIRMED" : "PENDING",
+            status: "PENDING",
+            customFieldResponses: responses ?? undefined,
           },
         });
 
@@ -155,7 +187,7 @@ export async function POST(request: Request, context: Context) {
           data: {
             userId: session.user.id,
             teamId: team.id,
-            customFieldResponses: responses,
+            customFieldResponses: responses ?? undefined,
           },
         });
 
@@ -182,19 +214,37 @@ export async function POST(request: Request, context: Context) {
           data: {
             userId: session.user.id,
             teamId: team.id,
-            customFieldResponses: responses,
+            customFieldResponses: undefined, // Members joining via code don't need custom fields
           },
         });
 
-        // Auto-confirm team if minimum threshold is met
-        if (team.status === "PENDING" && team.registrations.length + 1 >= event.minTeamSize) {
-          await db.team.update({
-            where: { id: team.id },
-            data: { status: "CONFIRMED" },
-          });
+        return NextResponse.json({ success: true });
+      } else if (action === "CONFIRM_TEAM") {
+        const team = await db.team.findFirst({
+          where: {
+            eventId: id,
+            leaderId: session.user.id,
+          },
+          include: { registrations: true },
+        });
+
+        if (!team) {
+          return NextResponse.json({ error: "Only the team leader can confirm the team" }, { status: 403 });
         }
 
-        return NextResponse.json({ success: true });
+        if (team.registrations.length < event.minTeamSize) {
+          return NextResponse.json(
+            { error: `Team must have at least ${event.minTeamSize} member(s) before confirming` },
+            { status: 400 }
+          );
+        }
+
+        await db.team.update({
+          where: { id: team.id },
+          data: { status: "CONFIRMED" },
+        });
+
+        return NextResponse.json({ success: true, message: "Team confirmed successfully!" });
       }
       return NextResponse.json({ error: "Invalid team action" }, { status: 400 });
     }

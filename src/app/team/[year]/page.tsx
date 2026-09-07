@@ -46,6 +46,11 @@ export default async function TeamPage({ params }: PageProps) {
 
   // In legacy, ye2d members to the view.
   return (
-    <TeamView initialMembers={members} year={year} teamYears={teamYears} />
+    <main className="min-h-dvh bg-background bg-blueprint-grid relative overflow-x-hidden">
+      <div className="absolute top-0 inset-x-0 h-96 bg-gradient-to-b from-brand/10 via-brand/5 to-transparent pointer-events-none" />
+      <div className="relative z-10">
+        <TeamView initialMembers={members} year={year} teamYears={teamYears} />
+      </div>
+    </main>
   );
 }

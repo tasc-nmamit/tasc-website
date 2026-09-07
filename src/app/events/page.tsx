@@ -42,5 +42,12 @@ export default async function EventsPage() {
     };
   });
 
-  return <EventsView initialEvents={events} />;
+  return (
+    <main className="min-h-dvh bg-background bg-blueprint-grid relative overflow-x-hidden">
+      <div className="absolute top-0 inset-x-0 h-96 bg-gradient-to-b from-brand/15 via-brand/5 to-transparent pointer-events-none" />
+      <div className="relative z-10">
+        <EventsView initialEvents={events} />
+      </div>
+    </main>
+  );
 }

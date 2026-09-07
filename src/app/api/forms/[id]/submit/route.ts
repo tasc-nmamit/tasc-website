@@ -47,10 +47,25 @@ export async function POST(request: Request, context: Context) {
 
     const { answers } = await request.json();
 
-    // Validate required fields
+    // Validate required fields and number thresholds
     for (const field of form.fields) {
-      if (field.isRequired && !answers[field.id]) {
+      const val = answers[field.id];
+      if (field.isRequired && (val === undefined || val === null || val === "")) {
         return NextResponse.json({ error: `Field '${field.label}' is required` }, { status: 400 });
+      }
+
+      if (field.type === "NUMBER" && val !== undefined && val !== null && val !== "") {
+        const numVal = Number(val);
+        if (isNaN(numVal)) {
+          return NextResponse.json({ error: `Field '${field.label}' must be a valid number` }, { status: 400 });
+        }
+        const opts = (field.options as { min?: number | null; max?: number | null }) || {};
+        if (opts.min !== undefined && opts.min !== null && numVal < opts.min) {
+          return NextResponse.json({ error: `Field '${field.label}' cannot be less than ${opts.min}` }, { status: 400 });
+        }
+        if (opts.max !== undefined && opts.max !== null && numVal > opts.max) {
+          return NextResponse.json({ error: `Field '${field.label}' cannot exceed ${opts.max}` }, { status: 400 });
+        }
       }
     }
 

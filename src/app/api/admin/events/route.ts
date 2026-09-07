@@ -17,6 +17,7 @@ export async function POST(request: Request) {
       image,
       date,
       time,
+      endDate,
       venue,
       type, // SOLO | TEAM
       status, // DRAFT | UPCOMING | ONGOING | COMPLETED
@@ -24,9 +25,12 @@ export async function POST(request: Request) {
       maxTeamSize,
       maxTeams,
       brief,
+      published,
       registrationsAvailable,
       customFields,
     } = body;
+
+    const isPublished = published !== undefined ? published : (status !== "DRAFT");
 
     const event = await db.event.create({
       data: {
@@ -35,6 +39,7 @@ export async function POST(request: Request) {
         image,
         date: new Date(date),
         time,
+        endDate: endDate ? new Date(endDate) : null,
         venue,
         type: type as EventType,
         status: status as EventStatus,
@@ -43,16 +48,16 @@ export async function POST(request: Request) {
         maxTeams: maxTeams ? parseInt(maxTeams) : null,
         brief: "",
         registrationsAvailable,
-        published: status !== "DRAFT", // Automatically publish if not a draft
+        published: isPublished,
         organizers: {
           connect: { id: session.user.id }
         },
         customFields: {
           create: customFields?.map((cf: any, index: number) => ({
             label: cf.label,
-            fieldType: cf.fieldType,
-            isRequired: cf.isRequired,
-            options: cf.options,
+            fieldType: cf.fieldType || "TEXT",
+            isRequired: !!cf.isRequired,
+            options: cf.options || null,
             order: index,
           })) || [],
         },

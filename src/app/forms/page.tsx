@@ -40,24 +40,21 @@ export default async function FormsListPage() {
     : null;
 
   return (
-    <main className="min-h-dvh px-4 pt-28 pb-20 relative bg-transparent text-slate-100">
+    <main className="min-h-dvh px-4 pt-28 pb-20 relative bg-background bg-blueprint-grid text-foreground overflow-x-hidden">
+      <div className="absolute top-0 inset-x-0 h-96 bg-gradient-to-b from-brand/15 via-brand/5 to-transparent pointer-events-none" />
       <div className="relative z-10 mx-auto max-w-4xl space-y-10">
 
         {/* Header Section */}
-        <div className="border border-white/20 bg-black/75 backdrop-blur-md p-6 sm:p-8 rounded-none space-y-4">
+        <div className="relative border border-brand/25 bg-card/85 backdrop-blur-xl p-6 sm:p-8 rounded-xl space-y-4 shadow-xl">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="inline-flex items-center gap-2 border border-white/20 bg-white/5 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-slate-300 rounded-none">
-              <span>COMMUNITY PORTAL</span>
-            </div>
-
-
+            <TechnicalLabel variant="primary">[ COMMUNITY_PORTAL // FORMS_HUB ]</TechnicalLabel>
           </div>
 
           <div>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-white leading-tight font-valley">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-foreground leading-tight font-space-grotesk">
               Forms & Polls
             </h1>
-            <p className="mt-2 text-sm sm:text-base text-slate-300 max-w-2xl leading-relaxed font-valley">
+            <p className="mt-2 text-sm sm:text-base text-muted-foreground max-w-2xl leading-relaxed font-space-grotesk">
               Participate in department decisions, submit academic forms, and cast your votes.
             </p>
           </div>

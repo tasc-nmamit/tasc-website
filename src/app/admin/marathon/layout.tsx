@@ -2,42 +2,61 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import TechnicalLabel from "@/components/ui/circuit-ink/TechnicalLabel";
+import { ArrowLeft, CodeIcon, CalendarIcon } from "lucide-react";
 
 export default function MarathonAdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   return (
-    <main className="min-h-dvh px-4 pt-28 pb-16">
-      <div className="mx-auto max-w-6xl">
+    <main className="min-h-dvh px-4 pt-28 pb-16 bg-background bg-blueprint-grid relative">
+      <div className="absolute top-0 inset-x-0 h-96 bg-gradient-to-b from-brand/15 to-transparent pointer-events-none" />
+
+      <div className="mx-auto max-w-6xl relative z-10">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground">
-            Coding Marathon Admin
+          <Link
+            href="/admin"
+            className="inline-flex items-center gap-2 text-xs font-mono-tech uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors mb-4"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>[ RETURN_TO_ADMIN_CONSOLE ]</span>
+          </Link>
+
+          <TechnicalLabel variant="gold" className="mb-3">
+            [ MODULE_05 // COMPETITION_CORE ]
+          </TechnicalLabel>
+
+          <h1 className="text-3xl md:text-5xl font-bold font-space-grotesk text-foreground">
+            Coding Marathon <span className="text-gold">Administration</span>
           </h1>
-          <p className="mt-2 text-muted-foreground">
-            Manage daily and weekly coding contests and sync leaderboards.
+          <p className="mt-2 text-sm md:text-base text-muted-foreground font-space-grotesk">
+            Manage daily practice sprints, weekly marathon challenges, and HackerRank leaderboard synchronization.
           </p>
         </div>
 
-        <div className="mb-6 flex gap-4 border-b border-border/50 pb-4">
+        {/* Unified Navigation Tabs */}
+        <div className="mb-8 flex gap-3 border-b border-brand/20 pb-4">
           <Link
             href="/admin/marathon/daily"
-            className={`px-4 py-2 font-semibold transition-colors ${
+            className={`px-5 py-2.5 rounded-xl font-space-grotesk font-semibold text-sm transition-all flex items-center gap-2 ${
               pathname === "/admin/marathon/daily"
-                ? "text-brand border-b-2 border-brand"
-                : "text-muted-foreground hover:text-foreground"
+                ? "bg-brand/20 text-brand-accent border border-brand/40 shadow-sm"
+                : "text-muted-foreground hover:text-foreground hover:bg-card/40"
             }`}
           >
-            Daily Contests
+            <CalendarIcon className="w-4 h-4" />
+            Daily Sprints (5:30 AM)
           </Link>
           <Link
             href="/admin/marathon/weekly"
-            className={`px-4 py-2 font-semibold transition-colors ${
+            className={`px-5 py-2.5 rounded-xl font-space-grotesk font-semibold text-sm transition-all flex items-center gap-2 ${
               pathname === "/admin/marathon/weekly"
-                ? "text-brand border-b-2 border-brand"
-                : "text-muted-foreground hover:text-foreground"
+                ? "bg-brand/20 text-brand-accent border border-brand/40 shadow-sm"
+                : "text-muted-foreground hover:text-foreground hover:bg-card/40"
             }`}
           >
-            Weekly Contests
+            <CodeIcon className="w-4 h-4" />
+            Weekly Challenges
           </Link>
         </div>
 

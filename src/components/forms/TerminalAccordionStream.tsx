@@ -122,24 +122,24 @@ export default function TerminalAccordionStream({ forms, user }: TerminalAccordi
     <div className="w-full max-w-4xl mx-auto space-y-6 font-valley">
       
       {/* Interactive Toolbar: Search Bar & Filter Tabs */}
-      <div className="space-y-4">
+      <div className="space-y-4 font-space-grotesk">
         <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
           
           {/* Search Input */}
           <div className="relative flex-1">
-            <SearchIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <SearchIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search forms & voting polls..."
-              className="w-full pl-10 pr-4 py-2.5 rounded-none bg-black/60 border border-white/15 focus:border-purple-400 text-white placeholder:text-slate-500 text-sm outline-none transition-all font-valley backdrop-blur-md"
+              className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-card/80 border border-brand/25 focus:border-brand-accent text-foreground placeholder:text-muted-foreground text-sm outline-none transition-all font-space-grotesk backdrop-blur-md"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-white px-1.5 py-0.5 rounded-none cursor-pointer"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground hover:text-foreground px-1.5 py-0.5 rounded cursor-pointer font-mono-tech"
               >
                 Clear
               </button>
@@ -151,14 +151,14 @@ export default function TerminalAccordionStream({ forms, user }: TerminalAccordi
             <button
               type="button"
               onClick={expandAll}
-              className="text-xs font-semibold text-slate-300 hover:text-white px-3 py-2 rounded-none bg-black/50 border border-white/15 hover:border-white/30 transition-colors cursor-pointer"
+              className="text-xs font-semibold text-muted-foreground hover:text-foreground px-3 py-2 rounded-lg bg-background/60 border border-brand/20 hover:border-brand/40 transition-colors cursor-pointer"
             >
               Expand All
             </button>
             <button
               type="button"
               onClick={collapseAll}
-              className="text-xs font-semibold text-slate-300 hover:text-white px-3 py-2 rounded-none bg-black/50 border border-white/15 hover:border-white/30 transition-colors cursor-pointer"
+              className="text-xs font-semibold text-muted-foreground hover:text-foreground px-3 py-2 rounded-lg bg-background/60 border border-brand/20 hover:border-brand/40 transition-colors cursor-pointer"
             >
               Collapse All
             </button>
@@ -166,7 +166,7 @@ export default function TerminalAccordionStream({ forms, user }: TerminalAccordi
         </div>
 
         {/* Filter Tabs */}
-        <div className="flex flex-wrap gap-2 pt-1 border-b border-white/10 pb-3">
+        <div className="flex flex-wrap gap-2 pt-1 border-b border-brand/20 pb-3">
           {(
             [
               { key: "all", label: "All Forms", count: counts.all },
@@ -181,16 +181,16 @@ export default function TerminalAccordionStream({ forms, user }: TerminalAccordi
                 key={tab.key}
                 type="button"
                 onClick={() => setSelectedFilter(tab.key)}
-                className={`flex items-center gap-2 px-3.5 py-1.5 rounded-none text-xs font-bold transition-all cursor-pointer ${
+                className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-mono-tech uppercase tracking-wider transition-all cursor-pointer border ${
                   isSelected
-                    ? "bg-purple-600 text-white shadow-md shadow-purple-900/30"
-                    : "bg-black/50 border border-white/15 text-slate-400 hover:text-white hover:border-white/30"
+                    ? "bg-brand/20 border-brand-accent text-brand-accent font-bold shadow-sm"
+                    : "bg-background/60 border-brand/15 text-muted-foreground hover:text-foreground hover:border-brand/30"
                 }`}
               >
                 <span>{tab.label}</span>
                 <span
-                  className={`text-[10px] px-1.5 py-0.2 rounded-none ${
-                    isSelected ? "bg-white/20 text-white" : "bg-white/10 text-slate-400"
+                  className={`text-[10px] px-1.5 py-0.2 rounded font-bold ${
+                    isSelected ? "bg-brand/20 text-brand-accent" : "bg-brand/10 text-muted-foreground"
                   }`}
                 >
                   {tab.count}
@@ -203,10 +203,10 @@ export default function TerminalAccordionStream({ forms, user }: TerminalAccordi
 
       {/* Forms List Stream */}
       {filteredForms.length === 0 ? (
-        <div className="py-16 text-center rounded-none border border-white/10 bg-black/50 backdrop-blur-md p-8 space-y-3">
-          <SparklesIcon className="h-7 w-7 text-purple-400 mx-auto opacity-70" />
-          <h3 className="text-base font-bold text-white font-valley">No matching forms found</h3>
-          <p className="text-xs text-slate-400 max-w-sm mx-auto">
+        <div className="py-16 text-center rounded-xl border border-brand/20 bg-card/60 backdrop-blur-md p-8 space-y-3">
+          <SparklesIcon className="h-7 w-7 text-brand-accent mx-auto opacity-70" />
+          <h3 className="text-base font-bold text-foreground font-space-grotesk">No matching forms found</h3>
+          <p className="text-xs text-muted-foreground max-w-sm mx-auto font-space-grotesk">
             {searchQuery
               ? `No forms match your search "${searchQuery}". Try different keywords.`
               : "No forms currently match the selected filter."}
@@ -223,7 +223,7 @@ export default function TerminalAccordionStream({ forms, user }: TerminalAccordi
               return (
                 <div
                   key={form.id}
-                  className="group rounded-none border border-white/10 bg-black/40 backdrop-blur-md transition-all duration-200 hover:border-white/25"
+                  className="group rounded-xl border border-brand/15 bg-card/60 backdrop-blur-md transition-all duration-200 hover:border-brand/30"
                 >
                   <button
                     type="button"
@@ -231,22 +231,22 @@ export default function TerminalAccordionStream({ forms, user }: TerminalAccordi
                     className="w-full px-5 py-3.5 text-left flex flex-col sm:flex-row sm:items-center justify-between gap-3 cursor-pointer"
                   >
                     <div className="flex items-center gap-3 min-w-0">
-                      <span className="text-[10px] font-bold text-slate-400 bg-white/10 border border-white/10 px-2 py-0.5 rounded-none uppercase tracking-wider shrink-0">
+                      <span className="text-[10px] font-bold font-mono-tech text-muted-foreground bg-muted border border-border px-2 py-0.5 rounded uppercase tracking-wider shrink-0">
                         Closed
                       </span>
-                      <span className="font-valley font-medium text-slate-300 truncate text-sm sm:text-base group-hover:text-white transition-colors">
+                      <span className="font-space-grotesk font-medium text-foreground truncate text-sm sm:text-base group-hover:text-brand-accent transition-colors">
                         {form.title}
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-4 shrink-0 text-xs text-slate-400">
+                    <div className="flex items-center gap-4 shrink-0 text-xs text-muted-foreground font-mono-tech">
                       {form.endTime && (
                         <span>Ended {format(new Date(form.endTime), "MMM d, yyyy")}</span>
                       )}
                       <span>({form.responsesCount} responses)</span>
                       <ChevronDownIcon
-                        className={`h-4 w-4 transition-transform duration-200 ${
-                          isExpanded ? "rotate-180 text-white" : ""
+                        className={`h-4 w-4 transition-transform duration-200 text-muted-foreground ${
+                          isExpanded ? "rotate-180 text-foreground" : ""
                         }`}
                       />
                     </div>
@@ -254,7 +254,7 @@ export default function TerminalAccordionStream({ forms, user }: TerminalAccordi
 
                   {/* Expanded details for closed form */}
                   {isExpanded && form.description && (
-                    <div className="px-5 pb-4 pt-1 border-t border-white/10 text-xs text-slate-400 leading-relaxed whitespace-pre-wrap">
+                    <div className="px-5 pb-4 pt-1 border-t border-brand/15 text-xs text-muted-foreground font-space-grotesk leading-relaxed whitespace-pre-wrap">
                       {form.description}
                     </div>
                   )}
@@ -266,10 +266,10 @@ export default function TerminalAccordionStream({ forms, user }: TerminalAccordi
             return (
               <div
                 key={form.id}
-                className={`rounded-none border transition-all duration-200 backdrop-blur-md overflow-hidden ${
+                className={`rounded-xl border transition-all duration-200 backdrop-blur-xl overflow-hidden shadow-sm ${
                   isExpanded
-                    ? "bg-black/85 border-purple-500/50 shadow-lg shadow-purple-950/20"
-                    : "bg-black/60 border-white/15 hover:border-white/35 hover:bg-black/75"
+                    ? "bg-card border-brand-accent/50 shadow-md"
+                    : "bg-card/80 border-brand/20 hover:border-brand/40"
                 }`}
               >
                 {/* Header Trigger */}
@@ -285,44 +285,44 @@ export default function TerminalAccordionStream({ forms, user }: TerminalAccordi
                     <div className="shrink-0 flex items-center">
                       {form.isActive ? (
                         <span className="relative flex h-2.5 w-2.5">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-none bg-emerald-400 opacity-75" />
-                          <span className="relative inline-flex rounded-none h-2.5 w-2.5 bg-emerald-500" />
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                          <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
                         </span>
                       ) : (
-                        <span className="h-2.5 w-2.5 rounded-none bg-amber-400" />
+                        <span className="h-2.5 w-2.5 rounded-full bg-amber-400" />
                       )}
                     </div>
 
                     {/* Badges */}
                     <div className="flex flex-wrap items-center gap-2">
                       {form.requireAiml && (
-                        <span className="inline-flex items-center gap-1 text-[11px] font-bold text-purple-300 bg-purple-950/70 border border-purple-500/40 px-2.5 py-0.5 rounded-none uppercase tracking-wider">
+                        <span className="inline-flex items-center gap-1 text-[11px] font-mono-tech font-bold text-brand-accent bg-brand/15 border border-brand/30 px-2.5 py-0.5 rounded uppercase tracking-wider">
                           <LockIcon className="h-3 w-3" />
                           AIML Only
                         </span>
                       )}
                       {form.isActive && (
-                        <span className="text-[11px] font-bold text-emerald-300 bg-emerald-950/50 border border-emerald-500/30 px-2.5 py-0.5 rounded-none uppercase tracking-wider">
+                        <span className="text-[11px] font-mono-tech font-bold text-emerald-400 bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-0.5 rounded uppercase tracking-wider">
                           Active
                         </span>
                       )}
                       {form.isNotStarted && (
-                        <span className="text-[11px] font-bold text-amber-300 bg-amber-950/50 border border-amber-500/30 px-2.5 py-0.5 rounded-none uppercase tracking-wider">
+                        <span className="text-[11px] font-mono-tech font-bold text-amber-400 bg-amber-500/15 border border-amber-500/30 px-2.5 py-0.5 rounded uppercase tracking-wider">
                           Opens Soon
                         </span>
                       )}
                     </div>
 
                     {/* Title */}
-                    <h2 className="font-valley font-bold text-base sm:text-lg text-white truncate group-hover:text-purple-200 transition-colors">
+                    <h2 className="font-space-grotesk font-bold text-base sm:text-lg text-foreground truncate group-hover:text-brand-accent transition-colors">
                       {form.title}
                     </h2>
                   </div>
 
                   {/* Right Side: Timeline & Chevron */}
-                  <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0 text-xs text-slate-300">
-                    <div className="flex items-center gap-1.5 text-xs text-purple-200 bg-purple-950/60 border border-purple-500/30 px-3 py-1 rounded-none">
-                      <ClockIcon className="h-3.5 w-3.5 text-purple-400" />
+                  <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0 text-xs">
+                    <div className="flex items-center gap-1.5 text-xs text-brand-accent bg-brand/10 border border-brand/20 px-3 py-1 rounded-lg font-mono-tech">
+                      <ClockIcon className="h-3.5 w-3.5 text-brand-accent" />
                       <span>
                         {form.isNotStarted && form.startTime
                           ? `Opens ${formatDistanceToNow(new Date(form.startTime), { addSuffix: true })}`
@@ -333,8 +333,8 @@ export default function TerminalAccordionStream({ forms, user }: TerminalAccordi
                     </div>
 
                     <div
-                      className={`p-1.5 text-slate-400 group-hover:text-white transition-transform duration-200 ${
-                        isExpanded ? "rotate-180 text-purple-300" : ""
+                      className={`p-1.5 text-muted-foreground transition-transform duration-200 ${
+                        isExpanded ? "rotate-180 text-brand-accent" : ""
                       }`}
                     >
                       <ChevronDownIcon className="h-4 w-4" />
@@ -349,20 +349,20 @@ export default function TerminalAccordionStream({ forms, user }: TerminalAccordi
                   }`}
                 >
                   <div className="overflow-hidden">
-                    <div className="px-5 pb-5 pt-2 border-t border-white/10 space-y-4">
+                    <div className="px-5 pb-5 pt-2 border-t border-brand/15 space-y-4 font-space-grotesk">
                       {/* Description */}
                       {form.description ? (
-                        <p className="text-sm sm:text-base text-slate-200 leading-relaxed font-normal whitespace-pre-wrap">
+                        <p className="text-sm sm:text-base text-muted-foreground leading-relaxed whitespace-pre-wrap">
                           {form.description}
                         </p>
                       ) : (
-                        <p className="text-xs text-slate-400 italic">No additional description provided.</p>
+                        <p className="text-xs text-muted-foreground italic">No additional description provided.</p>
                       )}
 
                       {/* Footer & Action Buttons */}
-                      <div className="pt-3 border-t border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                        <div className="flex items-center gap-2 text-xs text-slate-400">
-                          <UsersIcon className="h-3.5 w-3.5 text-purple-400" />
+                      <div className="pt-3 border-t border-brand/15 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground font-mono-tech">
+                          <UsersIcon className="h-3.5 w-3.5 text-brand-accent" />
                           <span>{form.responsesCount} Submissions Recorded</span>
                         </div>
 
@@ -370,27 +370,27 @@ export default function TerminalAccordionStream({ forms, user }: TerminalAccordi
                           {!user ? (
                             <Link
                               href="/auth/signin"
-                              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-none bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs uppercase tracking-wider transition-all duration-150 shadow-md hover:shadow-purple-600/30 cursor-pointer"
+                              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-brand hover:bg-brand/90 text-white font-bold text-xs uppercase tracking-wider transition-all duration-150 shadow-md cursor-pointer font-space-grotesk"
                             >
                               <span>Sign In to Participate</span>
                               <ArrowRightIcon className="h-3.5 w-3.5" />
                             </Link>
                           ) : aimlRestricted ? (
-                            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-none border border-red-500/30 bg-red-950/40 text-red-300 text-xs font-semibold">
+                            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-red-500/30 bg-red-500/10 text-red-400 text-xs font-semibold font-mono-tech">
                               <XCircleIcon className="h-3.5 w-3.5" />
-                              <span>Restricted to AIML Department</span>
+                              <span>Restricted to AIML Branch Students</span>
                             </div>
                           ) : form.isNotStarted ? (
-                            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-none border border-amber-500/30 bg-amber-950/40 text-amber-300 text-xs font-semibold">
+                            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-amber-500/30 bg-amber-500/10 text-amber-400 text-xs font-semibold font-mono-tech">
                               <ClockIcon className="h-3.5 w-3.5" />
-                              <span>Form Not Open Yet</span>
+                              <span>Form Not Yet Open</span>
                             </div>
                           ) : (
                             <Link
                               href={`/forms/${form.id}`}
-                              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-none bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs uppercase tracking-wider transition-all duration-150 shadow-md hover:shadow-purple-600/30 hover:scale-[1.02] cursor-pointer"
+                              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-brand hover:bg-brand/90 text-white font-bold text-xs uppercase tracking-wider transition-all duration-150 shadow-md hover:scale-[1.02] cursor-pointer font-space-grotesk"
                             >
-                              <span>Open Form</span>
+                              <span>Fill Response</span>
                               <ArrowRightIcon className="h-3.5 w-3.5" />
                             </Link>
                           )}

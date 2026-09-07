@@ -3,48 +3,77 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { LockIcon, CheckCircle2Icon, UsersIcon } from "lucide-react";
+import {
+  CheckCircle2Icon,
+  CopyIcon,
+  CheckIcon,
+  UsersIcon,
+  LockIcon,
+  PlusIcon,
+  UserPlusIcon,
+  ShieldCheckIcon,
+  ClockIcon,
+} from "lucide-react";
+import CircuitTrace from "@/components/ui/circuit-ink/CircuitTrace";
 
-export default function EventRegistrationClient({
-  event,
-  session,
-  isRegistered,
-  userTeam,
-  isPast,
-}: {
+interface EventRegistrationClientProps {
   event: any;
-  session: any;
   isRegistered: boolean;
   userTeam: any;
   isPast: boolean;
-}) {
+  isLive: boolean;
+  session: any;
+}
+
+export default function EventRegistrationClient({
+  event,
+  isRegistered,
+  userTeam,
+  isPast,
+  isLive,
+  session,
+}: EventRegistrationClientProps) {
   const router = useRouter();
   const [modalOpen, setModalOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-
-  // Team Registration States
   const [teamAction, setTeamAction] = useState<"CREATE" | "JOIN">("CREATE");
   const [teamName, setTeamName] = useState("");
   const [teamCode, setTeamCode] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [confirmingTeam, setConfirmingTeam] = useState(false);
+  const [copiedCode, setCopiedCode] = useState(false);
 
-  // Custom Fields Responses
+  // Dynamic responses for custom fields
   const [responses, setResponses] = useState<Record<string, any>>({});
 
   const isSolo = event.type === "SOLO";
 
+  const handleCopyCode = (code: string) => {
+    navigator.clipboard.writeText(code);
+    setCopiedCode(true);
+    setTimeout(() => setCopiedCode(false), 2000);
+  };
+
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
 
     try {
-      const payload = {
-        action: isSolo ? undefined : teamAction,
-        teamName: isSolo ? undefined : teamAction === "CREATE" ? teamName : undefined,
-        teamCode: isSolo ? undefined : teamAction === "JOIN" ? teamCode : undefined,
-        responses,
+      const payload: any = {
+        action: isSolo ? "CREATE" : teamAction,
       };
+
+      if (!isSolo) {
+        if (teamAction === "CREATE") {
+          payload.teamName = teamName;
+        } else {
+          payload.teamCode = teamCode.trim().toUpperCase();
+        }
+      }
+
+      // Solo participants and team leaders provide questionnaire responses
+      if (isSolo || teamAction === "CREATE") {
+        payload.responses = responses;
+      }
 
       const res = await fetch(`/api/events/${event.id}/register`, {
         method: "POST",
@@ -53,209 +82,427 @@ export default function EventRegistrationClient({
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to register");
 
-      alert(data.teamCode ? `Registered! Your Team Code is: ${data.teamCode}. Share this with teammates.` : "Successfully registered!");
+      if (!res.ok) {
+        throw new Error(data.error || "Registration failed");
+      }
+
       setModalOpen(false);
       router.refresh();
     } catch (err: any) {
-      setError(err.message);
+      alert("Registration Error: " + err.message);
     } finally {
       setLoading(false);
     }
   };
 
-  // Render Logic
+  const handleConfirmTeam = async () => {
+    if (!confirm("Are you sure you want to finalize and confirm this team roster?")) return;
+
+    setConfirmingTeam(true);
+    try {
+      const res = await fetch(`/api/events/${event.id}/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "CONFIRM_TEAM" }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to confirm team");
+      }
+
+      alert("Team confirmed successfully!");
+      router.refresh();
+    } catch (err: any) {
+      alert("Error: " + err.message);
+    } finally {
+      setConfirmingTeam(false);
+    }
+  };
+
+  // Render: Event Concluded
   if (isPast) {
     return (
-      <div className="rounded-2xl border border-border/50 bg-background/80 p-6 text-center shadow-lg">
-        <h3 className="font-bold text-lg mb-2">Event Concluded</h3>
-        <p className="text-sm text-muted-foreground">This event has already taken place.</p>
+      <div className="relative rounded-xl border border-border/50 bg-card/80 p-6 text-center shadow-lg backdrop-blur-md">
+        <CircuitTrace corners={true} />
+        <h3 className="font-bold font-space-grotesk text-base text-foreground mb-1">Event Concluded</h3>
+        <p className="text-xs text-muted-foreground font-mono-tech uppercase tracking-wider">
+          [ REGISTRATION_SESSION_EXPIRED ]
+        </p>
       </div>
     );
   }
 
+  // Render: Registrations Paused
   if (!event.registrationsAvailable && !isRegistered) {
     return (
-      <div className="rounded-2xl border border-border/50 bg-background/80 p-6 text-center shadow-lg">
-        <LockIcon className="w-8 h-8 mx-auto mb-3 text-muted-foreground" />
-        <h3 className="font-bold text-lg mb-1">Registrations Closed</h3>
-        <p className="text-sm text-muted-foreground">We are no longer accepting registrations for this event.</p>
+      <div className="relative rounded-xl border border-amber-500/30 bg-amber-500/10 p-6 text-center shadow-lg backdrop-blur-md">
+        <CircuitTrace corners={true} />
+        <LockIcon className="w-6 h-6 mx-auto mb-2 text-amber-400" />
+        <h3 className="font-bold font-space-grotesk text-base text-foreground mb-1">Registrations Paused</h3>
+        <p className="text-xs text-muted-foreground font-space-grotesk">
+          Registrations for this event are temporarily paused or will open when scheduled.
+        </p>
       </div>
     );
   }
 
+  // Render: Already Registered User
   if (isRegistered) {
+    const members: any[] = userTeam?.registrations || [];
+    const isLeader = session?.user?.id === userTeam?.leaderId;
+    const isTeamConfirmed = userTeam?.status === "CONFIRMED";
+    const minSize = event.minTeamSize || 1;
+    const maxSize = event.maxTeamSize || 1;
+    const hasMinMembers = members.length >= minSize;
+
     return (
-      <div className="rounded-2xl border border-green-500/20 bg-green-500/5 p-6 shadow-lg">
-        <div className="flex items-center justify-center gap-2 text-green-500 mb-4">
-          <CheckCircle2Icon className="w-6 h-6" />
-          <h3 className="font-bold text-lg">You're Registered!</h3>
+      <div className="relative rounded-xl border border-brand/30 bg-card/85 p-6 shadow-xl backdrop-blur-md space-y-4">
+        <CircuitTrace corners={true} />
+
+        <div className="flex items-center gap-2.5 text-emerald-400 border-b border-brand/20 pb-3">
+          <CheckCircle2Icon className="w-5 h-5 shrink-0" />
+          <div>
+            <h3 className="font-bold font-space-grotesk text-sm text-foreground uppercase tracking-wide">
+              {isSolo ? "Solo Registration Confirmed" : "Registered for Event"}
+            </h3>
+            <p className="text-[10px] font-mono-tech text-emerald-400 uppercase">
+              STATUS: {isSolo || isTeamConfirmed ? "CONFIRMED_ROSTER" : "PENDING_LEADER_CONFIRMATION"}
+            </p>
+          </div>
         </div>
+
         {!isSolo && userTeam && (
-          <div className="bg-background rounded-xl p-4 border border-border/50 mt-4 text-center space-y-2">
-            <UsersIcon className="w-5 h-5 mx-auto text-brand" />
-            <p className="font-semibold">{userTeam.name}</p>
-            {userTeam.teamCode && (
-              <div className="text-sm">
-                <span className="text-muted-foreground">Team Code: </span>
-                <code className="bg-muted px-2 py-1 rounded font-bold text-brand">{userTeam.teamCode}</code>
+          <div className="space-y-4 pt-1">
+            {/* Team Header Info */}
+            <div className="bg-background/60 rounded-lg p-3.5 border border-brand/20 space-y-2">
+              <div className="flex items-center justify-between">
+                <p className="font-bold font-space-grotesk text-sm text-foreground">{userTeam.name || "Team"}</p>
+                <span
+                  className={`text-[10px] font-mono-tech uppercase font-bold px-2 py-0.5 rounded border ${
+                    isTeamConfirmed
+                      ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/40"
+                      : "bg-amber-500/20 text-amber-400 border-amber-500/40"
+                  }`}
+                >
+                  {isTeamConfirmed ? "CONFIRMED" : "PENDING"}
+                </span>
+              </div>
+
+              {userTeam.teamCode && (
+                <div className="flex items-center justify-between gap-2 pt-1">
+                  <div className="text-xs font-mono-tech text-muted-foreground">
+                    TEAM_CODE:{" "}
+                    <span className="font-bold text-brand-accent tracking-widest">{userTeam.teamCode}</span>
+                  </div>
+                  <button
+                    onClick={() => handleCopyCode(userTeam.teamCode)}
+                    className="inline-flex items-center gap-1 text-[11px] font-mono-tech text-gold hover:underline p-1 rounded hover:bg-gold/10 transition-colors"
+                  >
+                    {copiedCode ? <CheckIcon className="w-3 h-3 text-emerald-400" /> : <CopyIcon className="w-3 h-3" />}
+                    {copiedCode ? "COPIED" : "COPY"}
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Team Members Roster */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-xs font-mono-tech uppercase text-muted-foreground">
+                <span>Roster Units</span>
+                <span>
+                  {members.length} / {maxSize} Members
+                </span>
+              </div>
+
+              <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                {members.map((reg: any) => {
+                  const isMemberLeader = userTeam.leaderId === reg.userId;
+                  return (
+                    <div
+                      key={reg.id}
+                      className="flex items-center justify-between p-2 rounded-lg border border-brand/15 bg-background/50 text-xs"
+                    >
+                      <div className="min-w-0 pr-2">
+                        <p className="font-semibold text-foreground truncate font-space-grotesk">
+                          {reg.user?.displayName || reg.user?.name || "Student"}
+                        </p>
+                        <p className="text-[10px] font-mono-tech text-muted-foreground truncate">
+                          {reg.user?.email}
+                        </p>
+                      </div>
+                      {isMemberLeader && (
+                        <span className="shrink-0 text-[9px] font-mono-tech uppercase font-bold bg-brand/20 text-brand-accent border border-brand/30 px-1.5 py-0.5 rounded">
+                          LEADER
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Team Leader Confirmation Button */}
+            {!isTeamConfirmed && (
+              <div className="pt-2 border-t border-brand/20 space-y-2.5">
+                {isLeader ? (
+                  <>
+                    <p className="text-xs font-space-grotesk text-muted-foreground leading-relaxed">
+                      {hasMinMembers
+                        ? `All team members joined! Click below to confirm and lock your team roster.`
+                        : `Your team requires at least ${minSize} members to confirm. Share your team code above.`}
+                    </p>
+
+                    <button
+                      onClick={handleConfirmTeam}
+                      disabled={!hasMinMembers || confirmingTeam}
+                      className={`w-full rounded-lg py-2.5 px-4 font-space-grotesk font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${
+                        hasMinMembers
+                          ? "bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/25 cursor-pointer"
+                          : "bg-muted text-muted-foreground border border-border cursor-not-allowed opacity-60"
+                      }`}
+                    >
+                      <ShieldCheckIcon className="w-4 h-4" />
+                      {confirmingTeam
+                        ? "CONFIRMING_ROSTER..."
+                        : hasMinMembers
+                        ? "CONFIRM_TEAM_ROSTER"
+                        : `NEED ${minSize - members.length} MORE MEMBER(S)`}
+                    </button>
+                  </>
+                ) : (
+                  <div className="flex items-center gap-2 text-xs font-space-grotesk text-muted-foreground bg-background/40 p-2.5 rounded-lg border border-brand/15">
+                    <ClockIcon className="w-4 h-4 text-amber-400 shrink-0" />
+                    <span>Waiting for your team leader to review and finalize the team confirmation.</span>
+                  </div>
+                )}
               </div>
             )}
-            <p className="text-xs text-muted-foreground mt-2">
-              Status: <span className="font-bold">{userTeam.status}</span>
-            </p>
           </div>
         )}
       </div>
     );
   }
 
+  // Render: Not Signed In
   if (!session) {
     return (
-      <div className="rounded-2xl border border-border/50 bg-background/80 p-6 text-center shadow-lg">
-        <h3 className="font-bold text-lg mb-3">Want to participate?</h3>
-        <Link href="/auth/signin" className="block w-full rounded-xl bg-brand py-3 text-center font-bold text-white shadow-md transition-all hover:bg-brand/90 hover:scale-[1.02]">
-          Sign In to Register
+      <div className="relative rounded-xl border border-brand/30 bg-card/85 p-6 text-center shadow-xl backdrop-blur-md space-y-4">
+        <CircuitTrace corners={true} />
+        <h3 className="font-bold font-space-grotesk text-base text-foreground">Want to participate?</h3>
+        <p className="text-xs text-muted-foreground font-space-grotesk">
+          Sign in with your college credentials to register for this event.
+        </p>
+        <Link
+          href="/auth/signin"
+          className="block w-full rounded-lg bg-brand py-2.5 text-center font-bold font-space-grotesk text-xs uppercase tracking-wider text-white shadow-md transition-all hover:bg-brand/90"
+        >
+          [ SIGN_IN_TO_REGISTER ]
         </Link>
       </div>
     );
   }
 
+  const showCustomFields = (isSolo || teamAction === "CREATE") && event.customFields && event.customFields.length > 0;
+
   return (
     <>
-      <div className="rounded-2xl border border-border/50 bg-background/80 p-6 text-center shadow-lg">
-        <h3 className="font-bold text-lg mb-4">Ready to participate?</h3>
+      {/* Ready to Participate Technical Card */}
+      <div className="relative rounded-xl border border-brand/30 bg-card/85 p-6 text-center shadow-xl backdrop-blur-md space-y-4">
+        <CircuitTrace corners={true} />
+        <h3 className="font-bold font-space-grotesk text-base text-foreground">Ready to participate?</h3>
+        <p className="text-xs text-muted-foreground font-space-grotesk">
+          {isSolo ? "Secure your individual registration spot now." : "Create your team or join with an invite code."}
+        </p>
         <button
           onClick={() => setModalOpen(true)}
-          className="w-full rounded-xl bg-brand py-3 font-bold text-white shadow-md transition-all hover:bg-brand/90 hover:scale-[1.02]"
+          className="w-full rounded-lg bg-brand py-3 font-bold font-space-grotesk text-xs uppercase tracking-wider text-white shadow-lg shadow-brand/25 transition-all hover:bg-brand/90 hover:scale-[1.01] cursor-pointer"
         >
-          Register Now
+          [ REGISTER_NOW ]
         </button>
       </div>
 
+      {/* Registration Modal: Square Technical Blueprint Styling */}
       {modalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
-          <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={() => setModalOpen(false)} />
-          <div className="relative w-full max-w-lg rounded-2xl border border-border/50 bg-card p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
-            <h2 className="text-2xl font-bold mb-6">Event Registration</h2>
+          <div className="absolute inset-0 bg-background/80 backdrop-blur-md" onClick={() => setModalOpen(false)} />
+          <div className="relative w-full max-w-lg rounded-xl border border-brand/30 bg-card p-6 sm:p-8 shadow-2xl max-h-[90vh] overflow-y-auto backdrop-blur-xl bg-blueprint-grid">
+            <CircuitTrace corners={true} />
 
-            <form onSubmit={handleRegister} className="space-y-6">
-              {!isSolo && (
-                <div className="space-y-4">
-                  <div className="flex rounded-lg bg-muted p-1">
-                    <button
-                      type="button"
-                      className={`flex-1 rounded-md py-2 text-sm font-semibold transition-colors ${teamAction === "CREATE" ? "bg-background shadow text-foreground" : "text-muted-foreground hover:text-foreground"}`}
-                      onClick={() => setTeamAction("CREATE")}
-                    >
-                      Create Team
-                    </button>
-                    <button
-                      type="button"
-                      className={`flex-1 rounded-md py-2 text-sm font-semibold transition-colors ${teamAction === "JOIN" ? "bg-background shadow text-foreground" : "text-muted-foreground hover:text-foreground"}`}
-                      onClick={() => setTeamAction("JOIN")}
-                    >
-                      Join Team
-                    </button>
-                  </div>
+            <div className="relative z-10 space-y-6">
+              <div className="border-b border-brand/20 pb-3">
+                <span className="text-[10px] font-mono-tech text-gold uppercase tracking-widest block">
+                  REGISTRATION_PROTOCOL // {event.type}
+                </span>
+                <h2 className="text-xl font-bold font-space-grotesk text-foreground">{event.title}</h2>
+              </div>
 
-                  {teamAction === "CREATE" ? (
-                    <div>
-                      <label className="mb-1 block text-sm font-medium">Team Name *</label>
-                      <input
-                        required
-                        type="text"
-                        value={teamName}
-                        onChange={(e) => setTeamName(e.target.value)}
-                        className="w-full rounded-lg border border-border bg-background px-4 py-2.5"
-                        placeholder="Choose a cool name"
-                      />
+              <form onSubmit={handleRegister} className="space-y-6">
+                {!isSolo && (
+                  <div className="space-y-4">
+                    {/* Square Action Toggle */}
+                    <div className="flex rounded-lg bg-background/60 p-1 border border-brand/20">
+                      <button
+                        type="button"
+                        className={`flex-1 rounded-md py-2 text-xs font-bold font-space-grotesk uppercase tracking-wider transition-colors ${
+                          teamAction === "CREATE"
+                            ? "bg-brand/20 text-brand-accent border border-brand/30 shadow-sm"
+                            : "text-muted-foreground hover:text-foreground"
+                        }`}
+                        onClick={() => setTeamAction("CREATE")}
+                      >
+                        Create Team (Leader)
+                      </button>
+                      <button
+                        type="button"
+                        className={`flex-1 rounded-md py-2 text-xs font-bold font-space-grotesk uppercase tracking-wider transition-colors ${
+                          teamAction === "JOIN"
+                            ? "bg-brand/20 text-brand-accent border border-brand/30 shadow-sm"
+                            : "text-muted-foreground hover:text-foreground"
+                        }`}
+                        onClick={() => setTeamAction("JOIN")}
+                      >
+                        Join Team (Code)
+                      </button>
                     </div>
-                  ) : (
-                    <div>
-                      <label className="mb-1 block text-sm font-medium">Team Code *</label>
-                      <input
-                        required
-                        type="text"
-                        value={teamCode}
-                        onChange={(e) => setTeamCode(e.target.value)}
-                        className="w-full rounded-lg border border-border bg-background px-4 py-2.5"
-                        placeholder="Enter code from team leader"
-                      />
-                    </div>
-                  )}
-                </div>
-              )}
 
-              {event.customFields && event.customFields.length > 0 && (
-                <div className="space-y-4 pt-4 border-t border-border/50">
-                  <h3 className="font-semibold">Additional Details</h3>
-                  {event.customFields.map((field: any) => (
-                    <div key={field.id}>
-                      <label className="mb-1 block text-sm font-medium">
-                        {field.label} {field.isRequired && <span className="text-red-500">*</span>}
-                      </label>
-                      {field.fieldType === "TEXT" && (
+                    {teamAction === "CREATE" ? (
+                      <div>
+                        <label className="block text-xs font-mono-tech text-muted-foreground uppercase mb-1">
+                          Team Name (Optional)
+                        </label>
                         <input
                           type="text"
-                          required={field.isRequired}
-                          className="w-full rounded-lg border border-border bg-background px-4 py-2.5"
-                          onChange={(e) => setResponses({ ...responses, [field.id]: e.target.value })}
+                          value={teamName}
+                          onChange={(e) => setTeamName(e.target.value)}
+                          placeholder="e.g. Neural Ninjas"
+                          className="w-full rounded-lg border border-brand/30 bg-background/70 px-4 py-2 text-sm text-foreground outline-none focus:border-brand-accent font-space-grotesk"
                         />
-                      )}
-                      {field.fieldType === "TEXTAREA" && (
-                        <textarea
-                          required={field.isRequired}
-                          rows={3}
-                          className="w-full rounded-lg border border-border bg-background px-4 py-2.5"
-                          onChange={(e) => setResponses({ ...responses, [field.id]: e.target.value })}
-                        />
-                      )}
-                      {field.fieldType === "NUMBER" && (
+                      </div>
+                    ) : (
+                      <div>
+                        <label className="block text-xs font-mono-tech text-muted-foreground uppercase mb-1">
+                          Team Code *
+                        </label>
                         <input
-                          type="number"
-                          required={field.isRequired}
-                          className="w-full rounded-lg border border-border bg-background px-4 py-2.5"
-                          onChange={(e) => setResponses({ ...responses, [field.id]: Number(e.target.value) })}
+                          required
+                          type="text"
+                          value={teamCode}
+                          onChange={(e) => setTeamCode(e.target.value.toUpperCase())}
+                          placeholder="Enter 6-digit team code"
+                          className="w-full rounded-lg border border-brand/30 bg-background/70 px-4 py-2 text-sm text-foreground font-mono-tech uppercase tracking-widest outline-none focus:border-brand-accent"
                         />
-                      )}
-                      {field.fieldType === "SELECT" && (
-                        <select
-                          required={field.isRequired}
-                          className="w-full rounded-lg border border-border bg-background px-4 py-2.5"
-                          onChange={(e) => setResponses({ ...responses, [field.id]: e.target.value })}
-                        >
-                          <option value="">Select an option</option>
-                          {field.options?.map((opt: string) => (
-                            <option key={opt} value={opt}>{opt}</option>
-                          ))}
-                        </select>
-                      )}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Dynamic Custom Fields */}
+                {showCustomFields && (
+                  <div className="space-y-4 pt-4 border-t border-brand/20">
+                    <div className="flex items-center gap-2">
+                      <span className="w-1.5 h-4 bg-brand-accent rounded-xs" />
+                      <h4 className="font-bold font-space-grotesk text-xs uppercase tracking-wider text-foreground">
+                        Event Questionnaire
+                      </h4>
                     </div>
-                  ))}
+
+                    {event.customFields.map((field: any) => {
+                      const opts = field.options || {};
+
+                      return (
+                        <div key={field.id} className="space-y-1.5">
+                          <label className="block text-xs font-mono-tech text-muted-foreground uppercase">
+                            {field.label} {field.isRequired && <span className="text-red-400">*</span>}
+                            {field.fieldType === "NUMBER" && (opts.min !== null || opts.max !== null) && (
+                              <span className="text-[10px] text-muted-foreground/80 normal-case ml-1">
+                                ({opts.min !== null && `Min: ${opts.min}`}
+                                {opts.min !== null && opts.max !== null && " - "}
+                                {opts.max !== null && `Max: ${opts.max}`})
+                              </span>
+                            )}
+                          </label>
+
+                          {field.fieldType === "TEXT" && (
+                            <input
+                              type="text"
+                              required={field.isRequired}
+                              className="w-full rounded-lg border border-brand/30 bg-background/70 px-3.5 py-2 text-sm text-foreground outline-none focus:border-brand-accent font-space-grotesk"
+                              value={responses[field.id] || ""}
+                              onChange={(e) => setResponses({ ...responses, [field.id]: e.target.value })}
+                              placeholder="Enter your response"
+                            />
+                          )}
+
+                          {field.fieldType === "TEXTAREA" && (
+                            <textarea
+                              required={field.isRequired}
+                              rows={3}
+                              className="w-full rounded-lg border border-brand/30 bg-background/70 px-3.5 py-2 text-sm text-foreground outline-none focus:border-brand-accent font-space-grotesk"
+                              value={responses[field.id] || ""}
+                              onChange={(e) => setResponses({ ...responses, [field.id]: e.target.value })}
+                              placeholder="Provide details..."
+                            />
+                          )}
+
+                          {field.fieldType === "NUMBER" && (
+                            <input
+                              type="number"
+                              required={field.isRequired}
+                              min={opts.min !== null && opts.min !== undefined ? opts.min : undefined}
+                              max={opts.max !== null && opts.max !== undefined ? opts.max : undefined}
+                              className="w-full rounded-lg border border-brand/30 bg-background/70 px-3.5 py-2 text-sm text-foreground outline-none focus:border-brand-accent font-space-grotesk"
+                              value={responses[field.id] ?? ""}
+                              onChange={(e) =>
+                                setResponses({
+                                  ...responses,
+                                  [field.id]: e.target.value !== "" ? Number(e.target.value) : "",
+                                })
+                              }
+                              placeholder="Enter number..."
+                            />
+                          )}
+
+                          {field.fieldType === "SELECT" && (
+                            <select
+                              required={field.isRequired}
+                              className="w-full rounded-lg border border-brand/30 bg-card px-3.5 py-2 text-sm text-foreground outline-none focus:border-brand-accent font-space-grotesk"
+                              value={responses[field.id] || ""}
+                              onChange={(e) => setResponses({ ...responses, [field.id]: e.target.value })}
+                            >
+                              <option value="">Select an option</option>
+                              {(Array.isArray(field.options) ? field.options : []).map((opt: string) => (
+                                <option key={opt} value={opt}>
+                                  {opt}
+                                </option>
+                              ))}
+                            </select>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                <div className="flex gap-3 pt-4 border-t border-brand/20">
+                  <button
+                    type="button"
+                    onClick={() => setModalOpen(false)}
+                    className="flex-1 rounded-lg border border-brand/30 bg-background/60 py-2.5 font-space-grotesk font-semibold text-xs text-foreground hover:bg-muted transition-colors cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="flex-1 rounded-lg bg-brand py-2.5 font-space-grotesk font-bold text-xs uppercase tracking-wider text-white shadow-lg shadow-brand/20 hover:bg-brand/90 disabled:opacity-50 transition-all cursor-pointer"
+                  >
+                    {loading ? "Processing..." : "Complete Registration"}
+                  </button>
                 </div>
-              )}
-
-              {error && <div className="rounded-lg bg-red-500/10 p-3 text-sm text-red-500">{error}</div>}
-
-              <div className="flex gap-3 pt-4 border-t border-border/50">
-                <button
-                  type="button"
-                  onClick={() => setModalOpen(false)}
-                  className="flex-1 rounded-xl border border-border bg-background py-3 font-semibold transition-colors hover:bg-muted"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="flex-1 rounded-xl bg-brand py-3 font-semibold text-white shadow-md transition-all hover:bg-brand/90 disabled:opacity-50"
-                >
-                  {loading ? "Registering..." : "Confirm"}
-                </button>
-              </div>
-            </form>
+              </form>
+            </div>
           </div>
         </div>
       )}

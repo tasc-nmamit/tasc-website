@@ -79,7 +79,7 @@ export default function UserMenu({ user }: UserMenuProps) {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full z-50 mt-2 w-64 origin-top-right animate-in fade-in slide-in-from-top-2 rounded-xl border border-border/50 bg-background/95 p-2 shadow-xl backdrop-blur-xl">
+        <div className="absolute right-0 top-full z-50 mt-2 w-64 origin-top-right animate-in fade-in slide-in-from-top-2 rounded-2xl border border-border bg-card/95 p-2.5 shadow-2xl backdrop-blur-xl">
           {/* User Info */}
           <div className="border-b border-border/30 px-3 py-3">
             <p className="text-sm font-semibold text-foreground">

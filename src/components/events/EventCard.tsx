@@ -154,8 +154,8 @@ export function EventIndexRow({ event, index }: EventIndexRowProps) {
         <div className="px-4 md:px-6 pb-4 pt-1 border-t border-brand/10 bg-background/50 transition-all duration-300 space-y-3 font-valley">
           <div className="ml-0 md:ml-10 max-w-3xl space-y-2.5">
             {(event.brief || event.description) && (
-              <p className="text-xs md:text-sm text-muted-foreground leading-relaxed font-valley">
-                {event.brief || event.description}
+              <p className="text-xs md:text-sm text-muted-foreground leading-relaxed font-valley line-clamp-3">
+                {event.brief || (event.description ? event.description.replace(/<[^>]*>?/gm, "").trim() : "")}
               </p>
             )}
 

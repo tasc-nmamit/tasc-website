@@ -19,7 +19,7 @@ export function MemberCard({ member, featured = false }: MemberCardProps) {
       {/* Main Card */}
       <div
         onClick={() => setIsOpen(true)}
-        className={`cursor-pointer overflow-hidden rounded-xl border border-brand/30 bg-card p-5 shadow-xl transition-all duration-300 hover:border-brand-accent/60 hover:scale-105 relative group bg-blueprint-grid ${
+        className={`cursor-pointer overflow-hidden rounded-xl border border-brand/20 dark:border-brand/30 bg-white dark:bg-card p-5 shadow-lg dark:shadow-xl transition-all duration-300 hover:border-brand-accent/60 hover:scale-105 relative group bg-blueprint-grid ${
           featured ? "w-80 md:w-96" : "w-72"
         }`}
       >
@@ -68,7 +68,7 @@ export function MemberCard({ member, featured = false }: MemberCardProps) {
           {/* Modal Content */}
           <div
             onClick={(e) => e.stopPropagation()}
-            className="relative w-full max-w-md bg-card border border-brand-accent/40 rounded-xl p-6 shadow-2xl overflow-hidden bg-blueprint-grid"
+            className="relative w-full max-w-md bg-white dark:bg-card border border-brand/30 rounded-xl p-6 shadow-2xl overflow-hidden bg-blueprint-grid"
           >
             <CircuitTrace corners={true} />
 

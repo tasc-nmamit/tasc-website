@@ -52,7 +52,7 @@ export default function HeroSection() {
       <div className="absolute inset-0 z-0 bg-blueprint-grid opacity-40 pointer-events-none" />
 
       {/* MoltenMetal Shader Layer */}
-      <div className="absolute inset-0 z-10 opacity-50 pointer-events-none mix-blend-screen dark:mix-blend-normal">
+      <div className="absolute inset-0 z-10 opacity-40 dark:opacity-60 pointer-events-none mix-blend-multiply dark:mix-blend-normal">
         <MoltenMetal
           color1="#5B35A0"
           color2="#8B5CF6"

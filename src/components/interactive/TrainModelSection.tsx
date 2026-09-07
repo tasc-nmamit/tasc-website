@@ -270,7 +270,7 @@ export default function TrainModelSection() {
                 onClick={() => setActiveClass(0)}
                 className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-lg border text-xs font-space-grotesk cursor-pointer transition-all ${
                   activeClass === 0
-                    ? "border-brand-accent bg-purple-600/15 text-white font-semibold shadow-md"
+                    ? "border-brand-accent bg-purple-600/15 text-foreground dark:text-white font-semibold shadow-md"
                     : "border-brand/20 text-muted-foreground hover:border-brand/40 hover:text-foreground"
                 }`}
               >
@@ -337,7 +337,7 @@ export default function TrainModelSection() {
               className="bg-background/80 border border-brand/30 rounded-lg p-3.5 font-mono-tech text-xs text-muted-foreground leading-relaxed max-h-[130px] overflow-y-auto space-y-1 scrollbar-thin shadow-inner"
             >
               {logs.map((logMsg, idx) => (
-                <div key={idx} className="text-[#B8A4E3]">
+                <div key={idx} className="text-foreground dark:text-[#B8A4E3]">
                   &gt; {logMsg}
                 </div>
               ))}

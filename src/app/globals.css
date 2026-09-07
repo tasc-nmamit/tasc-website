@@ -46,27 +46,27 @@
 
 @layer base {
   :root {
-    /* Light Mode: Warm parchment / engineering technical notebook */
-    --background: 38 32% 95%; /* #F7F3EC */
-    --foreground: 260 50% 12%; /* Deep violet-grey text */
+    /* Light Mode: Bright, pristine modern white with high-contrast text */
+    --background: 0 0% 100%; /* Pure white */
+    --foreground: 260 45% 10%; /* Deep dark text */
 
-    --muted: 260 15% 82%;
-    --muted-foreground: 268 15% 42%;
+    --muted: 260 15% 94%;
+    --muted-foreground: 260 15% 36%;
 
-    --popover: 38 32% 95%;
-    --popover-foreground: 260 50% 12%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 260 45% 10%;
 
-    --card: 38 25% 92%;
-    --card-foreground: 260 50% 12%;
+    --card: 260 20% 98%;
+    --card-foreground: 260 45% 10%;
 
-    --border: 261 40% 80%;
-    --input: 261 30% 85%;
+    --border: 260 20% 88%;
+    --input: 260 20% 88%;
 
     --primary: 261 50% 42%; /* #5B35A0 */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 260 30% 88%;
-    --secondary-foreground: 261 50% 30%;
+    --secondary: 260 25% 94%;
+    --secondary-foreground: 261 50% 25%;
 
     --accent: 258 90% 66%; /* #8B5CF6 */
     --accent-foreground: 0 0% 100%;
@@ -110,6 +110,22 @@
     --destructive-foreground: 210 40% 98%;
 
     --ring: 258 90% 66%;
+  }
+
+  /* Global Select & Option Dropdown Theming */
+  select {
+    background-color: hsl(var(--card));
+    color: hsl(var(--foreground));
+  }
+
+  select option {
+    background-color: #ffffff !important;
+    color: #0e071a !important;
+  }
+
+  .dark select option {
+    background-color: #0e071a !important;
+    color: #f3f0fa !important;
   }
 
   * {

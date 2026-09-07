@@ -5,9 +5,23 @@ import { CalendarIcon, ClockIcon, MapPinIcon, UsersIcon, ShieldAlert } from "luc
 import EventRegistrationClient from "./EventRegistrationClient";
 import CountdownTimer from "./CountdownTimer";
 import { getSession } from "@/lib/auth-guards";
+import CircuitTrace from "@/components/ui/circuit-ink/CircuitTrace";
+import TechnicalLabel from "@/components/ui/circuit-ink/TechnicalLabel";
 
 interface PageProps {
   params: Promise<{ id: string }>;
+}
+
+function isHtml(str?: string | null) {
+  if (!str) return false;
+  return /<[a-z][\s\S]*>/i.test(str);
+}
+
+function sanitizeHtml(html?: string | null) {
+  if (!html) return "";
+  return html
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
+    .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, "");
 }
 
 export default async function EventDetailsPage({ params }: PageProps) {
@@ -25,14 +39,24 @@ export default async function EventDetailsPage({ params }: PageProps) {
 
   if (!event) return notFound();
 
-  let eventDateTime = new Date(event.date);
+  let eventStartDateTime = new Date(event.date);
   if (event.time) {
     const [hours, minutes] = event.time.split(':').map(Number);
     if (!isNaN(hours) && !isNaN(minutes)) {
-      eventDateTime.setHours(hours, minutes, 0, 0);
+      eventStartDateTime.setHours(hours, minutes, 0, 0);
     }
   }
-  const isPast = eventDateTime < new Date();
+
+  let eventEndDateTime: Date | null = event.endDate ? new Date(event.endDate) : null;
+  if (!eventEndDateTime) {
+    // Default to 3 hours after start time if end time wasn't specified
+    eventEndDateTime = new Date(eventStartDateTime.getTime() + 3 * 60 * 60 * 1000);
+  }
+
+  const now = new Date();
+  const isUpcoming = now < eventStartDateTime;
+  const isLive = now >= eventStartDateTime && now <= eventEndDateTime;
+  const isPast = now > eventEndDateTime;
   
   let isRegistered = false;
   let userTeam = null;
@@ -44,7 +68,22 @@ export default async function EventDetailsPage({ params }: PageProps) {
         team: { eventId: id },
       },
       include: {
-        team: true,
+        team: {
+          include: {
+            registrations: {
+              include: {
+                user: {
+                  select: {
+                    id: true,
+                    name: true,
+                    displayName: true,
+                    email: true,
+                  },
+                },
+              },
+            },
+          },
+        },
       },
     });
     if (reg) {
@@ -54,14 +93,21 @@ export default async function EventDetailsPage({ params }: PageProps) {
   }
 
   return (
-    <main className="min-h-dvh pt-24 pb-20 relative bg-background overflow-x-hidden">
-      {/* Background elements */}
-      <div className="absolute top-0 inset-x-0 h-[500px] bg-gradient-to-b from-brand/20 to-transparent pointer-events-none" />
-      <div className="absolute inset-0 bg-blueprint-grid opacity-30 pointer-events-none" />
+    <main className="min-h-dvh pt-28 pb-20 relative bg-background bg-blueprint-grid overflow-x-hidden">
+      {/* Ambient background glow */}
+      <div className="absolute top-0 inset-x-0 h-96 bg-gradient-to-b from-brand/15 via-brand/5 to-transparent pointer-events-none" />
 
-      <div className="mx-auto max-w-5xl px-4 relative z-10">
-        {/* Hero Section */}
-        <div className="relative w-full aspect-video md:aspect-[21/9] rounded-3xl overflow-hidden shadow-2xl mb-12 border border-brand/20 group">
+      <div className="mx-auto max-w-5xl px-4 relative z-10 space-y-8">
+        {/* Technical Label Breadcrumb */}
+        <div className="flex items-center gap-3">
+          <TechnicalLabel variant="primary">[ EVENT_NODE // PROTOCOL_{event.type} ]</TechnicalLabel>
+          <span className="h-px flex-1 bg-brand/20"></span>
+        </div>
+
+        {/* Hero Section: Sleek Square Technical Poster */}
+        <div className="relative w-full aspect-video md:aspect-[21/9] rounded-xl overflow-hidden shadow-2xl border border-brand/30 group bg-card">
+          <CircuitTrace corners={true} />
+
           <Image
             src={event.image || "/placeholder.png"}
             alt={event.title}
@@ -69,126 +115,162 @@ export default async function EventDetailsPage({ params }: PageProps) {
             className="object-cover transition-transform duration-1000 group-hover:scale-105"
             priority
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#050308] via-[#050308]/60 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#050308] via-[#050308]/70 to-transparent" />
           
-          <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8 flex flex-col md:flex-row md:items-end justify-between gap-6 relative z-10">
             <div className="flex-1">
-              <div className="flex flex-wrap gap-3 mb-4">
-                <span className={`rounded-lg px-4 py-1.5 text-xs font-bold font-mono-tech uppercase tracking-widest shadow-sm border ${
-                  isPast ? "bg-red-500/20 text-red-400 border-red-500/50" : "bg-brand/20 text-brand-accent border-brand/50"
-                }`}>
-                  {isPast ? "Event Concluded" : "Upcoming"}
+              <div className="flex flex-wrap gap-2.5 mb-3">
+                {isLive ? (
+                  <span className="rounded border border-red-500/50 bg-red-500/20 px-3 py-1 text-xs font-bold font-mono-tech uppercase tracking-widest text-red-400 flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-red-500 animate-ping inline-block" />
+                    LIVE NOW
+                  </span>
+                ) : isPast ? (
+                  <span className="rounded border border-border/60 bg-muted/60 px-3 py-1 text-xs font-bold font-mono-tech uppercase tracking-widest text-muted-foreground">
+                    CONCLUDED
+                  </span>
+                ) : (
+                  <span className="rounded border border-brand-accent/50 bg-brand/20 px-3 py-1 text-xs font-bold font-mono-tech uppercase tracking-widest text-brand-accent">
+                    UPCOMING
+                  </span>
+                )}
+
+                <span className="rounded border border-gold/50 bg-gold/20 px-3 py-1 text-xs font-bold font-mono-tech uppercase tracking-widest text-gold">
+                  FORMAT: {event.type}
                 </span>
-                <span className="rounded-lg bg-gold/20 border border-gold/50 px-4 py-1.5 text-xs font-bold font-mono-tech uppercase tracking-widest text-gold shadow-sm">
-                  {event.type}
-                </span>
+
+                {!event.registrationsAvailable && !isPast && (
+                  <span className="rounded border border-amber-500/50 bg-amber-500/20 px-3 py-1 text-xs font-bold font-mono-tech uppercase tracking-widest text-amber-400">
+                    REGISTRATION PAUSED
+                  </span>
+                )}
               </div>
-              <h1 className="text-4xl md:text-6xl font-extrabold font-space-grotesk text-white drop-shadow-lg leading-tight">
+
+              <h1 className="text-3xl md:text-5xl font-bold font-space-grotesk text-white drop-shadow-lg leading-tight">
                 {event.title}
               </h1>
             </div>
             
-            {!isPast && (
-              <div className="shrink-0 w-full md:w-auto bg-background/40 backdrop-blur-md rounded-xl p-4 border border-white/10">
-                <CountdownTimer targetDate={eventDateTime} />
+            {isUpcoming && (
+              <div className="shrink-0 w-full md:w-auto bg-background/60 backdrop-blur-md rounded-lg p-3 border border-brand/30">
+                <CountdownTimer targetDate={eventStartDateTime} />
+              </div>
+            )}
+
+            {isLive && (
+              <div className="shrink-0 w-full md:w-auto bg-red-500/15 backdrop-blur-md rounded-lg p-3.5 border border-red-500/40 flex items-center gap-3">
+                <span className="w-3 h-3 rounded-full bg-red-500 animate-ping shrink-0" />
+                <div>
+                  <p className="text-[10px] font-mono-tech uppercase font-bold text-red-400 tracking-wider">EVENT SESSION</p>
+                  <p className="text-sm font-space-grotesk text-white font-semibold">Active & Live</p>
+                </div>
               </div>
             )}
           </div>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-8 md:gap-12">
-          {/* Main Content Area */}
-          <div className="lg:col-span-2 space-y-10">
-            <section className="space-y-6">
-              <div className="flex items-center gap-4">
-                <div className="h-10 w-2 bg-brand-accent rounded-full" />
-                <h2 className="text-3xl font-bold font-space-grotesk">About the Event</h2>
-              </div>
-              <div className="prose prose-invert max-w-none text-muted-foreground leading-relaxed text-lg whitespace-pre-wrap font-sans">
-                {event.description}
-              </div>
-            </section>
+        {/* Content & Sidebar Grid */}
+        <div className="grid lg:grid-cols-3 gap-8 items-start">
+          {/* Main Description */}
+          <div className="lg:col-span-2 space-y-6">
+            <div className="relative rounded-xl border border-brand/30 bg-card/80 backdrop-blur-xl p-6 md:p-8 shadow-xl">
+              <CircuitTrace corners={true} />
 
-            {/* Additional content could go here in the future (schedule, rules, etc.) */}
+              <div className="flex items-center gap-3 mb-6 relative z-10">
+                <div className="h-6 w-1.5 bg-brand-accent rounded-sm" />
+                <h2 className="text-2xl font-bold font-space-grotesk text-foreground">About the Event</h2>
+              </div>
+
+              <div className="relative z-10 text-foreground font-space-grotesk leading-relaxed">
+                {isHtml(event.description) ? (
+                  <div
+                    className="prose dark:prose-invert max-w-none text-muted-foreground text-sm md:text-base prose-headings:font-space-grotesk prose-headings:text-foreground prose-a:text-brand-accent prose-strong:text-foreground"
+                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(event.description) }}
+                  />
+                ) : (
+                  <div className="whitespace-pre-wrap text-muted-foreground text-sm md:text-base leading-relaxed">
+                    {event.description}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
 
-          {/* Sidebar / Info Panel */}
-          <div className="space-y-8">
-            <div className="rounded-3xl border border-brand/20 bg-card/60 backdrop-blur-xl p-8 shadow-2xl relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-brand/10 blur-3xl rounded-full" />
-              
-              <h3 className="font-bold font-space-grotesk text-2xl mb-8 relative z-10 flex items-center gap-3">
-                <span className="w-8 h-8 rounded-full bg-brand/20 flex items-center justify-center text-brand-accent">
-                  i
+          {/* Sidebar Info & Registration Module */}
+          <div className="space-y-6">
+            {/* Event Specs Card */}
+            <div className="relative rounded-xl border border-brand/30 bg-card/80 backdrop-blur-xl p-6 shadow-xl">
+              <CircuitTrace corners={true} />
+
+              <h3 className="font-bold font-space-grotesk text-lg mb-6 relative z-10 flex items-center gap-2.5 text-foreground border-b border-brand/20 pb-3">
+                <span className="w-6 h-6 rounded bg-brand/20 flex items-center justify-center text-brand-accent text-xs font-mono-tech">
+                  #
                 </span>
-                Event Details
+                Event Specifications
               </h3>
               
-              <div className="space-y-6 relative z-10">
-                <div className="flex gap-4 items-start group">
-                  <div className="bg-brand/10 p-3 rounded-xl text-brand group-hover:bg-brand/20 transition-colors shrink-0">
-                    <CalendarIcon className="w-6 h-6" />
+              <div className="space-y-5 relative z-10">
+                <div className="flex gap-3.5 items-start">
+                  <div className="bg-brand/10 p-2.5 rounded-lg text-brand-accent border border-brand/20 shrink-0">
+                    <CalendarIcon className="w-4 h-4" />
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground font-mono-tech uppercase tracking-widest mb-1">Date</p>
-                    <p className="font-medium text-foreground text-lg">{event.date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                    <p className="text-[10px] text-muted-foreground font-mono-tech uppercase tracking-widest">Date</p>
+                    <p className="font-semibold text-foreground text-sm font-space-grotesk">
+                      {event.date.toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}
+                    </p>
                   </div>
                 </div>
 
                 {event.time && (
-                  <div className="flex gap-4 items-start group">
-                    <div className="bg-brand/10 p-3 rounded-xl text-brand group-hover:bg-brand/20 transition-colors shrink-0">
-                      <ClockIcon className="w-6 h-6" />
+                  <div className="flex gap-3.5 items-start">
+                    <div className="bg-brand/10 p-2.5 rounded-lg text-brand-accent border border-brand/20 shrink-0">
+                      <ClockIcon className="w-4 h-4" />
                     </div>
                     <div>
-                      <p className="text-xs text-muted-foreground font-mono-tech uppercase tracking-widest mb-1">Time</p>
-                      <p className="font-medium text-foreground text-lg">{event.time}</p>
+                      <p className="text-[10px] text-muted-foreground font-mono-tech uppercase tracking-widest">Time</p>
+                      <p className="font-semibold text-foreground text-sm font-space-grotesk">{event.time}</p>
                     </div>
                   </div>
                 )}
 
                 {event.venue && (
-                  <div className="flex gap-4 items-start group">
-                    <div className="bg-brand/10 p-3 rounded-xl text-brand group-hover:bg-brand/20 transition-colors shrink-0">
-                      <MapPinIcon className="w-6 h-6" />
+                  <div className="flex gap-3.5 items-start">
+                    <div className="bg-brand/10 p-2.5 rounded-lg text-brand-accent border border-brand/20 shrink-0">
+                      <MapPinIcon className="w-4 h-4" />
                     </div>
                     <div>
-                      <p className="text-xs text-muted-foreground font-mono-tech uppercase tracking-widest mb-1">Venue</p>
-                      <p className="font-medium text-foreground text-lg">{event.venue}</p>
+                      <p className="text-[10px] text-muted-foreground font-mono-tech uppercase tracking-widest">Venue</p>
+                      <p className="font-semibold text-foreground text-sm font-space-grotesk">{event.venue}</p>
                     </div>
                   </div>
                 )}
 
-                <div className="flex gap-4 items-start group">
-                  <div className="bg-brand/10 p-3 rounded-xl text-brand group-hover:bg-brand/20 transition-colors shrink-0">
-                    <UsersIcon className="w-6 h-6" />
+                <div className="flex gap-3.5 items-start">
+                  <div className="bg-brand/10 p-2.5 rounded-lg text-brand-accent border border-brand/20 shrink-0">
+                    <UsersIcon className="w-4 h-4" />
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground font-mono-tech uppercase tracking-widest mb-1">Format</p>
-                    <p className="font-medium text-foreground text-lg">
-                      {event.type === "SOLO" ? "Solo Participation" : `Team (${event.minTeamSize}-${event.maxTeamSize} members)`}
+                    <p className="text-[10px] text-muted-foreground font-mono-tech uppercase tracking-widest">Team Configuration</p>
+                    <p className="font-semibold text-foreground text-sm font-space-grotesk">
+                      {event.type === "SOLO"
+                        ? "Solo (Individual Participation)"
+                        : `Team (${event.minTeamSize} to ${event.maxTeamSize} members)`}
                     </p>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="rounded-3xl border border-brand/20 bg-card/60 backdrop-blur-xl p-8 shadow-2xl relative">
-              <h3 className="font-bold font-space-grotesk text-2xl mb-6 flex items-center gap-3">
-                <span className="w-8 h-8 rounded-full bg-brand/20 flex items-center justify-center text-brand-accent">
-                  <ShieldAlert className="w-4 h-4" />
-                </span>
-                Registration
-              </h3>
-              
-              <EventRegistrationClient
-                event={event}
-                session={session}
-                isRegistered={isRegistered}
-                userTeam={userTeam}
-                isPast={isPast}
-              />
-            </div>
+            {/* Registration Module */}
+            <EventRegistrationClient
+              event={event}
+              isRegistered={isRegistered}
+              userTeam={userTeam}
+              isPast={isPast}
+              isLive={isLive}
+              session={session}
+            />
           </div>
         </div>
       </div>

@@ -14,8 +14,11 @@ export default async function FacultyPage() {
   });
 
   return (
-    <div className="min-h-screen pt-24 pb-10">
-      <FacultyView faculties={faculties} />
-    </div>
+    <main className="min-h-dvh pt-28 pb-16 bg-background bg-blueprint-grid relative overflow-x-hidden">
+      <div className="absolute top-0 inset-x-0 h-96 bg-gradient-to-b from-brand/10 via-brand/5 to-transparent pointer-events-none" />
+      <div className="relative z-10 max-w-7xl mx-auto px-4">
+        <FacultyView faculties={faculties} />
+      </div>
+    </main>
   );
 }

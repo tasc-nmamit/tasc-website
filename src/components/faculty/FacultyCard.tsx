@@ -25,7 +25,7 @@ export default function FacultyCard({ faculty }: FacultyCardProps) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <div className="w-64 cursor-pointer min-h-[280px] overflow-hidden rounded-xl border border-brand/30 bg-card p-5 shadow-xl transition-all duration-300 hover:border-brand-accent/60 hover:scale-105 relative group bg-blueprint-grid">
+        <div className="w-64 cursor-pointer min-h-[280px] overflow-hidden rounded-xl border border-brand/20 dark:border-brand/30 bg-white dark:bg-card p-5 shadow-lg dark:shadow-xl transition-all duration-300 hover:border-brand-accent/60 hover:scale-105 relative group bg-blueprint-grid">
           <CircuitTrace corners={true} />
 
           <div className="mx-auto flex items-center justify-center relative z-10">
@@ -64,7 +64,7 @@ export default function FacultyCard({ faculty }: FacultyCardProps) {
         </div>
       </DialogTrigger>
 
-      <DialogContent className="max-h-[85vh] max-w-lg overflow-hidden lg:max-w-4xl bg-card border border-brand-accent/40 rounded-xl p-6 shadow-2xl bg-blueprint-grid">
+      <DialogContent className="max-h-[85vh] max-w-lg overflow-hidden lg:max-w-4xl bg-white dark:bg-card border border-brand/30 rounded-xl p-6 shadow-2xl bg-blueprint-grid">
         <DialogHeader className="w-full border-b border-brand/20 pb-4">
           <span className="font-mono-tech text-xs text-gold uppercase tracking-widest">
             RESEARCH_FACULTY_DIRECTORY

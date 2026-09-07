@@ -256,12 +256,17 @@ export default function PillNav({
     href.startsWith("tel:") ||
     href.startsWith("#");
 
+  const isLight = baseColor === "#ffffff";
   const cssVars = {
     "--base": baseColor,
     "--pill-bg": pillColor,
     "--hover-circle": hoverCircleColor,
     "--hover-text": hoveredPillTextColor,
     "--pill-text": resolvedPillTextColor,
+    "--nav-border": isLight ? "rgba(91, 53, 160, 0.18)" : "rgba(255, 255, 255, 0.15)",
+    "--nav-shadow": isLight ? "0 8px 30px rgba(91, 53, 160, 0.08)" : "0 8px 32px 0 rgba(0, 0, 0, 0.37)",
+    "--popover-bg": isLight ? "rgba(255, 255, 255, 0.98)" : "rgba(11, 7, 21, 0.95)",
+    "--popover-link-bg": isLight ? "rgba(91, 53, 160, 0.05)" : "rgba(255, 255, 255, 0.05)",
   } as React.CSSProperties;
 
   return (

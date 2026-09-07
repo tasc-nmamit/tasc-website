@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { PlusIcon, Edit3Icon, Trash2Icon, MegaphoneIcon } from "lucide-react";
 
 export default function AdminAnnouncementsClient({ initialAnnouncements }: { initialAnnouncements: any[] }) {
   const [activeTab, setActiveTab] = useState<"LIST" | "CREATE">("LIST");
@@ -32,8 +33,8 @@ export default function AdminAnnouncementsClient({ initialAnnouncements }: { ini
 
       alert(`Announcement ${editingId ? "updated" : "created"} successfully`);
       window.location.reload();
-    } catch (err) {
-      alert(`Error ${editingId ? "updating" : "creating"} announcement: ` + err);
+    } catch (err: any) {
+      alert(`Error ${editingId ? "updating" : "creating"} announcement: ` + err.message);
     } finally {
       setLoading(false);
     }
@@ -41,11 +42,11 @@ export default function AdminAnnouncementsClient({ initialAnnouncements }: { ini
 
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this announcement?")) return;
-    
+
     try {
       const res = await fetch(`/api/admin/announcements/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Failed to delete");
-      setAnnouncements(announcements.filter(a => a.id !== id));
+      setAnnouncements(announcements.filter((a) => a.id !== id));
       alert("Announcement deleted.");
     } catch (err) {
       alert("Error deleting announcement.");
@@ -61,53 +62,96 @@ export default function AdminAnnouncementsClient({ initialAnnouncements }: { ini
   };
 
   return (
-    <div>
-      <div className="mb-6 flex gap-4 border-b border-border/50 pb-4">
+    <div className="space-y-6">
+      {/* Tab Controls */}
+      <div className="flex gap-3 border-b border-brand/20 pb-4">
         <button
-          onClick={() => { setActiveTab("LIST"); setEditingId(null); setTitle(""); setContent(""); setPublished(true); }}
-          className={`px-4 py-2 font-semibold transition-colors ${
-            activeTab === "LIST" ? "text-brand border-b-2 border-brand" : "text-muted-foreground hover:text-foreground"
+          onClick={() => {
+            setActiveTab("LIST");
+            setEditingId(null);
+            setTitle("");
+            setContent("");
+            setPublished(true);
+          }}
+          className={`px-5 py-2.5 rounded-xl font-space-grotesk font-semibold text-sm transition-all ${
+            activeTab === "LIST"
+              ? "bg-brand/20 text-brand-accent border border-brand/40 shadow-sm"
+              : "text-muted-foreground hover:text-foreground hover:bg-card/40"
           }`}
         >
-          Manage Announcements
+          All Announcements ({announcements.length})
         </button>
         <button
           onClick={() => setActiveTab("CREATE")}
-          className={`px-4 py-2 font-semibold transition-colors ${
-            activeTab === "CREATE" ? "text-brand border-b-2 border-brand" : "text-muted-foreground hover:text-foreground"
+          className={`px-5 py-2.5 rounded-xl font-space-grotesk font-semibold text-sm transition-all flex items-center gap-2 ${
+            activeTab === "CREATE"
+              ? "bg-brand/20 text-brand-accent border border-brand/40 shadow-sm"
+              : "text-muted-foreground hover:text-foreground hover:bg-card/40"
           }`}
         >
-          {editingId ? "Edit Announcement" : "Post New"}
+          <PlusIcon className="w-4 h-4" />
+          {editingId ? "Edit Announcement" : "Broadcast New"}
         </button>
       </div>
 
       {activeTab === "LIST" && (
         <div className="space-y-4">
           {announcements.length === 0 ? (
-            <p className="py-10 text-center text-muted-foreground">No announcements found.</p>
+            <div className="rounded-2xl border border-brand/20 bg-card/60 backdrop-blur-xl p-12 text-center text-muted-foreground font-space-grotesk">
+              No announcements published yet. Click "Broadcast New" to post updates.
+            </div>
           ) : (
             announcements.map((announcement) => (
-              <div key={announcement.id} className="rounded-xl border border-border/50 bg-background/80 p-6 shadow-sm relative group">
-                <div className="absolute top-4 right-4 flex gap-2 opacity-0 transition-opacity group-hover:opacity-100">
-                  <button onClick={() => handleEdit(announcement)} className="rounded-md bg-blue-500/10 px-2 py-1 text-xs font-bold text-blue-500 hover:bg-blue-500/20">
-                    Edit
-                  </button>
-                  <button onClick={() => handleDelete(announcement.id)} className="rounded-md bg-red-500/10 px-2 py-1 text-xs font-bold text-red-500 hover:bg-red-500/20">
-                    Delete
-                  </button>
-                </div>
-                <div className="flex items-start justify-between mb-2 pr-20">
-                  <div>
-                    <h3 className="text-xl font-bold text-foreground">{announcement.title}</h3>
-                    <p className="text-sm text-muted-foreground">
-                      By {announcement.author?.name || announcement.author?.email} on {new Date(announcement.createdAt).toLocaleDateString()}
+              <div
+                key={announcement.id}
+                className="group relative rounded-2xl border border-brand/20 bg-card/70 backdrop-blur-xl p-6 shadow-lg transition-all duration-300 hover:border-brand-accent/50"
+              >
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-4">
+                  <div className="space-y-1 flex-1">
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <span
+                        className={`rounded-lg px-3 py-1 text-[10px] font-bold font-mono-tech uppercase tracking-wider border ${
+                          announcement.published
+                            ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/40"
+                            : "bg-amber-500/15 text-amber-400 border-amber-500/40"
+                        }`}
+                      >
+                        {announcement.published ? "PUBLISHED" : "DRAFT"}
+                      </span>
+                    </div>
+
+                    <h3 className="text-xl font-bold font-space-grotesk text-foreground">
+                      {announcement.title}
+                    </h3>
+
+                    <p className="font-mono-tech text-xs text-muted-foreground">
+                      BY:{" "}
+                      <span className="text-foreground">
+                        {announcement.author?.name || announcement.author?.email}
+                      </span>{" "}
+                      | DATE: {new Date(announcement.createdAt).toLocaleDateString()}
                     </p>
                   </div>
-                  <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${announcement.published ? 'bg-green-500/10 text-green-500' : 'bg-amber-500/10 text-amber-500'}`}>
-                    {announcement.published ? "Published" : "Draft"}
-                  </span>
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      onClick={() => handleEdit(announcement)}
+                      className="rounded-xl border border-brand/30 bg-background/60 px-3.5 py-1.5 text-xs font-semibold text-foreground transition-all hover:bg-brand/10 hover:border-brand-accent/50 flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Edit3Icon className="w-3.5 h-3.5 text-brand-accent" />
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(announcement.id)}
+                      className="rounded-xl border border-red-500/30 bg-red-500/10 p-2 text-red-400 hover:bg-red-500/20 transition-all cursor-pointer"
+                      title="Delete Announcement"
+                    >
+                      <Trash2Icon className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
-                <div className="prose prose-sm dark:prose-invert mt-4 max-w-none text-muted-foreground whitespace-pre-wrap line-clamp-3">
+
+                <div className="rounded-xl border border-brand/10 bg-background/40 p-4 text-sm text-muted-foreground font-space-grotesk whitespace-pre-wrap leading-relaxed">
                   {announcement.content}
                 </div>
               </div>
@@ -117,24 +161,55 @@ export default function AdminAnnouncementsClient({ initialAnnouncements }: { ini
       )}
 
       {activeTab === "CREATE" && (
-        <form onSubmit={handleCreate} className="space-y-6 rounded-2xl border border-border/50 bg-background/80 p-6 shadow-xl sm:p-8 max-w-3xl">
+        <form
+          onSubmit={handleCreate}
+          className="space-y-6 rounded-3xl border border-brand/20 bg-card/70 backdrop-blur-xl p-6 sm:p-8 shadow-2xl max-w-3xl"
+        >
           <div>
-            <label className="mb-1.5 block text-sm font-medium">Title *</label>
-            <input required type="text" value={title} onChange={e => setTitle(e.target.value)} className="w-full rounded-lg border border-border bg-background px-4 py-2.5 outline-none focus:border-brand" placeholder="Important Update" />
+            <label className="mb-2 block text-sm font-semibold font-space-grotesk text-foreground">
+              Announcement Title *
+            </label>
+            <input
+              required
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="w-full rounded-xl border border-brand/30 bg-background/60 px-4 py-2.5 text-sm text-foreground backdrop-blur-md outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent font-space-grotesk"
+              placeholder="e.g. Workshop Registration Open: Neural Networks 101"
+            />
           </div>
 
           <div>
-            <label className="mb-1.5 block text-sm font-medium">Content * (Supports basic formatting)</label>
-            <textarea required rows={10} value={content} onChange={e => setContent(e.target.value)} className="w-full rounded-lg border border-border bg-background px-4 py-2.5 outline-none focus:border-brand" placeholder="Type your announcement here..." />
+            <label className="mb-2 block text-sm font-semibold font-space-grotesk text-foreground">
+              Content / Notice Details *
+            </label>
+            <textarea
+              required
+              rows={8}
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              className="w-full rounded-xl border border-brand/30 bg-background/60 px-4 py-2.5 text-sm text-foreground backdrop-blur-md outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent font-space-grotesk"
+              placeholder="Type announcement content here..."
+            />
           </div>
 
-          <label className="flex items-center gap-2 text-sm font-medium">
-            <input type="checkbox" checked={published} onChange={e => setPublished(e.target.checked)} className="h-5 w-5 rounded border-border text-brand focus:ring-brand" />
-            Publish Immediately
+          <label className="flex items-center gap-3 text-sm font-semibold font-space-grotesk text-foreground cursor-pointer">
+            <input
+              type="checkbox"
+              checked={published}
+              onChange={(e) => setPublished(e.target.checked)}
+              className="h-5 w-5 rounded border-brand/30 text-brand focus:ring-brand-accent"
+            />
+            Broadcast Immediately (Visible to all students)
           </label>
 
-          <button type="submit" disabled={loading} className="w-full rounded-xl bg-brand px-6 py-3.5 text-center font-semibold text-white transition-all hover:bg-brand/90 disabled:opacity-50">
-            {loading ? "Saving..." : (editingId ? "Update Announcement" : "Post Announcement")}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full rounded-2xl bg-brand py-4 text-center font-space-grotesk font-bold text-white shadow-xl shadow-brand/20 transition-all hover:bg-brand/90 hover:scale-[1.005] disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
+          >
+            <MegaphoneIcon className="w-5 h-5" />
+            {loading ? "Publishing..." : editingId ? "Update Announcement" : "Post Announcement"}
           </button>
         </form>
       )}
