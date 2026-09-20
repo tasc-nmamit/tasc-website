@@ -40,6 +40,13 @@ const ADMIN_SECTIONS = [
     icon: "MODULE_05",
     tag: "COMPETITION_CORE",
   },
+  {
+    title: "Team",
+    description: "Manage core team members across academic years",
+    href: "/admin/team",
+    icon: "MODULE_06",
+    tag: "TEAM_ROSTER",
+  },
 ];
 
 export default async function AdminDashboard() {

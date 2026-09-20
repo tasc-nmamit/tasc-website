@@ -1,0 +1,282 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../.generated/client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  bio           String?
+  phone         String?
+  username      String?
+  usn           String?
+  lightTheme    String?
+  darkTheme     String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  displayName   String?
+  college       String?   @default("N.M.A.M. Institute of Technology")
+  role          Role      @default(USER)
+}
+
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@id([provider, providerAccountId])
+}
+
+model Session {
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  rowid        BigInt   @id @default(autoincrement())
+}
+
+model Student {
+  id     String @id @default(cuid())
+  image  String
+  userId String @unique
+}
+
+model Core {
+  id      String      @id @default(cuid())
+  year    String
+  userId  String
+  image   String
+  order   Int
+  post    String
+  quote   String?
+  section TeamSection @default(ADMIN)
+}
+
+model Faculty {
+  id           String   @id @default(cuid())
+  name         String
+  email        String
+  designation  String
+  image        String
+  about        String[]
+  order        Int      @unique
+  published    Boolean  @default(false)
+  designation2 String?
+
+  @@index([name], map: "name_index")
+}
+
+model Event {
+  id                     String        @id @default(cuid())
+  title                  String
+  description            String?
+  image                  String
+  date                   DateTime
+  time                   String?
+  reportLink             String?
+  venue                  String?
+  guests                 String[]
+  published              Boolean       @default(false)
+  type                   EventType
+  category               EventCategory
+  maxTeamSize            Int           @default(1)
+  minTeamSize            Int           @default(1)
+  brief                  String?
+  entryFee               String?
+  qr                     String?
+  registrationsAvailable Boolean       @default(true)
+  endDate                DateTime?
+  maxTeams               Int?
+  notification           String?
+}
+
+model Links {
+  id        String   @id @default(cuid())
+  instagram String?
+  linkedin  String?
+  github    String?
+  userId    String   @unique
+  twitter   String?
+  order     String[]
+  custom    Json?
+}
+
+model Team {
+  id            String  @id @default(cuid())
+  attended      Boolean @default(false)
+  eventId       String
+  name          String?
+  leaderId      String?
+  transactionId String?
+  isConfirmed   Boolean @default(false)
+}
+
+model Winners {
+  id       String     @id @default(cuid())
+  teamId   String     @unique
+  eventId  String
+  position WinnerType
+}
+
+model Placement {
+  id        String @id @default(cuid())
+  yearId    String
+  studentId String @unique
+}
+
+model Company {
+  id          String @id @default(cuid())
+  companyName String
+  image       String
+}
+
+model Offer {
+  id        String @id @default(cuid())
+  companyId String
+  package   String
+}
+
+model Year {
+  id        String   @id @default(cuid())
+  year      String
+  companies String[]
+}
+
+model Patents {
+  id               String   @id @default(cuid())
+  patentId         String
+  year             String
+  title            String
+  authors          String[]
+  inventorsName    String[]
+  inventorsAddress String[]
+  certificate      String?
+}
+
+model Publication {
+  id                   String   @id @default(cuid())
+  authors              String[]
+  title                String
+  publish_date         String
+  publisher            String?
+  journal              String?
+  conference           String?
+  link                 String
+  ranking              String?
+  impact_factor        String?
+  indexed              String
+  publisher_conference String?
+  year                 Int
+}
+
+model EventToUser {
+  A     String
+  B     String
+  rowid BigInt @id @default(autoincrement())
+
+  @@unique([A, B], map: "_EventToUser_AB_unique")
+  @@index([B], map: "_EventToUser_B_index")
+  @@map("_EventToUser")
+}
+
+model FacultyPatents {
+  A     String
+  B     String
+  rowid BigInt @id @default(autoincrement())
+
+  @@unique([A, B], map: "_FacultyPatents_AB_unique")
+  @@index([B], map: "_FacultyPatents_B_index")
+  @@map("_FacultyPatents")
+}
+
+model FacultyPublications {
+  A     String
+  B     String
+  rowid BigInt @id @default(autoincrement())
+
+  @@unique([A, B], map: "_FacultyPublications_AB_unique")
+  @@index([B], map: "_FacultyPublications_B_index")
+  @@map("_FacultyPublications")
+}
+
+model OfferToPlacement {
+  A     String
+  B     String
+  rowid BigInt @id @default(autoincrement())
+
+  @@unique([A, B], map: "_OfferToPlacement_AB_unique")
+  @@index([B], map: "_OfferToPlacement_B_index")
+  @@map("_OfferToPlacement")
+}
+
+model StudentPatents {
+  A     String
+  B     String
+  rowid BigInt @id @default(autoincrement())
+
+  @@unique([A, B], map: "_StudentPatents_AB_unique")
+  @@index([B], map: "_StudentPatents_B_index")
+  @@map("_StudentPatents")
+}
+
+model UserTeam {
+  A     String
+  B     String
+  rowid BigInt @id @default(autoincrement())
+
+  @@unique([A, B], map: "_UserTeam_AB_unique")
+  @@index([B], map: "_UserTeam_B_index")
+  @@map("_UserTeam")
+}
+
+enum TeamSection {
+  ADMIN
+  TECHNICAL
+  SPORTS
+  CULTURAL
+  GRAPHICS
+  MEDIA
+  EVENT
+  REPRESENTATIVE
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum EventType {
+  SOLO
+  TEAM
+}
+
+enum WinnerType {
+  FIRST
+  SECOND
+  THIRD
+  PARTICIPATION
+}
+
+enum EventCategory {
+  PREVIOUS
+  UPCOMING
+  CURRENT
+}

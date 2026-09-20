@@ -171,6 +171,20 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
     }
   };
 
+  const handleDelete = async (id: string, title: string) => {
+    if (window.confirm(`Are you sure you want to delete the event "${title}"? This action cannot be undone.`)) {
+      try {
+        const res = await fetch(`/api/admin/events/${id}`, {
+          method: "DELETE",
+        });
+        if (!res.ok) throw new Error(await res.text());
+        setEvents(events.filter(e => e.id !== id));
+      } catch (err) {
+        alert("Failed to delete event: " + err);
+      }
+    }
+  };
+
   return (
     <div>
       <div className="mb-6 flex gap-4 border-b border-border/50 pb-4">
@@ -278,6 +292,12 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
                       className="rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent disabled:opacity-50"
                     >
                       Export Excel
+                    </button>
+                    <button
+                      onClick={() => handleDelete(event.id, event.title)}
+                      className="rounded-lg border border-red-500/20 bg-red-500/10 text-red-500 px-4 py-2 text-sm font-medium transition-colors hover:bg-red-500/20"
+                    >
+                      Delete
                     </button>
                   </div>
               </div>

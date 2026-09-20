@@ -40,6 +40,8 @@ export async function DELETE(
   const { id } = await context.params;
 
   try {
+    await db.winners.deleteMany({ where: { eventId: id } });
+    await db.team.deleteMany({ where: { eventId: id } });
     await db.event.delete({ where: { id } });
     return NextResponse.json({ success: true });
   } catch (error: any) {
