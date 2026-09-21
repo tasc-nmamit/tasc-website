@@ -56,7 +56,6 @@ export async function POST(request: Request) {
             where: { id: score.userId },
             data: {
               marathonTotalScore: { increment: score.score },
-              marathonStreak: { increment: 1 } // Assume weekly contest also adds to streak
             }
           });
           updatedCount++;

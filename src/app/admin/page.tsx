@@ -47,8 +47,9 @@ export default async function AdminDashboard() {
   const isOwner = session.user.role === "OWNER";
 
   return (
-    <main className="min-h-dvh px-4 pt-28 pb-16 bg-blueprint-grid">
-      <div className="mx-auto max-w-5xl">
+    <main className="min-h-dvh px-4 pt-28 pb-16 bg-background bg-blueprint-grid relative overflow-x-hidden">
+      <div className="absolute top-0 inset-x-0 h-96 bg-gradient-to-b from-brand/15 via-brand/5 to-transparent pointer-events-none" />
+      <div className="relative z-10 mx-auto max-w-5xl">
         {/* Header */}
         <div className="mb-10 text-center md:text-left">
           <TechnicalLabel variant={isOwner ? "gold" : "primary"} className="mb-3">

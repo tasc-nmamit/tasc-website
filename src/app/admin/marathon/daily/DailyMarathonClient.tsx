@@ -23,6 +23,27 @@ export default function DailyMarathonClient({ initialContests, aimlUsers }: { in
   const [unmatchedUsernames, setUnmatchedUsernames] = useState<string[]>([]);
   const [editingSlug, setEditingSlug] = useState(false);
   const [editSlugValue, setEditSlugValue] = useState("");
+  const [recalculating, setRecalculating] = useState(false);
+
+  const handleRecalculateStreaks = async () => {
+    if (!confirm("Recalculate and synchronize all marathon streaks and total scores based on confirmed contests?")) return;
+    setRecalculating(true);
+    try {
+      const res = await fetch("/api/admin/marathon/recalculate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      alert(`Synchronized successfully!\nEvaluated: ${data.streaksEvaluated} students\nStreaks adjusted: ${data.streaksUpdated}\nScores updated: ${data.scoresUpdated}`);
+      window.location.reload();
+    } catch (err: any) {
+      alert("Recalculation error: " + err.message);
+    } finally {
+      setRecalculating(false);
+    }
+  };
 
   const handleCreateContest = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -356,23 +377,32 @@ export default function DailyMarathonClient({ initialContests, aimlUsers }: { in
           <div className="rounded-2xl border border-border/50 bg-background/80 p-6">
             <div className="flex justify-between items-center border-b border-border/50 pb-2 mb-4">
               <h3 className="text-xl font-bold">Current Global Leaderboard</h3>
-              <button 
-                onClick={() => {
-                  const csv = ["Rank,Name,USN,Email,Year,Total Score,Streak"];
-                  aimlUsers.forEach((u, i) => {
-                    csv.push(`${i+1},"${u.name || ''}","${u.usn || ''}","${u.email}","${u.year || ''}","${u.marathonTotalScore}","${u.marathonStreak}"`);
-                  });
-                  const blob = new Blob([csv.join("\n")], { type: "text/csv" });
-                  const url = window.URL.createObjectURL(blob);
-                  const a = document.createElement("a");
-                  a.href = url;
-                  a.download = `daily-leaderboard-${new Date().toISOString().split("T")[0]}.csv`;
-                  a.click();
-                }}
-                className="text-xs font-semibold bg-muted hover:bg-muted/80 px-3 py-1.5 rounded-lg border border-border/50"
-              >
-                Export CSV
-              </button>
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={handleRecalculateStreaks}
+                  disabled={recalculating}
+                  className="text-xs font-semibold bg-amber-500/15 text-amber-600 dark:text-amber-400 hover:bg-amber-500/25 px-3 py-1.5 rounded-lg border border-amber-500/30 transition-colors disabled:opacity-50"
+                >
+                  {recalculating ? "Syncing..." : "🔥 Sync Streaks"}
+                </button>
+                <button 
+                  onClick={() => {
+                    const csv = ["Rank,Name,USN,Email,Year,Total Score,Streak"];
+                    aimlUsers.forEach((u, i) => {
+                      csv.push(`${i+1},"${u.name || ''}","${u.usn || ''}","${u.email}","${u.year || ''}","${u.marathonTotalScore}","${u.marathonStreak}"`);
+                    });
+                    const blob = new Blob([csv.join("\n")], { type: "text/csv" });
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = `daily-leaderboard-${new Date().toISOString().split("T")[0]}.csv`;
+                    a.click();
+                  }}
+                  className="text-xs font-semibold bg-muted hover:bg-muted/80 px-3 py-1.5 rounded-lg border border-border/50"
+                >
+                  Export CSV
+                </button>
+              </div>
             </div>
             <div className="space-y-3">
               {aimlUsers.slice(0, 15).map((u, i) => (

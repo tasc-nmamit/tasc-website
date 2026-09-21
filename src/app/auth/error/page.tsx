@@ -12,7 +12,7 @@ function AuthErrorContent() {
     AccessDenied: {
       title: "Access Denied",
       message:
-        "Only @nmamit.in email addresses are allowed. Please sign in with your NMAMIT institutional email.",
+        "Only @nmamit.in (students) or @nitte.edu.in (faculties) institutional emails are allowed. Please sign in with your authorized email.",
     },
     Configuration: {
       title: "Configuration Error",
@@ -31,8 +31,9 @@ function AuthErrorContent() {
   const errorInfo = ERROR_MESSAGES[error || "Default"] || ERROR_MESSAGES.Default;
 
   return (
-    <main className="flex min-h-dvh items-center justify-center px-4">
-      <div className="w-full max-w-sm text-center">
+    <main className="flex min-h-dvh items-center justify-center px-4 bg-background bg-blueprint-grid relative overflow-x-hidden">
+      <div className="absolute top-0 inset-x-0 h-96 bg-gradient-to-b from-brand/15 via-brand/5 to-transparent pointer-events-none" />
+      <div className="relative z-10 w-full max-w-sm text-center">
         <div className="rounded-2xl border border-border/50 bg-background/80 p-8 shadow-2xl backdrop-blur-xl">
           <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-red-500/10">
             <svg

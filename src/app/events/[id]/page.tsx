@@ -7,6 +7,7 @@ import CountdownTimer from "./CountdownTimer";
 import { getSession } from "@/lib/auth-guards";
 import CircuitTrace from "@/components/ui/circuit-ink/CircuitTrace";
 import TechnicalLabel from "@/components/ui/circuit-ink/TechnicalLabel";
+import EventPhotoGallery from "@/components/events/EventPhotoGallery";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -194,6 +195,11 @@ export default async function EventDetailsPage({ params }: PageProps) {
                 )}
               </div>
             </div>
+
+            {/* Event Photo Gallery Showcase */}
+            {event.guests && event.guests.length > 0 && (
+              <EventPhotoGallery photos={event.guests} eventTitle={event.title} />
+            )}
           </div>
 
           {/* Sidebar Info & Registration Module */}

@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 
+import { recalculateUserStreak } from "@/lib/marathon-streak";
+
 export async function POST(request: Request) {
   const session = await auth();
   if (!session?.user?.id || (session.user.role !== "ADMIN" && session.user.role !== "OWNER")) {
@@ -34,14 +36,23 @@ export async function POST(request: Request) {
         }
       });
 
-      // 2. Update the user's total score and streak
+      // 2. Update the user's total score
       await tx.user.update({
         where: { id: userId },
         data: {
           marathonTotalScore: { increment: Number(scoreIncrement) },
-          marathonStreak: maintainStreak ? { increment: 1 } : { set: 0 },
         }
       });
+
+      // 3. Recalculate or reset streak accurately
+      if (maintainStreak === false) {
+        await tx.user.update({
+          where: { id: userId },
+          data: { marathonStreak: 0 }
+        });
+      } else {
+        await recalculateUserStreak(userId, undefined, tx);
+      }
     });
 
     return NextResponse.json({ success: true });

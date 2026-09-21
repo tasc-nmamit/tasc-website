@@ -5,8 +5,9 @@ import Image from "next/image";
 
 export default function SignInPage() {
   return (
-    <main className="flex min-h-dvh items-center justify-center px-4">
-      <div className="w-full max-w-sm">
+    <main className="flex min-h-dvh items-center justify-center px-4 bg-background bg-blueprint-grid relative overflow-x-hidden">
+      <div className="absolute top-0 inset-x-0 h-96 bg-gradient-to-b from-brand/15 via-brand/5 to-transparent pointer-events-none" />
+      <div className="relative z-10 w-full max-w-sm">
         <div className="rounded-2xl border border-border/50 bg-background/80 p-8 shadow-2xl backdrop-blur-xl">
           {/* Logo */}
           <div className="mb-6 flex justify-center">
@@ -31,7 +32,7 @@ export default function SignInPage() {
               Welcome to TASC
             </h1>
             <p className="mt-2 text-sm text-muted-foreground">
-              Sign in with your NMAMIT email to continue
+              Sign in with your institutional email to continue
             </p>
           </div>
 
@@ -50,7 +51,7 @@ export default function SignInPage() {
 
           <div className="mt-6 rounded-lg border border-amber-500/20 bg-amber-500/5 px-4 py-3">
             <p className="text-center text-xs text-amber-600 dark:text-amber-400">
-              Only <strong>@nmamit.in</strong> email addresses are accepted
+              Accepted: <strong>@nmamit.in</strong> (students) or <strong>@nitte.edu.in</strong> (faculties)
             </p>
           </div>
         </div>

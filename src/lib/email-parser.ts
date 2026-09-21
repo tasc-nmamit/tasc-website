@@ -98,6 +98,38 @@ export function isNmamitEmail(email: string): boolean {
 }
 
 /**
+ * Validates that an email belongs to @nitte.edu.in faculty domain.
+ */
+export function isNitteFacultyEmail(email: string): boolean {
+  return email.toLowerCase().trim().endsWith("@nitte.edu.in");
+}
+
+/**
+ * Specifically allowed external email addresses permitted to log in.
+ */
+export const ALLOWED_EXTERNAL_EMAILS = new Set([
+  "samarthpai9870@gmail.com",
+  "sanidhyadatt26@gmail.com",
+  "buggykurrrie610@gmail.com",
+  "sumathidpai@gmail.com",
+]);
+
+/**
+ * Checks whether an email address is allowed to sign in / sign up:
+ * - @nmamit.in (students)
+ * - @nitte.edu.in (faculties)
+ * - Explicitly allowed external emails
+ */
+export function isAllowedEmail(email: string): boolean {
+  const normalized = email.toLowerCase().trim();
+  return (
+    isNmamitEmail(normalized) ||
+    isNitteFacultyEmail(normalized) ||
+    ALLOWED_EXTERNAL_EMAILS.has(normalized)
+  );
+}
+
+/**
  * Checks if the email belongs to an AIML student.
  */
 export function isAimlStudent(email: string): boolean {
@@ -113,3 +145,4 @@ export function isMarathonEligible(email: string): boolean {
   if (!parsed) return false;
   return parsed.isAiml && (parsed.currentYear === 2 || parsed.currentYear === 3);
 }
+

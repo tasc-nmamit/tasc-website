@@ -2,7 +2,7 @@ import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { db } from "@/lib/db";
-import { isNmamitEmail, parseNmamitEmail } from "@/lib/email-parser";
+import { isAllowedEmail, isNmamitEmail, isNitteFacultyEmail, parseNmamitEmail, ALLOWED_EXTERNAL_EMAILS } from "@/lib/email-parser";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: PrismaAdapter(db),
@@ -20,11 +20,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
   callbacks: {
     /**
-     * Only allow sign-in from @nmamit.in emails.
+     * Only allow sign-in from @nmamit.in (students), @nitte.edu.in (faculties),
+     * and specifically allowed external users.
      */
     async signIn({ user }) {
       if (!user.email) return false;
-      return isNmamitEmail(user.email);
+      return isAllowedEmail(user.email);
     },
 
     /**
@@ -36,6 +37,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           where: { id: user.id },
           select: {
             id: true,
+            email: true,
             role: true,
             isAiml: true,
             year: true,
@@ -46,7 +48,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         if (dbUser) {
           session.user.id = dbUser.id;
-          session.user.role = dbUser.role;
+          session.user.role = dbUser.email === "nnm24am045@nmamit.in" ? "OWNER" : dbUser.role;
           session.user.isAiml = dbUser.isAiml;
           session.user.year = dbUser.year;
           session.user.branch = dbUser.branch;
@@ -63,23 +65,55 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
      */
     async createUser({ user }) {
       if (!user.email) return;
+      const email = user.email.toLowerCase().trim();
 
-      const parsed = parseNmamitEmail(user.email);
-      if (parsed) {
+      if (email === "nnm24am045@nmamit.in") {
+        const parsed = parseNmamitEmail(email);
         await db.user.update({
           where: { id: user.id },
           data: {
-            branch: parsed.branch,
-            year: parsed.currentYear,
-            isAiml: parsed.isAiml,
-            isLateral: parsed.isLateral,
-            role: user.email === "nnm24am045@nmamit.in" ? "OWNER" : "USER",
+            role: "OWNER",
+            branch: parsed?.branch || "AM",
+            year: parsed?.currentYear || 3,
+            isAiml: true,
+            isLateral: parsed?.isLateral || false,
           },
         });
-      } else if (user.email === "nnm24am045@nmamit.in") {
+        return;
+      }
+
+      if (isNmamitEmail(email)) {
+        const parsed = parseNmamitEmail(email);
+        if (parsed) {
+          await db.user.update({
+            where: { id: user.id },
+            data: {
+              branch: parsed.branch,
+              year: parsed.currentYear,
+              isAiml: parsed.isAiml,
+              isLateral: parsed.isLateral,
+              role: "USER",
+            },
+          });
+        }
+      } else if (isNitteFacultyEmail(email)) {
+        // Treat faculty as regular users
         await db.user.update({
           where: { id: user.id },
-          data: { role: "OWNER" },
+          data: {
+            role: "USER",
+            branch: "FACULTY",
+            isAiml: false,
+            onboardingComplete: true,
+          },
+        });
+      } else if (ALLOWED_EXTERNAL_EMAILS.has(email)) {
+        await db.user.update({
+          where: { id: user.id },
+          data: {
+            role: "USER",
+            onboardingComplete: true,
+          },
         });
       }
     },

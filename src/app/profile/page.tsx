@@ -19,8 +19,9 @@ export default async function ProfilePage() {
   }
 
   return (
-    <main className="min-h-dvh px-4 pt-28 pb-16 bg-blueprint-grid">
-      <div className="mx-auto max-w-2xl">
+    <main className="min-h-dvh px-4 pt-28 pb-16 bg-background bg-blueprint-grid relative overflow-x-hidden">
+      <div className="absolute top-0 inset-x-0 h-96 bg-gradient-to-b from-brand/15 via-brand/5 to-transparent pointer-events-none" />
+      <div className="relative z-10 mx-auto max-w-2xl">
         <div className="mb-6 text-center">
           <span className="font-mono-tech text-xs text-brand-accent uppercase tracking-widest block mb-1">
             [ STUDENT_PROFILE // DATA_CENTER ]
