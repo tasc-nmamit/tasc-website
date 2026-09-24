@@ -82,16 +82,7 @@ export default function HeroSection() {
 
       {/* Hero Content */}
       <div className="relative z-30 flex flex-col items-center justify-center max-w-5xl w-full text-center px-4">
-        {/* Futuristic Status Badge */}
-        <div className="title-word inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full border border-brand/35 bg-card/75 backdrop-blur-md shadow-lg shadow-brand/10 mb-6">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
-          </span>
-          <span className="font-mono-tech text-xs tracking-widest text-foreground uppercase">
-            TASC // DEPT OF AIML // NMAMIT
-          </span>
-        </div>
+
 
         {/* Hero Title */}
         <h1

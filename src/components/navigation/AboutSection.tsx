@@ -2,21 +2,14 @@
 
 import Image from "next/image";
 import TechnicalCard from "@/components/ui/circuit-ink/TechnicalCard";
-import TechnicalLabel from "@/components/ui/circuit-ink/TechnicalLabel";
 import ScrollReveal from "@/components/ui/ScrollReveal";
 
 export default function AboutSection() {
   return (
     <div className="w-full max-w-7xl mx-auto px-4 md:px-8 py-6">
-      <div className="flex items-center gap-3 mb-6">
-        <span className="h-px bg-brand/30 flex-1"></span>
-        <TechnicalLabel variant="primary">[ SYSTEM_OVERVIEW // MISSION_VISION ]</TechnicalLabel>
-        <span className="h-px bg-brand/30 flex-1"></span>
-      </div>
-
       <TechnicalCard className="bg-blueprint-grid">
         <h2 className="text-3xl md:text-5xl font-bold font-space-grotesk tracking-tight text-center mb-10 text-foreground">
-          About <span className="text-gold">TASC Laboratory</span>
+          About <span className="text-gold">TASC</span>
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
@@ -28,9 +21,7 @@ export default function AboutSection() {
                   MISSION
                 </h3>
                 <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
-                  To provide an excellent academic environment for continuous improvement in Computer Science, 
-                  Artificial Intelligence, and Machine Learning specialization by imparting education with innovation, 
-                  skills, and a positive attitude.
+                  To promote and advance the fields of Artificial Intelligence and Machine Learning while simultaneously fostering a deep sense of community among its members. TASC provides students with the necessary resources, peer mentorship, and support to succeed both academically and professionally through student-led events, technical workshops, and hands-on activities.
                 </p>
               </div>
             </ScrollReveal>
@@ -42,8 +33,7 @@ export default function AboutSection() {
                   VISION
                 </h3>
                 <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
-                  To be a center of excellence in Artificial Intelligence and Machine Learning Engineering education 
-                  and research, producing comprehensively trained, technically skilled, and ethically strong engineers.
+                  To create a cooperative and inclusive student platform that enables peers to explore, collaborate, and expand their technical boundaries in AI/ML, ultimately empowering them to bridge the gap between classroom engineering and real-world industrial visibility.
                 </p>
               </div>
             </ScrollReveal>
@@ -53,7 +43,7 @@ export default function AboutSection() {
                 <div className="bg-background/80 border border-brand/20 p-3.5 rounded-lg h-full">
                   <h4 className="text-sm font-bold font-space-grotesk text-foreground mb-1">VALUES</h4>
                   <p className="text-xs text-muted-foreground">
-                    Creativity, collaboration, inclusivity, ethics, and academic excellence.
+                    Curiosity, Peer Mentorship, Active Collaboration and Community-Led Innovation
                   </p>
                 </div>
               </ScrollReveal>
@@ -62,7 +52,7 @@ export default function AboutSection() {
                 <div className="bg-background/80 border border-brand/20 p-3.5 rounded-lg h-full">
                   <h4 className="text-sm font-bold font-space-grotesk text-foreground mb-1">BELIEF</h4>
                   <p className="text-xs text-muted-foreground">
-                    Harnessing AI to solve real-world problems responsibly and ethically.
+                    True learning extends beyond the classroom; by building together, students master tomorrow&apos;s tech today.
                   </p>
                 </div>
               </ScrollReveal>

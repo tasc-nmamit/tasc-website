@@ -72,7 +72,7 @@ export default function FacultyCard({ faculty }: FacultyCardProps) {
         </DialogHeader>
 
         <div className="flex flex-col justify-center lg:flex-row gap-6 lg:gap-8 pt-4">
-          <div className="flex min-w-[16rem] justify-center object-cover md:shrink-0 lg:min-w-[20rem]">
+          <div className="flex min-w-0 md:min-w-[16rem] justify-center object-cover md:shrink-0 lg:min-w-[20rem]">
             <div className="relative aspect-square w-48 md:shrink-0 lg:w-72 rounded-lg overflow-hidden border-2 border-brand/40 shadow-md">
               <Image src={image} alt={name} fill className="object-cover" />
             </div>

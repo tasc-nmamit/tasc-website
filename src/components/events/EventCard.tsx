@@ -163,18 +163,17 @@ export function EventIndexRow({ event, index }: EventIndexRowProps) {
               {event.venue && (
                 <div className="flex items-center gap-1.5">
                   <MapPinIcon className="w-3.5 h-3.5 text-brand-accent" />
-                  <span>VENUE: {event.venue}</span>
+                  <span>Venue: {event.venue}</span>
                 </div>
               )}
-              <span>NODE_ID: EVT_{event.id.slice(-4).toUpperCase()}</span>
             </div>
 
             <div className="pt-2">
               <NextLink
                 href={`/events/${event.id}`}
-                className="inline-flex items-center gap-2 px-4 py-1.5 rounded bg-brand-accent hover:bg-purple-600 text-white font-valley text-xs font-bold tracking-wider transition-colors shadow-sm"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-brand-accent hover:bg-purple-600 text-white font-valley text-xs font-bold tracking-wider transition-colors shadow-sm"
               >
-                <span>VIEW EVENT →</span>
+                <span>View Event Details →</span>
               </NextLink>
             </div>
           </div>

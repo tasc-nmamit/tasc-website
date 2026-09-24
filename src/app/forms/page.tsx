@@ -52,7 +52,7 @@ export default async function FormsListPage() {
         {/* Header Section */}
         <div className="relative border border-brand/25 bg-card/85 backdrop-blur-xl p-6 sm:p-8 rounded-xl space-y-4 shadow-xl">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <TechnicalLabel variant="primary">[ COMMUNITY_PORTAL // FORMS_HUB ]</TechnicalLabel>
+            <TechnicalLabel variant="primary">Community Portal • Forms Hub</TechnicalLabel>
           </div>
 
           <div>

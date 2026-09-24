@@ -20,7 +20,7 @@ export function MemberCard({ member, featured = false }: MemberCardProps) {
       <div
         onClick={() => setIsOpen(true)}
         className={`cursor-pointer overflow-hidden rounded-xl border border-brand/20 dark:border-brand/30 bg-white dark:bg-card p-5 shadow-lg dark:shadow-xl transition-all duration-300 hover:border-brand-accent/60 hover:scale-105 relative group bg-blueprint-grid ${
-          featured ? "w-80 md:w-96" : "w-72"
+          featured ? "w-full max-w-[320px] sm:max-w-sm md:w-96" : "w-full max-w-[280px] sm:w-72"
         }`}
       >
         <CircuitTrace corners={true} />

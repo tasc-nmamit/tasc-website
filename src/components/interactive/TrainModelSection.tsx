@@ -222,9 +222,9 @@ export default function TrainModelSection() {
   return (
     <section className="py-24 px-4 md:px-12 relative min-h-[60vh] max-w-7xl mx-auto">
       {/* Header Tag */}
-      <div className="flex items-center gap-3 mb-5 font-mono-tech text-xs text-gold uppercase tracking-widest">
+      <div className="flex items-center gap-3 mb-5 font-space-grotesk font-semibold text-xs text-gold uppercase tracking-wider">
         <span className="w-8 h-px bg-gold/60"></span>
-        LAYER 03 — TRAINING GROUND
+        Interactive Lab • Training Ground
       </div>
 
       <h2 className="font-space-grotesk text-3xl md:text-5xl font-bold text-foreground mb-4 max-w-2xl leading-tight">

@@ -52,7 +52,7 @@ export default function ProfileClient({ user }: { user: any }) {
 
       <div className="relative z-10 grid gap-6 sm:grid-cols-2 font-space-grotesk">
         <div className="sm:col-span-2">
-          <label className="mb-1.5 block text-xs font-mono-tech text-muted-foreground uppercase">FULL_NAME</label>
+          <label className="mb-1.5 block text-xs font-mono-tech text-muted-foreground uppercase">Full Name</label>
           <input
             type="text"
             name="name"
@@ -63,7 +63,7 @@ export default function ProfileClient({ user }: { user: any }) {
         </div>
 
         <div>
-          <label className="mb-1.5 block text-xs font-mono-tech text-muted-foreground uppercase">PHONE_NUMBER</label>
+          <label className="mb-1.5 block text-xs font-mono-tech text-muted-foreground uppercase">Phone Number</label>
           <input
             type="tel"
             name="phone"
@@ -74,7 +74,7 @@ export default function ProfileClient({ user }: { user: any }) {
         </div>
 
         <div>
-          <label className="mb-1.5 block text-xs font-mono-tech text-muted-foreground uppercase">CAREER_PLAN (AIML)</label>
+          <label className="mb-1.5 block text-xs font-mono-tech text-muted-foreground uppercase">Career Intent (AIML)</label>
           <select
             name="careerIntent"
             value={formData.careerIntent}
@@ -88,7 +88,7 @@ export default function ProfileClient({ user }: { user: any }) {
         </div>
 
         <div className="sm:col-span-2">
-          <label className="mb-1.5 block text-xs font-mono-tech text-muted-foreground uppercase">HACKERRANK_USERNAME</label>
+          <label className="mb-1.5 block text-xs font-mono-tech text-muted-foreground uppercase">HackerRank Username</label>
           <input
             type="text"
             name="hackerrankUsername"
@@ -97,11 +97,11 @@ export default function ProfileClient({ user }: { user: any }) {
             placeholder="e.g. johndoe123"
             className="w-full rounded-lg border border-brand/30 bg-background px-4 py-2.5 outline-none focus:border-brand-accent text-sm font-mono-tech text-foreground"
           />
-          <p className="mt-1 text-[11px] font-mono-tech text-gold">REQUIRED_FOR_MARATHON_SYNCING</p>
+          <p className="mt-1 text-[11px] font-mono-tech text-gold">Required for Marathon score syncing</p>
         </div>
 
         <div>
-          <label className="mb-1.5 block text-xs font-mono-tech text-muted-foreground uppercase">LEETCODE_URL</label>
+          <label className="mb-1.5 block text-xs font-mono-tech text-muted-foreground uppercase">LeetCode Profile URL</label>
           <input
             type="url"
             name="leetcodeProfile"
@@ -113,7 +113,7 @@ export default function ProfileClient({ user }: { user: any }) {
         </div>
 
         <div>
-          <label className="mb-1.5 block text-xs font-mono-tech text-muted-foreground uppercase">GITHUB_URL</label>
+          <label className="mb-1.5 block text-xs font-mono-tech text-muted-foreground uppercase">GitHub Profile URL</label>
           <input
             type="url"
             name="githubProfile"
@@ -125,7 +125,7 @@ export default function ProfileClient({ user }: { user: any }) {
         </div>
 
         <div className="sm:col-span-2">
-          <label className="mb-1.5 block text-xs font-mono-tech text-muted-foreground uppercase">BIO / STATEMENT</label>
+          <label className="mb-1.5 block text-xs font-mono-tech text-muted-foreground uppercase">Bio / Statement</label>
           <textarea
             name="bio"
             rows={3}

@@ -91,11 +91,11 @@ export default function Navbar() {
 
   return (
     <header
-      className={`fixed top-4 inset-x-0 z-50 px-4 flex justify-center pointer-events-none transition-all duration-300 ease-in-out ${
+      className={`fixed top-4 inset-x-0 z-50 px-3 sm:px-4 flex justify-center pointer-events-none transition-all duration-300 ease-in-out ${
         visible ? "translate-y-0 opacity-100" : "-translate-y-28 opacity-0"
       }`}
     >
-      <div className="pointer-events-auto max-w-full">
+      <div className="pointer-events-auto w-full max-w-lg lg:w-auto lg:max-w-full flex justify-center">
         <PillNav
           logo="/TASCLogo.png"
           logoAlt="TASC"

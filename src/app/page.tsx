@@ -7,10 +7,22 @@ import { db } from "@/lib/db";
 import { CalendarIcon, UsersIcon, TrophyIcon, ArrowRightIcon } from "lucide-react";
 
 export default async function Home() {
-  const [totalUsers, totalEvents, coreMembers] = await Promise.all([
-    db.user.count(),
+  const latestCore = await db.core.findFirst({
+    orderBy: { year: "desc" },
+    select: { year: true },
+  });
+  const currentYear = latestCore?.year || "2026";
+
+  const [registeredMembers, totalEvents, coreMembers] = await Promise.all([
+    db.user.count({
+      where: {
+        accounts: { some: {} },
+      },
+    }),
     db.event.count(),
-    db.core.count(),
+    db.core.count({
+      where: { year: currentYear },
+    }),
   ]);
 
   return (
@@ -32,8 +44,8 @@ export default async function Home() {
               <div className="mx-auto w-16 h-16 rounded-full bg-brand/20 flex items-center justify-center mb-4 text-brand-accent">
                 <UsersIcon className="w-8 h-8" />
               </div>
-              <h3 className="text-5xl font-bold font-space-grotesk text-foreground mb-2">{totalUsers}</h3>
-              <p className="text-muted-foreground font-mono-tech uppercase tracking-widest text-xs">Registered Members</p>
+              <h3 className="text-5xl font-bold font-space-grotesk text-foreground mb-2">{registeredMembers}</h3>
+              <p className="text-muted-foreground font-space-grotesk text-sm font-medium">Registered Members</p>
             </ScrollReveal>
 
             <ScrollReveal variant="fadeUp" delay={200} className="bg-card/50 backdrop-blur-md border border-brand/20 p-8 rounded-2xl text-center shadow-lg hover:border-brand-accent/50 transition-colors">
@@ -41,7 +53,7 @@ export default async function Home() {
                 <CalendarIcon className="w-8 h-8" />
               </div>
               <h3 className="text-5xl font-bold font-space-grotesk text-foreground mb-2">{totalEvents}+</h3>
-              <p className="text-muted-foreground font-mono-tech uppercase tracking-widest text-xs">Events Organized</p>
+              <p className="text-muted-foreground font-space-grotesk text-sm font-medium">Events Organized</p>
             </ScrollReveal>
 
             <ScrollReveal variant="slideLeft" delay={300} className="bg-card/50 backdrop-blur-md border border-brand/20 p-8 rounded-2xl text-center shadow-lg hover:border-brand-accent/50 transition-colors">
@@ -49,7 +61,7 @@ export default async function Home() {
                 <TrophyIcon className="w-8 h-8" />
               </div>
               <h3 className="text-5xl font-bold font-space-grotesk text-foreground mb-2">{coreMembers}</h3>
-              <p className="text-muted-foreground font-mono-tech uppercase tracking-widest text-xs">Core Team Members</p>
+              <p className="text-muted-foreground font-space-grotesk text-sm font-medium">Core Team Members</p>
             </ScrollReveal>
           </div>
         </div>
@@ -73,7 +85,7 @@ export default async function Home() {
                 <Link href="/events" className="group flex items-center justify-center gap-2 bg-foreground text-background px-8 py-4 rounded-xl font-bold hover:scale-105 transition-transform">
                   Events <ArrowRightIcon className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Link>
-                <Link href="/team/2024" className="group flex items-center justify-center gap-2 bg-transparent border border-foreground text-foreground px-8 py-4 rounded-xl font-bold hover:bg-foreground/10 transition-colors">
+                <Link href={`/team/${currentYear}`} className="group flex items-center justify-center gap-2 bg-transparent border border-foreground text-foreground px-8 py-4 rounded-xl font-bold hover:bg-foreground/10 transition-colors">
                   Our Team <ArrowRightIcon className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </div>

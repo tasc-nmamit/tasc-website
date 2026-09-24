@@ -256,6 +256,28 @@ export default function PillNav({
     href.startsWith("tel:") ||
     href.startsWith("#");
 
+  // Close mobile menu on click outside
+  useEffect(() => {
+    if (!isMobileMenuOpen) return;
+
+    const handleOutsideClick = (e: MouseEvent | TouchEvent) => {
+      const target = e.target as HTMLElement;
+      if (
+        !mobileMenuRef.current?.contains(target) &&
+        !hamburgerRef.current?.contains(target)
+      ) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleOutsideClick);
+    document.addEventListener("touchstart", handleOutsideClick);
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+      document.removeEventListener("touchstart", handleOutsideClick);
+    };
+  }, [isMobileMenuOpen]);
+
   const isLight = baseColor === "#ffffff";
   const cssVars = {
     "--base": baseColor,
@@ -273,18 +295,26 @@ export default function PillNav({
     <div className="pill-nav-container">
       <nav className={`pill-nav ${className}`} aria-label="Primary" style={cssVars}>
         
-        {/* Logo */}
-        {logo && (
+        {/* Brand / Logo Group */}
+        <div className="flex items-center gap-2">
+          {logo && (
+            <Link
+              className="pill-logo"
+              href={items?.[0]?.href || "/"}
+              aria-label="Home"
+              onMouseEnter={handleLogoEnter}
+              ref={logoRef}
+            >
+              <img src={logo} alt={logoAlt} ref={logoImgRef} />
+            </Link>
+          )}
           <Link
-            className="pill-logo"
-            href={items?.[0]?.href || "/"}
-            aria-label="Home"
-            onMouseEnter={handleLogoEnter}
-            ref={logoRef}
+            href="/"
+            className="mobile-only font-space-grotesk font-extrabold text-sm tracking-wider bg-gradient-to-r from-purple-400 via-violet-300 to-indigo-300 bg-clip-text text-transparent select-none"
           >
-            <img src={logo} alt={logoAlt} ref={logoImgRef} />
+            TASC
           </Link>
-        )}
+        </div>
 
         {/* Desktop Navigation Items Container */}
         <div className="pill-nav-items desktop-only" ref={navItemsRef}>
@@ -348,24 +378,26 @@ export default function PillNav({
           </ul>
         </div>
 
-        {/* Right-side Auth & Actions (ThemeToggle, Profile, SignIn) */}
-        {rightSlot && (
-          <div className="ml-3 flex items-center gap-2 z-20">
-            {rightSlot}
-          </div>
-        )}
+        {/* Right-side Auth & Actions (ThemeToggle, Profile, SignIn, Mobile Menu Button) */}
+        <div className="flex items-center gap-2 z-20">
+          {rightSlot && (
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              {rightSlot}
+            </div>
+          )}
 
-        {/* Mobile Toggle Button */}
-        <button
-          type="button"
-          className="mobile-menu-button mobile-only ml-2"
-          onClick={toggleMobileMenu}
-          aria-label="Toggle menu"
-          ref={hamburgerRef}
-        >
-          <span className="hamburger-line" />
-          <span className="hamburger-line" />
-        </button>
+          {/* Mobile Toggle Button */}
+          <button
+            type="button"
+            className="mobile-menu-button mobile-only"
+            onClick={toggleMobileMenu}
+            aria-label="Toggle menu"
+            ref={hamburgerRef}
+          >
+            <span className="hamburger-line" />
+            <span className="hamburger-line" />
+          </button>
+        </div>
       </nav>
 
       {/* Mobile Menu Dropdown */}
@@ -383,7 +415,10 @@ export default function PillNav({
                     className={`mobile-menu-link${isActive ? " is-active" : ""}`}
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    {item.label}
+                    <span>{item.label}</span>
+                    {isActive && (
+                      <span className="w-1.5 h-1.5 rounded-full bg-purple-400 shrink-0" />
+                    )}
                   </a>
                 ) : (
                   <Link
@@ -391,7 +426,10 @@ export default function PillNav({
                     className={`mobile-menu-link${isActive ? " is-active" : ""}`}
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    {item.label}
+                    <span>{item.label}</span>
+                    {isActive && (
+                      <span className="w-1.5 h-1.5 rounded-full bg-purple-400 shrink-0" />
+                    )}
                   </Link>
                 )}
               </li>

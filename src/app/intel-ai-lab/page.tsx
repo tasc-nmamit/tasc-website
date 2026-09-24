@@ -70,18 +70,18 @@ export default function IntelAIlab() {
                 LAB_EQUIPMENT: 38 Dell Precision 3660 Tower Workstations
               </p>
 
-              <div className="w-full overflow-hidden rounded-xl border border-border/60 bg-background/60">
-                <table className="w-full text-left text-xs sm:text-sm font-mono">
+              <div className="w-full overflow-x-auto rounded-xl border border-border/60 bg-background/60">
+                <table className="w-full text-left text-xs sm:text-sm font-mono min-w-[320px]">
                   <tbody className="divide-y divide-border/40">
                     {specs.map((spec) => (
                       <tr
                         key={spec.title}
                         className="hover:bg-brand/5 transition-colors"
                       >
-                        <td className="p-4 font-bold text-brand-accent align-top w-1/3 border-r border-border/40">
+                        <td className="p-3 sm:p-4 font-bold text-brand-accent align-top w-2/5 sm:w-1/3 border-r border-border/40">
                           {spec.title}
                         </td>
-                        <td className="p-4 text-foreground/90">
+                        <td className="p-3 sm:p-4 text-foreground/90">
                           {spec.desc}
                         </td>
                       </tr>

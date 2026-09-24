@@ -40,7 +40,7 @@ export default async function AnnouncementsPage() {
     title: a.title,
     content: a.content,
     date: a.createdAt,
-    badge: "[ OFFICIAL_BULLETIN ]",
+    badge: "Official Bulletin",
     badgeVariant: "primary",
     author: {
       name: a.author.name,
@@ -69,7 +69,7 @@ export default async function AnnouncementsPage() {
         title: `${e.title}`,
         content: e.description ? e.description.replace(/<[^>]*>?/gm, "").trim().slice(0, 200) + "..." : null,
         date: e.date,
-        badge: isLive ? "[ LIVE_EVENT_ALERT ]" : "[ UPCOMING_EVENT ]",
+        badge: isLive ? "Live Event" : "Upcoming Event",
         badgeVariant: isLive ? "primary" : "gold",
         link: `/events/${e.id}`,
         linkText: isLive ? "Join Live Session" : "Register / View Event",
@@ -95,7 +95,7 @@ export default async function AnnouncementsPage() {
         title: `Event Gallery: ${e.title}`,
         content: `Check out the captured moments and highlight reel from ${e.title}. Click any image to view high-resolution photos.`,
         date: e.date,
-        badge: "[ EVENT_PHOTO_GALLERY ]",
+        badge: "Event Gallery",
         badgeVariant: "gold",
         link: `/events/${e.id}`,
         linkText: "Event Info",
@@ -116,7 +116,7 @@ export default async function AnnouncementsPage() {
     title: `Active Form: ${f.title}`,
     content: f.description ? f.description.slice(0, 180) + "..." : "New department response form open for submissions.",
     date: f.createdAt,
-    badge: "[ ACTIVE_FORM_POLL ]",
+    badge: "Active Form",
     badgeVariant: "muted",
     link: `/forms/${f.id}`,
     linkText: "Fill Response",
@@ -142,9 +142,9 @@ export default async function AnnouncementsPage() {
           <CircuitTrace corners={true} />
 
           <div className="flex flex-wrap items-center justify-between gap-3 relative z-10">
-            <TechnicalLabel variant="primary">[ DEPARTMENT_DISPATCH // CENTRAL_BOARD ]</TechnicalLabel>
+            <TechnicalLabel variant="primary">Department Dispatch • Central Board</TechnicalLabel>
             <div className="text-xs font-mono-tech text-gold bg-gold/10 border border-gold/30 px-3 py-1 rounded">
-              BROADCAST_STATUS: ACTIVE
+              Active Broadcasts
             </div>
           </div>
 

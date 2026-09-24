@@ -101,12 +101,12 @@ export default async function EventDetailsPage({ params }: PageProps) {
       <div className="mx-auto max-w-5xl px-4 relative z-10 space-y-8">
         {/* Technical Label Breadcrumb */}
         <div className="flex items-center gap-3">
-          <TechnicalLabel variant="primary">[ EVENT_NODE // PROTOCOL_{event.type} ]</TechnicalLabel>
+          <TechnicalLabel variant="primary">Event Details • {event.type} Format</TechnicalLabel>
           <span className="h-px flex-1 bg-brand/20"></span>
         </div>
 
         {/* Hero Section: Sleek Square Technical Poster */}
-        <div className="relative w-full aspect-video md:aspect-[21/9] rounded-xl overflow-hidden shadow-2xl border border-brand/30 group bg-card">
+        <div className="relative w-full min-h-[380px] sm:min-h-[420px] md:h-[440px] rounded-xl overflow-hidden shadow-2xl border border-brand/30 group bg-card">
           <CircuitTrace corners={true} />
 
           <Image
@@ -116,50 +116,50 @@ export default async function EventDetailsPage({ params }: PageProps) {
             className="object-cover transition-transform duration-1000 group-hover:scale-105"
             priority
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#050308] via-[#050308]/70 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#050308] via-[#050308]/75 to-black/30" />
           
-          <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8 flex flex-col md:flex-row md:items-end justify-between gap-6 relative z-10">
+          <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-8 flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-6 z-10">
             <div className="flex-1">
-              <div className="flex flex-wrap gap-2.5 mb-3">
+              <div className="flex flex-wrap gap-2 sm:gap-2.5 mb-2.5 sm:mb-3">
                 {isLive ? (
-                  <span className="rounded border border-red-500/50 bg-red-500/20 px-3 py-1 text-xs font-bold font-mono-tech uppercase tracking-widest text-red-400 flex items-center gap-2">
+                  <span className="rounded border border-red-500/50 bg-red-500/20 px-2.5 sm:px-3 py-1 text-xs font-bold font-mono-tech uppercase tracking-widest text-red-400 flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-red-500 animate-ping inline-block" />
                     LIVE NOW
                   </span>
                 ) : isPast ? (
-                  <span className="rounded border border-border/60 bg-muted/60 px-3 py-1 text-xs font-bold font-mono-tech uppercase tracking-widest text-muted-foreground">
+                  <span className="rounded border border-border/60 bg-muted/60 px-2.5 sm:px-3 py-1 text-xs font-bold font-mono-tech uppercase tracking-widest text-muted-foreground">
                     CONCLUDED
                   </span>
                 ) : (
-                  <span className="rounded border border-brand-accent/50 bg-brand/20 px-3 py-1 text-xs font-bold font-mono-tech uppercase tracking-widest text-brand-accent">
+                  <span className="rounded border border-brand-accent/50 bg-brand/20 px-2.5 sm:px-3 py-1 text-xs font-bold font-mono-tech uppercase tracking-widest text-brand-accent">
                     UPCOMING
                   </span>
                 )}
 
-                <span className="rounded border border-gold/50 bg-gold/20 px-3 py-1 text-xs font-bold font-mono-tech uppercase tracking-widest text-gold">
+                <span className="rounded border border-gold/50 bg-gold/20 px-2.5 sm:px-3 py-1 text-xs font-bold font-mono-tech uppercase tracking-widest text-gold">
                   FORMAT: {event.type}
                 </span>
 
                 {!event.registrationsAvailable && !isPast && (
-                  <span className="rounded border border-amber-500/50 bg-amber-500/20 px-3 py-1 text-xs font-bold font-mono-tech uppercase tracking-widest text-amber-400">
+                  <span className="rounded border border-amber-500/50 bg-amber-500/20 px-2.5 sm:px-3 py-1 text-xs font-bold font-mono-tech uppercase tracking-widest text-amber-400">
                     REGISTRATION PAUSED
                   </span>
                 )}
               </div>
 
-              <h1 className="text-3xl md:text-5xl font-bold font-space-grotesk text-white drop-shadow-lg leading-tight">
+              <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold font-space-grotesk text-white drop-shadow-lg leading-tight">
                 {event.title}
               </h1>
             </div>
             
             {isUpcoming && (
-              <div className="shrink-0 w-full md:w-auto bg-background/60 backdrop-blur-md rounded-lg p-3 border border-brand/30">
+              <div className="shrink-0 w-full md:w-auto bg-background/70 backdrop-blur-md rounded-lg p-3 border border-brand/30">
                 <CountdownTimer targetDate={eventStartDateTime} />
               </div>
             )}
 
             {isLive && (
-              <div className="shrink-0 w-full md:w-auto bg-red-500/15 backdrop-blur-md rounded-lg p-3.5 border border-red-500/40 flex items-center gap-3">
+              <div className="shrink-0 w-full md:w-auto bg-red-500/15 backdrop-blur-md rounded-lg p-3 sm:p-3.5 border border-red-500/40 flex items-center gap-3">
                 <span className="w-3 h-3 rounded-full bg-red-500 animate-ping shrink-0" />
                 <div>
                   <p className="text-[10px] font-mono-tech uppercase font-bold text-red-400 tracking-wider">EVENT SESSION</p>

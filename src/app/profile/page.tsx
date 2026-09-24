@@ -24,7 +24,7 @@ export default async function ProfilePage() {
       <div className="relative z-10 mx-auto max-w-2xl">
         <div className="mb-6 text-center">
           <span className="font-mono-tech text-xs text-brand-accent uppercase tracking-widest block mb-1">
-            [ STUDENT_PROFILE // DATA_CENTER ]
+            Student Profile • Academic Data
           </span>
           <h1 className="text-3xl md:text-4xl font-bold font-space-grotesk text-foreground">
             Edit <span className="text-gold">Profile</span>

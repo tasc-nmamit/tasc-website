@@ -318,10 +318,10 @@ export default function EventRegistrationClient({
                     >
                       <ShieldCheckIcon className="w-4 h-4" />
                       {confirmingTeam
-                        ? "CONFIRMING_ROSTER..."
+                        ? "Confirming Roster..."
                         : hasMinMembers
-                        ? "CONFIRM_TEAM_ROSTER"
-                        : `NEED ${minSize - members.length} MORE MEMBER(S)`}
+                        ? "Confirm Team Roster"
+                        : `Need ${minSize - members.length} More Member(s)`}
                     </button>
                   </>
                 ) : (
@@ -351,7 +351,7 @@ export default function EventRegistrationClient({
           href="/auth/signin"
           className="block w-full rounded-lg bg-brand py-2.5 text-center font-bold font-space-grotesk text-xs uppercase tracking-wider text-white shadow-md transition-all hover:bg-brand/90"
         >
-          [ SIGN_IN_TO_REGISTER ]
+          Sign In to Register
         </Link>
       </div>
     );
@@ -372,21 +372,21 @@ export default function EventRegistrationClient({
           onClick={() => setModalOpen(true)}
           className="w-full rounded-lg bg-brand py-3 font-bold font-space-grotesk text-xs uppercase tracking-wider text-white shadow-lg shadow-brand/25 transition-all hover:bg-brand/90 hover:scale-[1.01] cursor-pointer"
         >
-          [ REGISTER_NOW ]
+          Register Now
         </button>
       </div>
 
       {/* Registration Modal: Square Technical Blueprint Styling */}
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6">
           <div className="absolute inset-0 bg-background/80 backdrop-blur-md" onClick={() => setModalOpen(false)} />
-          <div className="relative w-full max-w-lg rounded-xl border border-brand/30 bg-card p-6 sm:p-8 shadow-2xl max-h-[90vh] overflow-y-auto backdrop-blur-xl bg-blueprint-grid">
+          <div className="relative w-full max-w-lg rounded-xl border border-brand/30 bg-card p-4 sm:p-6 shadow-2xl max-h-[88vh] overflow-y-auto backdrop-blur-xl bg-blueprint-grid">
             <CircuitTrace corners={true} />
 
             <div className="relative z-10 space-y-6">
               <div className="border-b border-brand/20 pb-3">
                 <span className="text-[10px] font-mono-tech text-gold uppercase tracking-widest block">
-                  REGISTRATION_PROTOCOL // {event.type}
+                  Registration • {event.type} Format
                 </span>
                 <h2 className="text-xl font-bold font-space-grotesk text-foreground">{event.title}</h2>
               </div>

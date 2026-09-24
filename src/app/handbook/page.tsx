@@ -19,7 +19,7 @@ function HandbookContent() {
         {/* Header */}
         <div className="text-center space-y-2">
           <TechnicalLabel variant="gold" className="mb-2">
-            [ ACADEMIC_RESOURCES // STUDENT_GUIDEBOOK ]
+            Academic Resources • Student Guidebook
           </TechnicalLabel>
 
           <h1 className="text-3xl md:text-5xl font-bold font-space-grotesk text-foreground">
@@ -36,7 +36,7 @@ function HandbookContent() {
           <CircuitTrace corners={true} />
           <div className="relative z-10 w-full rounded-2xl overflow-hidden bg-background/50 border border-brand/10">
             <iframe
-              className="w-full h-[78vh] min-h-[550px] border-none bg-background"
+              className="w-full h-[72vh] min-h-[460px] sm:min-h-[550px] border-none bg-background"
               title="Student Handbook"
               src={`https://heyzine.com/flip-book/d49adcee6e.html#page/${page}`}
               allowFullScreen
