@@ -28,6 +28,7 @@ const SECTION_ORDER = ["ADMIN", "TECHNICAL", "SPORTS", "CULTURAL", "GRAPHICS", "
 
 function getFacultyCoordinators(year: string): Member[] {
   const is2026 = year === "2026";
+  const is2023to2025 = year === "2025" || year === "2024" || year === "2023";
 
   if (is2026) {
     return [
@@ -64,6 +65,41 @@ function getFacultyCoordinators(year: string): Member[] {
     ];
   }
 
+  if (is2023to2025) {
+    return [
+      {
+        id: `coord-sharada-${year}`,
+        name: "Dr. Sharada U Shenoy",
+        post: "HOD & Faculty Coordinator",
+        year: year,
+        image: "https://firebasestorage.googleapis.com/v0/b/tasc-8df79.appspot.com/o/Images%2FFaculty%2FsharadaShenoy.jpg?alt=media&token=200cacf2-67c5-49db-8f98-ac2cc5ed695a",
+        quote: "Head of the Department, Department of Artificial Intelligence and Machine Learning",
+        order: 0,
+        section: "FACULTY" as any,
+      },
+      {
+        id: `coord-swathi-${year}`,
+        name: "Ms. Swathi Pai M",
+        post: "Faculty Coordinator",
+        year: year,
+        image: "https://firebasestorage.googleapis.com/v0/b/tasc-8df79.appspot.com/o/Images%2FFaculty%2FswathiPai.jpg?alt=media&token=f1d9f6ea-9b5a-4cbc-8b35-84259e8dcb6a",
+        quote: "Assistant Professor Gd.II, Department of Artificial Intelligence and Machine Learning",
+        order: 1,
+        section: "FACULTY" as any,
+      },
+      {
+        id: `coord-mahesh-${year}`,
+        name: "Mr. Mahesh B L",
+        post: "Faculty Coordinator",
+        year: year,
+        image: "https://firebasestorage.googleapis.com/v0/b/tasc-8df79.appspot.com/o/Images%2FFaculty%2FmaheshBL.jpg?alt=media&token=f1b5e74b-eb5e-4d76-aa4b-f7822fc0cdef",
+        quote: "Assistant Professor Gd.II, Department of Artificial Intelligence and Machine Learning",
+        order: 2,
+        section: "FACULTY" as any,
+      },
+    ];
+  }
+
   return [
     {
       id: `coord-sharada-${year}`,
@@ -76,12 +112,12 @@ function getFacultyCoordinators(year: string): Member[] {
       section: "FACULTY" as any,
     },
     {
-      id: `coord-swathi-${year}`,
-      name: "Ms. Swathi Pai M",
+      id: `coord-sudesh-${year}`,
+      name: "Dr. Sudesh Rao",
       post: "Faculty Coordinator",
       year: year,
-      image: "https://firebasestorage.googleapis.com/v0/b/tasc-8df79.appspot.com/o/Images%2FFaculty%2FswathiPai.jpg?alt=media&token=f1d9f6ea-9b5a-4cbc-8b35-84259e8dcb6a",
-      quote: "Assistant Professor Gd.II, Department of Artificial Intelligence and Machine Learning",
+      image: "https://firebasestorage.googleapis.com/v0/b/tasc-8df79.appspot.com/o/Images%2FFaculty%2FsudeshRao.jpg?alt=media&token=e6d7c3ae-ab20-4b10-a1a2-58199a5f15ce",
+      quote: "Assistant Professor Gd.III, Department of Artificial Intelligence and Machine Learning",
       order: 1,
       section: "FACULTY" as any,
     },

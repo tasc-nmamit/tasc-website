@@ -50,6 +50,7 @@ model User {
   announcements        Announcement[]
   marathonDailyScores  MarathonDailyScore[]
   marathonWeeklyScores MarathonWeeklyScore[]
+  marathonAttendance   MarathonAttendance[]
 }
 
 model VerificationToken {
@@ -389,6 +390,34 @@ model Publication {
   publisher_conference String?
   year                 Int
   faculty              Faculty[] @relation("FacultyPublications")
+}
+
+model MarathonClass {
+  id         String               @id @default(cuid())
+  date       DateTime
+  batches    String[] // ["2A", "2B", "3A1", "3A2"]
+  topic      String?
+  createdAt  DateTime             @default(now())
+  updatedAt  DateTime             @updatedAt
+  attendance MarathonAttendance[]
+}
+
+model MarathonAttendance {
+  id        String        @id @default(cuid())
+  classId   String
+  userId    String
+  batch     String
+  present   Boolean       @default(true) // default present, click to mark absent
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  class     MarathonClass @relation(fields: [classId], references: [id], onDelete: Cascade)
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([classId, userId])
+}
+
+enum crdb_internal_region {
+  aws_ap_south_1 @map("aws-ap-south-1")
 }
 
 enum Role {

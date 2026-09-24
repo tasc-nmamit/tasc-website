@@ -15,6 +15,8 @@ import {
   ClockIcon,
 } from "lucide-react";
 import CircuitTrace from "@/components/ui/circuit-ink/CircuitTrace";
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { storage } from "@/lib/firebase";
 
 interface EventRegistrationClientProps {
   event: any;
@@ -44,6 +46,38 @@ export default function EventRegistrationClient({
 
   // Dynamic responses for custom fields
   const [responses, setResponses] = useState<Record<string, any>>({});
+  const [uploadingFiles, setUploadingFiles] = useState<Record<string, boolean>>({});
+
+  const handleFileUpload = async (fieldId: string, file: File) => {
+    if (!file) return;
+    setUploadingFiles((prev) => ({ ...prev, [fieldId]: true }));
+    try {
+      const ext = file.name.split(".").pop();
+      const fileName = `registration-uploads/${event.id}/${session?.user?.id || "anon"}_${Date.now()}.${ext}`;
+      const storageRef = ref(storage, fileName);
+      const uploadTask = uploadBytesResumable(storageRef, file);
+
+      await new Promise<void>((resolve, reject) => {
+        uploadTask.on(
+          "state_changed",
+          () => {},
+          (error) => {
+            alert("File upload failed: " + error.message);
+            reject(error);
+          },
+          async () => {
+            const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
+            setResponses((prev: any) => ({ ...prev, [fieldId]: downloadUrl }));
+            resolve();
+          }
+        );
+      });
+    } catch (err: any) {
+      console.error("Upload error:", err);
+    } finally {
+      setUploadingFiles((prev) => ({ ...prev, [fieldId]: false }));
+    }
+  };
 
   const isSolo = event.type === "SOLO";
 
@@ -70,8 +104,27 @@ export default function EventRegistrationClient({
         }
       }
 
+      // Check if any file is still uploading
+      if (Object.values(uploadingFiles).some(Boolean)) {
+        throw new Error("Please wait for your file upload to complete.");
+      }
+
       // Solo participants and team leaders provide questionnaire responses
       if (isSolo || teamAction === "CREATE") {
+        for (const field of event.customFields || []) {
+          if (field.fieldType === "DISPLAY_IMAGE") continue;
+          if (field.isRequired) {
+            const val = responses[field.id];
+            if (
+              val === undefined ||
+              val === null ||
+              (typeof val === "string" && val.trim() === "") ||
+              (Array.isArray(val) && val.length === 0)
+            ) {
+              throw new Error(`Please provide a response for "${field.label}"`);
+            }
+          }
+        }
         payload.responses = responses;
       }
 
@@ -414,7 +467,7 @@ export default function EventRegistrationClient({
                       return (
                         <div key={field.id} className="space-y-1.5">
                           <label className="block text-xs font-mono-tech text-muted-foreground uppercase">
-                            {field.label} {field.isRequired && <span className="text-red-400">*</span>}
+                            {field.label} {field.isRequired && field.fieldType !== "DISPLAY_IMAGE" && <span className="text-red-400">*</span>}
                             {field.fieldType === "NUMBER" && (opts.min !== null || opts.max !== null) && (
                               <span className="text-[10px] text-muted-foreground/80 normal-case ml-1">
                                 ({opts.min !== null && `Min: ${opts.min}`}
@@ -423,6 +476,85 @@ export default function EventRegistrationClient({
                               </span>
                             )}
                           </label>
+
+                          {field.fieldType === "DISPLAY_IMAGE" && (
+                            <div className="rounded-xl border border-brand/20 bg-background/50 p-4 space-y-2">
+                              {opts.imageUrl ? (
+                                <div className="flex flex-col items-center justify-center gap-2">
+                                  <div className="relative group max-w-xs overflow-hidden rounded-lg border border-brand/30 bg-white p-2 shadow-sm">
+                                    <img
+                                      src={opts.imageUrl}
+                                      alt={field.label || "QR / Info Image"}
+                                      className="max-h-56 max-w-full object-contain mx-auto"
+                                    />
+                                    <a
+                                      href={opts.imageUrl}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity text-white text-xs font-mono-tech"
+                                    >
+                                      Open full size ↗
+                                    </a>
+                                  </div>
+                                  {opts.caption && (
+                                    <p className="text-xs font-mono-tech text-muted-foreground text-center max-w-sm mt-1">
+                                      {opts.caption}
+                                    </p>
+                                  )}
+                                </div>
+                              ) : (
+                                <p className="text-xs text-muted-foreground font-mono-tech italic text-center">
+                                  No image provided.
+                                </p>
+                              )}
+                            </div>
+                          )}
+
+                          {field.fieldType === "FILE_UPLOAD" && (
+                            <div className="space-y-2">
+                              {responses[field.id] ? (
+                                <div className="flex items-center justify-between rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-3">
+                                  <div className="flex items-center gap-2 min-w-0">
+                                    <CheckCircle2Icon className="w-4 h-4 text-emerald-400 shrink-0" />
+                                    <a
+                                      href={responses[field.id]}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-xs font-mono-tech text-emerald-300 underline truncate"
+                                    >
+                                      File Uploaded (View ↗)
+                                    </a>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() => setResponses({ ...responses, [field.id]: "" })}
+                                    className="text-xs text-red-400 hover:underline shrink-0 ml-2 font-mono-tech cursor-pointer"
+                                  >
+                                    Replace
+                                  </button>
+                                </div>
+                              ) : (
+                                <div className="flex items-center gap-2">
+                                  <input
+                                    type="file"
+                                    required={field.isRequired}
+                                    accept="image/*,application/pdf"
+                                    onChange={(e) => {
+                                      if (e.target.files && e.target.files[0]) {
+                                        handleFileUpload(field.id, e.target.files[0]);
+                                      }
+                                    }}
+                                    className="w-full text-xs file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-brand/20 file:text-brand-accent hover:file:bg-brand/30 cursor-pointer border border-brand/30 rounded-lg p-1.5 bg-background/70 font-space-grotesk text-foreground"
+                                  />
+                                  {uploadingFiles[field.id] && (
+                                    <span className="text-xs text-gold font-mono-tech animate-pulse shrink-0">
+                                      UPLOADING...
+                                    </span>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          )}
 
                           {field.fieldType === "TEXT" && (
                             <input
@@ -478,6 +610,31 @@ export default function EventRegistrationClient({
                                 </option>
                               ))}
                             </select>
+                          )}
+
+                          {field.fieldType === "MULTI_SELECT" && (
+                            <div className="space-y-1.5 rounded-lg border border-brand/20 bg-background/50 p-3">
+                              {(Array.isArray(field.options) ? field.options : []).map((opt: string) => {
+                                const selected: string[] = Array.isArray(responses[field.id]) ? responses[field.id] : [];
+                                const isChecked = selected.includes(opt);
+                                return (
+                                  <label key={opt} className="flex items-center gap-2 text-xs text-foreground cursor-pointer font-space-grotesk">
+                                    <input
+                                      type="checkbox"
+                                      checked={isChecked}
+                                      onChange={(e) => {
+                                        const next = e.target.checked
+                                          ? [...selected, opt]
+                                          : selected.filter((x) => x !== opt);
+                                        setResponses({ ...responses, [field.id]: next });
+                                      }}
+                                      className="rounded border-brand/30 text-brand focus:ring-brand-accent"
+                                    />
+                                    {opt}
+                                  </label>
+                                );
+                              })}
+                            </div>
                           )}
                         </div>
                       );

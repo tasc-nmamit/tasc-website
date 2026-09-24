@@ -78,9 +78,6 @@ export default function AboutSection() {
                   fill
                   className="object-cover transition-transform duration-700 group-hover:scale-105"
                 />
-                <div className="absolute top-2 left-2 px-2 py-0.5 rounded bg-background/80 backdrop-blur border border-brand/20 font-mono-tech text-[10px] text-muted-foreground">
-                  DEPT_BANNER // AIML
-                </div>
               </div>
             </ScrollReveal>
           </div>

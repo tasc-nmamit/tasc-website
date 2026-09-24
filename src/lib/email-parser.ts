@@ -55,10 +55,14 @@ function computeCurrentYear(joiningYear: number): number {
   return Math.max(1, Math.min(4, yearOfStudy));
 }
 
-const AIML_BRANCH_CODES = new Set(["AM", "AIM"]);
+const AIML_BRANCH_CODES = new Set(["AM", "AIM", "AI"]);
 
-// Pattern: (nn|nnm){2-digit year}{branch code: 2-4 letters}{roll number: 2-4 digits}@nmamit.in
-const EMAIL_REGEX = /^(nnm|nn)(\d{2})([a-zA-Z]{2,4})(\d{2,4})@nmamit\.in$/i;
+// Pattern: (nn|nnm|4nm){2-digit year}{branch code: 2-4 letters}{roll number: 2-4 digits}@nmamit.in
+const EMAIL_REGEX = /^(nnm|nn|4nm)(\d{2})([a-zA-Z]{2,4})(\d{2,4})@nmamit\.in$/i;
+
+// Diploma patterns: e.g. 26dipam01@nmamit.in or dip26am01@nmamit.in
+const DIPLOMA_REGEX_A = /^(\d{2})dip([a-zA-Z]{2,4})(\d{1,4})@nmamit\.in$/i;
+const DIPLOMA_REGEX_B = /^dip(\d{2})([a-zA-Z]{2,4})(\d{1,4})@nmamit\.in$/i;
 
 /**
  * Parses an @nmamit.in email address and extracts student information.
@@ -67,27 +71,72 @@ const EMAIL_REGEX = /^(nnm|nn)(\d{2})([a-zA-Z]{2,4})(\d{2,4})@nmamit\.in$/i;
 export function parseNmamitEmail(email: string): ParsedEmail | null {
   const normalizedEmail = email.toLowerCase().trim();
 
+  // 1. Regular NMAMIT student email
   const match = normalizedEmail.match(EMAIL_REGEX);
-  if (!match) return null;
+  if (match) {
+    const [, prefix, yearStr, branchRaw, rollStr] = match;
+    const joiningYearShort = parseInt(yearStr, 10);
+    const joiningYear = 2000 + joiningYearShort;
+    const branch = branchRaw.toUpperCase();
+    const rollNumber = parseInt(rollStr, 10);
+    const isLateral = rollNumber >= 500;
+    const isAiml = AIML_BRANCH_CODES.has(branch);
+    const currentYear = computeCurrentYear(joiningYear);
 
-  const [, prefix, yearStr, branchRaw, rollStr] = match;
-  const joiningYearShort = parseInt(yearStr, 10);
-  const joiningYear = 2000 + joiningYearShort;
-  const branch = branchRaw.toUpperCase();
-  const rollNumber = parseInt(rollStr, 10);
-  const isLateral = rollNumber >= 500;
-  const isAiml = AIML_BRANCH_CODES.has(branch);
-  const currentYear = computeCurrentYear(joiningYear);
+    return {
+      joiningYear,
+      branch,
+      rollNumber,
+      isLateral,
+      isAiml,
+      currentYear,
+      prefix,
+    };
+  }
 
-  return {
-    joiningYear,
-    branch,
-    rollNumber,
-    isLateral,
-    isAiml,
-    currentYear,
-    prefix,
-  };
+  // 2. Diploma lateral student email: {YY}dip{branch}{roll}@nmamit.in (e.g. 26dipam01@nmamit.in)
+  const matchDipA = normalizedEmail.match(DIPLOMA_REGEX_A);
+  if (matchDipA) {
+    const [, yearStr, branchRaw, rollStr] = matchDipA;
+    const joiningYearShort = parseInt(yearStr, 10);
+    const joiningYear = 2000 + joiningYearShort;
+    const branch = branchRaw.toUpperCase();
+    const rollNumber = parseInt(rollStr, 10);
+    const isAiml = AIML_BRANCH_CODES.has(branch);
+
+    return {
+      joiningYear,
+      branch,
+      rollNumber,
+      isLateral: true,
+      isAiml,
+      currentYear: 2, // Diploma lateral students join directly into 2nd year
+      prefix: "dip",
+    };
+  }
+
+  // 3. Diploma lateral student email: dip{YY}{branch}{roll}@nmamit.in (e.g. dip26am01@nmamit.in)
+  const matchDipB = normalizedEmail.match(DIPLOMA_REGEX_B);
+  if (matchDipB) {
+    const [, yearStr, branchRaw, rollStr] = matchDipB;
+    const joiningYearShort = parseInt(yearStr, 10);
+    const joiningYear = 2000 + joiningYearShort;
+    const branch = branchRaw.toUpperCase();
+    const rollNumber = parseInt(rollStr, 10);
+    const isAiml = AIML_BRANCH_CODES.has(branch);
+
+    return {
+      joiningYear,
+      branch,
+      rollNumber,
+      isLateral: true,
+      isAiml,
+      currentYear: 2, // Diploma lateral students join directly into 2nd year
+      prefix: "dip",
+    };
+  }
+
+  return null;
 }
 
 /**
@@ -111,7 +160,6 @@ export const ALLOWED_EXTERNAL_EMAILS = new Set([
   "samarthpai9870@gmail.com",
   "sanidhyadatt26@gmail.com",
   "buggykurrrie610@gmail.com",
-  "sumathidpai@gmail.com",
 ]);
 
 /**

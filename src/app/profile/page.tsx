@@ -14,8 +14,8 @@ export default async function ProfilePage() {
     where: { id: session.user.id },
   });
 
-  if (!user) {
-    redirect("/auth/signin");
+  if (!user || !user.isAiml) {
+    redirect("/");
   }
 
   return (

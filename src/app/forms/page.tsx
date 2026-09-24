@@ -8,9 +8,14 @@ export const dynamic = "force-dynamic";
 export default async function FormsListPage() {
   const session = await getSession();
 
-  // Fetch all published forms
+  const isAiml = !!session?.user?.isAiml || session?.user?.role === "ADMIN" || session?.user?.role === "OWNER";
+
+  // Fetch all published forms (do not show AIML exclusive forms to users not in AIML branch)
   const formsData = await db.form.findMany({
-    where: { published: true },
+    where: {
+      published: true,
+      ...(isAiml ? {} : { requireAiml: false }),
+    },
     orderBy: { createdAt: "desc" },
     include: {
       _count: {

@@ -161,6 +161,32 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
     );
   };
 
+  const handleDisplayImageUpload = async (fieldIndex: number, file: File) => {
+    if (!file) return;
+
+    const uploadId = `display-${fieldIndex}`;
+    setUploadingFieldImage(uploadId);
+
+    const fileExtension = file.name.split(".").pop();
+    const fileName = `event-display-images/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExtension}`;
+    const storageRef = ref(storage, fileName);
+    const uploadTask = uploadBytesResumable(storageRef, file);
+
+    uploadTask.on(
+      "state_changed",
+      () => {},
+      (error) => {
+        alert("Upload failed: " + error.message);
+        setUploadingFieldImage(null);
+      },
+      async () => {
+        const url = await getDownloadURL(uploadTask.snapshot.ref);
+        updateField(fieldIndex, "imageUrl", url);
+        setUploadingFieldImage(null);
+      }
+    );
+  };
+
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, target: "create" | "edit") => {
     if (!e.target.files || e.target.files.length === 0) return;
     const file = e.target.files[0];
@@ -240,11 +266,16 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
               min: cf.min !== "" && cf.min !== undefined && cf.min !== null ? Number(cf.min) : null,
               max: cf.max !== "" && cf.max !== undefined && cf.max !== null ? Number(cf.max) : null,
             };
+          } else if (cf.fieldType === "DISPLAY_IMAGE") {
+            fieldOptions = {
+              imageUrl: cf.imageUrl || "",
+              caption: cf.caption || "",
+            };
           }
           return {
             label: cf.label,
             fieldType: cf.fieldType,
-            isRequired: cf.isRequired,
+            isRequired: cf.fieldType === "DISPLAY_IMAGE" ? false : !!cf.isRequired,
             options: fieldOptions,
           };
         }),
@@ -925,6 +956,8 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
                           <option value="SELECT">Dropdown (Single Select)</option>
                           <option value="MULTI_SELECT">Checkboxes (Multi Select)</option>
                           <option value="IMAGE_POLL">Image Poll (Visual Choices)</option>
+                          <option value="DISPLAY_IMAGE">Display Image / QR Code (Info Only)</option>
+                          <option value="FILE_UPLOAD">File Upload (Screenshot / Document)</option>
                         </select>
                       </div>
                     </div>
@@ -1073,15 +1106,90 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
                       </div>
                     )}
 
-                    <label className="flex items-center gap-2 text-sm text-foreground cursor-pointer font-space-grotesk font-medium">
-                      <input
-                        type="checkbox"
-                        checked={cf.isRequired}
-                        onChange={(e) => updateField(index, "isRequired", e.target.checked)}
-                        className="rounded border-brand/30 text-brand focus:ring-brand-accent"
-                      />
-                      Required Field
-                    </label>
+                    {/* Options for Display Image / QR Code */}
+                    {cf.fieldType === "DISPLAY_IMAGE" && (
+                      <div className="space-y-3 rounded-xl border border-brand/20 bg-card/40 p-4">
+                        <div className="flex items-center justify-between">
+                          <h4 className="text-xs font-mono-tech uppercase font-bold text-brand-accent">
+                            Display Image (QR Code / Poster / Info Image)
+                          </h4>
+                        </div>
+                        <div className="space-y-3">
+                          {cf.imageUrl ? (
+                            <div className="flex items-center gap-3 bg-background/50 border border-brand/20 rounded-lg p-3">
+                              <img
+                                src={cf.imageUrl}
+                                alt="preview"
+                                className="h-20 w-20 object-contain rounded border border-brand/30 bg-white p-1"
+                              />
+                              <div className="flex-1 min-w-0">
+                                <span className="text-xs text-muted-foreground truncate block font-mono-tech">
+                                  {cf.imageUrl}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => updateField(index, "imageUrl", "")}
+                                  className="text-xs text-red-400 hover:underline mt-1"
+                                >
+                                  Replace Image
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-3">
+                              <input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => {
+                                  if (e.target.files && e.target.files[0]) {
+                                    handleDisplayImageUpload(index, e.target.files[0]);
+                                  }
+                                }}
+                                className="flex-1 text-xs file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-brand/20 file:text-brand-accent hover:file:bg-brand/30 cursor-pointer"
+                              />
+                              {uploadingFieldImage === `display-${index}` && (
+                                <span className="text-xs text-gold font-mono-tech animate-pulse">
+                                  UPLOADING...
+                                </span>
+                              )}
+                            </div>
+                          )}
+                          <div>
+                            <label className="mb-1 text-xs font-mono-tech text-muted-foreground uppercase block">
+                              Optional Caption / Payment Instructions
+                            </label>
+                            <input
+                              type="text"
+                              value={cf.caption || ""}
+                              onChange={(e) => updateField(index, "caption", e.target.value)}
+                              placeholder="e.g. Scan QR via UPI and upload transaction screenshot below"
+                              className="w-full rounded-lg border border-brand/30 bg-background/70 px-3 py-1.5 text-sm text-foreground outline-none focus:border-brand-accent"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* File Upload Info Box */}
+                    {cf.fieldType === "FILE_UPLOAD" && (
+                      <div className="rounded-xl border border-brand/20 bg-card/40 p-3.5">
+                        <p className="text-xs font-mono-tech text-muted-foreground">
+                          [FILE_UPLOAD] Participants will see a file upload field to attach their document or screenshot (e.g. payment receipt).
+                        </p>
+                      </div>
+                    )}
+
+                    {cf.fieldType !== "DISPLAY_IMAGE" && (
+                      <label className="flex items-center gap-2 text-sm text-foreground cursor-pointer font-space-grotesk font-medium">
+                        <input
+                          type="checkbox"
+                          checked={cf.isRequired}
+                          onChange={(e) => updateField(index, "isRequired", e.target.checked)}
+                          className="rounded border-brand/30 text-brand focus:ring-brand-accent"
+                        />
+                        Required Field
+                      </label>
+                    )}
                   </div>
 
                   <button

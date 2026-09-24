@@ -46,9 +46,6 @@ export default function FacultyCard({ faculty }: FacultyCardProps) {
           </div>
 
           <div className="flex flex-col items-center justify-center pt-4 relative z-10 text-center">
-            <span className="font-mono-tech text-[10px] text-muted-foreground uppercase tracking-widest mb-1">
-              FACULTY_PROFILE
-            </span>
             <h3 className="text-base font-bold font-space-grotesk text-foreground line-clamp-1">
               {name}
             </h3>
@@ -66,9 +63,6 @@ export default function FacultyCard({ faculty }: FacultyCardProps) {
 
       <DialogContent className="max-h-[85vh] max-w-lg overflow-hidden lg:max-w-4xl bg-white dark:bg-card border border-brand/30 rounded-xl p-6 shadow-2xl bg-blueprint-grid">
         <DialogHeader className="w-full border-b border-brand/20 pb-4">
-          <span className="font-mono-tech text-xs text-gold uppercase tracking-widest">
-            RESEARCH_FACULTY_DIRECTORY
-          </span>
           <DialogTitle className="text-2xl font-bold font-space-grotesk text-foreground">
             {name}
           </DialogTitle>

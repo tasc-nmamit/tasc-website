@@ -416,6 +416,25 @@ exports.Prisma.PublicationScalarFieldEnum = {
   year: 'year'
 };
 
+exports.Prisma.MarathonClassScalarFieldEnum = {
+  id: 'id',
+  date: 'date',
+  batches: 'batches',
+  topic: 'topic',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.MarathonAttendanceScalarFieldEnum = {
+  id: 'id',
+  classId: 'classId',
+  userId: 'userId',
+  batch: 'batch',
+  present: 'present',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -520,7 +539,9 @@ exports.Prisma.ModelName = {
   Offer: 'Offer',
   Year: 'Year',
   Patents: 'Patents',
-  Publication: 'Publication'
+  Publication: 'Publication',
+  MarathonClass: 'MarathonClass',
+  MarathonAttendance: 'MarathonAttendance'
 };
 
 /**

@@ -55,61 +55,117 @@ export default function EventPhotoGallery({ photos, eventTitle }: EventPhotoGall
   if (validPhotos.length === 0) return null;
 
   return (
-    <section className="relative rounded-xl border border-brand/30 bg-card/80 backdrop-blur-xl p-6 md:p-8 shadow-xl">
+    <section className="w-full relative rounded-2xl border border-brand/30 bg-card/85 backdrop-blur-xl p-6 md:p-8 shadow-2xl">
       <CircuitTrace corners={true} />
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 relative z-10 border-b border-brand/20 pb-4">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-lg bg-brand/15 text-brand-accent border border-brand/20">
+          <div className="p-2.5 rounded-xl bg-brand/15 text-brand-accent border border-brand/20 shadow-inner">
             <Camera className="w-5 h-5" />
           </div>
           <div>
             <span className="text-[10px] font-mono-tech uppercase tracking-widest text-brand-accent">
-              EVENT MEDIA ARCHIVE
+              EVENT MEDIA GALLERY
             </span>
             <h2 className="text-2xl font-bold font-space-grotesk text-foreground">
-              Event Gallery
+              Event Highlights & Photos
             </h2>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="px-3 py-1 rounded bg-brand/10 border border-brand/20 font-mono-tech text-xs text-brand-accent">
+          <span className="px-3 py-1 rounded-full bg-brand/10 border border-brand/20 font-mono-tech text-xs text-brand-accent">
             {validPhotos.length} {validPhotos.length === 1 ? "SNAPSHOT" : "SNAPSHOTS"}
           </span>
         </div>
       </div>
 
-      {/* Photo Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 md:gap-4 relative z-10">
-        {validPhotos.map((photoUrl, index) => (
-          <div
-            key={index}
-            onClick={() => openLightbox(index)}
-            className="group relative aspect-4/3 rounded-lg overflow-hidden border border-brand/20 bg-background/50 cursor-pointer transition-all duration-300 hover:border-brand-accent/70 hover:shadow-lg hover:shadow-brand/20 hover:scale-[1.02]"
-          >
-            <Image
-              src={photoUrl}
-              alt={`${eventTitle} - Photo ${index + 1}`}
-              fill
-              className="object-cover transition-transform duration-500 group-hover:scale-105"
-              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            />
-            {/* Hover overlay with zoom icon */}
-            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
-              <div className="p-2 rounded-full bg-brand/80 text-white shadow-md transform translate-y-2 group-hover:translate-y-0 transition-transform duration-200">
-                <Maximize2 className="w-4 h-4" />
-              </div>
-            </div>
-
-            {/* Photo index badge */}
-            <div className="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 rounded bg-black/60 backdrop-blur-xs text-[9px] font-mono-tech text-white/80 opacity-70 group-hover:opacity-100 transition-opacity">
-              #{index + 1}
+      {/* Responsive Photo Layout */}
+      {validPhotos.length === 1 ? (
+        /* Single Featured Photo */
+        <div
+          onClick={() => openLightbox(0)}
+          className="group relative w-full aspect-video md:aspect-[21/9] max-h-[500px] rounded-xl overflow-hidden border border-brand/25 bg-background/60 cursor-pointer shadow-lg hover:border-brand-accent/70 transition-all duration-300"
+        >
+          <Image
+            src={validPhotos[0]}
+            alt={`${eventTitle} - Photo 1`}
+            fill
+            unoptimized
+            className="object-cover transition-transform duration-700 group-hover:scale-105"
+            sizes="(max-width: 1200px) 100vw, 1200px"
+          />
+          <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+            <div className="p-3 rounded-full bg-brand/80 text-white shadow-xl transform translate-y-2 group-hover:translate-y-0 transition-transform">
+              <Maximize2 className="w-5 h-5" />
             </div>
           </div>
-        ))}
-      </div>
+        </div>
+      ) : validPhotos.length <= 3 ? (
+        /* 2 or 3 Balanced Photos */
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 relative z-10">
+          {validPhotos.map((photoUrl, index) => (
+            <div
+              key={index}
+              onClick={() => openLightbox(index)}
+              className="group relative aspect-[4/3] rounded-xl overflow-hidden border border-brand/20 bg-background/60 cursor-pointer shadow-md transition-all duration-300 hover:border-brand-accent/70 hover:shadow-xl hover:scale-[1.02]"
+            >
+              <Image
+                src={photoUrl}
+                alt={`${eventTitle} - Photo ${index + 1}`}
+                fill
+                unoptimized
+                className="object-cover transition-transform duration-500 group-hover:scale-105"
+                sizes="(max-width: 768px) 100vw, 50vw"
+              />
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
+                <div className="p-2.5 rounded-full bg-brand/80 text-white shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform duration-200">
+                  <Maximize2 className="w-4 h-4" />
+                </div>
+              </div>
+              <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded bg-black/60 backdrop-blur-xs text-[10px] font-mono-tech text-white/90">
+                #{index + 1}
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        /* 4+ Photos Bento Mosaic Layout */
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3.5 md:gap-4 relative z-10">
+          {validPhotos.map((photoUrl, index) => {
+            const isFeatured = index === 0;
+            return (
+              <div
+                key={index}
+                onClick={() => openLightbox(index)}
+                className={`group relative rounded-xl overflow-hidden border border-brand/20 bg-background/60 cursor-pointer shadow-md transition-all duration-300 hover:border-brand-accent/70 hover:shadow-xl hover:scale-[1.02] ${
+                  isFeatured
+                    ? "col-span-2 row-span-2 aspect-[4/3] md:aspect-[16/10]"
+                    : "aspect-[4/3]"
+                }`}
+              >
+                <Image
+                  src={photoUrl}
+                  alt={`${eventTitle} - Photo ${index + 1}`}
+                  fill
+                  unoptimized
+                  className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  sizes={isFeatured ? "(max-width: 768px) 100vw, 50vw" : "(max-width: 640px) 50vw, 25vw"}
+                />
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
+                  <div className="p-2 rounded-full bg-brand/80 text-white shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform duration-200">
+                    <Maximize2 className="w-4 h-4" />
+                  </div>
+                </div>
+                <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded bg-black/60 backdrop-blur-xs text-[10px] font-mono-tech text-white/90">
+                  #{index + 1}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* Lightbox Modal */}
       {lightboxIndex !== null && (
@@ -128,7 +184,7 @@ export default function EventPhotoGallery({ photos, eventTitle }: EventPhotoGall
               <span className="font-mono-tech text-xs text-brand-accent uppercase tracking-wider hidden sm:inline">
                 {eventTitle}
               </span>
-              <span className="px-2.5 py-0.5 rounded bg-brand/30 border border-brand/40 font-mono-tech text-xs text-white">
+              <span className="px-2.5 py-0.5 rounded-full bg-brand/30 border border-brand/40 font-mono-tech text-xs text-white">
                 {lightboxIndex + 1} / {validPhotos.length}
               </span>
             </div>
@@ -163,7 +219,7 @@ export default function EventPhotoGallery({ photos, eventTitle }: EventPhotoGall
               <button
                 onClick={showPrev}
                 aria-label="Previous photograph"
-                className="absolute left-2 md:left-4 z-30 p-3 rounded-full bg-black/50 hover:bg-brand/80 border border-white/10 hover:border-brand-accent text-white shadow-xl backdrop-blur-xs transition-all hover:scale-110"
+                className="absolute left-2 md:left-4 z-30 p-3 rounded-full bg-black/60 hover:bg-brand/80 border border-white/10 hover:border-brand-accent text-white shadow-xl backdrop-blur-xs transition-all hover:scale-110"
               >
                 <ChevronLeft className="w-6 h-6" />
               </button>
@@ -175,6 +231,7 @@ export default function EventPhotoGallery({ photos, eventTitle }: EventPhotoGall
                 src={validPhotos[lightboxIndex]}
                 alt={`${eventTitle} - Photo ${lightboxIndex + 1}`}
                 fill
+                unoptimized
                 className="object-contain select-none"
                 priority
                 sizes="(max-width: 1280px) 100vw, 1280px"
@@ -186,7 +243,7 @@ export default function EventPhotoGallery({ photos, eventTitle }: EventPhotoGall
               <button
                 onClick={showNext}
                 aria-label="Next photograph"
-                className="absolute right-2 md:right-4 z-30 p-3 rounded-full bg-black/50 hover:bg-brand/80 border border-white/10 hover:border-brand-accent text-white shadow-xl backdrop-blur-xs transition-all hover:scale-110"
+                className="absolute right-2 md:right-4 z-30 p-3 rounded-full bg-black/60 hover:bg-brand/80 border border-white/10 hover:border-brand-accent text-white shadow-xl backdrop-blur-xs transition-all hover:scale-110"
               >
                 <ChevronRight className="w-6 h-6" />
               </button>
@@ -213,6 +270,7 @@ export default function EventPhotoGallery({ photos, eventTitle }: EventPhotoGall
                     src={url}
                     alt={`Thumbnail ${idx + 1}`}
                     fill
+                    unoptimized
                     className="object-cover"
                   />
                 </button>

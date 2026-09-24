@@ -5,8 +5,6 @@ import { ThemeProvider } from "@/components/ui/theme-provider";
 import SessionProvider from "@/components/auth/SessionProvider";
 import Navbar from "@/components/navigation/Navbar";
 import Footer from "@/components/navigation/Footer";
-import Vectorall from "@/components/background/Vectorall";
-import GlobalScannerBackground from "@/components/background/GlobalScannerBackground";
 import OnboardingGuard from "@/components/auth/OnboardingGuard";
 import Script from "next/script";
 import { cn } from "@/lib/utils";
@@ -52,7 +50,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`font-valley ${jetbrainsMono.variable}`}
+        className={`font-valley ${jetbrainsMono.variable} bg-background text-foreground min-h-screen flex flex-col`}
       >
         <SessionProvider>
           <ThemeProvider
@@ -62,10 +60,9 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <OnboardingGuard>
-              <GlobalScannerBackground />
               <Navbar />
               {/* <Vectorall /> */}
-              <div className="relative z-10">{children}</div>
+              <div className="relative z-10 flex-1">{children}</div>
               <Footer />
             </OnboardingGuard>
           </ThemeProvider>

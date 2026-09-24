@@ -1,4 +1,6 @@
 import { db } from "@/lib/db";
+import { getBatchForUser, MarathonBatch } from "@/lib/marathon-batches";
+import { isNmamitEmail } from "@/lib/email-parser";
 
 /**
  * Calculates a single user's daily marathon streak based on consecutive
@@ -145,7 +147,8 @@ export async function recalculateYearStreaks(
 }
 
 /**
- * Recalculates total score for all students based on confirmed daily & weekly contests.
+ * Recalculates total score for all students based on confirmed daily & weekly contests
+ * and attended marathon classes.
  */
 export async function recalculateTotalScores(
   targetYear?: number,
@@ -164,7 +167,7 @@ export async function recalculateTotalScores(
   let totalUpdated = 0;
 
   for (const student of students) {
-    const [dailySum, weeklySum] = await Promise.all([
+    const [dailySum, weeklySum, presentCount] = await Promise.all([
       client.marathonDailyScore.aggregate({
         where: {
           userId: student.id,
@@ -181,9 +184,18 @@ export async function recalculateTotalScores(
         },
         _sum: { score: true },
       }),
+      client.marathonAttendance.count({
+        where: {
+          userId: student.id,
+          present: true,
+        },
+      }),
     ]);
 
-    const totalScore = (dailySum._sum.score || 0) + (weeklySum._sum.score || 0);
+    // Attended marathon classes contribute 25 points each
+    const attendancePoints = presentCount * 25;
+    const totalScore = (dailySum._sum.score || 0) + (weeklySum._sum.score || 0) + attendancePoints;
+
     if (student.marathonTotalScore !== totalScore) {
       await client.user.update({
         where: { id: student.id },
@@ -194,4 +206,88 @@ export async function recalculateTotalScores(
   }
 
   return { totalUpdated };
+}
+
+/**
+ * Returns attendance statistics (total classes, attended count, percentage, batch, and records) for a user.
+ * Automatically synchronizes attendance for newly joined students or missing classes for their batch.
+ */
+export async function getUserAttendanceStats(userId: string, client: any = db) {
+  const user = await client.user.findUnique({
+    where: { id: userId },
+    select: { id: true, email: true, usn: true, name: true, isAiml: true },
+  });
+
+  let userBatch: MarathonBatch | null = null;
+
+  if (user) {
+    if (!user.usn && user.email && isNmamitEmail(user.email)) {
+      user.usn = user.email.split("@")[0].toUpperCase();
+      await client.user.update({
+        where: { id: user.id },
+        data: { usn: user.usn },
+      });
+    }
+
+    userBatch = getBatchForUser(user);
+
+    if (userBatch) {
+      // Find all classes that include user's batch
+      const batchClasses = await client.marathonClass.findMany({
+        where: {
+          batches: {
+            has: userBatch,
+          },
+        },
+        select: { id: true },
+      });
+
+      if (batchClasses.length > 0) {
+        const existingAttendance = await client.marathonAttendance.findMany({
+          where: {
+            userId: user.id,
+            classId: { in: batchClasses.map((c: any) => c.id) },
+          },
+          select: { classId: true },
+        });
+
+        const existingIds = new Set(existingAttendance.map((a: any) => a.classId));
+        const missing = batchClasses.filter((c: any) => !existingIds.has(c.id));
+
+        if (missing.length > 0) {
+          await client.marathonAttendance.createMany({
+            data: missing.map((c: any) => ({
+              classId: c.id,
+              userId: user.id,
+              batch: userBatch!,
+              present: true,
+            })),
+            skipDuplicates: true,
+          });
+        }
+      }
+    }
+  }
+
+  const records = await client.marathonAttendance.findMany({
+    where: { userId },
+    include: {
+      class: {
+        select: { id: true, date: true, topic: true, batches: true },
+      },
+    },
+    orderBy: { class: { date: "desc" } },
+  });
+
+  const totalClasses = records.length;
+  const presentClasses = records.filter((r: any) => r.present).length;
+  const percentage = totalClasses > 0 ? Math.round((presentClasses / totalClasses) * 100) : 100;
+
+  return {
+    batch: userBatch,
+    totalClasses,
+    presentClasses,
+    percentage,
+    records,
+  };
 }

@@ -97,8 +97,8 @@ export default function Navbar() {
     >
       <div className="pointer-events-auto max-w-full">
         <PillNav
-          logo="/NMAMITLogo.png"
-          logoAlt="TASC NMAMIT"
+          logo="/TASCLogo.png"
+          logoAlt="TASC"
           items={pillItems}
           activeHref={pathname}
           baseColor={isDark ? "#0b0715" : "#ffffff"}

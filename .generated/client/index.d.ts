@@ -148,6 +148,16 @@ export type Patents = $Result.DefaultSelection<Prisma.$PatentsPayload>
  * 
  */
 export type Publication = $Result.DefaultSelection<Prisma.$PublicationPayload>
+/**
+ * Model MarathonClass
+ * 
+ */
+export type MarathonClass = $Result.DefaultSelection<Prisma.$MarathonClassPayload>
+/**
+ * Model MarathonAttendance
+ * 
+ */
+export type MarathonAttendance = $Result.DefaultSelection<Prisma.$MarathonAttendancePayload>
 
 /**
  * Enums
@@ -165,6 +175,13 @@ export namespace $Enums {
 };
 
 export type TeamSection = (typeof TeamSection)[keyof typeof TeamSection]
+
+
+export const crdb_internal_region: {
+  aws_ap_south_1: 'aws_ap_south_1'
+};
+
+export type crdb_internal_region = (typeof crdb_internal_region)[keyof typeof crdb_internal_region]
 
 
 export const Role: {
@@ -226,6 +243,10 @@ export type WinnerType = (typeof WinnerType)[keyof typeof WinnerType]
 export type TeamSection = $Enums.TeamSection
 
 export const TeamSection: typeof $Enums.TeamSection
+
+export type crdb_internal_region = $Enums.crdb_internal_region
+
+export const crdb_internal_region: typeof $Enums.crdb_internal_region
 
 export type Role = $Enums.Role
 
@@ -641,6 +662,26 @@ export class PrismaClient<
     * ```
     */
   get publication(): Prisma.PublicationDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.marathonClass`: Exposes CRUD operations for the **MarathonClass** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more MarathonClasses
+    * const marathonClasses = await prisma.marathonClass.findMany()
+    * ```
+    */
+  get marathonClass(): Prisma.MarathonClassDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.marathonAttendance`: Exposes CRUD operations for the **MarathonAttendance** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more MarathonAttendances
+    * const marathonAttendances = await prisma.marathonAttendance.findMany()
+    * ```
+    */
+  get marathonAttendance(): Prisma.MarathonAttendanceDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -1114,7 +1155,9 @@ export namespace Prisma {
     Offer: 'Offer',
     Year: 'Year',
     Patents: 'Patents',
-    Publication: 'Publication'
+    Publication: 'Publication',
+    MarathonClass: 'MarathonClass',
+    MarathonAttendance: 'MarathonAttendance'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1130,7 +1173,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "verificationToken" | "account" | "session" | "student" | "core" | "faculty" | "event" | "eventCustomField" | "links" | "team" | "eventRegistration" | "form" | "formField" | "formResponse" | "announcement" | "marathonDailyContest" | "marathonDailyScore" | "marathonWeeklyContest" | "marathonWeeklyScore" | "winners" | "placement" | "company" | "offer" | "year" | "patents" | "publication"
+      modelProps: "user" | "verificationToken" | "account" | "session" | "student" | "core" | "faculty" | "event" | "eventCustomField" | "links" | "team" | "eventRegistration" | "form" | "formField" | "formResponse" | "announcement" | "marathonDailyContest" | "marathonDailyScore" | "marathonWeeklyContest" | "marathonWeeklyScore" | "winners" | "placement" | "company" | "offer" | "year" | "patents" | "publication" | "marathonClass" | "marathonAttendance"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -3132,6 +3175,154 @@ export namespace Prisma {
           }
         }
       }
+      MarathonClass: {
+        payload: Prisma.$MarathonClassPayload<ExtArgs>
+        fields: Prisma.MarathonClassFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.MarathonClassFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MarathonClassPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.MarathonClassFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MarathonClassPayload>
+          }
+          findFirst: {
+            args: Prisma.MarathonClassFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MarathonClassPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.MarathonClassFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MarathonClassPayload>
+          }
+          findMany: {
+            args: Prisma.MarathonClassFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MarathonClassPayload>[]
+          }
+          create: {
+            args: Prisma.MarathonClassCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MarathonClassPayload>
+          }
+          createMany: {
+            args: Prisma.MarathonClassCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.MarathonClassCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MarathonClassPayload>[]
+          }
+          delete: {
+            args: Prisma.MarathonClassDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MarathonClassPayload>
+          }
+          update: {
+            args: Prisma.MarathonClassUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MarathonClassPayload>
+          }
+          deleteMany: {
+            args: Prisma.MarathonClassDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.MarathonClassUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.MarathonClassUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MarathonClassPayload>[]
+          }
+          upsert: {
+            args: Prisma.MarathonClassUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MarathonClassPayload>
+          }
+          aggregate: {
+            args: Prisma.MarathonClassAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateMarathonClass>
+          }
+          groupBy: {
+            args: Prisma.MarathonClassGroupByArgs<ExtArgs>
+            result: $Utils.Optional<MarathonClassGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.MarathonClassCountArgs<ExtArgs>
+            result: $Utils.Optional<MarathonClassCountAggregateOutputType> | number
+          }
+        }
+      }
+      MarathonAttendance: {
+        payload: Prisma.$MarathonAttendancePayload<ExtArgs>
+        fields: Prisma.MarathonAttendanceFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.MarathonAttendanceFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MarathonAttendancePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.MarathonAttendanceFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MarathonAttendancePayload>
+          }
+          findFirst: {
+            args: Prisma.MarathonAttendanceFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MarathonAttendancePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.MarathonAttendanceFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MarathonAttendancePayload>
+          }
+          findMany: {
+            args: Prisma.MarathonAttendanceFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MarathonAttendancePayload>[]
+          }
+          create: {
+            args: Prisma.MarathonAttendanceCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MarathonAttendancePayload>
+          }
+          createMany: {
+            args: Prisma.MarathonAttendanceCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.MarathonAttendanceCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MarathonAttendancePayload>[]
+          }
+          delete: {
+            args: Prisma.MarathonAttendanceDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MarathonAttendancePayload>
+          }
+          update: {
+            args: Prisma.MarathonAttendanceUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MarathonAttendancePayload>
+          }
+          deleteMany: {
+            args: Prisma.MarathonAttendanceDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.MarathonAttendanceUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.MarathonAttendanceUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MarathonAttendancePayload>[]
+          }
+          upsert: {
+            args: Prisma.MarathonAttendanceUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MarathonAttendancePayload>
+          }
+          aggregate: {
+            args: Prisma.MarathonAttendanceAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateMarathonAttendance>
+          }
+          groupBy: {
+            args: Prisma.MarathonAttendanceGroupByArgs<ExtArgs>
+            result: $Utils.Optional<MarathonAttendanceGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.MarathonAttendanceCountArgs<ExtArgs>
+            result: $Utils.Optional<MarathonAttendanceCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -3282,6 +3473,8 @@ export namespace Prisma {
     year?: YearOmit
     patents?: PatentsOmit
     publication?: PublicationOmit
+    marathonClass?: MarathonClassOmit
+    marathonAttendance?: MarathonAttendanceOmit
   }
 
   /* Types for Logging */
@@ -3371,6 +3564,7 @@ export namespace Prisma {
     announcements: number
     marathonDailyScores: number
     marathonWeeklyScores: number
+    marathonAttendance: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3383,6 +3577,7 @@ export namespace Prisma {
     announcements?: boolean | UserCountOutputTypeCountAnnouncementsArgs
     marathonDailyScores?: boolean | UserCountOutputTypeCountMarathonDailyScoresArgs
     marathonWeeklyScores?: boolean | UserCountOutputTypeCountMarathonWeeklyScoresArgs
+    marathonAttendance?: boolean | UserCountOutputTypeCountMarathonAttendanceArgs
   }
 
   // Custom InputTypes
@@ -3457,6 +3652,13 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountMarathonWeeklyScoresArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: MarathonWeeklyScoreWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountMarathonAttendanceArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: MarathonAttendanceWhereInput
   }
 
 
@@ -3918,6 +4120,37 @@ export namespace Prisma {
 
 
   /**
+   * Count Type MarathonClassCountOutputType
+   */
+
+  export type MarathonClassCountOutputType = {
+    attendance: number
+  }
+
+  export type MarathonClassCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    attendance?: boolean | MarathonClassCountOutputTypeCountAttendanceArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * MarathonClassCountOutputType without action
+   */
+  export type MarathonClassCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarathonClassCountOutputType
+     */
+    select?: MarathonClassCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * MarathonClassCountOutputType without action
+   */
+  export type MarathonClassCountOutputTypeCountAttendanceArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: MarathonAttendanceWhereInput
+  }
+
+
+  /**
    * Models
    */
 
@@ -4322,6 +4555,7 @@ export namespace Prisma {
     announcements?: boolean | User$announcementsArgs<ExtArgs>
     marathonDailyScores?: boolean | User$marathonDailyScoresArgs<ExtArgs>
     marathonWeeklyScores?: boolean | User$marathonWeeklyScoresArgs<ExtArgs>
+    marathonAttendance?: boolean | User$marathonAttendanceArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -4434,6 +4668,7 @@ export namespace Prisma {
     announcements?: boolean | User$announcementsArgs<ExtArgs>
     marathonDailyScores?: boolean | User$marathonDailyScoresArgs<ExtArgs>
     marathonWeeklyScores?: boolean | User$marathonWeeklyScoresArgs<ExtArgs>
+    marathonAttendance?: boolean | User$marathonAttendanceArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -4453,6 +4688,7 @@ export namespace Prisma {
       announcements: Prisma.$AnnouncementPayload<ExtArgs>[]
       marathonDailyScores: Prisma.$MarathonDailyScorePayload<ExtArgs>[]
       marathonWeeklyScores: Prisma.$MarathonWeeklyScorePayload<ExtArgs>[]
+      marathonAttendance: Prisma.$MarathonAttendancePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -4889,6 +5125,7 @@ export namespace Prisma {
     announcements<T extends User$announcementsArgs<ExtArgs> = {}>(args?: Subset<T, User$announcementsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AnnouncementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     marathonDailyScores<T extends User$marathonDailyScoresArgs<ExtArgs> = {}>(args?: Subset<T, User$marathonDailyScoresArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MarathonDailyScorePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     marathonWeeklyScores<T extends User$marathonWeeklyScoresArgs<ExtArgs> = {}>(args?: Subset<T, User$marathonWeeklyScoresArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MarathonWeeklyScorePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    marathonAttendance<T extends User$marathonAttendanceArgs<ExtArgs> = {}>(args?: Subset<T, User$marathonAttendanceArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MarathonAttendancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -5591,6 +5828,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: MarathonWeeklyScoreScalarFieldEnum | MarathonWeeklyScoreScalarFieldEnum[]
+  }
+
+  /**
+   * User.marathonAttendance
+   */
+  export type User$marathonAttendanceArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarathonAttendance
+     */
+    select?: MarathonAttendanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarathonAttendance
+     */
+    omit?: MarathonAttendanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MarathonAttendanceInclude<ExtArgs> | null
+    where?: MarathonAttendanceWhereInput
+    orderBy?: MarathonAttendanceOrderByWithRelationInput | MarathonAttendanceOrderByWithRelationInput[]
+    cursor?: MarathonAttendanceWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: MarathonAttendanceScalarFieldEnum | MarathonAttendanceScalarFieldEnum[]
   }
 
   /**
@@ -34766,6 +35027,2187 @@ export namespace Prisma {
 
 
   /**
+   * Model MarathonClass
+   */
+
+  export type AggregateMarathonClass = {
+    _count: MarathonClassCountAggregateOutputType | null
+    _min: MarathonClassMinAggregateOutputType | null
+    _max: MarathonClassMaxAggregateOutputType | null
+  }
+
+  export type MarathonClassMinAggregateOutputType = {
+    id: string | null
+    date: Date | null
+    topic: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type MarathonClassMaxAggregateOutputType = {
+    id: string | null
+    date: Date | null
+    topic: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type MarathonClassCountAggregateOutputType = {
+    id: number
+    date: number
+    batches: number
+    topic: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type MarathonClassMinAggregateInputType = {
+    id?: true
+    date?: true
+    topic?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type MarathonClassMaxAggregateInputType = {
+    id?: true
+    date?: true
+    topic?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type MarathonClassCountAggregateInputType = {
+    id?: true
+    date?: true
+    batches?: true
+    topic?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type MarathonClassAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which MarathonClass to aggregate.
+     */
+    where?: MarathonClassWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MarathonClasses to fetch.
+     */
+    orderBy?: MarathonClassOrderByWithRelationInput | MarathonClassOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: MarathonClassWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MarathonClasses from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MarathonClasses.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned MarathonClasses
+    **/
+    _count?: true | MarathonClassCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: MarathonClassMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: MarathonClassMaxAggregateInputType
+  }
+
+  export type GetMarathonClassAggregateType<T extends MarathonClassAggregateArgs> = {
+        [P in keyof T & keyof AggregateMarathonClass]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateMarathonClass[P]>
+      : GetScalarType<T[P], AggregateMarathonClass[P]>
+  }
+
+
+
+
+  export type MarathonClassGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: MarathonClassWhereInput
+    orderBy?: MarathonClassOrderByWithAggregationInput | MarathonClassOrderByWithAggregationInput[]
+    by: MarathonClassScalarFieldEnum[] | MarathonClassScalarFieldEnum
+    having?: MarathonClassScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: MarathonClassCountAggregateInputType | true
+    _min?: MarathonClassMinAggregateInputType
+    _max?: MarathonClassMaxAggregateInputType
+  }
+
+  export type MarathonClassGroupByOutputType = {
+    id: string
+    date: Date
+    batches: string[]
+    topic: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: MarathonClassCountAggregateOutputType | null
+    _min: MarathonClassMinAggregateOutputType | null
+    _max: MarathonClassMaxAggregateOutputType | null
+  }
+
+  type GetMarathonClassGroupByPayload<T extends MarathonClassGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<MarathonClassGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof MarathonClassGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], MarathonClassGroupByOutputType[P]>
+            : GetScalarType<T[P], MarathonClassGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type MarathonClassSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    date?: boolean
+    batches?: boolean
+    topic?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    attendance?: boolean | MarathonClass$attendanceArgs<ExtArgs>
+    _count?: boolean | MarathonClassCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["marathonClass"]>
+
+  export type MarathonClassSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    date?: boolean
+    batches?: boolean
+    topic?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["marathonClass"]>
+
+  export type MarathonClassSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    date?: boolean
+    batches?: boolean
+    topic?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["marathonClass"]>
+
+  export type MarathonClassSelectScalar = {
+    id?: boolean
+    date?: boolean
+    batches?: boolean
+    topic?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type MarathonClassOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "date" | "batches" | "topic" | "createdAt" | "updatedAt", ExtArgs["result"]["marathonClass"]>
+  export type MarathonClassInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    attendance?: boolean | MarathonClass$attendanceArgs<ExtArgs>
+    _count?: boolean | MarathonClassCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type MarathonClassIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type MarathonClassIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+
+  export type $MarathonClassPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "MarathonClass"
+    objects: {
+      attendance: Prisma.$MarathonAttendancePayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      date: Date
+      batches: string[]
+      topic: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["marathonClass"]>
+    composites: {}
+  }
+
+  type MarathonClassGetPayload<S extends boolean | null | undefined | MarathonClassDefaultArgs> = $Result.GetResult<Prisma.$MarathonClassPayload, S>
+
+  type MarathonClassCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<MarathonClassFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: MarathonClassCountAggregateInputType | true
+    }
+
+  export interface MarathonClassDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['MarathonClass'], meta: { name: 'MarathonClass' } }
+    /**
+     * Find zero or one MarathonClass that matches the filter.
+     * @param {MarathonClassFindUniqueArgs} args - Arguments to find a MarathonClass
+     * @example
+     * // Get one MarathonClass
+     * const marathonClass = await prisma.marathonClass.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends MarathonClassFindUniqueArgs>(args: SelectSubset<T, MarathonClassFindUniqueArgs<ExtArgs>>): Prisma__MarathonClassClient<$Result.GetResult<Prisma.$MarathonClassPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one MarathonClass that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {MarathonClassFindUniqueOrThrowArgs} args - Arguments to find a MarathonClass
+     * @example
+     * // Get one MarathonClass
+     * const marathonClass = await prisma.marathonClass.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends MarathonClassFindUniqueOrThrowArgs>(args: SelectSubset<T, MarathonClassFindUniqueOrThrowArgs<ExtArgs>>): Prisma__MarathonClassClient<$Result.GetResult<Prisma.$MarathonClassPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first MarathonClass that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MarathonClassFindFirstArgs} args - Arguments to find a MarathonClass
+     * @example
+     * // Get one MarathonClass
+     * const marathonClass = await prisma.marathonClass.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends MarathonClassFindFirstArgs>(args?: SelectSubset<T, MarathonClassFindFirstArgs<ExtArgs>>): Prisma__MarathonClassClient<$Result.GetResult<Prisma.$MarathonClassPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first MarathonClass that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MarathonClassFindFirstOrThrowArgs} args - Arguments to find a MarathonClass
+     * @example
+     * // Get one MarathonClass
+     * const marathonClass = await prisma.marathonClass.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends MarathonClassFindFirstOrThrowArgs>(args?: SelectSubset<T, MarathonClassFindFirstOrThrowArgs<ExtArgs>>): Prisma__MarathonClassClient<$Result.GetResult<Prisma.$MarathonClassPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more MarathonClasses that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MarathonClassFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all MarathonClasses
+     * const marathonClasses = await prisma.marathonClass.findMany()
+     * 
+     * // Get first 10 MarathonClasses
+     * const marathonClasses = await prisma.marathonClass.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const marathonClassWithIdOnly = await prisma.marathonClass.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends MarathonClassFindManyArgs>(args?: SelectSubset<T, MarathonClassFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MarathonClassPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a MarathonClass.
+     * @param {MarathonClassCreateArgs} args - Arguments to create a MarathonClass.
+     * @example
+     * // Create one MarathonClass
+     * const MarathonClass = await prisma.marathonClass.create({
+     *   data: {
+     *     // ... data to create a MarathonClass
+     *   }
+     * })
+     * 
+     */
+    create<T extends MarathonClassCreateArgs>(args: SelectSubset<T, MarathonClassCreateArgs<ExtArgs>>): Prisma__MarathonClassClient<$Result.GetResult<Prisma.$MarathonClassPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many MarathonClasses.
+     * @param {MarathonClassCreateManyArgs} args - Arguments to create many MarathonClasses.
+     * @example
+     * // Create many MarathonClasses
+     * const marathonClass = await prisma.marathonClass.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends MarathonClassCreateManyArgs>(args?: SelectSubset<T, MarathonClassCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many MarathonClasses and returns the data saved in the database.
+     * @param {MarathonClassCreateManyAndReturnArgs} args - Arguments to create many MarathonClasses.
+     * @example
+     * // Create many MarathonClasses
+     * const marathonClass = await prisma.marathonClass.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many MarathonClasses and only return the `id`
+     * const marathonClassWithIdOnly = await prisma.marathonClass.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends MarathonClassCreateManyAndReturnArgs>(args?: SelectSubset<T, MarathonClassCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MarathonClassPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a MarathonClass.
+     * @param {MarathonClassDeleteArgs} args - Arguments to delete one MarathonClass.
+     * @example
+     * // Delete one MarathonClass
+     * const MarathonClass = await prisma.marathonClass.delete({
+     *   where: {
+     *     // ... filter to delete one MarathonClass
+     *   }
+     * })
+     * 
+     */
+    delete<T extends MarathonClassDeleteArgs>(args: SelectSubset<T, MarathonClassDeleteArgs<ExtArgs>>): Prisma__MarathonClassClient<$Result.GetResult<Prisma.$MarathonClassPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one MarathonClass.
+     * @param {MarathonClassUpdateArgs} args - Arguments to update one MarathonClass.
+     * @example
+     * // Update one MarathonClass
+     * const marathonClass = await prisma.marathonClass.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends MarathonClassUpdateArgs>(args: SelectSubset<T, MarathonClassUpdateArgs<ExtArgs>>): Prisma__MarathonClassClient<$Result.GetResult<Prisma.$MarathonClassPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more MarathonClasses.
+     * @param {MarathonClassDeleteManyArgs} args - Arguments to filter MarathonClasses to delete.
+     * @example
+     * // Delete a few MarathonClasses
+     * const { count } = await prisma.marathonClass.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends MarathonClassDeleteManyArgs>(args?: SelectSubset<T, MarathonClassDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more MarathonClasses.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MarathonClassUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many MarathonClasses
+     * const marathonClass = await prisma.marathonClass.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends MarathonClassUpdateManyArgs>(args: SelectSubset<T, MarathonClassUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more MarathonClasses and returns the data updated in the database.
+     * @param {MarathonClassUpdateManyAndReturnArgs} args - Arguments to update many MarathonClasses.
+     * @example
+     * // Update many MarathonClasses
+     * const marathonClass = await prisma.marathonClass.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more MarathonClasses and only return the `id`
+     * const marathonClassWithIdOnly = await prisma.marathonClass.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends MarathonClassUpdateManyAndReturnArgs>(args: SelectSubset<T, MarathonClassUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MarathonClassPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one MarathonClass.
+     * @param {MarathonClassUpsertArgs} args - Arguments to update or create a MarathonClass.
+     * @example
+     * // Update or create a MarathonClass
+     * const marathonClass = await prisma.marathonClass.upsert({
+     *   create: {
+     *     // ... data to create a MarathonClass
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the MarathonClass we want to update
+     *   }
+     * })
+     */
+    upsert<T extends MarathonClassUpsertArgs>(args: SelectSubset<T, MarathonClassUpsertArgs<ExtArgs>>): Prisma__MarathonClassClient<$Result.GetResult<Prisma.$MarathonClassPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of MarathonClasses.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MarathonClassCountArgs} args - Arguments to filter MarathonClasses to count.
+     * @example
+     * // Count the number of MarathonClasses
+     * const count = await prisma.marathonClass.count({
+     *   where: {
+     *     // ... the filter for the MarathonClasses we want to count
+     *   }
+     * })
+    **/
+    count<T extends MarathonClassCountArgs>(
+      args?: Subset<T, MarathonClassCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], MarathonClassCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a MarathonClass.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MarathonClassAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends MarathonClassAggregateArgs>(args: Subset<T, MarathonClassAggregateArgs>): Prisma.PrismaPromise<GetMarathonClassAggregateType<T>>
+
+    /**
+     * Group by MarathonClass.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MarathonClassGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends MarathonClassGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: MarathonClassGroupByArgs['orderBy'] }
+        : { orderBy?: MarathonClassGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, MarathonClassGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetMarathonClassGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the MarathonClass model
+   */
+  readonly fields: MarathonClassFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for MarathonClass.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__MarathonClassClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    attendance<T extends MarathonClass$attendanceArgs<ExtArgs> = {}>(args?: Subset<T, MarathonClass$attendanceArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MarathonAttendancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the MarathonClass model
+   */
+  interface MarathonClassFieldRefs {
+    readonly id: FieldRef<"MarathonClass", 'String'>
+    readonly date: FieldRef<"MarathonClass", 'DateTime'>
+    readonly batches: FieldRef<"MarathonClass", 'String[]'>
+    readonly topic: FieldRef<"MarathonClass", 'String'>
+    readonly createdAt: FieldRef<"MarathonClass", 'DateTime'>
+    readonly updatedAt: FieldRef<"MarathonClass", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * MarathonClass findUnique
+   */
+  export type MarathonClassFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarathonClass
+     */
+    select?: MarathonClassSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarathonClass
+     */
+    omit?: MarathonClassOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MarathonClassInclude<ExtArgs> | null
+    /**
+     * Filter, which MarathonClass to fetch.
+     */
+    where: MarathonClassWhereUniqueInput
+  }
+
+  /**
+   * MarathonClass findUniqueOrThrow
+   */
+  export type MarathonClassFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarathonClass
+     */
+    select?: MarathonClassSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarathonClass
+     */
+    omit?: MarathonClassOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MarathonClassInclude<ExtArgs> | null
+    /**
+     * Filter, which MarathonClass to fetch.
+     */
+    where: MarathonClassWhereUniqueInput
+  }
+
+  /**
+   * MarathonClass findFirst
+   */
+  export type MarathonClassFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarathonClass
+     */
+    select?: MarathonClassSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarathonClass
+     */
+    omit?: MarathonClassOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MarathonClassInclude<ExtArgs> | null
+    /**
+     * Filter, which MarathonClass to fetch.
+     */
+    where?: MarathonClassWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MarathonClasses to fetch.
+     */
+    orderBy?: MarathonClassOrderByWithRelationInput | MarathonClassOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for MarathonClasses.
+     */
+    cursor?: MarathonClassWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MarathonClasses from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MarathonClasses.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of MarathonClasses.
+     */
+    distinct?: MarathonClassScalarFieldEnum | MarathonClassScalarFieldEnum[]
+  }
+
+  /**
+   * MarathonClass findFirstOrThrow
+   */
+  export type MarathonClassFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarathonClass
+     */
+    select?: MarathonClassSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarathonClass
+     */
+    omit?: MarathonClassOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MarathonClassInclude<ExtArgs> | null
+    /**
+     * Filter, which MarathonClass to fetch.
+     */
+    where?: MarathonClassWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MarathonClasses to fetch.
+     */
+    orderBy?: MarathonClassOrderByWithRelationInput | MarathonClassOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for MarathonClasses.
+     */
+    cursor?: MarathonClassWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MarathonClasses from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MarathonClasses.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of MarathonClasses.
+     */
+    distinct?: MarathonClassScalarFieldEnum | MarathonClassScalarFieldEnum[]
+  }
+
+  /**
+   * MarathonClass findMany
+   */
+  export type MarathonClassFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarathonClass
+     */
+    select?: MarathonClassSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarathonClass
+     */
+    omit?: MarathonClassOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MarathonClassInclude<ExtArgs> | null
+    /**
+     * Filter, which MarathonClasses to fetch.
+     */
+    where?: MarathonClassWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MarathonClasses to fetch.
+     */
+    orderBy?: MarathonClassOrderByWithRelationInput | MarathonClassOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing MarathonClasses.
+     */
+    cursor?: MarathonClassWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MarathonClasses from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MarathonClasses.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of MarathonClasses.
+     */
+    distinct?: MarathonClassScalarFieldEnum | MarathonClassScalarFieldEnum[]
+  }
+
+  /**
+   * MarathonClass create
+   */
+  export type MarathonClassCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarathonClass
+     */
+    select?: MarathonClassSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarathonClass
+     */
+    omit?: MarathonClassOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MarathonClassInclude<ExtArgs> | null
+    /**
+     * The data needed to create a MarathonClass.
+     */
+    data: XOR<MarathonClassCreateInput, MarathonClassUncheckedCreateInput>
+  }
+
+  /**
+   * MarathonClass createMany
+   */
+  export type MarathonClassCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many MarathonClasses.
+     */
+    data: MarathonClassCreateManyInput | MarathonClassCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * MarathonClass createManyAndReturn
+   */
+  export type MarathonClassCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarathonClass
+     */
+    select?: MarathonClassSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarathonClass
+     */
+    omit?: MarathonClassOmit<ExtArgs> | null
+    /**
+     * The data used to create many MarathonClasses.
+     */
+    data: MarathonClassCreateManyInput | MarathonClassCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * MarathonClass update
+   */
+  export type MarathonClassUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarathonClass
+     */
+    select?: MarathonClassSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarathonClass
+     */
+    omit?: MarathonClassOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MarathonClassInclude<ExtArgs> | null
+    /**
+     * The data needed to update a MarathonClass.
+     */
+    data: XOR<MarathonClassUpdateInput, MarathonClassUncheckedUpdateInput>
+    /**
+     * Choose, which MarathonClass to update.
+     */
+    where: MarathonClassWhereUniqueInput
+  }
+
+  /**
+   * MarathonClass updateMany
+   */
+  export type MarathonClassUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update MarathonClasses.
+     */
+    data: XOR<MarathonClassUpdateManyMutationInput, MarathonClassUncheckedUpdateManyInput>
+    /**
+     * Filter which MarathonClasses to update
+     */
+    where?: MarathonClassWhereInput
+    /**
+     * Limit how many MarathonClasses to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * MarathonClass updateManyAndReturn
+   */
+  export type MarathonClassUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarathonClass
+     */
+    select?: MarathonClassSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarathonClass
+     */
+    omit?: MarathonClassOmit<ExtArgs> | null
+    /**
+     * The data used to update MarathonClasses.
+     */
+    data: XOR<MarathonClassUpdateManyMutationInput, MarathonClassUncheckedUpdateManyInput>
+    /**
+     * Filter which MarathonClasses to update
+     */
+    where?: MarathonClassWhereInput
+    /**
+     * Limit how many MarathonClasses to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * MarathonClass upsert
+   */
+  export type MarathonClassUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarathonClass
+     */
+    select?: MarathonClassSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarathonClass
+     */
+    omit?: MarathonClassOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MarathonClassInclude<ExtArgs> | null
+    /**
+     * The filter to search for the MarathonClass to update in case it exists.
+     */
+    where: MarathonClassWhereUniqueInput
+    /**
+     * In case the MarathonClass found by the `where` argument doesn't exist, create a new MarathonClass with this data.
+     */
+    create: XOR<MarathonClassCreateInput, MarathonClassUncheckedCreateInput>
+    /**
+     * In case the MarathonClass was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<MarathonClassUpdateInput, MarathonClassUncheckedUpdateInput>
+  }
+
+  /**
+   * MarathonClass delete
+   */
+  export type MarathonClassDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarathonClass
+     */
+    select?: MarathonClassSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarathonClass
+     */
+    omit?: MarathonClassOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MarathonClassInclude<ExtArgs> | null
+    /**
+     * Filter which MarathonClass to delete.
+     */
+    where: MarathonClassWhereUniqueInput
+  }
+
+  /**
+   * MarathonClass deleteMany
+   */
+  export type MarathonClassDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which MarathonClasses to delete
+     */
+    where?: MarathonClassWhereInput
+    /**
+     * Limit how many MarathonClasses to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * MarathonClass.attendance
+   */
+  export type MarathonClass$attendanceArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarathonAttendance
+     */
+    select?: MarathonAttendanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarathonAttendance
+     */
+    omit?: MarathonAttendanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MarathonAttendanceInclude<ExtArgs> | null
+    where?: MarathonAttendanceWhereInput
+    orderBy?: MarathonAttendanceOrderByWithRelationInput | MarathonAttendanceOrderByWithRelationInput[]
+    cursor?: MarathonAttendanceWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: MarathonAttendanceScalarFieldEnum | MarathonAttendanceScalarFieldEnum[]
+  }
+
+  /**
+   * MarathonClass without action
+   */
+  export type MarathonClassDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarathonClass
+     */
+    select?: MarathonClassSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarathonClass
+     */
+    omit?: MarathonClassOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MarathonClassInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model MarathonAttendance
+   */
+
+  export type AggregateMarathonAttendance = {
+    _count: MarathonAttendanceCountAggregateOutputType | null
+    _min: MarathonAttendanceMinAggregateOutputType | null
+    _max: MarathonAttendanceMaxAggregateOutputType | null
+  }
+
+  export type MarathonAttendanceMinAggregateOutputType = {
+    id: string | null
+    classId: string | null
+    userId: string | null
+    batch: string | null
+    present: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type MarathonAttendanceMaxAggregateOutputType = {
+    id: string | null
+    classId: string | null
+    userId: string | null
+    batch: string | null
+    present: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type MarathonAttendanceCountAggregateOutputType = {
+    id: number
+    classId: number
+    userId: number
+    batch: number
+    present: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type MarathonAttendanceMinAggregateInputType = {
+    id?: true
+    classId?: true
+    userId?: true
+    batch?: true
+    present?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type MarathonAttendanceMaxAggregateInputType = {
+    id?: true
+    classId?: true
+    userId?: true
+    batch?: true
+    present?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type MarathonAttendanceCountAggregateInputType = {
+    id?: true
+    classId?: true
+    userId?: true
+    batch?: true
+    present?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type MarathonAttendanceAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which MarathonAttendance to aggregate.
+     */
+    where?: MarathonAttendanceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MarathonAttendances to fetch.
+     */
+    orderBy?: MarathonAttendanceOrderByWithRelationInput | MarathonAttendanceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: MarathonAttendanceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MarathonAttendances from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MarathonAttendances.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned MarathonAttendances
+    **/
+    _count?: true | MarathonAttendanceCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: MarathonAttendanceMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: MarathonAttendanceMaxAggregateInputType
+  }
+
+  export type GetMarathonAttendanceAggregateType<T extends MarathonAttendanceAggregateArgs> = {
+        [P in keyof T & keyof AggregateMarathonAttendance]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateMarathonAttendance[P]>
+      : GetScalarType<T[P], AggregateMarathonAttendance[P]>
+  }
+
+
+
+
+  export type MarathonAttendanceGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: MarathonAttendanceWhereInput
+    orderBy?: MarathonAttendanceOrderByWithAggregationInput | MarathonAttendanceOrderByWithAggregationInput[]
+    by: MarathonAttendanceScalarFieldEnum[] | MarathonAttendanceScalarFieldEnum
+    having?: MarathonAttendanceScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: MarathonAttendanceCountAggregateInputType | true
+    _min?: MarathonAttendanceMinAggregateInputType
+    _max?: MarathonAttendanceMaxAggregateInputType
+  }
+
+  export type MarathonAttendanceGroupByOutputType = {
+    id: string
+    classId: string
+    userId: string
+    batch: string
+    present: boolean
+    createdAt: Date
+    updatedAt: Date
+    _count: MarathonAttendanceCountAggregateOutputType | null
+    _min: MarathonAttendanceMinAggregateOutputType | null
+    _max: MarathonAttendanceMaxAggregateOutputType | null
+  }
+
+  type GetMarathonAttendanceGroupByPayload<T extends MarathonAttendanceGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<MarathonAttendanceGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof MarathonAttendanceGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], MarathonAttendanceGroupByOutputType[P]>
+            : GetScalarType<T[P], MarathonAttendanceGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type MarathonAttendanceSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    classId?: boolean
+    userId?: boolean
+    batch?: boolean
+    present?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    class?: boolean | MarathonClassDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["marathonAttendance"]>
+
+  export type MarathonAttendanceSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    classId?: boolean
+    userId?: boolean
+    batch?: boolean
+    present?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    class?: boolean | MarathonClassDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["marathonAttendance"]>
+
+  export type MarathonAttendanceSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    classId?: boolean
+    userId?: boolean
+    batch?: boolean
+    present?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    class?: boolean | MarathonClassDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["marathonAttendance"]>
+
+  export type MarathonAttendanceSelectScalar = {
+    id?: boolean
+    classId?: boolean
+    userId?: boolean
+    batch?: boolean
+    present?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type MarathonAttendanceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "classId" | "userId" | "batch" | "present" | "createdAt" | "updatedAt", ExtArgs["result"]["marathonAttendance"]>
+  export type MarathonAttendanceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    class?: boolean | MarathonClassDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type MarathonAttendanceIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    class?: boolean | MarathonClassDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type MarathonAttendanceIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    class?: boolean | MarathonClassDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $MarathonAttendancePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "MarathonAttendance"
+    objects: {
+      class: Prisma.$MarathonClassPayload<ExtArgs>
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      classId: string
+      userId: string
+      batch: string
+      present: boolean
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["marathonAttendance"]>
+    composites: {}
+  }
+
+  type MarathonAttendanceGetPayload<S extends boolean | null | undefined | MarathonAttendanceDefaultArgs> = $Result.GetResult<Prisma.$MarathonAttendancePayload, S>
+
+  type MarathonAttendanceCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<MarathonAttendanceFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: MarathonAttendanceCountAggregateInputType | true
+    }
+
+  export interface MarathonAttendanceDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['MarathonAttendance'], meta: { name: 'MarathonAttendance' } }
+    /**
+     * Find zero or one MarathonAttendance that matches the filter.
+     * @param {MarathonAttendanceFindUniqueArgs} args - Arguments to find a MarathonAttendance
+     * @example
+     * // Get one MarathonAttendance
+     * const marathonAttendance = await prisma.marathonAttendance.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends MarathonAttendanceFindUniqueArgs>(args: SelectSubset<T, MarathonAttendanceFindUniqueArgs<ExtArgs>>): Prisma__MarathonAttendanceClient<$Result.GetResult<Prisma.$MarathonAttendancePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one MarathonAttendance that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {MarathonAttendanceFindUniqueOrThrowArgs} args - Arguments to find a MarathonAttendance
+     * @example
+     * // Get one MarathonAttendance
+     * const marathonAttendance = await prisma.marathonAttendance.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends MarathonAttendanceFindUniqueOrThrowArgs>(args: SelectSubset<T, MarathonAttendanceFindUniqueOrThrowArgs<ExtArgs>>): Prisma__MarathonAttendanceClient<$Result.GetResult<Prisma.$MarathonAttendancePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first MarathonAttendance that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MarathonAttendanceFindFirstArgs} args - Arguments to find a MarathonAttendance
+     * @example
+     * // Get one MarathonAttendance
+     * const marathonAttendance = await prisma.marathonAttendance.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends MarathonAttendanceFindFirstArgs>(args?: SelectSubset<T, MarathonAttendanceFindFirstArgs<ExtArgs>>): Prisma__MarathonAttendanceClient<$Result.GetResult<Prisma.$MarathonAttendancePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first MarathonAttendance that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MarathonAttendanceFindFirstOrThrowArgs} args - Arguments to find a MarathonAttendance
+     * @example
+     * // Get one MarathonAttendance
+     * const marathonAttendance = await prisma.marathonAttendance.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends MarathonAttendanceFindFirstOrThrowArgs>(args?: SelectSubset<T, MarathonAttendanceFindFirstOrThrowArgs<ExtArgs>>): Prisma__MarathonAttendanceClient<$Result.GetResult<Prisma.$MarathonAttendancePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more MarathonAttendances that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MarathonAttendanceFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all MarathonAttendances
+     * const marathonAttendances = await prisma.marathonAttendance.findMany()
+     * 
+     * // Get first 10 MarathonAttendances
+     * const marathonAttendances = await prisma.marathonAttendance.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const marathonAttendanceWithIdOnly = await prisma.marathonAttendance.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends MarathonAttendanceFindManyArgs>(args?: SelectSubset<T, MarathonAttendanceFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MarathonAttendancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a MarathonAttendance.
+     * @param {MarathonAttendanceCreateArgs} args - Arguments to create a MarathonAttendance.
+     * @example
+     * // Create one MarathonAttendance
+     * const MarathonAttendance = await prisma.marathonAttendance.create({
+     *   data: {
+     *     // ... data to create a MarathonAttendance
+     *   }
+     * })
+     * 
+     */
+    create<T extends MarathonAttendanceCreateArgs>(args: SelectSubset<T, MarathonAttendanceCreateArgs<ExtArgs>>): Prisma__MarathonAttendanceClient<$Result.GetResult<Prisma.$MarathonAttendancePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many MarathonAttendances.
+     * @param {MarathonAttendanceCreateManyArgs} args - Arguments to create many MarathonAttendances.
+     * @example
+     * // Create many MarathonAttendances
+     * const marathonAttendance = await prisma.marathonAttendance.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends MarathonAttendanceCreateManyArgs>(args?: SelectSubset<T, MarathonAttendanceCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many MarathonAttendances and returns the data saved in the database.
+     * @param {MarathonAttendanceCreateManyAndReturnArgs} args - Arguments to create many MarathonAttendances.
+     * @example
+     * // Create many MarathonAttendances
+     * const marathonAttendance = await prisma.marathonAttendance.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many MarathonAttendances and only return the `id`
+     * const marathonAttendanceWithIdOnly = await prisma.marathonAttendance.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends MarathonAttendanceCreateManyAndReturnArgs>(args?: SelectSubset<T, MarathonAttendanceCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MarathonAttendancePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a MarathonAttendance.
+     * @param {MarathonAttendanceDeleteArgs} args - Arguments to delete one MarathonAttendance.
+     * @example
+     * // Delete one MarathonAttendance
+     * const MarathonAttendance = await prisma.marathonAttendance.delete({
+     *   where: {
+     *     // ... filter to delete one MarathonAttendance
+     *   }
+     * })
+     * 
+     */
+    delete<T extends MarathonAttendanceDeleteArgs>(args: SelectSubset<T, MarathonAttendanceDeleteArgs<ExtArgs>>): Prisma__MarathonAttendanceClient<$Result.GetResult<Prisma.$MarathonAttendancePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one MarathonAttendance.
+     * @param {MarathonAttendanceUpdateArgs} args - Arguments to update one MarathonAttendance.
+     * @example
+     * // Update one MarathonAttendance
+     * const marathonAttendance = await prisma.marathonAttendance.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends MarathonAttendanceUpdateArgs>(args: SelectSubset<T, MarathonAttendanceUpdateArgs<ExtArgs>>): Prisma__MarathonAttendanceClient<$Result.GetResult<Prisma.$MarathonAttendancePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more MarathonAttendances.
+     * @param {MarathonAttendanceDeleteManyArgs} args - Arguments to filter MarathonAttendances to delete.
+     * @example
+     * // Delete a few MarathonAttendances
+     * const { count } = await prisma.marathonAttendance.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends MarathonAttendanceDeleteManyArgs>(args?: SelectSubset<T, MarathonAttendanceDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more MarathonAttendances.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MarathonAttendanceUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many MarathonAttendances
+     * const marathonAttendance = await prisma.marathonAttendance.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends MarathonAttendanceUpdateManyArgs>(args: SelectSubset<T, MarathonAttendanceUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more MarathonAttendances and returns the data updated in the database.
+     * @param {MarathonAttendanceUpdateManyAndReturnArgs} args - Arguments to update many MarathonAttendances.
+     * @example
+     * // Update many MarathonAttendances
+     * const marathonAttendance = await prisma.marathonAttendance.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more MarathonAttendances and only return the `id`
+     * const marathonAttendanceWithIdOnly = await prisma.marathonAttendance.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends MarathonAttendanceUpdateManyAndReturnArgs>(args: SelectSubset<T, MarathonAttendanceUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MarathonAttendancePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one MarathonAttendance.
+     * @param {MarathonAttendanceUpsertArgs} args - Arguments to update or create a MarathonAttendance.
+     * @example
+     * // Update or create a MarathonAttendance
+     * const marathonAttendance = await prisma.marathonAttendance.upsert({
+     *   create: {
+     *     // ... data to create a MarathonAttendance
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the MarathonAttendance we want to update
+     *   }
+     * })
+     */
+    upsert<T extends MarathonAttendanceUpsertArgs>(args: SelectSubset<T, MarathonAttendanceUpsertArgs<ExtArgs>>): Prisma__MarathonAttendanceClient<$Result.GetResult<Prisma.$MarathonAttendancePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of MarathonAttendances.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MarathonAttendanceCountArgs} args - Arguments to filter MarathonAttendances to count.
+     * @example
+     * // Count the number of MarathonAttendances
+     * const count = await prisma.marathonAttendance.count({
+     *   where: {
+     *     // ... the filter for the MarathonAttendances we want to count
+     *   }
+     * })
+    **/
+    count<T extends MarathonAttendanceCountArgs>(
+      args?: Subset<T, MarathonAttendanceCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], MarathonAttendanceCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a MarathonAttendance.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MarathonAttendanceAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends MarathonAttendanceAggregateArgs>(args: Subset<T, MarathonAttendanceAggregateArgs>): Prisma.PrismaPromise<GetMarathonAttendanceAggregateType<T>>
+
+    /**
+     * Group by MarathonAttendance.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MarathonAttendanceGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends MarathonAttendanceGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: MarathonAttendanceGroupByArgs['orderBy'] }
+        : { orderBy?: MarathonAttendanceGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, MarathonAttendanceGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetMarathonAttendanceGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the MarathonAttendance model
+   */
+  readonly fields: MarathonAttendanceFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for MarathonAttendance.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__MarathonAttendanceClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    class<T extends MarathonClassDefaultArgs<ExtArgs> = {}>(args?: Subset<T, MarathonClassDefaultArgs<ExtArgs>>): Prisma__MarathonClassClient<$Result.GetResult<Prisma.$MarathonClassPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the MarathonAttendance model
+   */
+  interface MarathonAttendanceFieldRefs {
+    readonly id: FieldRef<"MarathonAttendance", 'String'>
+    readonly classId: FieldRef<"MarathonAttendance", 'String'>
+    readonly userId: FieldRef<"MarathonAttendance", 'String'>
+    readonly batch: FieldRef<"MarathonAttendance", 'String'>
+    readonly present: FieldRef<"MarathonAttendance", 'Boolean'>
+    readonly createdAt: FieldRef<"MarathonAttendance", 'DateTime'>
+    readonly updatedAt: FieldRef<"MarathonAttendance", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * MarathonAttendance findUnique
+   */
+  export type MarathonAttendanceFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarathonAttendance
+     */
+    select?: MarathonAttendanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarathonAttendance
+     */
+    omit?: MarathonAttendanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MarathonAttendanceInclude<ExtArgs> | null
+    /**
+     * Filter, which MarathonAttendance to fetch.
+     */
+    where: MarathonAttendanceWhereUniqueInput
+  }
+
+  /**
+   * MarathonAttendance findUniqueOrThrow
+   */
+  export type MarathonAttendanceFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarathonAttendance
+     */
+    select?: MarathonAttendanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarathonAttendance
+     */
+    omit?: MarathonAttendanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MarathonAttendanceInclude<ExtArgs> | null
+    /**
+     * Filter, which MarathonAttendance to fetch.
+     */
+    where: MarathonAttendanceWhereUniqueInput
+  }
+
+  /**
+   * MarathonAttendance findFirst
+   */
+  export type MarathonAttendanceFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarathonAttendance
+     */
+    select?: MarathonAttendanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarathonAttendance
+     */
+    omit?: MarathonAttendanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MarathonAttendanceInclude<ExtArgs> | null
+    /**
+     * Filter, which MarathonAttendance to fetch.
+     */
+    where?: MarathonAttendanceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MarathonAttendances to fetch.
+     */
+    orderBy?: MarathonAttendanceOrderByWithRelationInput | MarathonAttendanceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for MarathonAttendances.
+     */
+    cursor?: MarathonAttendanceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MarathonAttendances from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MarathonAttendances.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of MarathonAttendances.
+     */
+    distinct?: MarathonAttendanceScalarFieldEnum | MarathonAttendanceScalarFieldEnum[]
+  }
+
+  /**
+   * MarathonAttendance findFirstOrThrow
+   */
+  export type MarathonAttendanceFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarathonAttendance
+     */
+    select?: MarathonAttendanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarathonAttendance
+     */
+    omit?: MarathonAttendanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MarathonAttendanceInclude<ExtArgs> | null
+    /**
+     * Filter, which MarathonAttendance to fetch.
+     */
+    where?: MarathonAttendanceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MarathonAttendances to fetch.
+     */
+    orderBy?: MarathonAttendanceOrderByWithRelationInput | MarathonAttendanceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for MarathonAttendances.
+     */
+    cursor?: MarathonAttendanceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MarathonAttendances from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MarathonAttendances.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of MarathonAttendances.
+     */
+    distinct?: MarathonAttendanceScalarFieldEnum | MarathonAttendanceScalarFieldEnum[]
+  }
+
+  /**
+   * MarathonAttendance findMany
+   */
+  export type MarathonAttendanceFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarathonAttendance
+     */
+    select?: MarathonAttendanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarathonAttendance
+     */
+    omit?: MarathonAttendanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MarathonAttendanceInclude<ExtArgs> | null
+    /**
+     * Filter, which MarathonAttendances to fetch.
+     */
+    where?: MarathonAttendanceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MarathonAttendances to fetch.
+     */
+    orderBy?: MarathonAttendanceOrderByWithRelationInput | MarathonAttendanceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing MarathonAttendances.
+     */
+    cursor?: MarathonAttendanceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MarathonAttendances from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MarathonAttendances.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of MarathonAttendances.
+     */
+    distinct?: MarathonAttendanceScalarFieldEnum | MarathonAttendanceScalarFieldEnum[]
+  }
+
+  /**
+   * MarathonAttendance create
+   */
+  export type MarathonAttendanceCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarathonAttendance
+     */
+    select?: MarathonAttendanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarathonAttendance
+     */
+    omit?: MarathonAttendanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MarathonAttendanceInclude<ExtArgs> | null
+    /**
+     * The data needed to create a MarathonAttendance.
+     */
+    data: XOR<MarathonAttendanceCreateInput, MarathonAttendanceUncheckedCreateInput>
+  }
+
+  /**
+   * MarathonAttendance createMany
+   */
+  export type MarathonAttendanceCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many MarathonAttendances.
+     */
+    data: MarathonAttendanceCreateManyInput | MarathonAttendanceCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * MarathonAttendance createManyAndReturn
+   */
+  export type MarathonAttendanceCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarathonAttendance
+     */
+    select?: MarathonAttendanceSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarathonAttendance
+     */
+    omit?: MarathonAttendanceOmit<ExtArgs> | null
+    /**
+     * The data used to create many MarathonAttendances.
+     */
+    data: MarathonAttendanceCreateManyInput | MarathonAttendanceCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MarathonAttendanceIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * MarathonAttendance update
+   */
+  export type MarathonAttendanceUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarathonAttendance
+     */
+    select?: MarathonAttendanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarathonAttendance
+     */
+    omit?: MarathonAttendanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MarathonAttendanceInclude<ExtArgs> | null
+    /**
+     * The data needed to update a MarathonAttendance.
+     */
+    data: XOR<MarathonAttendanceUpdateInput, MarathonAttendanceUncheckedUpdateInput>
+    /**
+     * Choose, which MarathonAttendance to update.
+     */
+    where: MarathonAttendanceWhereUniqueInput
+  }
+
+  /**
+   * MarathonAttendance updateMany
+   */
+  export type MarathonAttendanceUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update MarathonAttendances.
+     */
+    data: XOR<MarathonAttendanceUpdateManyMutationInput, MarathonAttendanceUncheckedUpdateManyInput>
+    /**
+     * Filter which MarathonAttendances to update
+     */
+    where?: MarathonAttendanceWhereInput
+    /**
+     * Limit how many MarathonAttendances to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * MarathonAttendance updateManyAndReturn
+   */
+  export type MarathonAttendanceUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarathonAttendance
+     */
+    select?: MarathonAttendanceSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarathonAttendance
+     */
+    omit?: MarathonAttendanceOmit<ExtArgs> | null
+    /**
+     * The data used to update MarathonAttendances.
+     */
+    data: XOR<MarathonAttendanceUpdateManyMutationInput, MarathonAttendanceUncheckedUpdateManyInput>
+    /**
+     * Filter which MarathonAttendances to update
+     */
+    where?: MarathonAttendanceWhereInput
+    /**
+     * Limit how many MarathonAttendances to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MarathonAttendanceIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * MarathonAttendance upsert
+   */
+  export type MarathonAttendanceUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarathonAttendance
+     */
+    select?: MarathonAttendanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarathonAttendance
+     */
+    omit?: MarathonAttendanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MarathonAttendanceInclude<ExtArgs> | null
+    /**
+     * The filter to search for the MarathonAttendance to update in case it exists.
+     */
+    where: MarathonAttendanceWhereUniqueInput
+    /**
+     * In case the MarathonAttendance found by the `where` argument doesn't exist, create a new MarathonAttendance with this data.
+     */
+    create: XOR<MarathonAttendanceCreateInput, MarathonAttendanceUncheckedCreateInput>
+    /**
+     * In case the MarathonAttendance was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<MarathonAttendanceUpdateInput, MarathonAttendanceUncheckedUpdateInput>
+  }
+
+  /**
+   * MarathonAttendance delete
+   */
+  export type MarathonAttendanceDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarathonAttendance
+     */
+    select?: MarathonAttendanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarathonAttendance
+     */
+    omit?: MarathonAttendanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MarathonAttendanceInclude<ExtArgs> | null
+    /**
+     * Filter which MarathonAttendance to delete.
+     */
+    where: MarathonAttendanceWhereUniqueInput
+  }
+
+  /**
+   * MarathonAttendance deleteMany
+   */
+  export type MarathonAttendanceDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which MarathonAttendances to delete
+     */
+    where?: MarathonAttendanceWhereInput
+    /**
+     * Limit how many MarathonAttendances to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * MarathonAttendance without action
+   */
+  export type MarathonAttendanceDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarathonAttendance
+     */
+    select?: MarathonAttendanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarathonAttendance
+     */
+    omit?: MarathonAttendanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MarathonAttendanceInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -35156,6 +37598,31 @@ export namespace Prisma {
   export type PublicationScalarFieldEnum = (typeof PublicationScalarFieldEnum)[keyof typeof PublicationScalarFieldEnum]
 
 
+  export const MarathonClassScalarFieldEnum: {
+    id: 'id',
+    date: 'date',
+    batches: 'batches',
+    topic: 'topic',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type MarathonClassScalarFieldEnum = (typeof MarathonClassScalarFieldEnum)[keyof typeof MarathonClassScalarFieldEnum]
+
+
+  export const MarathonAttendanceScalarFieldEnum: {
+    id: 'id',
+    classId: 'classId',
+    userId: 'userId',
+    batch: 'batch',
+    present: 'present',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type MarathonAttendanceScalarFieldEnum = (typeof MarathonAttendanceScalarFieldEnum)[keyof typeof MarathonAttendanceScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -35431,6 +37898,7 @@ export namespace Prisma {
     announcements?: AnnouncementListRelationFilter
     marathonDailyScores?: MarathonDailyScoreListRelationFilter
     marathonWeeklyScores?: MarathonWeeklyScoreListRelationFilter
+    marathonAttendance?: MarathonAttendanceListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -35474,6 +37942,7 @@ export namespace Prisma {
     announcements?: AnnouncementOrderByRelationAggregateInput
     marathonDailyScores?: MarathonDailyScoreOrderByRelationAggregateInput
     marathonWeeklyScores?: MarathonWeeklyScoreOrderByRelationAggregateInput
+    marathonAttendance?: MarathonAttendanceOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -35520,6 +37989,7 @@ export namespace Prisma {
     announcements?: AnnouncementListRelationFilter
     marathonDailyScores?: MarathonDailyScoreListRelationFilter
     marathonWeeklyScores?: MarathonWeeklyScoreListRelationFilter
+    marathonAttendance?: MarathonAttendanceListRelationFilter
   }, "id" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -37395,6 +39865,135 @@ export namespace Prisma {
     year?: IntWithAggregatesFilter<"Publication"> | number
   }
 
+  export type MarathonClassWhereInput = {
+    AND?: MarathonClassWhereInput | MarathonClassWhereInput[]
+    OR?: MarathonClassWhereInput[]
+    NOT?: MarathonClassWhereInput | MarathonClassWhereInput[]
+    id?: StringFilter<"MarathonClass"> | string
+    date?: DateTimeFilter<"MarathonClass"> | Date | string
+    batches?: StringNullableListFilter<"MarathonClass">
+    topic?: StringNullableFilter<"MarathonClass"> | string | null
+    createdAt?: DateTimeFilter<"MarathonClass"> | Date | string
+    updatedAt?: DateTimeFilter<"MarathonClass"> | Date | string
+    attendance?: MarathonAttendanceListRelationFilter
+  }
+
+  export type MarathonClassOrderByWithRelationInput = {
+    id?: SortOrder
+    date?: SortOrder
+    batches?: SortOrder
+    topic?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    attendance?: MarathonAttendanceOrderByRelationAggregateInput
+  }
+
+  export type MarathonClassWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: MarathonClassWhereInput | MarathonClassWhereInput[]
+    OR?: MarathonClassWhereInput[]
+    NOT?: MarathonClassWhereInput | MarathonClassWhereInput[]
+    date?: DateTimeFilter<"MarathonClass"> | Date | string
+    batches?: StringNullableListFilter<"MarathonClass">
+    topic?: StringNullableFilter<"MarathonClass"> | string | null
+    createdAt?: DateTimeFilter<"MarathonClass"> | Date | string
+    updatedAt?: DateTimeFilter<"MarathonClass"> | Date | string
+    attendance?: MarathonAttendanceListRelationFilter
+  }, "id">
+
+  export type MarathonClassOrderByWithAggregationInput = {
+    id?: SortOrder
+    date?: SortOrder
+    batches?: SortOrder
+    topic?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: MarathonClassCountOrderByAggregateInput
+    _max?: MarathonClassMaxOrderByAggregateInput
+    _min?: MarathonClassMinOrderByAggregateInput
+  }
+
+  export type MarathonClassScalarWhereWithAggregatesInput = {
+    AND?: MarathonClassScalarWhereWithAggregatesInput | MarathonClassScalarWhereWithAggregatesInput[]
+    OR?: MarathonClassScalarWhereWithAggregatesInput[]
+    NOT?: MarathonClassScalarWhereWithAggregatesInput | MarathonClassScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"MarathonClass"> | string
+    date?: DateTimeWithAggregatesFilter<"MarathonClass"> | Date | string
+    batches?: StringNullableListFilter<"MarathonClass">
+    topic?: StringNullableWithAggregatesFilter<"MarathonClass"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"MarathonClass"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"MarathonClass"> | Date | string
+  }
+
+  export type MarathonAttendanceWhereInput = {
+    AND?: MarathonAttendanceWhereInput | MarathonAttendanceWhereInput[]
+    OR?: MarathonAttendanceWhereInput[]
+    NOT?: MarathonAttendanceWhereInput | MarathonAttendanceWhereInput[]
+    id?: StringFilter<"MarathonAttendance"> | string
+    classId?: StringFilter<"MarathonAttendance"> | string
+    userId?: StringFilter<"MarathonAttendance"> | string
+    batch?: StringFilter<"MarathonAttendance"> | string
+    present?: BoolFilter<"MarathonAttendance"> | boolean
+    createdAt?: DateTimeFilter<"MarathonAttendance"> | Date | string
+    updatedAt?: DateTimeFilter<"MarathonAttendance"> | Date | string
+    class?: XOR<MarathonClassScalarRelationFilter, MarathonClassWhereInput>
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type MarathonAttendanceOrderByWithRelationInput = {
+    id?: SortOrder
+    classId?: SortOrder
+    userId?: SortOrder
+    batch?: SortOrder
+    present?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    class?: MarathonClassOrderByWithRelationInput
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type MarathonAttendanceWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    classId_userId?: MarathonAttendanceClassIdUserIdCompoundUniqueInput
+    AND?: MarathonAttendanceWhereInput | MarathonAttendanceWhereInput[]
+    OR?: MarathonAttendanceWhereInput[]
+    NOT?: MarathonAttendanceWhereInput | MarathonAttendanceWhereInput[]
+    classId?: StringFilter<"MarathonAttendance"> | string
+    userId?: StringFilter<"MarathonAttendance"> | string
+    batch?: StringFilter<"MarathonAttendance"> | string
+    present?: BoolFilter<"MarathonAttendance"> | boolean
+    createdAt?: DateTimeFilter<"MarathonAttendance"> | Date | string
+    updatedAt?: DateTimeFilter<"MarathonAttendance"> | Date | string
+    class?: XOR<MarathonClassScalarRelationFilter, MarathonClassWhereInput>
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id" | "classId_userId">
+
+  export type MarathonAttendanceOrderByWithAggregationInput = {
+    id?: SortOrder
+    classId?: SortOrder
+    userId?: SortOrder
+    batch?: SortOrder
+    present?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: MarathonAttendanceCountOrderByAggregateInput
+    _max?: MarathonAttendanceMaxOrderByAggregateInput
+    _min?: MarathonAttendanceMinOrderByAggregateInput
+  }
+
+  export type MarathonAttendanceScalarWhereWithAggregatesInput = {
+    AND?: MarathonAttendanceScalarWhereWithAggregatesInput | MarathonAttendanceScalarWhereWithAggregatesInput[]
+    OR?: MarathonAttendanceScalarWhereWithAggregatesInput[]
+    NOT?: MarathonAttendanceScalarWhereWithAggregatesInput | MarathonAttendanceScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"MarathonAttendance"> | string
+    classId?: StringWithAggregatesFilter<"MarathonAttendance"> | string
+    userId?: StringWithAggregatesFilter<"MarathonAttendance"> | string
+    batch?: StringWithAggregatesFilter<"MarathonAttendance"> | string
+    present?: BoolWithAggregatesFilter<"MarathonAttendance"> | boolean
+    createdAt?: DateTimeWithAggregatesFilter<"MarathonAttendance"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"MarathonAttendance"> | Date | string
+  }
+
   export type UserCreateInput = {
     id?: string
     name?: string | null
@@ -37436,6 +40035,7 @@ export namespace Prisma {
     announcements?: AnnouncementCreateNestedManyWithoutAuthorInput
     marathonDailyScores?: MarathonDailyScoreCreateNestedManyWithoutUserInput
     marathonWeeklyScores?: MarathonWeeklyScoreCreateNestedManyWithoutUserInput
+    marathonAttendance?: MarathonAttendanceCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -37479,6 +40079,7 @@ export namespace Prisma {
     announcements?: AnnouncementUncheckedCreateNestedManyWithoutAuthorInput
     marathonDailyScores?: MarathonDailyScoreUncheckedCreateNestedManyWithoutUserInput
     marathonWeeklyScores?: MarathonWeeklyScoreUncheckedCreateNestedManyWithoutUserInput
+    marathonAttendance?: MarathonAttendanceUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -37522,6 +40123,7 @@ export namespace Prisma {
     announcements?: AnnouncementUpdateManyWithoutAuthorNestedInput
     marathonDailyScores?: MarathonDailyScoreUpdateManyWithoutUserNestedInput
     marathonWeeklyScores?: MarathonWeeklyScoreUpdateManyWithoutUserNestedInput
+    marathonAttendance?: MarathonAttendanceUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -37565,6 +40167,7 @@ export namespace Prisma {
     announcements?: AnnouncementUncheckedUpdateManyWithoutAuthorNestedInput
     marathonDailyScores?: MarathonDailyScoreUncheckedUpdateManyWithoutUserNestedInput
     marathonWeeklyScores?: MarathonWeeklyScoreUncheckedUpdateManyWithoutUserNestedInput
+    marathonAttendance?: MarathonAttendanceUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -39587,6 +42190,141 @@ export namespace Prisma {
     year?: IntFieldUpdateOperationsInput | number
   }
 
+  export type MarathonClassCreateInput = {
+    id?: string
+    date: Date | string
+    batches?: MarathonClassCreatebatchesInput | string[]
+    topic?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    attendance?: MarathonAttendanceCreateNestedManyWithoutClassInput
+  }
+
+  export type MarathonClassUncheckedCreateInput = {
+    id?: string
+    date: Date | string
+    batches?: MarathonClassCreatebatchesInput | string[]
+    topic?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    attendance?: MarathonAttendanceUncheckedCreateNestedManyWithoutClassInput
+  }
+
+  export type MarathonClassUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    batches?: MarathonClassUpdatebatchesInput | string[]
+    topic?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    attendance?: MarathonAttendanceUpdateManyWithoutClassNestedInput
+  }
+
+  export type MarathonClassUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    batches?: MarathonClassUpdatebatchesInput | string[]
+    topic?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    attendance?: MarathonAttendanceUncheckedUpdateManyWithoutClassNestedInput
+  }
+
+  export type MarathonClassCreateManyInput = {
+    id?: string
+    date: Date | string
+    batches?: MarathonClassCreatebatchesInput | string[]
+    topic?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type MarathonClassUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    batches?: MarathonClassUpdatebatchesInput | string[]
+    topic?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MarathonClassUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    batches?: MarathonClassUpdatebatchesInput | string[]
+    topic?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MarathonAttendanceCreateInput = {
+    id?: string
+    batch: string
+    present?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    class: MarathonClassCreateNestedOneWithoutAttendanceInput
+    user: UserCreateNestedOneWithoutMarathonAttendanceInput
+  }
+
+  export type MarathonAttendanceUncheckedCreateInput = {
+    id?: string
+    classId: string
+    userId: string
+    batch: string
+    present?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type MarathonAttendanceUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    batch?: StringFieldUpdateOperationsInput | string
+    present?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    class?: MarathonClassUpdateOneRequiredWithoutAttendanceNestedInput
+    user?: UserUpdateOneRequiredWithoutMarathonAttendanceNestedInput
+  }
+
+  export type MarathonAttendanceUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    classId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    batch?: StringFieldUpdateOperationsInput | string
+    present?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MarathonAttendanceCreateManyInput = {
+    id?: string
+    classId: string
+    userId: string
+    batch: string
+    present?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type MarathonAttendanceUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    batch?: StringFieldUpdateOperationsInput | string
+    present?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MarathonAttendanceUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    classId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    batch?: StringFieldUpdateOperationsInput | string
+    present?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -39752,6 +42490,12 @@ export namespace Prisma {
     none?: MarathonWeeklyScoreWhereInput
   }
 
+  export type MarathonAttendanceListRelationFilter = {
+    every?: MarathonAttendanceWhereInput
+    some?: MarathonAttendanceWhereInput
+    none?: MarathonAttendanceWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -39790,6 +42534,10 @@ export namespace Prisma {
   }
 
   export type MarathonWeeklyScoreOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type MarathonAttendanceOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -41259,6 +44007,71 @@ export namespace Prisma {
     year?: SortOrder
   }
 
+  export type MarathonClassCountOrderByAggregateInput = {
+    id?: SortOrder
+    date?: SortOrder
+    batches?: SortOrder
+    topic?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type MarathonClassMaxOrderByAggregateInput = {
+    id?: SortOrder
+    date?: SortOrder
+    topic?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type MarathonClassMinOrderByAggregateInput = {
+    id?: SortOrder
+    date?: SortOrder
+    topic?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type MarathonClassScalarRelationFilter = {
+    is?: MarathonClassWhereInput
+    isNot?: MarathonClassWhereInput
+  }
+
+  export type MarathonAttendanceClassIdUserIdCompoundUniqueInput = {
+    classId: string
+    userId: string
+  }
+
+  export type MarathonAttendanceCountOrderByAggregateInput = {
+    id?: SortOrder
+    classId?: SortOrder
+    userId?: SortOrder
+    batch?: SortOrder
+    present?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type MarathonAttendanceMaxOrderByAggregateInput = {
+    id?: SortOrder
+    classId?: SortOrder
+    userId?: SortOrder
+    batch?: SortOrder
+    present?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type MarathonAttendanceMinOrderByAggregateInput = {
+    id?: SortOrder
+    classId?: SortOrder
+    userId?: SortOrder
+    batch?: SortOrder
+    present?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
   export type UserCreateskillsInput = {
     set: string[]
   }
@@ -41341,6 +44154,13 @@ export namespace Prisma {
     connect?: MarathonWeeklyScoreWhereUniqueInput | MarathonWeeklyScoreWhereUniqueInput[]
   }
 
+  export type MarathonAttendanceCreateNestedManyWithoutUserInput = {
+    create?: XOR<MarathonAttendanceCreateWithoutUserInput, MarathonAttendanceUncheckedCreateWithoutUserInput> | MarathonAttendanceCreateWithoutUserInput[] | MarathonAttendanceUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: MarathonAttendanceCreateOrConnectWithoutUserInput | MarathonAttendanceCreateOrConnectWithoutUserInput[]
+    createMany?: MarathonAttendanceCreateManyUserInputEnvelope
+    connect?: MarathonAttendanceWhereUniqueInput | MarathonAttendanceWhereUniqueInput[]
+  }
+
   export type AccountUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<AccountCreateWithoutUserInput, AccountUncheckedCreateWithoutUserInput> | AccountCreateWithoutUserInput[] | AccountUncheckedCreateWithoutUserInput[]
     connectOrCreate?: AccountCreateOrConnectWithoutUserInput | AccountCreateOrConnectWithoutUserInput[]
@@ -41413,6 +44233,13 @@ export namespace Prisma {
     connectOrCreate?: MarathonWeeklyScoreCreateOrConnectWithoutUserInput | MarathonWeeklyScoreCreateOrConnectWithoutUserInput[]
     createMany?: MarathonWeeklyScoreCreateManyUserInputEnvelope
     connect?: MarathonWeeklyScoreWhereUniqueInput | MarathonWeeklyScoreWhereUniqueInput[]
+  }
+
+  export type MarathonAttendanceUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<MarathonAttendanceCreateWithoutUserInput, MarathonAttendanceUncheckedCreateWithoutUserInput> | MarathonAttendanceCreateWithoutUserInput[] | MarathonAttendanceUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: MarathonAttendanceCreateOrConnectWithoutUserInput | MarathonAttendanceCreateOrConnectWithoutUserInput[]
+    createMany?: MarathonAttendanceCreateManyUserInputEnvelope
+    connect?: MarathonAttendanceWhereUniqueInput | MarathonAttendanceWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -41614,6 +44441,20 @@ export namespace Prisma {
     deleteMany?: MarathonWeeklyScoreScalarWhereInput | MarathonWeeklyScoreScalarWhereInput[]
   }
 
+  export type MarathonAttendanceUpdateManyWithoutUserNestedInput = {
+    create?: XOR<MarathonAttendanceCreateWithoutUserInput, MarathonAttendanceUncheckedCreateWithoutUserInput> | MarathonAttendanceCreateWithoutUserInput[] | MarathonAttendanceUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: MarathonAttendanceCreateOrConnectWithoutUserInput | MarathonAttendanceCreateOrConnectWithoutUserInput[]
+    upsert?: MarathonAttendanceUpsertWithWhereUniqueWithoutUserInput | MarathonAttendanceUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: MarathonAttendanceCreateManyUserInputEnvelope
+    set?: MarathonAttendanceWhereUniqueInput | MarathonAttendanceWhereUniqueInput[]
+    disconnect?: MarathonAttendanceWhereUniqueInput | MarathonAttendanceWhereUniqueInput[]
+    delete?: MarathonAttendanceWhereUniqueInput | MarathonAttendanceWhereUniqueInput[]
+    connect?: MarathonAttendanceWhereUniqueInput | MarathonAttendanceWhereUniqueInput[]
+    update?: MarathonAttendanceUpdateWithWhereUniqueWithoutUserInput | MarathonAttendanceUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: MarathonAttendanceUpdateManyWithWhereWithoutUserInput | MarathonAttendanceUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: MarathonAttendanceScalarWhereInput | MarathonAttendanceScalarWhereInput[]
+  }
+
   export type AccountUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<AccountCreateWithoutUserInput, AccountUncheckedCreateWithoutUserInput> | AccountCreateWithoutUserInput[] | AccountUncheckedCreateWithoutUserInput[]
     connectOrCreate?: AccountCreateOrConnectWithoutUserInput | AccountCreateOrConnectWithoutUserInput[]
@@ -41757,6 +44598,20 @@ export namespace Prisma {
     update?: MarathonWeeklyScoreUpdateWithWhereUniqueWithoutUserInput | MarathonWeeklyScoreUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: MarathonWeeklyScoreUpdateManyWithWhereWithoutUserInput | MarathonWeeklyScoreUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: MarathonWeeklyScoreScalarWhereInput | MarathonWeeklyScoreScalarWhereInput[]
+  }
+
+  export type MarathonAttendanceUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<MarathonAttendanceCreateWithoutUserInput, MarathonAttendanceUncheckedCreateWithoutUserInput> | MarathonAttendanceCreateWithoutUserInput[] | MarathonAttendanceUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: MarathonAttendanceCreateOrConnectWithoutUserInput | MarathonAttendanceCreateOrConnectWithoutUserInput[]
+    upsert?: MarathonAttendanceUpsertWithWhereUniqueWithoutUserInput | MarathonAttendanceUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: MarathonAttendanceCreateManyUserInputEnvelope
+    set?: MarathonAttendanceWhereUniqueInput | MarathonAttendanceWhereUniqueInput[]
+    disconnect?: MarathonAttendanceWhereUniqueInput | MarathonAttendanceWhereUniqueInput[]
+    delete?: MarathonAttendanceWhereUniqueInput | MarathonAttendanceWhereUniqueInput[]
+    connect?: MarathonAttendanceWhereUniqueInput | MarathonAttendanceWhereUniqueInput[]
+    update?: MarathonAttendanceUpdateWithWhereUniqueWithoutUserInput | MarathonAttendanceUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: MarathonAttendanceUpdateManyWithWhereWithoutUserInput | MarathonAttendanceUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: MarathonAttendanceScalarWhereInput | MarathonAttendanceScalarWhereInput[]
   }
 
   export type UserCreateNestedOneWithoutAccountsInput = {
@@ -42985,6 +45840,85 @@ export namespace Prisma {
     deleteMany?: FacultyScalarWhereInput | FacultyScalarWhereInput[]
   }
 
+  export type MarathonClassCreatebatchesInput = {
+    set: string[]
+  }
+
+  export type MarathonAttendanceCreateNestedManyWithoutClassInput = {
+    create?: XOR<MarathonAttendanceCreateWithoutClassInput, MarathonAttendanceUncheckedCreateWithoutClassInput> | MarathonAttendanceCreateWithoutClassInput[] | MarathonAttendanceUncheckedCreateWithoutClassInput[]
+    connectOrCreate?: MarathonAttendanceCreateOrConnectWithoutClassInput | MarathonAttendanceCreateOrConnectWithoutClassInput[]
+    createMany?: MarathonAttendanceCreateManyClassInputEnvelope
+    connect?: MarathonAttendanceWhereUniqueInput | MarathonAttendanceWhereUniqueInput[]
+  }
+
+  export type MarathonAttendanceUncheckedCreateNestedManyWithoutClassInput = {
+    create?: XOR<MarathonAttendanceCreateWithoutClassInput, MarathonAttendanceUncheckedCreateWithoutClassInput> | MarathonAttendanceCreateWithoutClassInput[] | MarathonAttendanceUncheckedCreateWithoutClassInput[]
+    connectOrCreate?: MarathonAttendanceCreateOrConnectWithoutClassInput | MarathonAttendanceCreateOrConnectWithoutClassInput[]
+    createMany?: MarathonAttendanceCreateManyClassInputEnvelope
+    connect?: MarathonAttendanceWhereUniqueInput | MarathonAttendanceWhereUniqueInput[]
+  }
+
+  export type MarathonClassUpdatebatchesInput = {
+    set?: string[]
+    push?: string | string[]
+  }
+
+  export type MarathonAttendanceUpdateManyWithoutClassNestedInput = {
+    create?: XOR<MarathonAttendanceCreateWithoutClassInput, MarathonAttendanceUncheckedCreateWithoutClassInput> | MarathonAttendanceCreateWithoutClassInput[] | MarathonAttendanceUncheckedCreateWithoutClassInput[]
+    connectOrCreate?: MarathonAttendanceCreateOrConnectWithoutClassInput | MarathonAttendanceCreateOrConnectWithoutClassInput[]
+    upsert?: MarathonAttendanceUpsertWithWhereUniqueWithoutClassInput | MarathonAttendanceUpsertWithWhereUniqueWithoutClassInput[]
+    createMany?: MarathonAttendanceCreateManyClassInputEnvelope
+    set?: MarathonAttendanceWhereUniqueInput | MarathonAttendanceWhereUniqueInput[]
+    disconnect?: MarathonAttendanceWhereUniqueInput | MarathonAttendanceWhereUniqueInput[]
+    delete?: MarathonAttendanceWhereUniqueInput | MarathonAttendanceWhereUniqueInput[]
+    connect?: MarathonAttendanceWhereUniqueInput | MarathonAttendanceWhereUniqueInput[]
+    update?: MarathonAttendanceUpdateWithWhereUniqueWithoutClassInput | MarathonAttendanceUpdateWithWhereUniqueWithoutClassInput[]
+    updateMany?: MarathonAttendanceUpdateManyWithWhereWithoutClassInput | MarathonAttendanceUpdateManyWithWhereWithoutClassInput[]
+    deleteMany?: MarathonAttendanceScalarWhereInput | MarathonAttendanceScalarWhereInput[]
+  }
+
+  export type MarathonAttendanceUncheckedUpdateManyWithoutClassNestedInput = {
+    create?: XOR<MarathonAttendanceCreateWithoutClassInput, MarathonAttendanceUncheckedCreateWithoutClassInput> | MarathonAttendanceCreateWithoutClassInput[] | MarathonAttendanceUncheckedCreateWithoutClassInput[]
+    connectOrCreate?: MarathonAttendanceCreateOrConnectWithoutClassInput | MarathonAttendanceCreateOrConnectWithoutClassInput[]
+    upsert?: MarathonAttendanceUpsertWithWhereUniqueWithoutClassInput | MarathonAttendanceUpsertWithWhereUniqueWithoutClassInput[]
+    createMany?: MarathonAttendanceCreateManyClassInputEnvelope
+    set?: MarathonAttendanceWhereUniqueInput | MarathonAttendanceWhereUniqueInput[]
+    disconnect?: MarathonAttendanceWhereUniqueInput | MarathonAttendanceWhereUniqueInput[]
+    delete?: MarathonAttendanceWhereUniqueInput | MarathonAttendanceWhereUniqueInput[]
+    connect?: MarathonAttendanceWhereUniqueInput | MarathonAttendanceWhereUniqueInput[]
+    update?: MarathonAttendanceUpdateWithWhereUniqueWithoutClassInput | MarathonAttendanceUpdateWithWhereUniqueWithoutClassInput[]
+    updateMany?: MarathonAttendanceUpdateManyWithWhereWithoutClassInput | MarathonAttendanceUpdateManyWithWhereWithoutClassInput[]
+    deleteMany?: MarathonAttendanceScalarWhereInput | MarathonAttendanceScalarWhereInput[]
+  }
+
+  export type MarathonClassCreateNestedOneWithoutAttendanceInput = {
+    create?: XOR<MarathonClassCreateWithoutAttendanceInput, MarathonClassUncheckedCreateWithoutAttendanceInput>
+    connectOrCreate?: MarathonClassCreateOrConnectWithoutAttendanceInput
+    connect?: MarathonClassWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutMarathonAttendanceInput = {
+    create?: XOR<UserCreateWithoutMarathonAttendanceInput, UserUncheckedCreateWithoutMarathonAttendanceInput>
+    connectOrCreate?: UserCreateOrConnectWithoutMarathonAttendanceInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type MarathonClassUpdateOneRequiredWithoutAttendanceNestedInput = {
+    create?: XOR<MarathonClassCreateWithoutAttendanceInput, MarathonClassUncheckedCreateWithoutAttendanceInput>
+    connectOrCreate?: MarathonClassCreateOrConnectWithoutAttendanceInput
+    upsert?: MarathonClassUpsertWithoutAttendanceInput
+    connect?: MarathonClassWhereUniqueInput
+    update?: XOR<XOR<MarathonClassUpdateToOneWithWhereWithoutAttendanceInput, MarathonClassUpdateWithoutAttendanceInput>, MarathonClassUncheckedUpdateWithoutAttendanceInput>
+  }
+
+  export type UserUpdateOneRequiredWithoutMarathonAttendanceNestedInput = {
+    create?: XOR<UserCreateWithoutMarathonAttendanceInput, UserUncheckedCreateWithoutMarathonAttendanceInput>
+    connectOrCreate?: UserCreateOrConnectWithoutMarathonAttendanceInput
+    upsert?: UserUpsertWithoutMarathonAttendanceInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutMarathonAttendanceInput, UserUpdateWithoutMarathonAttendanceInput>, UserUncheckedUpdateWithoutMarathonAttendanceInput>
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -43668,6 +46602,34 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type MarathonAttendanceCreateWithoutUserInput = {
+    id?: string
+    batch: string
+    present?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    class: MarathonClassCreateNestedOneWithoutAttendanceInput
+  }
+
+  export type MarathonAttendanceUncheckedCreateWithoutUserInput = {
+    id?: string
+    classId: string
+    batch: string
+    present?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type MarathonAttendanceCreateOrConnectWithoutUserInput = {
+    where: MarathonAttendanceWhereUniqueInput
+    create: XOR<MarathonAttendanceCreateWithoutUserInput, MarathonAttendanceUncheckedCreateWithoutUserInput>
+  }
+
+  export type MarathonAttendanceCreateManyUserInputEnvelope = {
+    data: MarathonAttendanceCreateManyUserInput | MarathonAttendanceCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
   export type AccountUpsertWithWhereUniqueWithoutUserInput = {
     where: AccountWhereUniqueInput
     update: XOR<AccountUpdateWithoutUserInput, AccountUncheckedUpdateWithoutUserInput>
@@ -43998,6 +46960,35 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"MarathonWeeklyScore"> | Date | string
   }
 
+  export type MarathonAttendanceUpsertWithWhereUniqueWithoutUserInput = {
+    where: MarathonAttendanceWhereUniqueInput
+    update: XOR<MarathonAttendanceUpdateWithoutUserInput, MarathonAttendanceUncheckedUpdateWithoutUserInput>
+    create: XOR<MarathonAttendanceCreateWithoutUserInput, MarathonAttendanceUncheckedCreateWithoutUserInput>
+  }
+
+  export type MarathonAttendanceUpdateWithWhereUniqueWithoutUserInput = {
+    where: MarathonAttendanceWhereUniqueInput
+    data: XOR<MarathonAttendanceUpdateWithoutUserInput, MarathonAttendanceUncheckedUpdateWithoutUserInput>
+  }
+
+  export type MarathonAttendanceUpdateManyWithWhereWithoutUserInput = {
+    where: MarathonAttendanceScalarWhereInput
+    data: XOR<MarathonAttendanceUpdateManyMutationInput, MarathonAttendanceUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type MarathonAttendanceScalarWhereInput = {
+    AND?: MarathonAttendanceScalarWhereInput | MarathonAttendanceScalarWhereInput[]
+    OR?: MarathonAttendanceScalarWhereInput[]
+    NOT?: MarathonAttendanceScalarWhereInput | MarathonAttendanceScalarWhereInput[]
+    id?: StringFilter<"MarathonAttendance"> | string
+    classId?: StringFilter<"MarathonAttendance"> | string
+    userId?: StringFilter<"MarathonAttendance"> | string
+    batch?: StringFilter<"MarathonAttendance"> | string
+    present?: BoolFilter<"MarathonAttendance"> | boolean
+    createdAt?: DateTimeFilter<"MarathonAttendance"> | Date | string
+    updatedAt?: DateTimeFilter<"MarathonAttendance"> | Date | string
+  }
+
   export type UserCreateWithoutAccountsInput = {
     id?: string
     name?: string | null
@@ -44038,6 +47029,7 @@ export namespace Prisma {
     announcements?: AnnouncementCreateNestedManyWithoutAuthorInput
     marathonDailyScores?: MarathonDailyScoreCreateNestedManyWithoutUserInput
     marathonWeeklyScores?: MarathonWeeklyScoreCreateNestedManyWithoutUserInput
+    marathonAttendance?: MarathonAttendanceCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutAccountsInput = {
@@ -44080,6 +47072,7 @@ export namespace Prisma {
     announcements?: AnnouncementUncheckedCreateNestedManyWithoutAuthorInput
     marathonDailyScores?: MarathonDailyScoreUncheckedCreateNestedManyWithoutUserInput
     marathonWeeklyScores?: MarathonWeeklyScoreUncheckedCreateNestedManyWithoutUserInput
+    marathonAttendance?: MarathonAttendanceUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutAccountsInput = {
@@ -44138,6 +47131,7 @@ export namespace Prisma {
     announcements?: AnnouncementUpdateManyWithoutAuthorNestedInput
     marathonDailyScores?: MarathonDailyScoreUpdateManyWithoutUserNestedInput
     marathonWeeklyScores?: MarathonWeeklyScoreUpdateManyWithoutUserNestedInput
+    marathonAttendance?: MarathonAttendanceUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAccountsInput = {
@@ -44180,6 +47174,7 @@ export namespace Prisma {
     announcements?: AnnouncementUncheckedUpdateManyWithoutAuthorNestedInput
     marathonDailyScores?: MarathonDailyScoreUncheckedUpdateManyWithoutUserNestedInput
     marathonWeeklyScores?: MarathonWeeklyScoreUncheckedUpdateManyWithoutUserNestedInput
+    marathonAttendance?: MarathonAttendanceUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutSessionsInput = {
@@ -44222,6 +47217,7 @@ export namespace Prisma {
     announcements?: AnnouncementCreateNestedManyWithoutAuthorInput
     marathonDailyScores?: MarathonDailyScoreCreateNestedManyWithoutUserInput
     marathonWeeklyScores?: MarathonWeeklyScoreCreateNestedManyWithoutUserInput
+    marathonAttendance?: MarathonAttendanceCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSessionsInput = {
@@ -44264,6 +47260,7 @@ export namespace Prisma {
     announcements?: AnnouncementUncheckedCreateNestedManyWithoutAuthorInput
     marathonDailyScores?: MarathonDailyScoreUncheckedCreateNestedManyWithoutUserInput
     marathonWeeklyScores?: MarathonWeeklyScoreUncheckedCreateNestedManyWithoutUserInput
+    marathonAttendance?: MarathonAttendanceUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSessionsInput = {
@@ -44322,6 +47319,7 @@ export namespace Prisma {
     announcements?: AnnouncementUpdateManyWithoutAuthorNestedInput
     marathonDailyScores?: MarathonDailyScoreUpdateManyWithoutUserNestedInput
     marathonWeeklyScores?: MarathonWeeklyScoreUpdateManyWithoutUserNestedInput
+    marathonAttendance?: MarathonAttendanceUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -44364,6 +47362,7 @@ export namespace Prisma {
     announcements?: AnnouncementUncheckedUpdateManyWithoutAuthorNestedInput
     marathonDailyScores?: MarathonDailyScoreUncheckedUpdateManyWithoutUserNestedInput
     marathonWeeklyScores?: MarathonWeeklyScoreUncheckedUpdateManyWithoutUserNestedInput
+    marathonAttendance?: MarathonAttendanceUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type PlacementCreateWithoutStudentInput = {
@@ -44423,6 +47422,7 @@ export namespace Prisma {
     announcements?: AnnouncementCreateNestedManyWithoutAuthorInput
     marathonDailyScores?: MarathonDailyScoreCreateNestedManyWithoutUserInput
     marathonWeeklyScores?: MarathonWeeklyScoreCreateNestedManyWithoutUserInput
+    marathonAttendance?: MarathonAttendanceCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutStudentInput = {
@@ -44465,6 +47465,7 @@ export namespace Prisma {
     announcements?: AnnouncementUncheckedCreateNestedManyWithoutAuthorInput
     marathonDailyScores?: MarathonDailyScoreUncheckedCreateNestedManyWithoutUserInput
     marathonWeeklyScores?: MarathonWeeklyScoreUncheckedCreateNestedManyWithoutUserInput
+    marathonAttendance?: MarathonAttendanceUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutStudentInput = {
@@ -44575,6 +47576,7 @@ export namespace Prisma {
     announcements?: AnnouncementUpdateManyWithoutAuthorNestedInput
     marathonDailyScores?: MarathonDailyScoreUpdateManyWithoutUserNestedInput
     marathonWeeklyScores?: MarathonWeeklyScoreUpdateManyWithoutUserNestedInput
+    marathonAttendance?: MarathonAttendanceUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutStudentInput = {
@@ -44617,6 +47619,7 @@ export namespace Prisma {
     announcements?: AnnouncementUncheckedUpdateManyWithoutAuthorNestedInput
     marathonDailyScores?: MarathonDailyScoreUncheckedUpdateManyWithoutUserNestedInput
     marathonWeeklyScores?: MarathonWeeklyScoreUncheckedUpdateManyWithoutUserNestedInput
+    marathonAttendance?: MarathonAttendanceUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type PatentsUpsertWithWhereUniqueWithoutStudentInput = {
@@ -44689,6 +47692,7 @@ export namespace Prisma {
     announcements?: AnnouncementCreateNestedManyWithoutAuthorInput
     marathonDailyScores?: MarathonDailyScoreCreateNestedManyWithoutUserInput
     marathonWeeklyScores?: MarathonWeeklyScoreCreateNestedManyWithoutUserInput
+    marathonAttendance?: MarathonAttendanceCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutCoreInput = {
@@ -44731,6 +47735,7 @@ export namespace Prisma {
     announcements?: AnnouncementUncheckedCreateNestedManyWithoutAuthorInput
     marathonDailyScores?: MarathonDailyScoreUncheckedCreateNestedManyWithoutUserInput
     marathonWeeklyScores?: MarathonWeeklyScoreUncheckedCreateNestedManyWithoutUserInput
+    marathonAttendance?: MarathonAttendanceUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutCoreInput = {
@@ -44789,6 +47794,7 @@ export namespace Prisma {
     announcements?: AnnouncementUpdateManyWithoutAuthorNestedInput
     marathonDailyScores?: MarathonDailyScoreUpdateManyWithoutUserNestedInput
     marathonWeeklyScores?: MarathonWeeklyScoreUpdateManyWithoutUserNestedInput
+    marathonAttendance?: MarathonAttendanceUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCoreInput = {
@@ -44831,6 +47837,7 @@ export namespace Prisma {
     announcements?: AnnouncementUncheckedUpdateManyWithoutAuthorNestedInput
     marathonDailyScores?: MarathonDailyScoreUncheckedUpdateManyWithoutUserNestedInput
     marathonWeeklyScores?: MarathonWeeklyScoreUncheckedUpdateManyWithoutUserNestedInput
+    marathonAttendance?: MarathonAttendanceUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type PatentsCreateWithoutFacultyInput = {
@@ -45050,6 +48057,7 @@ export namespace Prisma {
     announcements?: AnnouncementCreateNestedManyWithoutAuthorInput
     marathonDailyScores?: MarathonDailyScoreCreateNestedManyWithoutUserInput
     marathonWeeklyScores?: MarathonWeeklyScoreCreateNestedManyWithoutUserInput
+    marathonAttendance?: MarathonAttendanceCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutOrganizersInput = {
@@ -45092,6 +48100,7 @@ export namespace Prisma {
     announcements?: AnnouncementUncheckedCreateNestedManyWithoutAuthorInput
     marathonDailyScores?: MarathonDailyScoreUncheckedCreateNestedManyWithoutUserInput
     marathonWeeklyScores?: MarathonWeeklyScoreUncheckedCreateNestedManyWithoutUserInput
+    marathonAttendance?: MarathonAttendanceUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutOrganizersInput = {
@@ -45429,6 +48438,7 @@ export namespace Prisma {
     announcements?: AnnouncementCreateNestedManyWithoutAuthorInput
     marathonDailyScores?: MarathonDailyScoreCreateNestedManyWithoutUserInput
     marathonWeeklyScores?: MarathonWeeklyScoreCreateNestedManyWithoutUserInput
+    marathonAttendance?: MarathonAttendanceCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutLinksInput = {
@@ -45471,6 +48481,7 @@ export namespace Prisma {
     announcements?: AnnouncementUncheckedCreateNestedManyWithoutAuthorInput
     marathonDailyScores?: MarathonDailyScoreUncheckedCreateNestedManyWithoutUserInput
     marathonWeeklyScores?: MarathonWeeklyScoreUncheckedCreateNestedManyWithoutUserInput
+    marathonAttendance?: MarathonAttendanceUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutLinksInput = {
@@ -45529,6 +48540,7 @@ export namespace Prisma {
     announcements?: AnnouncementUpdateManyWithoutAuthorNestedInput
     marathonDailyScores?: MarathonDailyScoreUpdateManyWithoutUserNestedInput
     marathonWeeklyScores?: MarathonWeeklyScoreUpdateManyWithoutUserNestedInput
+    marathonAttendance?: MarathonAttendanceUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutLinksInput = {
@@ -45571,6 +48583,7 @@ export namespace Prisma {
     announcements?: AnnouncementUncheckedUpdateManyWithoutAuthorNestedInput
     marathonDailyScores?: MarathonDailyScoreUncheckedUpdateManyWithoutUserNestedInput
     marathonWeeklyScores?: MarathonWeeklyScoreUncheckedUpdateManyWithoutUserNestedInput
+    marathonAttendance?: MarathonAttendanceUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type EventCreateWithoutParticipantsInput = {
@@ -45817,6 +48830,7 @@ export namespace Prisma {
     announcements?: AnnouncementCreateNestedManyWithoutAuthorInput
     marathonDailyScores?: MarathonDailyScoreCreateNestedManyWithoutUserInput
     marathonWeeklyScores?: MarathonWeeklyScoreCreateNestedManyWithoutUserInput
+    marathonAttendance?: MarathonAttendanceCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutRegistrationsInput = {
@@ -45859,6 +48873,7 @@ export namespace Prisma {
     announcements?: AnnouncementUncheckedCreateNestedManyWithoutAuthorInput
     marathonDailyScores?: MarathonDailyScoreUncheckedCreateNestedManyWithoutUserInput
     marathonWeeklyScores?: MarathonWeeklyScoreUncheckedCreateNestedManyWithoutUserInput
+    marathonAttendance?: MarathonAttendanceUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutRegistrationsInput = {
@@ -45950,6 +48965,7 @@ export namespace Prisma {
     announcements?: AnnouncementUpdateManyWithoutAuthorNestedInput
     marathonDailyScores?: MarathonDailyScoreUpdateManyWithoutUserNestedInput
     marathonWeeklyScores?: MarathonWeeklyScoreUpdateManyWithoutUserNestedInput
+    marathonAttendance?: MarathonAttendanceUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutRegistrationsInput = {
@@ -45992,6 +49008,7 @@ export namespace Prisma {
     announcements?: AnnouncementUncheckedUpdateManyWithoutAuthorNestedInput
     marathonDailyScores?: MarathonDailyScoreUncheckedUpdateManyWithoutUserNestedInput
     marathonWeeklyScores?: MarathonWeeklyScoreUncheckedUpdateManyWithoutUserNestedInput
+    marathonAttendance?: MarathonAttendanceUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type TeamUpsertWithoutRegistrationsInput = {
@@ -46269,6 +49286,7 @@ export namespace Prisma {
     announcements?: AnnouncementCreateNestedManyWithoutAuthorInput
     marathonDailyScores?: MarathonDailyScoreCreateNestedManyWithoutUserInput
     marathonWeeklyScores?: MarathonWeeklyScoreCreateNestedManyWithoutUserInput
+    marathonAttendance?: MarathonAttendanceCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutFormResponsesInput = {
@@ -46311,6 +49329,7 @@ export namespace Prisma {
     announcements?: AnnouncementUncheckedCreateNestedManyWithoutAuthorInput
     marathonDailyScores?: MarathonDailyScoreUncheckedCreateNestedManyWithoutUserInput
     marathonWeeklyScores?: MarathonWeeklyScoreUncheckedCreateNestedManyWithoutUserInput
+    marathonAttendance?: MarathonAttendanceUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutFormResponsesInput = {
@@ -46406,6 +49425,7 @@ export namespace Prisma {
     announcements?: AnnouncementUpdateManyWithoutAuthorNestedInput
     marathonDailyScores?: MarathonDailyScoreUpdateManyWithoutUserNestedInput
     marathonWeeklyScores?: MarathonWeeklyScoreUpdateManyWithoutUserNestedInput
+    marathonAttendance?: MarathonAttendanceUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutFormResponsesInput = {
@@ -46448,6 +49468,7 @@ export namespace Prisma {
     announcements?: AnnouncementUncheckedUpdateManyWithoutAuthorNestedInput
     marathonDailyScores?: MarathonDailyScoreUncheckedUpdateManyWithoutUserNestedInput
     marathonWeeklyScores?: MarathonWeeklyScoreUncheckedUpdateManyWithoutUserNestedInput
+    marathonAttendance?: MarathonAttendanceUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutAnnouncementsInput = {
@@ -46490,6 +49511,7 @@ export namespace Prisma {
     formResponses?: FormResponseCreateNestedManyWithoutUserInput
     marathonDailyScores?: MarathonDailyScoreCreateNestedManyWithoutUserInput
     marathonWeeklyScores?: MarathonWeeklyScoreCreateNestedManyWithoutUserInput
+    marathonAttendance?: MarathonAttendanceCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutAnnouncementsInput = {
@@ -46532,6 +49554,7 @@ export namespace Prisma {
     formResponses?: FormResponseUncheckedCreateNestedManyWithoutUserInput
     marathonDailyScores?: MarathonDailyScoreUncheckedCreateNestedManyWithoutUserInput
     marathonWeeklyScores?: MarathonWeeklyScoreUncheckedCreateNestedManyWithoutUserInput
+    marathonAttendance?: MarathonAttendanceUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutAnnouncementsInput = {
@@ -46590,6 +49613,7 @@ export namespace Prisma {
     formResponses?: FormResponseUpdateManyWithoutUserNestedInput
     marathonDailyScores?: MarathonDailyScoreUpdateManyWithoutUserNestedInput
     marathonWeeklyScores?: MarathonWeeklyScoreUpdateManyWithoutUserNestedInput
+    marathonAttendance?: MarathonAttendanceUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAnnouncementsInput = {
@@ -46632,6 +49656,7 @@ export namespace Prisma {
     formResponses?: FormResponseUncheckedUpdateManyWithoutUserNestedInput
     marathonDailyScores?: MarathonDailyScoreUncheckedUpdateManyWithoutUserNestedInput
     marathonWeeklyScores?: MarathonWeeklyScoreUncheckedUpdateManyWithoutUserNestedInput
+    marathonAttendance?: MarathonAttendanceUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type MarathonDailyScoreCreateWithoutContestInput = {
@@ -46716,6 +49741,7 @@ export namespace Prisma {
     formResponses?: FormResponseCreateNestedManyWithoutUserInput
     announcements?: AnnouncementCreateNestedManyWithoutAuthorInput
     marathonWeeklyScores?: MarathonWeeklyScoreCreateNestedManyWithoutUserInput
+    marathonAttendance?: MarathonAttendanceCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutMarathonDailyScoresInput = {
@@ -46758,6 +49784,7 @@ export namespace Prisma {
     formResponses?: FormResponseUncheckedCreateNestedManyWithoutUserInput
     announcements?: AnnouncementUncheckedCreateNestedManyWithoutAuthorInput
     marathonWeeklyScores?: MarathonWeeklyScoreUncheckedCreateNestedManyWithoutUserInput
+    marathonAttendance?: MarathonAttendanceUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutMarathonDailyScoresInput = {
@@ -46845,6 +49872,7 @@ export namespace Prisma {
     formResponses?: FormResponseUpdateManyWithoutUserNestedInput
     announcements?: AnnouncementUpdateManyWithoutAuthorNestedInput
     marathonWeeklyScores?: MarathonWeeklyScoreUpdateManyWithoutUserNestedInput
+    marathonAttendance?: MarathonAttendanceUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutMarathonDailyScoresInput = {
@@ -46887,6 +49915,7 @@ export namespace Prisma {
     formResponses?: FormResponseUncheckedUpdateManyWithoutUserNestedInput
     announcements?: AnnouncementUncheckedUpdateManyWithoutAuthorNestedInput
     marathonWeeklyScores?: MarathonWeeklyScoreUncheckedUpdateManyWithoutUserNestedInput
+    marathonAttendance?: MarathonAttendanceUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type MarathonDailyContestUpsertWithoutScoresInput = {
@@ -47006,6 +50035,7 @@ export namespace Prisma {
     formResponses?: FormResponseCreateNestedManyWithoutUserInput
     announcements?: AnnouncementCreateNestedManyWithoutAuthorInput
     marathonDailyScores?: MarathonDailyScoreCreateNestedManyWithoutUserInput
+    marathonAttendance?: MarathonAttendanceCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutMarathonWeeklyScoresInput = {
@@ -47048,6 +50078,7 @@ export namespace Prisma {
     formResponses?: FormResponseUncheckedCreateNestedManyWithoutUserInput
     announcements?: AnnouncementUncheckedCreateNestedManyWithoutAuthorInput
     marathonDailyScores?: MarathonDailyScoreUncheckedCreateNestedManyWithoutUserInput
+    marathonAttendance?: MarathonAttendanceUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutMarathonWeeklyScoresInput = {
@@ -47137,6 +50168,7 @@ export namespace Prisma {
     formResponses?: FormResponseUpdateManyWithoutUserNestedInput
     announcements?: AnnouncementUpdateManyWithoutAuthorNestedInput
     marathonDailyScores?: MarathonDailyScoreUpdateManyWithoutUserNestedInput
+    marathonAttendance?: MarathonAttendanceUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutMarathonWeeklyScoresInput = {
@@ -47179,6 +50211,7 @@ export namespace Prisma {
     formResponses?: FormResponseUncheckedUpdateManyWithoutUserNestedInput
     announcements?: AnnouncementUncheckedUpdateManyWithoutAuthorNestedInput
     marathonDailyScores?: MarathonDailyScoreUncheckedUpdateManyWithoutUserNestedInput
+    marathonAttendance?: MarathonAttendanceUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type MarathonWeeklyContestUpsertWithoutScoresInput = {
@@ -47851,6 +50884,290 @@ export namespace Prisma {
     data: XOR<FacultyUpdateManyMutationInput, FacultyUncheckedUpdateManyWithoutPublicationsInput>
   }
 
+  export type MarathonAttendanceCreateWithoutClassInput = {
+    id?: string
+    batch: string
+    present?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutMarathonAttendanceInput
+  }
+
+  export type MarathonAttendanceUncheckedCreateWithoutClassInput = {
+    id?: string
+    userId: string
+    batch: string
+    present?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type MarathonAttendanceCreateOrConnectWithoutClassInput = {
+    where: MarathonAttendanceWhereUniqueInput
+    create: XOR<MarathonAttendanceCreateWithoutClassInput, MarathonAttendanceUncheckedCreateWithoutClassInput>
+  }
+
+  export type MarathonAttendanceCreateManyClassInputEnvelope = {
+    data: MarathonAttendanceCreateManyClassInput | MarathonAttendanceCreateManyClassInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type MarathonAttendanceUpsertWithWhereUniqueWithoutClassInput = {
+    where: MarathonAttendanceWhereUniqueInput
+    update: XOR<MarathonAttendanceUpdateWithoutClassInput, MarathonAttendanceUncheckedUpdateWithoutClassInput>
+    create: XOR<MarathonAttendanceCreateWithoutClassInput, MarathonAttendanceUncheckedCreateWithoutClassInput>
+  }
+
+  export type MarathonAttendanceUpdateWithWhereUniqueWithoutClassInput = {
+    where: MarathonAttendanceWhereUniqueInput
+    data: XOR<MarathonAttendanceUpdateWithoutClassInput, MarathonAttendanceUncheckedUpdateWithoutClassInput>
+  }
+
+  export type MarathonAttendanceUpdateManyWithWhereWithoutClassInput = {
+    where: MarathonAttendanceScalarWhereInput
+    data: XOR<MarathonAttendanceUpdateManyMutationInput, MarathonAttendanceUncheckedUpdateManyWithoutClassInput>
+  }
+
+  export type MarathonClassCreateWithoutAttendanceInput = {
+    id?: string
+    date: Date | string
+    batches?: MarathonClassCreatebatchesInput | string[]
+    topic?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type MarathonClassUncheckedCreateWithoutAttendanceInput = {
+    id?: string
+    date: Date | string
+    batches?: MarathonClassCreatebatchesInput | string[]
+    topic?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type MarathonClassCreateOrConnectWithoutAttendanceInput = {
+    where: MarathonClassWhereUniqueInput
+    create: XOR<MarathonClassCreateWithoutAttendanceInput, MarathonClassUncheckedCreateWithoutAttendanceInput>
+  }
+
+  export type UserCreateWithoutMarathonAttendanceInput = {
+    id?: string
+    name?: string | null
+    email: string
+    emailVerified?: Date | string | null
+    image?: string | null
+    bio?: string | null
+    phone?: string | null
+    username?: string | null
+    usn?: string | null
+    lightTheme?: string | null
+    darkTheme?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    displayName?: string | null
+    college?: string | null
+    role?: $Enums.Role
+    year?: number | null
+    branch?: string | null
+    isAiml?: boolean
+    isLateral?: boolean
+    onboardingComplete?: boolean
+    hackerrankUsername?: string | null
+    leetcodeProfile?: string | null
+    githubProfile?: string | null
+    skills?: UserCreateskillsInput | string[]
+    languages?: UserCreatelanguagesInput | string[]
+    careerIntent?: $Enums.CareerIntent | null
+    marathonStreak?: number
+    marathonTotalScore?: number
+    accounts?: AccountCreateNestedManyWithoutUserInput
+    Core?: CoreCreateNestedManyWithoutUserInput
+    links?: LinksCreateNestedOneWithoutUserInput
+    sessions?: SessionCreateNestedManyWithoutUserInput
+    Student?: StudentCreateNestedOneWithoutUserInput
+    organizers?: EventCreateNestedManyWithoutOrganizersInput
+    registrations?: EventRegistrationCreateNestedManyWithoutUserInput
+    formResponses?: FormResponseCreateNestedManyWithoutUserInput
+    announcements?: AnnouncementCreateNestedManyWithoutAuthorInput
+    marathonDailyScores?: MarathonDailyScoreCreateNestedManyWithoutUserInput
+    marathonWeeklyScores?: MarathonWeeklyScoreCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutMarathonAttendanceInput = {
+    id?: string
+    name?: string | null
+    email: string
+    emailVerified?: Date | string | null
+    image?: string | null
+    bio?: string | null
+    phone?: string | null
+    username?: string | null
+    usn?: string | null
+    lightTheme?: string | null
+    darkTheme?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    displayName?: string | null
+    college?: string | null
+    role?: $Enums.Role
+    year?: number | null
+    branch?: string | null
+    isAiml?: boolean
+    isLateral?: boolean
+    onboardingComplete?: boolean
+    hackerrankUsername?: string | null
+    leetcodeProfile?: string | null
+    githubProfile?: string | null
+    skills?: UserCreateskillsInput | string[]
+    languages?: UserCreatelanguagesInput | string[]
+    careerIntent?: $Enums.CareerIntent | null
+    marathonStreak?: number
+    marathonTotalScore?: number
+    accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
+    Core?: CoreUncheckedCreateNestedManyWithoutUserInput
+    links?: LinksUncheckedCreateNestedOneWithoutUserInput
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    Student?: StudentUncheckedCreateNestedOneWithoutUserInput
+    organizers?: EventUncheckedCreateNestedManyWithoutOrganizersInput
+    registrations?: EventRegistrationUncheckedCreateNestedManyWithoutUserInput
+    formResponses?: FormResponseUncheckedCreateNestedManyWithoutUserInput
+    announcements?: AnnouncementUncheckedCreateNestedManyWithoutAuthorInput
+    marathonDailyScores?: MarathonDailyScoreUncheckedCreateNestedManyWithoutUserInput
+    marathonWeeklyScores?: MarathonWeeklyScoreUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutMarathonAttendanceInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutMarathonAttendanceInput, UserUncheckedCreateWithoutMarathonAttendanceInput>
+  }
+
+  export type MarathonClassUpsertWithoutAttendanceInput = {
+    update: XOR<MarathonClassUpdateWithoutAttendanceInput, MarathonClassUncheckedUpdateWithoutAttendanceInput>
+    create: XOR<MarathonClassCreateWithoutAttendanceInput, MarathonClassUncheckedCreateWithoutAttendanceInput>
+    where?: MarathonClassWhereInput
+  }
+
+  export type MarathonClassUpdateToOneWithWhereWithoutAttendanceInput = {
+    where?: MarathonClassWhereInput
+    data: XOR<MarathonClassUpdateWithoutAttendanceInput, MarathonClassUncheckedUpdateWithoutAttendanceInput>
+  }
+
+  export type MarathonClassUpdateWithoutAttendanceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    batches?: MarathonClassUpdatebatchesInput | string[]
+    topic?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MarathonClassUncheckedUpdateWithoutAttendanceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    batches?: MarathonClassUpdatebatchesInput | string[]
+    topic?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserUpsertWithoutMarathonAttendanceInput = {
+    update: XOR<UserUpdateWithoutMarathonAttendanceInput, UserUncheckedUpdateWithoutMarathonAttendanceInput>
+    create: XOR<UserCreateWithoutMarathonAttendanceInput, UserUncheckedCreateWithoutMarathonAttendanceInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutMarathonAttendanceInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutMarathonAttendanceInput, UserUncheckedUpdateWithoutMarathonAttendanceInput>
+  }
+
+  export type UserUpdateWithoutMarathonAttendanceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    emailVerified?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    username?: NullableStringFieldUpdateOperationsInput | string | null
+    usn?: NullableStringFieldUpdateOperationsInput | string | null
+    lightTheme?: NullableStringFieldUpdateOperationsInput | string | null
+    darkTheme?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    displayName?: NullableStringFieldUpdateOperationsInput | string | null
+    college?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    year?: NullableIntFieldUpdateOperationsInput | number | null
+    branch?: NullableStringFieldUpdateOperationsInput | string | null
+    isAiml?: BoolFieldUpdateOperationsInput | boolean
+    isLateral?: BoolFieldUpdateOperationsInput | boolean
+    onboardingComplete?: BoolFieldUpdateOperationsInput | boolean
+    hackerrankUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    leetcodeProfile?: NullableStringFieldUpdateOperationsInput | string | null
+    githubProfile?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: UserUpdateskillsInput | string[]
+    languages?: UserUpdatelanguagesInput | string[]
+    careerIntent?: NullableEnumCareerIntentFieldUpdateOperationsInput | $Enums.CareerIntent | null
+    marathonStreak?: IntFieldUpdateOperationsInput | number
+    marathonTotalScore?: IntFieldUpdateOperationsInput | number
+    accounts?: AccountUpdateManyWithoutUserNestedInput
+    Core?: CoreUpdateManyWithoutUserNestedInput
+    links?: LinksUpdateOneWithoutUserNestedInput
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+    Student?: StudentUpdateOneWithoutUserNestedInput
+    organizers?: EventUpdateManyWithoutOrganizersNestedInput
+    registrations?: EventRegistrationUpdateManyWithoutUserNestedInput
+    formResponses?: FormResponseUpdateManyWithoutUserNestedInput
+    announcements?: AnnouncementUpdateManyWithoutAuthorNestedInput
+    marathonDailyScores?: MarathonDailyScoreUpdateManyWithoutUserNestedInput
+    marathonWeeklyScores?: MarathonWeeklyScoreUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutMarathonAttendanceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    emailVerified?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    username?: NullableStringFieldUpdateOperationsInput | string | null
+    usn?: NullableStringFieldUpdateOperationsInput | string | null
+    lightTheme?: NullableStringFieldUpdateOperationsInput | string | null
+    darkTheme?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    displayName?: NullableStringFieldUpdateOperationsInput | string | null
+    college?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    year?: NullableIntFieldUpdateOperationsInput | number | null
+    branch?: NullableStringFieldUpdateOperationsInput | string | null
+    isAiml?: BoolFieldUpdateOperationsInput | boolean
+    isLateral?: BoolFieldUpdateOperationsInput | boolean
+    onboardingComplete?: BoolFieldUpdateOperationsInput | boolean
+    hackerrankUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    leetcodeProfile?: NullableStringFieldUpdateOperationsInput | string | null
+    githubProfile?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: UserUpdateskillsInput | string[]
+    languages?: UserUpdatelanguagesInput | string[]
+    careerIntent?: NullableEnumCareerIntentFieldUpdateOperationsInput | $Enums.CareerIntent | null
+    marathonStreak?: IntFieldUpdateOperationsInput | number
+    marathonTotalScore?: IntFieldUpdateOperationsInput | number
+    accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
+    Core?: CoreUncheckedUpdateManyWithoutUserNestedInput
+    links?: LinksUncheckedUpdateOneWithoutUserNestedInput
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    Student?: StudentUncheckedUpdateOneWithoutUserNestedInput
+    organizers?: EventUncheckedUpdateManyWithoutOrganizersNestedInput
+    registrations?: EventRegistrationUncheckedUpdateManyWithoutUserNestedInput
+    formResponses?: FormResponseUncheckedUpdateManyWithoutUserNestedInput
+    announcements?: AnnouncementUncheckedUpdateManyWithoutAuthorNestedInput
+    marathonDailyScores?: MarathonDailyScoreUncheckedUpdateManyWithoutUserNestedInput
+    marathonWeeklyScores?: MarathonWeeklyScoreUncheckedUpdateManyWithoutUserNestedInput
+  }
+
   export type AccountCreateManyUserInput = {
     type: string
     provider: string
@@ -47919,6 +51236,15 @@ export namespace Prisma {
     contestId: string
     score?: number
     completed?: boolean
+    updatedAt?: Date | string
+  }
+
+  export type MarathonAttendanceCreateManyUserInput = {
+    id?: string
+    classId: string
+    batch: string
+    present?: boolean
+    createdAt?: Date | string
     updatedAt?: Date | string
   }
 
@@ -48213,6 +51539,33 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type MarathonAttendanceUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    batch?: StringFieldUpdateOperationsInput | string
+    present?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    class?: MarathonClassUpdateOneRequiredWithoutAttendanceNestedInput
+  }
+
+  export type MarathonAttendanceUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    classId?: StringFieldUpdateOperationsInput | string
+    batch?: StringFieldUpdateOperationsInput | string
+    present?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MarathonAttendanceUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    classId?: StringFieldUpdateOperationsInput | string
+    batch?: StringFieldUpdateOperationsInput | string
+    present?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type PatentsUpdateWithoutStudentInput = {
     id?: StringFieldUpdateOperationsInput | string
     patentId?: StringFieldUpdateOperationsInput | string
@@ -48456,6 +51809,7 @@ export namespace Prisma {
     announcements?: AnnouncementUpdateManyWithoutAuthorNestedInput
     marathonDailyScores?: MarathonDailyScoreUpdateManyWithoutUserNestedInput
     marathonWeeklyScores?: MarathonWeeklyScoreUpdateManyWithoutUserNestedInput
+    marathonAttendance?: MarathonAttendanceUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutOrganizersInput = {
@@ -48498,6 +51852,7 @@ export namespace Prisma {
     announcements?: AnnouncementUncheckedUpdateManyWithoutAuthorNestedInput
     marathonDailyScores?: MarathonDailyScoreUncheckedUpdateManyWithoutUserNestedInput
     marathonWeeklyScores?: MarathonWeeklyScoreUncheckedUpdateManyWithoutUserNestedInput
+    marathonAttendance?: MarathonAttendanceUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateManyWithoutOrganizersInput = {
@@ -48889,6 +52244,42 @@ export namespace Prisma {
     order?: IntFieldUpdateOperationsInput | number
     published?: BoolFieldUpdateOperationsInput | boolean
     designation2?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type MarathonAttendanceCreateManyClassInput = {
+    id?: string
+    userId: string
+    batch: string
+    present?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type MarathonAttendanceUpdateWithoutClassInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    batch?: StringFieldUpdateOperationsInput | string
+    present?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutMarathonAttendanceNestedInput
+  }
+
+  export type MarathonAttendanceUncheckedUpdateWithoutClassInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    batch?: StringFieldUpdateOperationsInput | string
+    present?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MarathonAttendanceUncheckedUpdateManyWithoutClassInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    batch?: StringFieldUpdateOperationsInput | string
+    present?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 

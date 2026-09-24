@@ -33,7 +33,7 @@ export async function GET(
       return NextResponse.json({ error: "Form has closed" }, { status: 400 });
     }
 
-    if (form.requireAiml && !session.user.isAiml) {
+    if (form.requireAiml && !session.user.isAiml && session.user.role !== "ADMIN" && session.user.role !== "OWNER") {
       return NextResponse.json({ error: "This form is restricted to AIML students" }, { status: 403 });
     }
 

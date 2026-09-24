@@ -44,9 +44,17 @@ export default function TerminalAccordionStream({ forms, user }: TerminalAccordi
   const [selectedFilter, setSelectedFilter] = useState<FilterTab>("all");
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
 
+  const isAimlUser = !!user?.isAiml || user?.role === "ADMIN" || user?.role === "OWNER";
+
+  // Filter out AIML-exclusive forms if user does not belong to AIML branch
+  const accessibleForms = useMemo(() => {
+    if (isAimlUser) return forms;
+    return forms.filter((f) => !f.requireAiml);
+  }, [forms, isAimlUser]);
+
   // Categorize and filter forms
   const categorizedForms = useMemo(() => {
-    return forms.map((form) => {
+    return accessibleForms.map((form) => {
       const isNotStarted = form.startTime && now < new Date(form.startTime);
       const isEnded = form.endTime && now > new Date(form.endTime);
       const isActive = !isNotStarted && !isEnded;
@@ -57,7 +65,7 @@ export default function TerminalAccordionStream({ forms, user }: TerminalAccordi
         isActive,
       };
     });
-  }, [forms, now]);
+  }, [accessibleForms, now]);
 
   // Counts for filter pills
   const counts = useMemo(() => {
@@ -169,11 +177,13 @@ export default function TerminalAccordionStream({ forms, user }: TerminalAccordi
         <div className="flex flex-wrap gap-2 pt-1 border-b border-brand/20 pb-3">
           {(
             [
-              { key: "all", label: "All Forms", count: counts.all },
-              { key: "active", label: "Active", count: counts.active },
-              { key: "aiml", label: "AIML Only", count: counts.aiml },
-              { key: "closed", label: "Closed", count: counts.closed },
-            ] as const
+              { key: "all" as const, label: "All Forms", count: counts.all },
+              { key: "active" as const, label: "Active", count: counts.active },
+              ...(isAimlUser
+                ? [{ key: "aiml" as const, label: "AIML Only", count: counts.aiml }]
+                : []),
+              { key: "closed" as const, label: "Closed", count: counts.closed },
+            ]
           ).map((tab) => {
             const isSelected = selectedFilter === tab.key;
             return (

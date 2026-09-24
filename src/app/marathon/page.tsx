@@ -11,10 +11,10 @@ import {
   TimerIcon,
 } from "lucide-react";
 import CountdownTimer from "@/components/marathon/CountdownTimer";
-import MarathonCalendarGrid, { CalendarContest } from "@/components/marathon/MarathonCalendarGrid";
+import MarathonCalendarGrid, { CalendarContest, CalendarAttendanceRecord } from "@/components/marathon/MarathonCalendarGrid";
 import MarathonJourney, { JourneyDay } from "@/components/marathon/MarathonJourney";
-import Scanner from "@/components/background/Scanner";
 import { startOfMonth, endOfMonth, eachDayOfInterval, isSameDay } from "date-fns";
+import { getUserAttendanceStats } from "@/lib/marathon-streak";
 
 export default async function MarathonDashboard() {
   const session = await requireAiml();
@@ -28,15 +28,10 @@ export default async function MarathonDashboard() {
   // Ineligible / Restricted View for 4th Year or non-eligible students
   if (targetYear >= 4) {
     return (
-      <main className="min-h-dvh px-4 pt-32 pb-20 flex items-center justify-center relative overflow-hidden bg-slate-950">
-        {/* Highlighted Background Image */}
-        <div
-          className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-80 pointer-events-none"
-          style={{ backgroundImage: "url('/Marathon-bg.jpg')" }}
-        />
-        <div className="fixed inset-0 z-0 bg-black/50 pointer-events-none" />
+      <main className="min-h-dvh px-4 pt-32 pb-20 flex items-center justify-center relative overflow-hidden bg-background bg-blueprint-grid text-foreground">
+        <div className="absolute top-0 inset-x-0 h-96 bg-gradient-to-b from-brand/15 via-brand/5 to-transparent pointer-events-none" />
 
-        <div className="relative z-10 mx-auto max-w-lg text-center border border-white/20 bg-black/80 backdrop-blur-md p-8 md:p-10 shadow-2xl">
+        <div className="relative z-10 mx-auto max-w-lg text-center border border-brand/25 bg-card/85 backdrop-blur-xl p-8 md:p-10 shadow-2xl rounded-xl">
           <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center bg-white/10 border border-white/20 text-white">
             <TrophyIcon className="h-7 w-7 text-white" />
           </div>
@@ -158,6 +153,19 @@ export default async function MarathonDashboard() {
         })) + 1
       : null;
 
+  // Fetch Attendance Statistics for current student
+  const attendanceStats = user?.id ? await getUserAttendanceStats(user.id) : null;
+
+  // Calendar attendance data
+  const calendarAttendance: CalendarAttendanceRecord[] = (attendanceStats?.records || []).map((r: any) => ({
+    id: r.id,
+    classId: r.class.id,
+    date: new Date(r.class.date),
+    topic: r.class.topic,
+    batch: r.batch,
+    present: r.present,
+  }));
+
   // Fetch Top 5 Performers for Preview
   const topLeaders = await db.user.findMany({
     where: {
@@ -179,7 +187,10 @@ export default async function MarathonDashboard() {
   });
 
   return (
-    <main className="min-h-dvh px-4 pt-28 pb-20 relative bg-transparent text-slate-100">
+    <main className="min-h-dvh px-4 pt-28 pb-20 relative bg-background bg-blueprint-grid overflow-x-hidden text-foreground">
+      {/* Ambient background glow */}
+      <div className="absolute top-0 inset-x-0 h-96 bg-gradient-to-b from-brand/15 via-brand/5 to-transparent pointer-events-none" />
+
       {/* Main Container */}
       <div className="relative z-10 mx-auto max-w-6xl space-y-8">
         
@@ -226,13 +237,13 @@ export default async function MarathonDashboard() {
             </div>
 
             {/* Right: Sharp Editorial Stats */}
-            <div className="lg:col-span-5 grid grid-cols-3 gap-2 bg-black/60 border border-white/15 p-4">
+            <div className="lg:col-span-5 grid grid-cols-2 sm:grid-cols-4 gap-2 bg-black/60 border border-white/15 p-4">
               {/* Total Points */}
               <div className="flex flex-col items-center justify-center text-center p-2 border border-white/5">
-                <span className="font-sans text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                <span className="font-sans text-xl sm:text-2xl font-extrabold text-white tracking-tight">
                   {(user?.marathonTotalScore || 0).toLocaleString()}
                 </span>
-                <span className="mt-1 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                <span className="mt-1 text-[9px] font-bold uppercase tracking-widest text-slate-400">
                   POINTS
                 </span>
               </div>
@@ -241,21 +252,36 @@ export default async function MarathonDashboard() {
               <div className="flex flex-col items-center justify-center text-center p-2 border border-white/5">
                 <div className="flex items-center gap-1">
                   <FlameIcon className="h-4 w-4 fill-amber-500 text-amber-500" />
-                  <span className="font-sans text-2xl sm:text-3xl font-extrabold text-amber-400 tracking-tight">
+                  <span className="font-sans text-xl sm:text-2xl font-extrabold text-amber-400 tracking-tight">
                     {user?.marathonStreak || 0}
                   </span>
                 </div>
-                <span className="mt-1 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                <span className="mt-1 text-[9px] font-bold uppercase tracking-widest text-slate-400">
                   DAY STREAK
                 </span>
               </div>
 
+              {/* Attendance */}
+              <div className="flex flex-col items-center justify-center text-center p-2 border border-white/5">
+                <span className="font-sans text-xl sm:text-2xl font-extrabold text-emerald-400 tracking-tight">
+                  {attendanceStats?.percentage ?? 100}%
+                </span>
+                <span className="mt-1 text-[9px] font-bold uppercase tracking-widest text-slate-400 truncate max-w-full">
+                  {attendanceStats?.presentClasses ?? 0}/{attendanceStats?.totalClasses ?? 0} CLASSES
+                </span>
+                {attendanceStats?.batch && (
+                  <span className="text-[9px] font-mono-tech font-bold text-purple-400 uppercase tracking-wider mt-0.5">
+                    BATCH {attendanceStats.batch}
+                  </span>
+                )}
+              </div>
+
               {/* Global Rank */}
               <div className="flex flex-col items-center justify-center text-center p-2 border border-white/5">
-                <span className="font-sans text-2xl sm:text-3xl font-extrabold text-purple-400 tracking-tight">
+                <span className="font-sans text-xl sm:text-2xl font-extrabold text-purple-400 tracking-tight">
                   {userRank ? `#${userRank}` : "—"}
                 </span>
-                <span className="mt-1 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                <span className="mt-1 text-[9px] font-bold uppercase tracking-widest text-slate-400">
                   GLOBAL RANK
                 </span>
               </div>
@@ -353,6 +379,8 @@ export default async function MarathonDashboard() {
                 startMonth={startMonth}
                 daysInMonth={daysInMonth}
                 contests={calendarContests}
+                attendance={calendarAttendance}
+                userBatch={attendanceStats?.batch}
               />
             </div>
           </div>
@@ -438,6 +466,82 @@ export default async function MarathonDashboard() {
             <MarathonJourney days={journeyDays} />
           </div>
         </section>
+
+        {/* ========================================================================= */}
+        {/* ATTENDANCE & CLASS SESSIONS */}
+        {/* ========================================================================= */}
+        {attendanceStats && (
+          <section className="space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className="font-valley text-xl sm:text-2xl font-bold tracking-tight text-white">
+                    Class Attendance & Sessions
+                  </h2>
+                  {attendanceStats.batch && (
+                    <span className="text-[10px] font-mono-tech font-bold px-2 py-0.5 rounded bg-purple-600/30 border border-purple-500/50 text-purple-300">
+                      BATCH {attendanceStats.batch}
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-slate-400">
+                  Attendance logs for scheduled marathon workshops and mentoring classes.
+                </p>
+              </div>
+              <div className="text-xs font-mono-tech text-emerald-400 border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 rounded-md self-start sm:self-auto">
+                {attendanceStats.percentage}% Attended ({attendanceStats.presentClasses}/{attendanceStats.totalClasses} Present)
+              </div>
+            </div>
+
+            <div className="border border-white/20 bg-black/75 backdrop-blur-md p-5">
+              {attendanceStats.records.length === 0 ? (
+                <div className="text-center py-6 text-slate-400 text-xs">
+                  <p className="font-semibold text-slate-300">No marathon classes scheduled yet{attendanceStats.batch ? ` for Batch ${attendanceStats.batch}` : ""}.</p>
+                  <p className="text-slate-500 mt-1">When coordinators schedule classes for your batch, your session history and attendance status will appear here.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                  {attendanceStats.records.map((rec: any) => (
+                    <div
+                      key={rec.id}
+                      className={`p-3.5 border rounded-lg flex items-center justify-between gap-3 ${
+                        rec.present
+                          ? "border-emerald-500/30 bg-emerald-500/5"
+                          : "border-red-500/30 bg-red-500/5"
+                      }`}
+                    >
+                      <div className="min-w-0">
+                        <span className="text-[10px] font-mono-tech text-slate-400 block">
+                          {new Date(rec.class.date).toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          })}
+                        </span>
+                        <h4 className="text-xs font-bold text-white truncate mt-0.5">
+                          {rec.class.topic || "Marathon Class Session"}
+                        </h4>
+                        <span className="text-[10px] font-mono-tech text-purple-400">
+                          Batch {rec.batch}
+                        </span>
+                      </div>
+
+                      <span
+                        className={`shrink-0 text-[10px] font-mono-tech font-bold px-2.5 py-1 rounded border ${
+                          rec.present
+                            ? "border-emerald-500/40 bg-emerald-500/20 text-emerald-300"
+                            : "border-red-500/40 bg-red-500/20 text-red-300"
+                        }`}
+                      >
+                        {rec.present ? "✓ PRESENT" : "✗ ABSENT"}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </section>
+        )}
 
         {/* ========================================================================= */}
         {/* LIVE RANKINGS STANDINGS PREVIEW */}

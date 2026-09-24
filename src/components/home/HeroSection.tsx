@@ -98,7 +98,7 @@ export default function HeroSection() {
           ref={titleRef}
           className="text-4xl sm:text-6xl md:text-7xl lg:text-[5.25rem] font-extrabold font-space-grotesk tracking-tight leading-[1.08] pb-3"
         >
-          <span className="title-word inline-block mr-2 md:mr-4 bg-gradient-to-r from-violet-400 via-fuchsia-300 to-cyan-300 bg-clip-text text-transparent drop-shadow-sm">
+          <span className="title-word inline-block mr-2 md:mr-4 bg-gradient-to-r from-purple-800 via-violet-700 to-indigo-900 dark:from-violet-400 dark:via-fuchsia-300 dark:to-cyan-300 bg-clip-text text-transparent drop-shadow-sm font-extrabold">
             Turing
           </span>
           <span className="title-word inline-block mr-2 md:mr-4 text-foreground">
@@ -107,7 +107,7 @@ export default function HeroSection() {
           <span className="title-word inline-block mr-2 md:mr-4 text-foreground">
             Intelligence
           </span>
-          <span className="title-word inline-block mr-2 md:mr-4 bg-gradient-to-r from-cyan-300 via-violet-300 to-purple-400 bg-clip-text text-transparent">
+          <span className="title-word inline-block mr-2 md:mr-4 bg-gradient-to-r from-indigo-900 via-purple-800 to-violet-800 dark:from-cyan-300 dark:via-violet-300 dark:to-purple-400 bg-clip-text text-transparent font-extrabold">
             Students
           </span>
           <span className="title-word inline-block text-foreground">

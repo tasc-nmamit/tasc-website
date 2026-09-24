@@ -8,6 +8,10 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  if (!session.user.isAiml) {
+    return NextResponse.json({ error: "Only AIML students can edit profile" }, { status: 403 });
+  }
+
   try {
     const data = await request.json();
 

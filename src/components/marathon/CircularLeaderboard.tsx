@@ -12,6 +12,7 @@ export interface LeaderboardStudent {
   marathonStreak: number;
   image?: string | null;
   rank: number;
+  attendancePercentage?: number;
 }
 
 interface CircularLeaderboardProps {
@@ -171,38 +172,48 @@ export default function CircularLeaderboard({
             )}
 
             {/* Full Stats Overview (Sharp Boxes) */}
-            <div className="grid grid-cols-3 gap-2 mt-6 pt-4 border-t border-white/10">
+            <div className="grid grid-cols-4 gap-2 mt-6 pt-4 border-t border-white/10">
               {/* Rank */}
-              <div className="p-2.5 rounded-none bg-black/50 border border-white/10">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 block">
+              <div className="p-2 rounded-none bg-black/50 border border-white/10">
+                <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400 block">
                   RANK
                 </span>
-                <span className="font-sans text-lg font-bold text-white mt-1 block">
+                <span className="font-sans text-base font-bold text-white mt-1 block">
                   #{selectedStudent.rank}
                 </span>
               </div>
 
               {/* Total Points */}
-              <div className="p-2.5 rounded-none bg-black/50 border border-white/10">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 block">
+              <div className="p-2 rounded-none bg-black/50 border border-white/10">
+                <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400 block">
                   POINTS
                 </span>
-                <span className="font-sans text-lg font-bold text-white mt-1 block">
+                <span className="font-sans text-base font-bold text-white mt-1 block">
                   {selectedStudent.marathonTotalScore.toLocaleString()}
                 </span>
               </div>
 
               {/* Day Streak */}
-              <div className="p-2.5 rounded-none bg-black/50 border border-white/10">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 block">
+              <div className="p-2 rounded-none bg-black/50 border border-white/10">
+                <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400 block">
                   STREAK
                 </span>
                 <div className="flex items-center justify-center gap-1 mt-1">
-                  <FlameIcon className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
-                  <span className="font-sans text-lg font-bold text-amber-400">
+                  <FlameIcon className="h-3 w-3 fill-amber-500 text-amber-500" />
+                  <span className="font-sans text-base font-bold text-amber-400">
                     {selectedStudent.marathonStreak}d
                   </span>
                 </div>
+              </div>
+
+              {/* Attendance */}
+              <div className="p-2 rounded-none bg-black/50 border border-white/10">
+                <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400 block">
+                  ATTEND
+                </span>
+                <span className="font-sans text-base font-bold text-emerald-400 mt-1 block">
+                  {selectedStudent.attendancePercentage ?? 100}%
+                </span>
               </div>
             </div>
 

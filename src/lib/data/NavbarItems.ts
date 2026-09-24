@@ -13,7 +13,7 @@ export const NAVITEM: NavItem[] = [
   },
   {
     title: "Members",
-    href: "/team/2025",
+    href: "/team/2026",
   },
   {
     title: "Faculty",
@@ -27,10 +27,10 @@ export const NAVITEM: NavItem[] = [
   // 	title: 'SNH 2023',
   // 	href: '/snh2023'
   // },
-  {
-    title: "Handbook",
-    href: "/handbook",
-  },
+  // {
+  //   title: "Handbook",
+  //   href: "/handbook",
+  // },
   {
     title: "Intel AI Lab",
     href: "/intel-ai-lab",

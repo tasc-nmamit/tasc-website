@@ -12,7 +12,12 @@ function AuthErrorContent() {
     AccessDenied: {
       title: "Access Denied",
       message:
-        "Only @nmamit.in (students) or @nitte.edu.in (faculties) institutional emails are allowed. Please sign in with your authorized email.",
+        "Only @nmamit.in (students), @nitte.edu.in (faculties), or authorized external accounts are allowed. Please sign in with an authorized email.",
+    },
+    OAuthAccountNotLinked: {
+      title: "Account Linking Error",
+      message:
+        "This email is already associated with an account. Please sign in with your verified provider.",
     },
     Configuration: {
       title: "Configuration Error",

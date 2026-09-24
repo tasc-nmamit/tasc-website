@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import TechnicalLabel from "@/components/ui/circuit-ink/TechnicalLabel";
-import { ArrowLeft, CodeIcon, CalendarIcon } from "lucide-react";
+import { ArrowLeft, CodeIcon, CalendarIcon, UsersIcon } from "lucide-react";
 
 export default function MarathonAdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -30,12 +30,12 @@ export default function MarathonAdminLayout({ children }: { children: React.Reac
             Coding Marathon <span className="text-gold">Administration</span>
           </h1>
           <p className="mt-2 text-sm md:text-base text-muted-foreground font-space-grotesk">
-            Manage daily practice sprints, weekly marathon challenges, and HackerRank leaderboard synchronization.
+            Manage daily practice sprints, weekly marathon challenges, class scheduling, and attendance tracking.
           </p>
         </div>
 
         {/* Unified Navigation Tabs */}
-        <div className="mb-8 flex gap-3 border-b border-brand/20 pb-4">
+        <div className="mb-8 flex flex-wrap gap-3 border-b border-brand/20 pb-4">
           <Link
             href="/admin/marathon/daily"
             className={`px-5 py-2.5 rounded-xl font-space-grotesk font-semibold text-sm transition-all flex items-center gap-2 ${
@@ -57,6 +57,17 @@ export default function MarathonAdminLayout({ children }: { children: React.Reac
           >
             <CodeIcon className="w-4 h-4" />
             Weekly Challenges
+          </Link>
+          <Link
+            href="/admin/marathon/attendance"
+            className={`px-5 py-2.5 rounded-xl font-space-grotesk font-semibold text-sm transition-all flex items-center gap-2 ${
+              pathname === "/admin/marathon/attendance"
+                ? "bg-brand/20 text-brand-accent border border-brand/40 shadow-sm"
+                : "text-muted-foreground hover:text-foreground hover:bg-card/40"
+            }`}
+          >
+            <UsersIcon className="w-4 h-4" />
+            Class Attendance
           </Link>
         </div>
 

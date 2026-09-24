@@ -45,9 +45,6 @@ export function MemberCard({ member, featured = false }: MemberCardProps) {
         </div>
 
         <div className="flex flex-col items-center justify-center pt-4 relative z-10">
-          <span className="font-mono-tech text-[10px] text-muted-foreground uppercase tracking-widest mb-1">
-            {member.section ? `${member.section}_TEAM // AIML` : "TEAM_MEMBER // AIML"}
-          </span>
           <h3 className={`font-bold font-space-grotesk text-foreground text-center ${
             featured ? "text-xl md:text-2xl" : "text-lg"
           }`}>
@@ -93,9 +90,6 @@ export function MemberCard({ member, featured = false }: MemberCardProps) {
                 />
               </div>
 
-              <span className="font-mono-tech text-xs text-gold uppercase tracking-widest mb-1">
-                EXECUTIVE_PROFILE
-              </span>
               <h2 className="text-2xl font-bold font-space-grotesk text-foreground text-center">
                 {member.name}
               </h2>

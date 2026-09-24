@@ -4,7 +4,6 @@ import Link from "next/link";
 import { ArrowLeftIcon, TrophyIcon } from "lucide-react";
 import LeaderboardPodium, { PodiumUser } from "@/components/marathon/LeaderboardPodium";
 import CircularLeaderboard, { LeaderboardStudent } from "@/components/marathon/CircularLeaderboard";
-import Scanner from "@/components/background/Scanner";
 
 export default async function MarathonLeaderboard() {
   const session = await requireAiml();
@@ -22,6 +21,9 @@ export default async function MarathonLeaderboard() {
       marathonTotalScore: true,
       marathonStreak: true,
       image: true,
+      marathonAttendance: {
+        select: { present: true },
+      },
     },
     orderBy: [
       { marathonTotalScore: "desc" },
@@ -30,15 +32,30 @@ export default async function MarathonLeaderboard() {
     take: 100, // Limit to top 100
   });
 
-  const students: LeaderboardStudent[] = rawUsers.map((user, idx) => ({
-    ...user,
-    rank: idx + 1,
-  }));
+  const students: LeaderboardStudent[] = rawUsers.map((user, idx) => {
+    const totalClasses = user.marathonAttendance?.length || 0;
+    const presentClasses = user.marathonAttendance?.filter((a) => a.present).length || 0;
+    const attendancePercentage = totalClasses > 0 ? Math.round((presentClasses / totalClasses) * 100) : 100;
+
+    return {
+      id: user.id,
+      name: user.name,
+      usn: user.usn,
+      marathonTotalScore: user.marathonTotalScore,
+      marathonStreak: user.marathonStreak,
+      image: user.image,
+      rank: idx + 1,
+      attendancePercentage,
+    };
+  });
 
   const top3Users: PodiumUser[] = students.slice(0, 3);
 
   return (
-    <main className="min-h-dvh px-4 pt-28 pb-20 relative bg-transparent text-slate-100">
+    <main className="min-h-dvh px-4 pt-28 pb-20 relative bg-background bg-blueprint-grid overflow-x-hidden text-foreground">
+      {/* Ambient background glow */}
+      <div className="absolute top-0 inset-x-0 h-96 bg-gradient-to-b from-brand/15 via-brand/5 to-transparent pointer-events-none" />
+
       <div className="relative z-10 mx-auto max-w-5xl space-y-8">
         
         {/* Navigation & Header */}
