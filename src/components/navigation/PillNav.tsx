@@ -202,8 +202,6 @@ export default function PillNav({
     setIsMobileMenuOpen(newState);
 
     const hamburger = hamburgerRef.current;
-    const menu = mobileMenuRef.current;
-
     if (hamburger) {
       const lines = hamburger.querySelectorAll(".hamburger-line");
       if (newState) {
@@ -215,29 +213,26 @@ export default function PillNav({
       }
     }
 
+    const menu = mobileMenuRef.current;
     if (menu) {
       if (newState) {
         gsap.set(menu, { visibility: "visible" });
         gsap.fromTo(
           menu,
-          { opacity: 0, y: 10, scaleY: 1 },
+          { opacity: 0, scale: 0.98 },
           {
             opacity: 1,
-            y: 0,
-            scaleY: 1,
-            duration: 0.3,
+            scale: 1,
+            duration: 0.25,
             ease,
-            transformOrigin: "top center",
           }
         );
       } else {
         gsap.to(menu, {
           opacity: 0,
-          y: 10,
-          scaleY: 1,
+          scale: 0.98,
           duration: 0.2,
           ease,
-          transformOrigin: "top center",
           onComplete: () => {
             gsap.set(menu, { visibility: "hidden" });
           },
@@ -248,6 +243,28 @@ export default function PillNav({
     onMobileMenuClick?.();
   };
 
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
+    const hamburger = hamburgerRef.current;
+    if (hamburger) {
+      const lines = hamburger.querySelectorAll(".hamburger-line");
+      gsap.to(lines[0], { rotation: 0, y: 0, duration: 0.3, ease });
+      gsap.to(lines[1], { rotation: 0, y: 0, duration: 0.3, ease });
+    }
+    const menu = mobileMenuRef.current;
+    if (menu) {
+      gsap.to(menu, {
+        opacity: 0,
+        scale: 0.98,
+        duration: 0.2,
+        ease,
+        onComplete: () => {
+          gsap.set(menu, { visibility: "hidden" });
+        },
+      });
+    }
+  };
+
   const isExternalLink = (href: string) =>
     href.startsWith("http://") ||
     href.startsWith("https://") ||
@@ -256,25 +273,15 @@ export default function PillNav({
     href.startsWith("tel:") ||
     href.startsWith("#");
 
-  // Close mobile menu on click outside
+  // Lock body scroll when mobile menu is open
   useEffect(() => {
-    if (!isMobileMenuOpen) return;
-
-    const handleOutsideClick = (e: MouseEvent | TouchEvent) => {
-      const target = e.target as HTMLElement;
-      if (
-        !mobileMenuRef.current?.contains(target) &&
-        !hamburgerRef.current?.contains(target)
-      ) {
-        setIsMobileMenuOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleOutsideClick);
-    document.addEventListener("touchstart", handleOutsideClick);
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
     return () => {
-      document.removeEventListener("mousedown", handleOutsideClick);
-      document.removeEventListener("touchstart", handleOutsideClick);
+      document.body.style.overflow = "";
     };
   }, [isMobileMenuOpen]);
 
@@ -287,7 +294,7 @@ export default function PillNav({
     "--pill-text": resolvedPillTextColor,
     "--nav-border": isLight ? "rgba(91, 53, 160, 0.18)" : "rgba(255, 255, 255, 0.15)",
     "--nav-shadow": isLight ? "0 8px 30px rgba(91, 53, 160, 0.08)" : "0 8px 32px 0 rgba(0, 0, 0, 0.37)",
-    "--popover-bg": isLight ? "rgba(255, 255, 255, 0.98)" : "rgba(11, 7, 21, 0.95)",
+    "--popover-bg": isLight ? "rgba(255, 255, 255, 0.99)" : "rgba(7, 4, 15, 0.99)",
     "--popover-link-bg": isLight ? "rgba(91, 53, 160, 0.05)" : "rgba(255, 255, 255, 0.05)",
   } as React.CSSProperties;
 
@@ -295,26 +302,18 @@ export default function PillNav({
     <div className="pill-nav-container">
       <nav className={`pill-nav ${className}`} aria-label="Primary" style={cssVars}>
         
-        {/* Brand / Logo Group */}
-        <div className="flex items-center gap-2">
-          {logo && (
-            <Link
-              className="pill-logo"
-              href={items?.[0]?.href || "/"}
-              aria-label="Home"
-              onMouseEnter={handleLogoEnter}
-              ref={logoRef}
-            >
-              <img src={logo} alt={logoAlt} ref={logoImgRef} />
-            </Link>
-          )}
+        {/* Logo */}
+        {logo && (
           <Link
-            href="/"
-            className="mobile-only font-space-grotesk font-extrabold text-sm tracking-wider bg-gradient-to-r from-purple-400 via-violet-300 to-indigo-300 bg-clip-text text-transparent select-none"
+            className="pill-logo"
+            href={items?.[0]?.href || "/"}
+            aria-label="Home"
+            onMouseEnter={handleLogoEnter}
+            ref={logoRef}
           >
-            TASC
+            <img src={logo} alt={logoAlt} ref={logoImgRef} />
           </Link>
-        </div>
+        )}
 
         {/* Desktop Navigation Items Container */}
         <div className="pill-nav-items desktop-only" ref={navItemsRef}>
@@ -379,7 +378,7 @@ export default function PillNav({
         </div>
 
         {/* Right-side Auth & Actions (ThemeToggle, Profile, SignIn, Mobile Menu Button) */}
-        <div className="flex items-center gap-2 z-20">
+        <div className="flex items-center gap-1.5 sm:gap-2 z-20">
           {rightSlot && (
             <div className="flex items-center gap-1.5 sm:gap-2">
               {rightSlot}
@@ -400,42 +399,84 @@ export default function PillNav({
         </div>
       </nav>
 
-      {/* Mobile Menu Dropdown */}
-      <div className="mobile-menu-popover mobile-only" ref={mobileMenuRef} style={cssVars}>
-        <ul className="mobile-menu-list">
-          {items.map((item, i) => {
-            const isActive = activeHref === item.href;
-            const isExt = isExternalLink(item.href);
+      {/* Full-Screen Mobile Menu Overlay */}
+      <div
+        className="mobile-menu-overlay mobile-only"
+        ref={mobileMenuRef}
+        style={cssVars}
+      >
+        <div className="mobile-menu-header">
+          <Link
+            href="/"
+            onClick={closeMobileMenu}
+            className="flex items-center gap-2.5"
+          >
+            {logo && (
+              <img
+                src={logo}
+                alt={logoAlt}
+                className="w-8 h-8 rounded-full object-contain"
+              />
+            )}
+            <span className="font-space-grotesk font-bold text-base tracking-wider text-foreground">
+              TASC NMAMIT
+            </span>
+          </Link>
+          <button
+            type="button"
+            onClick={closeMobileMenu}
+            className="mobile-menu-close-btn"
+            aria-label="Close menu"
+          >
+            <span className="close-line rotate-45" />
+            <span className="close-line -rotate-45" />
+          </button>
+        </div>
 
-            return (
-              <li key={item.href || `mobile-item-${i}`}>
-                {isExt ? (
-                  <a
-                    href={item.href}
-                    className={`mobile-menu-link${isActive ? " is-active" : ""}`}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    <span>{item.label}</span>
-                    {isActive && (
-                      <span className="w-1.5 h-1.5 rounded-full bg-purple-400 shrink-0" />
-                    )}
-                  </a>
-                ) : (
-                  <Link
-                    href={item.href}
-                    className={`mobile-menu-link${isActive ? " is-active" : ""}`}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    <span>{item.label}</span>
-                    {isActive && (
-                      <span className="w-1.5 h-1.5 rounded-full bg-purple-400 shrink-0" />
-                    )}
-                  </Link>
-                )}
-              </li>
-            );
-          })}
-        </ul>
+        <div className="mobile-menu-content">
+          <ul className="mobile-menu-list">
+            {items.map((item, i) => {
+              const isActive = activeHref === item.href;
+              const isExt = isExternalLink(item.href);
+              const formattedIndex = String(i + 1).padStart(2, "0");
+
+              return (
+                <li key={item.href || `mobile-item-${i}`} className="mobile-menu-item">
+                  {isExt ? (
+                    <a
+                      href={item.href}
+                      className={`mobile-menu-link${isActive ? " is-active" : ""}`}
+                      onClick={closeMobileMenu}
+                    >
+                      <span className="mobile-link-index">{formattedIndex}</span>
+                      <span className="mobile-link-label">{item.label}</span>
+                      {isActive && <span className="mobile-link-indicator" />}
+                    </a>
+                  ) : (
+                    <Link
+                      href={item.href}
+                      className={`mobile-menu-link${isActive ? " is-active" : ""}`}
+                      onClick={closeMobileMenu}
+                    >
+                      <span className="mobile-link-index">{formattedIndex}</span>
+                      <span className="mobile-link-label">{item.label}</span>
+                      {isActive && <span className="mobile-link-indicator" />}
+                    </Link>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+
+        <div className="mobile-menu-footer">
+          <p className="text-xs text-muted-foreground font-space-grotesk text-center">
+            Turing Artificial Intelligence Students Committee
+            <span className="block text-[11px] font-mono-tech text-brand-accent mt-0.5">
+              NMAM Institute of Technology, Nitte
+            </span>
+          </p>
+        </div>
       </div>
     </div>
   );

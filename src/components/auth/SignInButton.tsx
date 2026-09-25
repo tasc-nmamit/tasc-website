@@ -6,7 +6,7 @@ export default function SignInButton() {
   return (
     <button
       onClick={() => signIn("google")}
-      className="group relative inline-flex items-center gap-2.5 rounded-lg border border-border/50 bg-background/80 px-5 py-2.5 text-sm font-medium text-foreground backdrop-blur-sm transition-all duration-300 hover:border-brand/50 hover:bg-brand/5 hover:shadow-lg hover:shadow-brand/10 active:scale-[0.98]"
+      className="group relative inline-flex items-center gap-2 rounded-full border border-white/20 dark:border-white/15 bg-white/80 dark:bg-white/10 px-3.5 py-1.5 text-xs font-semibold text-foreground backdrop-blur-md transition-all duration-200 hover:border-brand/60 hover:bg-brand/10 hover:shadow-md hover:shadow-brand/20 active:scale-95 cursor-pointer shrink-0"
     >
       <svg className="h-4 w-4" viewBox="0 0 24 24">
         <path
