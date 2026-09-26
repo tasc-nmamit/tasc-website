@@ -139,6 +139,7 @@ model Faculty {
 
 model Event {
   id                     String             @id @default(cuid())
+  slug                   String?            @unique
   title                  String
   description            String?
   image                  String
@@ -156,6 +157,7 @@ model Event {
   entryFee               String?
   qr                     String?
   registrationsAvailable Boolean            @default(true)
+  registrationStartTime  DateTime?
   endDate                DateTime?
   maxTeams               Int?
   notification           String?

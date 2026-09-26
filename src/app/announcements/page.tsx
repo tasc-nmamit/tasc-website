@@ -71,7 +71,7 @@ export default async function AnnouncementsPage() {
         date: e.date,
         badge: isLive ? "Live Event" : "Upcoming Event",
         badgeVariant: isLive ? "primary" : "gold",
-        link: `/events/${e.id}`,
+        link: `/events/${e.slug || e.id}`,
         linkText: isLive ? "Join Live Session" : "Register / View Event",
         eventMeta: {
           date: e.date,
@@ -97,7 +97,7 @@ export default async function AnnouncementsPage() {
         date: e.date,
         badge: "Event Gallery",
         badgeVariant: "gold",
-        link: `/events/${e.id}`,
+        link: `/events/${e.slug || e.id}`,
         linkText: "Event Info",
         eventMeta: {
           date: e.date,

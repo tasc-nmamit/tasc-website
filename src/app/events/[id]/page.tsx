@@ -29,8 +29,10 @@ export default async function EventDetailsPage({ params }: PageProps) {
   const { id } = await params;
   const session = await getSession();
 
-  const event = await db.event.findUnique({
-    where: { id },
+  const event = await db.event.findFirst({
+    where: {
+      OR: [{ slug: id }, { id: id }],
+    },
     include: {
       customFields: {
         orderBy: { order: "asc" },
@@ -66,7 +68,7 @@ export default async function EventDetailsPage({ params }: PageProps) {
     const reg = await db.eventRegistration.findFirst({
       where: {
         userId: session.user.id,
-        team: { eventId: id },
+        team: { eventId: event.id },
       },
       include: {
         team: {

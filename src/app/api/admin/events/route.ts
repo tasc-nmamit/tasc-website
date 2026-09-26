@@ -13,6 +13,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     const {
       title,
+      slug: customSlug,
       description,
       image,
       date,
@@ -27,14 +28,30 @@ export async function POST(request: Request) {
       brief,
       published,
       registrationsAvailable,
+      registrationStartTime,
       customFields,
     } = body;
 
     const isPublished = published !== undefined ? published : (status !== "DRAFT");
 
+    // Generate or clean slug
+    const { slugify } = await import("@/lib/slug");
+    let baseSlug = (customSlug && customSlug.trim())
+      ? slugify(customSlug)
+      : slugify(title || "event");
+    if (!baseSlug) baseSlug = `event-${Date.now().toString(36)}`;
+
+    let finalSlug = baseSlug;
+    let counter = 1;
+    while (await db.event.findUnique({ where: { slug: finalSlug } })) {
+      finalSlug = `${baseSlug}-${counter}`;
+      counter++;
+    }
+
     const event = await db.event.create({
       data: {
         title,
+        slug: finalSlug,
         description,
         image,
         date: new Date(date),
@@ -48,6 +65,7 @@ export async function POST(request: Request) {
         maxTeams: maxTeams ? parseInt(maxTeams) : null,
         brief: "",
         registrationsAvailable,
+        registrationStartTime: registrationStartTime ? new Date(registrationStartTime) : null,
         published: isPublished,
         organizers: {
           connect: { id: session.user.id }

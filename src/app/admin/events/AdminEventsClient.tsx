@@ -5,6 +5,7 @@ import { downloadCSV, downloadExcel } from "@/lib/export";
 import Link from "next/link";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { storage } from "@/lib/firebase";
+import { slugify } from "@/lib/slug";
 import {
   PlusIcon,
   FileSpreadsheetIcon,
@@ -17,6 +18,8 @@ import {
   CalendarIcon,
   ClockIcon,
   ImageIcon,
+  SendIcon,
+  EyeOffIcon,
 } from "lucide-react";
 
 export default function AdminEventsClient({ initialEvents }: { initialEvents: any[] }) {
@@ -25,6 +28,8 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
 
   // Form State
   const [title, setTitle] = useState("");
+  const [slug, setSlug] = useState("");
+  const [isSlugManual, setIsSlugManual] = useState(false);
   const [description, setDescription] = useState("");
   const [image, setImage] = useState("");
   const [date, setDate] = useState("");
@@ -44,6 +49,7 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
   // Edit Event Modal State
   const [editingEvent, setEditingEvent] = useState<any | null>(null);
   const [editTitle, setEditTitle] = useState("");
+  const [editSlug, setEditSlug] = useState("");
   const [editDescription, setEditDescription] = useState("");
   const [editImage, setEditImage] = useState("");
   const [editDate, setEditDate] = useState("");
@@ -55,6 +61,8 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
   const [editMaxTeamSize, setEditMaxTeamSize] = useState(1);
   const [editMaxTeams, setEditMaxTeams] = useState("");
   const [editStatus, setEditStatus] = useState("UPCOMING");
+  const [editPublishMode, setEditPublishMode] = useState<"IMMEDIATE" | "DRAFT" | "SCHEDULED">("IMMEDIATE");
+  const [editRegistrationStartTime, setEditRegistrationStartTime] = useState("");
   const [editRegistrationsAvailable, setEditRegistrationsAvailable] = useState(true);
 
   // Event Gallery Modal State
@@ -243,6 +251,7 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
 
       const payload = {
         title,
+        slug: slug.trim() ? slugify(slug) : slugify(title),
         description,
         image,
         date,
@@ -313,9 +322,46 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
     }
   };
 
+  const handleTogglePublish = async (id: string, currentlyPublished: boolean) => {
+    try {
+      const newPublished = !currentlyPublished;
+      const res = await fetch(`/api/admin/events/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          published: newPublished,
+          status: newPublished ? "UPCOMING" : "DRAFT",
+        }),
+      });
+      if (!res.ok) throw new Error(await res.text());
+
+      const updated = await res.json();
+      setEvents((prev) =>
+        prev.map((e) =>
+          e.id === id
+            ? {
+                ...e,
+                ...updated,
+                published: newPublished,
+                status: newPublished ? (e.status === "DRAFT" ? "UPCOMING" : e.status) : "DRAFT",
+              }
+            : e
+        )
+      );
+      alert(
+        newPublished
+          ? "Event published successfully! It is now visible on the website."
+          : "Event moved to draft. It is now hidden from the public website."
+      );
+    } catch (err: any) {
+      alert("Failed to toggle publication status: " + err.message);
+    }
+  };
+
   const handleOpenEdit = (ev: any) => {
     setEditingEvent(ev);
     setEditTitle(ev.title || "");
+    setEditSlug(ev.slug || slugify(ev.title || ""));
     setEditDescription(ev.description || "");
     setEditImage(ev.image || "");
     setEditDate(ev.date ? new Date(ev.date).toISOString().split("T")[0] : "");
@@ -328,6 +374,19 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
     setEditMaxTeams(ev.maxTeams ? String(ev.maxTeams) : "");
     setEditStatus(ev.status || "UPCOMING");
     setEditRegistrationsAvailable(ev.registrationsAvailable ?? true);
+
+    let initialMode: "IMMEDIATE" | "SCHEDULED" | "DRAFT" = "IMMEDIATE";
+    if (!ev.published || ev.status === "DRAFT") {
+      initialMode = "DRAFT";
+    } else if (ev.registrationStartTime && new Date(ev.registrationStartTime) > new Date()) {
+      initialMode = "SCHEDULED";
+    }
+    setEditPublishMode(initialMode);
+    setEditRegistrationStartTime(
+      ev.registrationStartTime
+        ? new Date(ev.registrationStartTime).toISOString().slice(0, 16)
+        : ""
+    );
   };
 
   const handleSaveEventEdit = async (e: React.FormEvent) => {
@@ -336,8 +395,17 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
 
     setLoading(true);
     try {
+      const isPublished = editPublishMode !== "DRAFT";
+      let statusToSave = editStatus;
+      if (editPublishMode === "DRAFT") {
+        statusToSave = "DRAFT";
+      } else if (statusToSave === "DRAFT") {
+        statusToSave = "UPCOMING";
+      }
+
       const payload = {
         title: editTitle,
+        slug: editSlug.trim() ? slugify(editSlug) : slugify(editTitle),
         description: editDescription,
         image: editImage,
         date: editDate,
@@ -348,7 +416,12 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
         minTeamSize: editType === "SOLO" ? 1 : Number(editMinTeamSize),
         maxTeamSize: editType === "SOLO" ? 1 : Number(editMaxTeamSize),
         maxTeams: editMaxTeams ? Number(editMaxTeams) : null,
-        status: editStatus,
+        status: statusToSave,
+        published: isPublished,
+        registrationStartTime:
+          editPublishMode === "SCHEDULED" && editRegistrationStartTime
+            ? new Date(editRegistrationStartTime).toISOString()
+            : null,
         registrationsAvailable: editRegistrationsAvailable,
       };
 
@@ -361,7 +434,7 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
       if (!res.ok) throw new Error(await res.text());
 
       const updated = await res.json();
-      setEvents(events.map((e) => (e.id === editingEvent.id ? { ...e, ...updated } : e)));
+      setEvents((prev) => prev.map((e) => (e.id === editingEvent.id ? { ...e, ...updated } : e)));
       alert("Event updated successfully!");
       setEditingEvent(null);
     } catch (err: any) {
@@ -506,17 +579,27 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
               >
                 <div className="space-y-2 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span
-                      className={`rounded-lg px-3 py-1 text-[10px] font-bold font-mono-tech uppercase tracking-wider border ${
-                        event.status === "COMPLETED"
-                          ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/40"
-                          : event.status === "DRAFT"
-                          ? "bg-amber-500/15 text-amber-400 border-amber-500/40"
-                          : "bg-brand/15 text-brand-accent border-brand/40"
-                      }`}
-                    >
-                      {event.status}
-                    </span>
+                    {(!event.published || event.status === "DRAFT") ? (
+                      <span className="rounded-lg px-3 py-1 text-[10px] font-bold font-mono-tech uppercase tracking-wider border bg-amber-500/15 text-amber-400 border-amber-500/40 flex items-center gap-1.5">
+                        <EyeOffIcon className="w-3 h-3" />
+                        DRAFT (HIDDEN)
+                      </span>
+                    ) : (event.registrationStartTime && new Date(event.registrationStartTime) > new Date()) ? (
+                      <span className="rounded-lg px-3 py-1 text-[10px] font-bold font-mono-tech uppercase tracking-wider border bg-sky-500/15 text-sky-400 border-sky-500/40 flex items-center gap-1.5">
+                        <ClockIcon className="w-3 h-3" />
+                        SCHEDULED
+                      </span>
+                    ) : (
+                      <span
+                        className={`rounded-lg px-3 py-1 text-[10px] font-bold font-mono-tech uppercase tracking-wider border ${
+                          event.status === "COMPLETED"
+                            ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/40"
+                            : "bg-brand/15 text-brand-accent border-brand/40"
+                        }`}
+                      >
+                        {event.status}
+                      </span>
+                    )}
                     <span className="rounded-lg bg-gold/15 text-gold border border-gold/40 px-3 py-1 text-[10px] font-bold font-mono-tech uppercase tracking-wider">
                       {event.type}
                     </span>
@@ -533,10 +616,15 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
                     </span>
                   </div>
 
-                  <h3 className="text-xl font-bold font-space-grotesk text-foreground">
-                    <Link href={`/events/${event.id}`} className="hover:underline hover:text-brand-accent">
+                  <h3 className="text-xl font-bold font-space-grotesk text-foreground flex flex-wrap items-center gap-2">
+                    <Link href={`/events/${event.slug || event.id}`} className="hover:underline hover:text-brand-accent">
                       {event.title}
                     </Link>
+                    {event.slug && (
+                      <span className="font-mono-tech text-[11px] font-normal text-brand-accent/90 bg-brand/10 border border-brand/20 px-2 py-0.5 rounded-md">
+                        /{event.slug}
+                      </span>
+                    )}
                   </h3>
 
                   <div className="flex flex-wrap gap-4 text-xs font-mono-tech text-muted-foreground">
@@ -559,6 +647,29 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
                 </div>
 
                 <div className="flex flex-col sm:flex-row flex-wrap items-center gap-2 shrink-0">
+                  {/* Quick Publish / Move to Draft Toggle */}
+                  <button
+                    onClick={() => handleTogglePublish(event.id, !!event.published && event.status !== "DRAFT")}
+                    className={`rounded-xl border px-3.5 py-2 text-xs font-semibold font-space-grotesk transition-all flex items-center gap-1.5 cursor-pointer ${
+                      (!event.published || event.status === "DRAFT")
+                        ? "border-emerald-500/50 bg-emerald-500/15 text-emerald-400 hover:bg-emerald-500/25 shadow-sm"
+                        : "border-brand/30 bg-background/60 text-muted-foreground hover:text-amber-400 hover:border-amber-500/40"
+                    }`}
+                    title={(!event.published || event.status === "DRAFT") ? "Publish this event to students" : "Move event to draft and hide from students"}
+                  >
+                    {(!event.published || event.status === "DRAFT") ? (
+                      <>
+                        <SendIcon className="w-3.5 h-3.5" />
+                        <span>Publish Now</span>
+                      </>
+                    ) : (
+                      <>
+                        <EyeOffIcon className="w-3.5 h-3.5" />
+                        <span>Move to Draft</span>
+                      </>
+                    )}
+                  </button>
+
                   {/* Quick Toggle Registration */}
                   <button
                     onClick={() => handleToggleRegistration(event.id, event.registrationsAvailable)}
@@ -636,10 +747,40 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
                 required
                 type="text"
                 value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setTitle(val);
+                  if (!isSlugManual) {
+                    setSlug(slugify(val));
+                  }
+                }}
                 className="w-full rounded-xl border border-brand/30 bg-background/60 px-4 py-2.5 text-sm text-foreground backdrop-blur-md outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent"
                 placeholder="e.g. AI Hackathon 2026"
               />
+            </div>
+
+            <div className="sm:col-span-2">
+              <div className="mb-2 flex items-center justify-between">
+                <label className="text-sm font-semibold font-space-grotesk text-foreground">
+                  Custom Event Slug / Slang
+                </label>
+                <span className="text-xs font-mono-tech text-brand-accent">
+                  URL: /events/{slug || slugify(title) || "custom-slug"}
+                </span>
+              </div>
+              <input
+                type="text"
+                value={slug}
+                onChange={(e) => {
+                  setIsSlugManual(true);
+                  setSlug(slugify(e.target.value));
+                }}
+                className="w-full rounded-xl border border-brand/30 bg-background/60 px-4 py-2.5 text-sm text-foreground backdrop-blur-md outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent font-mono-tech"
+                placeholder="e.g. ai-hackathon-2026"
+              />
+              <p className="mt-1 text-xs text-muted-foreground font-space-grotesk">
+                Unique URL slug for this event. Auto-generated from title, or enter your own custom slug.
+              </p>
             </div>
 
             <div className="sm:col-span-2">
@@ -1244,6 +1385,22 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
               </div>
 
               <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-xs font-mono-tech uppercase text-muted-foreground">URL Slug / Slang</label>
+                  <span className="text-[11px] font-mono-tech text-brand-accent">
+                    /events/{editSlug || slugify(editTitle)}
+                  </span>
+                </div>
+                <input
+                  type="text"
+                  value={editSlug}
+                  onChange={(e) => setEditSlug(slugify(e.target.value))}
+                  className="w-full rounded-xl border border-brand/30 bg-background/70 px-4 py-2 text-sm text-foreground outline-none focus:border-brand-accent font-mono-tech"
+                  placeholder="e.g. custom-event-slug"
+                />
+              </div>
+
+              <div>
                 <label className="mb-1 text-xs font-mono-tech uppercase text-muted-foreground">Description</label>
                 <textarea
                   rows={4}
@@ -1333,7 +1490,15 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
                   <label className="mb-1 text-xs font-mono-tech uppercase text-muted-foreground">Status</label>
                   <select
                     value={editStatus}
-                    onChange={(e) => setEditStatus(e.target.value)}
+                    onChange={(e) => {
+                      const newStatus = e.target.value;
+                      setEditStatus(newStatus);
+                      if (newStatus === "DRAFT") {
+                        setEditPublishMode("DRAFT");
+                      } else if (editPublishMode === "DRAFT") {
+                        setEditPublishMode("IMMEDIATE");
+                      }
+                    }}
                     className="w-full rounded-xl border border-brand/30 bg-card px-4 py-2 text-sm text-foreground outline-none focus:border-brand-accent"
                   >
                     <option value="DRAFT">Draft</option>
@@ -1391,6 +1556,101 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
                   </div>
                 </div>
               )}
+
+              {/* Publication Status & Visibility */}
+              <div className="space-y-4 border border-brand/20 p-5 rounded-2xl bg-background/40">
+                <label className="block text-sm font-bold font-space-grotesk text-foreground">
+                  Publication Status & Visibility
+                </label>
+
+                <div className="grid sm:grid-cols-3 gap-3">
+                  <label
+                    className={`flex items-center gap-3 p-3.5 rounded-xl border cursor-pointer transition-all ${
+                      editPublishMode === "IMMEDIATE"
+                        ? "border-brand bg-brand/15 text-foreground shadow-sm"
+                        : "border-brand/20 bg-background/50 text-muted-foreground hover:border-brand/40"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="editPublishMode"
+                      value="IMMEDIATE"
+                      checked={editPublishMode === "IMMEDIATE"}
+                      onChange={() => {
+                        setEditPublishMode("IMMEDIATE");
+                        if (editStatus === "DRAFT") setEditStatus("UPCOMING");
+                      }}
+                      className="text-brand focus:ring-brand-accent"
+                    />
+                    <div className="text-xs font-semibold font-space-grotesk">
+                      Published
+                      <p className="text-[10px] text-muted-foreground font-normal">Visible to students</p>
+                    </div>
+                  </label>
+
+                  <label
+                    className={`flex items-center gap-3 p-3.5 rounded-xl border cursor-pointer transition-all ${
+                      editPublishMode === "SCHEDULED"
+                        ? "border-brand bg-brand/15 text-foreground shadow-sm"
+                        : "border-brand/20 bg-background/50 text-muted-foreground hover:border-brand/40"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="editPublishMode"
+                      value="SCHEDULED"
+                      checked={editPublishMode === "SCHEDULED"}
+                      onChange={() => {
+                        setEditPublishMode("SCHEDULED");
+                        if (editStatus === "DRAFT") setEditStatus("UPCOMING");
+                      }}
+                      className="text-brand focus:ring-brand-accent"
+                    />
+                    <div className="text-xs font-semibold font-space-grotesk">
+                      Scheduled
+                      <p className="text-[10px] text-muted-foreground font-normal">Opens at set time</p>
+                    </div>
+                  </label>
+
+                  <label
+                    className={`flex items-center gap-3 p-3.5 rounded-xl border cursor-pointer transition-all ${
+                      editPublishMode === "DRAFT"
+                        ? "border-brand bg-brand/15 text-foreground shadow-sm"
+                        : "border-brand/20 bg-background/50 text-muted-foreground hover:border-brand/40"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="editPublishMode"
+                      value="DRAFT"
+                      checked={editPublishMode === "DRAFT"}
+                      onChange={() => {
+                        setEditPublishMode("DRAFT");
+                        setEditStatus("DRAFT");
+                      }}
+                      className="text-brand focus:ring-brand-accent"
+                    />
+                    <div className="text-xs font-semibold font-space-grotesk">
+                      Draft (Hidden)
+                      <p className="text-[10px] text-muted-foreground font-normal">Hidden from students</p>
+                    </div>
+                  </label>
+                </div>
+
+                {editPublishMode === "SCHEDULED" && (
+                  <div className="pt-2">
+                    <label className="mb-1 text-xs font-mono-tech text-muted-foreground uppercase block">
+                      Scheduled Registration / Visibility Time
+                    </label>
+                    <input
+                      type="datetime-local"
+                      value={editRegistrationStartTime}
+                      onChange={(e) => setEditRegistrationStartTime(e.target.value)}
+                      className="w-full rounded-xl border border-brand/30 bg-card px-4 py-2.5 text-sm text-foreground outline-none focus:border-brand-accent font-mono-tech"
+                    />
+                  </div>
+                )}
+              </div>
 
               <label className="flex items-center gap-3 text-sm font-semibold font-space-grotesk text-foreground cursor-pointer">
                 <input

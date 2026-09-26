@@ -21,9 +21,11 @@ export default async function EventsPage() {
       }
     }
     const isPast = eventDateTime < new Date();
+    const isScheduled = e.registrationStartTime ? new Date() < new Date(e.registrationStartTime) : false;
 
     return {
       id: e.id,
+      slug: e.slug,
       title: e.title,
       image: e.image,
       date: e.date,
@@ -32,13 +34,15 @@ export default async function EventsPage() {
       type: e.type,
       venue: e.venue,
       description: e.description,
-      status: e.status, // We need to add status here, let's update Event type if needed
+      status: isScheduled ? "SCHEDULED" : e.status,
       minTeamSize: e.minTeamSize,
       maxTeamSize: e.maxTeamSize,
       maxTeamCount: e.maxTeams,
       guests: e.guests,
       reportLink: e.reportLink,
-      registrationsAvailable: e.registrationsAvailable && !isPast,
+      published: e.published,
+      registrationStartTime: e.registrationStartTime,
+      registrationsAvailable: e.registrationsAvailable && !isPast && !isScheduled,
     };
   });
 

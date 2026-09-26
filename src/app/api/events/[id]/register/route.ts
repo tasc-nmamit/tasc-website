@@ -16,8 +16,10 @@ export async function GET(request: Request, context: Context) {
   const { id } = await context.params;
 
   try {
-    const event = await db.event.findUnique({
-      where: { id },
+    const event = await db.event.findFirst({
+      where: {
+        OR: [{ slug: id }, { id: id }],
+      },
       include: {
         customFields: {
           orderBy: { order: "asc" },
@@ -41,7 +43,7 @@ export async function GET(request: Request, context: Context) {
       where: {
         userId: session.user.id,
         team: {
-          eventId: id,
+          eventId: event.id,
         },
       },
     });
@@ -71,8 +73,10 @@ export async function POST(request: Request, context: Context) {
     const body = await request.json();
     const { action, teamName, teamCode, responses } = body;
 
-    const event = await db.event.findUnique({
-      where: { id },
+    const event = await db.event.findFirst({
+      where: {
+        OR: [{ slug: id }, { id: id }],
+      },
       include: { participants: { include: { registrations: true } } },
     });
 
@@ -83,9 +87,16 @@ export async function POST(request: Request, context: Context) {
       );
     }
 
+    if (event.registrationStartTime && new Date() < new Date(event.registrationStartTime)) {
+      return NextResponse.json(
+        { error: "Registrations have not opened yet for this event" },
+        { status: 400 }
+      );
+    }
+
     // Check if already registered
     const existingReg = await db.eventRegistration.findFirst({
-      where: { userId: session.user.id, team: { eventId: id } },
+      where: { userId: session.user.id, team: { eventId: event.id } },
     });
 
     if (existingReg) {
@@ -108,7 +119,7 @@ export async function POST(request: Request, context: Context) {
     if (isLeaderOrSolo) {
       // Validate custom fields and number thresholds
       const customFields = await db.eventCustomField.findMany({
-        where: { eventId: id },
+        where: { eventId: event.id },
       });
 
       const fieldResponses = responses || {};
@@ -151,7 +162,7 @@ export async function POST(request: Request, context: Context) {
       // Create a dummy "Team" for the solo user
       const team = await db.team.create({
         data: {
-          eventId: id,
+          eventId: event.id,
           leaderId: session.user.id,
           status: "CONFIRMED", // Solo teams are auto-confirmed
           customFieldResponses: responses ?? undefined,
@@ -174,7 +185,7 @@ export async function POST(request: Request, context: Context) {
 
         const team = await db.team.create({
           data: {
-            eventId: id,
+            eventId: event.id,
             name: teamName,
             leaderId: session.user.id,
             teamCode: newTeamCode,
@@ -202,7 +213,7 @@ export async function POST(request: Request, context: Context) {
           return NextResponse.json({ error: "Invalid team code" }, { status: 400 });
         }
 
-        if (team.eventId !== id) {
+        if (team.eventId !== event.id) {
           return NextResponse.json({ error: "Team code belongs to a different event" }, { status: 400 });
         }
 
@@ -222,7 +233,7 @@ export async function POST(request: Request, context: Context) {
       } else if (action === "CONFIRM_TEAM") {
         const team = await db.team.findFirst({
           where: {
-            eventId: id,
+            eventId: event.id,
             leaderId: session.user.id,
           },
           include: { registrations: true },

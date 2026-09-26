@@ -187,6 +187,24 @@ export default function EventRegistrationClient({
     );
   }
 
+  // Render: Registration Scheduled for Future
+  const isScheduled = event.registrationStartTime && new Date() < new Date(event.registrationStartTime);
+  if (isScheduled && !isRegistered) {
+    return (
+      <div className="relative rounded-xl border border-sky-500/30 bg-sky-500/10 p-6 text-center shadow-lg backdrop-blur-md">
+        <CircuitTrace corners={true} />
+        <ClockIcon className="w-6 h-6 mx-auto mb-2 text-sky-400" />
+        <h3 className="font-bold font-space-grotesk text-base text-foreground mb-1">Registration Scheduled</h3>
+        <p className="text-xs text-muted-foreground font-space-grotesk mb-2">
+          Registrations for this event open on:
+        </p>
+        <p className="text-xs font-mono-tech font-bold text-sky-400 bg-sky-500/15 border border-sky-500/30 px-3 py-1.5 rounded-lg inline-block">
+          {new Date(event.registrationStartTime).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}
+        </p>
+      </div>
+    );
+  }
+
   // Render: Registrations Paused
   if (!event.registrationsAvailable && !isRegistered) {
     return (
@@ -195,7 +213,7 @@ export default function EventRegistrationClient({
         <LockIcon className="w-6 h-6 mx-auto mb-2 text-amber-400" />
         <h3 className="font-bold font-space-grotesk text-base text-foreground mb-1">Registrations Paused</h3>
         <p className="text-xs text-muted-foreground font-space-grotesk">
-          Registrations for this event are temporarily paused or will open when scheduled.
+          Registrations for this event are temporarily paused.
         </p>
       </div>
     );

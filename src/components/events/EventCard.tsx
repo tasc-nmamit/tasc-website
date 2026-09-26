@@ -72,7 +72,7 @@ export function EventIndexRow({ event, index }: EventIndexRowProps) {
           {/* Event Title & Type */}
           <div className="min-w-0 flex-1">
             <NextLink
-              href={`/events/${event.id}`}
+              href={`/events/${event.slug || event.id}`}
               className="inline-block outline-none focus:underline"
             >
               <h3 className="font-valley font-semibold text-sm md:text-base text-foreground group-hover:text-brand-accent group-hover:translate-x-1 transition-all duration-300 truncate">
@@ -114,6 +114,10 @@ export function EventIndexRow({ event, index }: EventIndexRowProps) {
               <span className="inline-flex items-center gap-1.5 text-[11px] font-mono-tech text-rose-400">
                 <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" /> LIVE
               </span>
+            ) : normStatus.includes("SCHEDULED") ? (
+              <span className="inline-flex items-center gap-1.5 text-[11px] font-mono-tech text-sky-400">
+                <span className="w-1.5 h-1.5 rounded-full bg-sky-400" /> SCHEDULED
+              </span>
             ) : (
               <span className="inline-flex items-center gap-1.5 text-[11px] font-mono-tech text-amber-400">
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-400" /> UPCOMING
@@ -124,7 +128,7 @@ export function EventIndexRow({ event, index }: EventIndexRowProps) {
           {/* Action & Toggle Controls */}
           <div className="flex items-center gap-1.5 text-muted-foreground">
             <NextLink
-              href={`/events/${event.id}`}
+              href={`/events/${event.slug || event.id}`}
               className="p-1 text-muted-foreground hover:text-brand-accent transition-colors group-hover:translate-x-1"
               title="View Event Details"
             >
@@ -170,7 +174,7 @@ export function EventIndexRow({ event, index }: EventIndexRowProps) {
 
             <div className="pt-2">
               <NextLink
-                href={`/events/${event.id}`}
+                href={`/events/${event.slug || event.id}`}
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-brand-accent hover:bg-purple-600 text-white font-valley text-xs font-bold tracking-wider transition-colors shadow-sm"
               >
                 <span>View Event Details →</span>

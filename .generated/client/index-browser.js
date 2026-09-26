@@ -211,6 +211,7 @@ exports.Prisma.FacultyScalarFieldEnum = {
 
 exports.Prisma.EventScalarFieldEnum = {
   id: 'id',
+  slug: 'slug',
   title: 'title',
   description: 'description',
   image: 'image',
@@ -228,6 +229,7 @@ exports.Prisma.EventScalarFieldEnum = {
   entryFee: 'entryFee',
   qr: 'qr',
   registrationsAvailable: 'registrationsAvailable',
+  registrationStartTime: 'registrationStartTime',
   endDate: 'endDate',
   maxTeams: 'maxTeams',
   notification: 'notification'

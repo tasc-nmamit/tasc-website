@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { EventStatus, EventType } from "@prisma";
+import { slugify } from "@/lib/slug";
 
 export async function PATCH(
   request: Request,
@@ -18,14 +19,44 @@ export async function PATCH(
     const body = await request.json();
     const updateData: any = {};
 
+    if (body.slug !== undefined) {
+      let baseSlug = body.slug ? slugify(body.slug) : slugify(body.title || "event");
+      if (!baseSlug) baseSlug = `event-${Date.now().toString(36)}`;
+      let finalSlug = baseSlug;
+      let counter = 1;
+      while (true) {
+        const existing = await db.event.findUnique({ where: { slug: finalSlug } });
+        if (!existing || existing.id === id) {
+          break;
+        }
+        finalSlug = `${baseSlug}-${counter}`;
+        counter++;
+      }
+      updateData.slug = finalSlug;
+    }
+
     if (body.title !== undefined) updateData.title = body.title;
     if (body.description !== undefined) updateData.description = body.description;
     if (body.image !== undefined) updateData.image = body.image;
     if (body.venue !== undefined) updateData.venue = body.venue;
     if (body.time !== undefined) updateData.time = body.time;
-    if (body.type !== undefined) updateData.type = body.type as EventType;
-    if (body.status !== undefined) updateData.status = body.status as EventStatus;
-    if (body.published !== undefined) updateData.published = !!body.published;
+    if (body.status !== undefined) {
+      updateData.status = body.status as EventStatus;
+      if (body.published === undefined) {
+        updateData.published = body.status !== "DRAFT";
+      }
+    }
+    if (body.published !== undefined) {
+      updateData.published = !!body.published;
+      if (!body.published && body.status === undefined) {
+        updateData.status = "DRAFT";
+      }
+    }
+    if (body.registrationStartTime !== undefined) {
+      updateData.registrationStartTime = body.registrationStartTime
+        ? new Date(body.registrationStartTime)
+        : null;
+    }
     if (body.registrationsAvailable !== undefined) {
       updateData.registrationsAvailable = !!body.registrationsAvailable;
     }

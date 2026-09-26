@@ -12548,6 +12548,7 @@ export namespace Prisma {
 
   export type EventMinAggregateOutputType = {
     id: string | null
+    slug: string | null
     title: string | null
     description: string | null
     image: string | null
@@ -12564,6 +12565,7 @@ export namespace Prisma {
     entryFee: string | null
     qr: string | null
     registrationsAvailable: boolean | null
+    registrationStartTime: Date | null
     endDate: Date | null
     maxTeams: number | null
     notification: string | null
@@ -12571,6 +12573,7 @@ export namespace Prisma {
 
   export type EventMaxAggregateOutputType = {
     id: string | null
+    slug: string | null
     title: string | null
     description: string | null
     image: string | null
@@ -12587,6 +12590,7 @@ export namespace Prisma {
     entryFee: string | null
     qr: string | null
     registrationsAvailable: boolean | null
+    registrationStartTime: Date | null
     endDate: Date | null
     maxTeams: number | null
     notification: string | null
@@ -12594,6 +12598,7 @@ export namespace Prisma {
 
   export type EventCountAggregateOutputType = {
     id: number
+    slug: number
     title: number
     description: number
     image: number
@@ -12611,6 +12616,7 @@ export namespace Prisma {
     entryFee: number
     qr: number
     registrationsAvailable: number
+    registrationStartTime: number
     endDate: number
     maxTeams: number
     notification: number
@@ -12632,6 +12638,7 @@ export namespace Prisma {
 
   export type EventMinAggregateInputType = {
     id?: true
+    slug?: true
     title?: true
     description?: true
     image?: true
@@ -12648,6 +12655,7 @@ export namespace Prisma {
     entryFee?: true
     qr?: true
     registrationsAvailable?: true
+    registrationStartTime?: true
     endDate?: true
     maxTeams?: true
     notification?: true
@@ -12655,6 +12663,7 @@ export namespace Prisma {
 
   export type EventMaxAggregateInputType = {
     id?: true
+    slug?: true
     title?: true
     description?: true
     image?: true
@@ -12671,6 +12680,7 @@ export namespace Prisma {
     entryFee?: true
     qr?: true
     registrationsAvailable?: true
+    registrationStartTime?: true
     endDate?: true
     maxTeams?: true
     notification?: true
@@ -12678,6 +12688,7 @@ export namespace Prisma {
 
   export type EventCountAggregateInputType = {
     id?: true
+    slug?: true
     title?: true
     description?: true
     image?: true
@@ -12695,6 +12706,7 @@ export namespace Prisma {
     entryFee?: true
     qr?: true
     registrationsAvailable?: true
+    registrationStartTime?: true
     endDate?: true
     maxTeams?: true
     notification?: true
@@ -12789,6 +12801,7 @@ export namespace Prisma {
 
   export type EventGroupByOutputType = {
     id: string
+    slug: string | null
     title: string
     description: string | null
     image: string
@@ -12806,6 +12819,7 @@ export namespace Prisma {
     entryFee: string | null
     qr: string | null
     registrationsAvailable: boolean
+    registrationStartTime: Date | null
     endDate: Date | null
     maxTeams: number | null
     notification: string | null
@@ -12832,6 +12846,7 @@ export namespace Prisma {
 
   export type EventSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
+    slug?: boolean
     title?: boolean
     description?: boolean
     image?: boolean
@@ -12849,6 +12864,7 @@ export namespace Prisma {
     entryFee?: boolean
     qr?: boolean
     registrationsAvailable?: boolean
+    registrationStartTime?: boolean
     endDate?: boolean
     maxTeams?: boolean
     notification?: boolean
@@ -12861,6 +12877,7 @@ export namespace Prisma {
 
   export type EventSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
+    slug?: boolean
     title?: boolean
     description?: boolean
     image?: boolean
@@ -12878,6 +12895,7 @@ export namespace Prisma {
     entryFee?: boolean
     qr?: boolean
     registrationsAvailable?: boolean
+    registrationStartTime?: boolean
     endDate?: boolean
     maxTeams?: boolean
     notification?: boolean
@@ -12885,6 +12903,7 @@ export namespace Prisma {
 
   export type EventSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
+    slug?: boolean
     title?: boolean
     description?: boolean
     image?: boolean
@@ -12902,6 +12921,7 @@ export namespace Prisma {
     entryFee?: boolean
     qr?: boolean
     registrationsAvailable?: boolean
+    registrationStartTime?: boolean
     endDate?: boolean
     maxTeams?: boolean
     notification?: boolean
@@ -12909,6 +12929,7 @@ export namespace Prisma {
 
   export type EventSelectScalar = {
     id?: boolean
+    slug?: boolean
     title?: boolean
     description?: boolean
     image?: boolean
@@ -12926,12 +12947,13 @@ export namespace Prisma {
     entryFee?: boolean
     qr?: boolean
     registrationsAvailable?: boolean
+    registrationStartTime?: boolean
     endDate?: boolean
     maxTeams?: boolean
     notification?: boolean
   }
 
-  export type EventOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "description" | "image" | "date" | "time" | "reportLink" | "venue" | "guests" | "published" | "type" | "status" | "maxTeamSize" | "minTeamSize" | "brief" | "entryFee" | "qr" | "registrationsAvailable" | "endDate" | "maxTeams" | "notification", ExtArgs["result"]["event"]>
+  export type EventOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "slug" | "title" | "description" | "image" | "date" | "time" | "reportLink" | "venue" | "guests" | "published" | "type" | "status" | "maxTeamSize" | "minTeamSize" | "brief" | "entryFee" | "qr" | "registrationsAvailable" | "registrationStartTime" | "endDate" | "maxTeams" | "notification", ExtArgs["result"]["event"]>
   export type EventInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     participants?: boolean | Event$participantsArgs<ExtArgs>
     winners?: boolean | Event$winnersArgs<ExtArgs>
@@ -12952,6 +12974,7 @@ export namespace Prisma {
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
+      slug: string | null
       title: string
       description: string | null
       image: string
@@ -12969,6 +12992,7 @@ export namespace Prisma {
       entryFee: string | null
       qr: string | null
       registrationsAvailable: boolean
+      registrationStartTime: Date | null
       endDate: Date | null
       maxTeams: number | null
       notification: string | null
@@ -13400,6 +13424,7 @@ export namespace Prisma {
    */
   interface EventFieldRefs {
     readonly id: FieldRef<"Event", 'String'>
+    readonly slug: FieldRef<"Event", 'String'>
     readonly title: FieldRef<"Event", 'String'>
     readonly description: FieldRef<"Event", 'String'>
     readonly image: FieldRef<"Event", 'String'>
@@ -13417,6 +13442,7 @@ export namespace Prisma {
     readonly entryFee: FieldRef<"Event", 'String'>
     readonly qr: FieldRef<"Event", 'String'>
     readonly registrationsAvailable: FieldRef<"Event", 'Boolean'>
+    readonly registrationStartTime: FieldRef<"Event", 'DateTime'>
     readonly endDate: FieldRef<"Event", 'DateTime'>
     readonly maxTeams: FieldRef<"Event", 'Int'>
     readonly notification: FieldRef<"Event", 'String'>
@@ -37333,6 +37359,7 @@ export namespace Prisma {
 
   export const EventScalarFieldEnum: {
     id: 'id',
+    slug: 'slug',
     title: 'title',
     description: 'description',
     image: 'image',
@@ -37350,6 +37377,7 @@ export namespace Prisma {
     entryFee: 'entryFee',
     qr: 'qr',
     registrationsAvailable: 'registrationsAvailable',
+    registrationStartTime: 'registrationStartTime',
     endDate: 'endDate',
     maxTeams: 'maxTeams',
     notification: 'notification'
@@ -38468,6 +38496,7 @@ export namespace Prisma {
     OR?: EventWhereInput[]
     NOT?: EventWhereInput | EventWhereInput[]
     id?: StringFilter<"Event"> | string
+    slug?: StringNullableFilter<"Event"> | string | null
     title?: StringFilter<"Event"> | string
     description?: StringNullableFilter<"Event"> | string | null
     image?: StringFilter<"Event"> | string
@@ -38485,6 +38514,7 @@ export namespace Prisma {
     entryFee?: StringNullableFilter<"Event"> | string | null
     qr?: StringNullableFilter<"Event"> | string | null
     registrationsAvailable?: BoolFilter<"Event"> | boolean
+    registrationStartTime?: DateTimeNullableFilter<"Event"> | Date | string | null
     endDate?: DateTimeNullableFilter<"Event"> | Date | string | null
     maxTeams?: IntNullableFilter<"Event"> | number | null
     notification?: StringNullableFilter<"Event"> | string | null
@@ -38496,6 +38526,7 @@ export namespace Prisma {
 
   export type EventOrderByWithRelationInput = {
     id?: SortOrder
+    slug?: SortOrderInput | SortOrder
     title?: SortOrder
     description?: SortOrderInput | SortOrder
     image?: SortOrder
@@ -38513,6 +38544,7 @@ export namespace Prisma {
     entryFee?: SortOrderInput | SortOrder
     qr?: SortOrderInput | SortOrder
     registrationsAvailable?: SortOrder
+    registrationStartTime?: SortOrderInput | SortOrder
     endDate?: SortOrderInput | SortOrder
     maxTeams?: SortOrderInput | SortOrder
     notification?: SortOrderInput | SortOrder
@@ -38524,6 +38556,7 @@ export namespace Prisma {
 
   export type EventWhereUniqueInput = Prisma.AtLeast<{
     id?: string
+    slug?: string
     AND?: EventWhereInput | EventWhereInput[]
     OR?: EventWhereInput[]
     NOT?: EventWhereInput | EventWhereInput[]
@@ -38544,6 +38577,7 @@ export namespace Prisma {
     entryFee?: StringNullableFilter<"Event"> | string | null
     qr?: StringNullableFilter<"Event"> | string | null
     registrationsAvailable?: BoolFilter<"Event"> | boolean
+    registrationStartTime?: DateTimeNullableFilter<"Event"> | Date | string | null
     endDate?: DateTimeNullableFilter<"Event"> | Date | string | null
     maxTeams?: IntNullableFilter<"Event"> | number | null
     notification?: StringNullableFilter<"Event"> | string | null
@@ -38551,10 +38585,11 @@ export namespace Prisma {
     winners?: WinnersListRelationFilter
     organizers?: UserListRelationFilter
     customFields?: EventCustomFieldListRelationFilter
-  }, "id">
+  }, "id" | "slug">
 
   export type EventOrderByWithAggregationInput = {
     id?: SortOrder
+    slug?: SortOrderInput | SortOrder
     title?: SortOrder
     description?: SortOrderInput | SortOrder
     image?: SortOrder
@@ -38572,6 +38607,7 @@ export namespace Prisma {
     entryFee?: SortOrderInput | SortOrder
     qr?: SortOrderInput | SortOrder
     registrationsAvailable?: SortOrder
+    registrationStartTime?: SortOrderInput | SortOrder
     endDate?: SortOrderInput | SortOrder
     maxTeams?: SortOrderInput | SortOrder
     notification?: SortOrderInput | SortOrder
@@ -38587,6 +38623,7 @@ export namespace Prisma {
     OR?: EventScalarWhereWithAggregatesInput[]
     NOT?: EventScalarWhereWithAggregatesInput | EventScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Event"> | string
+    slug?: StringNullableWithAggregatesFilter<"Event"> | string | null
     title?: StringWithAggregatesFilter<"Event"> | string
     description?: StringNullableWithAggregatesFilter<"Event"> | string | null
     image?: StringWithAggregatesFilter<"Event"> | string
@@ -38604,6 +38641,7 @@ export namespace Prisma {
     entryFee?: StringNullableWithAggregatesFilter<"Event"> | string | null
     qr?: StringNullableWithAggregatesFilter<"Event"> | string | null
     registrationsAvailable?: BoolWithAggregatesFilter<"Event"> | boolean
+    registrationStartTime?: DateTimeNullableWithAggregatesFilter<"Event"> | Date | string | null
     endDate?: DateTimeNullableWithAggregatesFilter<"Event"> | Date | string | null
     maxTeams?: IntNullableWithAggregatesFilter<"Event"> | number | null
     notification?: StringNullableWithAggregatesFilter<"Event"> | string | null
@@ -40693,6 +40731,7 @@ export namespace Prisma {
 
   export type EventCreateInput = {
     id?: string
+    slug?: string | null
     title: string
     description?: string | null
     image: string
@@ -40710,6 +40749,7 @@ export namespace Prisma {
     entryFee?: string | null
     qr?: string | null
     registrationsAvailable?: boolean
+    registrationStartTime?: Date | string | null
     endDate?: Date | string | null
     maxTeams?: number | null
     notification?: string | null
@@ -40721,6 +40761,7 @@ export namespace Prisma {
 
   export type EventUncheckedCreateInput = {
     id?: string
+    slug?: string | null
     title: string
     description?: string | null
     image: string
@@ -40738,6 +40779,7 @@ export namespace Prisma {
     entryFee?: string | null
     qr?: string | null
     registrationsAvailable?: boolean
+    registrationStartTime?: Date | string | null
     endDate?: Date | string | null
     maxTeams?: number | null
     notification?: string | null
@@ -40749,6 +40791,7 @@ export namespace Prisma {
 
   export type EventUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     image?: StringFieldUpdateOperationsInput | string
@@ -40766,6 +40809,7 @@ export namespace Prisma {
     entryFee?: NullableStringFieldUpdateOperationsInput | string | null
     qr?: NullableStringFieldUpdateOperationsInput | string | null
     registrationsAvailable?: BoolFieldUpdateOperationsInput | boolean
+    registrationStartTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     maxTeams?: NullableIntFieldUpdateOperationsInput | number | null
     notification?: NullableStringFieldUpdateOperationsInput | string | null
@@ -40777,6 +40821,7 @@ export namespace Prisma {
 
   export type EventUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     image?: StringFieldUpdateOperationsInput | string
@@ -40794,6 +40839,7 @@ export namespace Prisma {
     entryFee?: NullableStringFieldUpdateOperationsInput | string | null
     qr?: NullableStringFieldUpdateOperationsInput | string | null
     registrationsAvailable?: BoolFieldUpdateOperationsInput | boolean
+    registrationStartTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     maxTeams?: NullableIntFieldUpdateOperationsInput | number | null
     notification?: NullableStringFieldUpdateOperationsInput | string | null
@@ -40805,6 +40851,7 @@ export namespace Prisma {
 
   export type EventCreateManyInput = {
     id?: string
+    slug?: string | null
     title: string
     description?: string | null
     image: string
@@ -40822,6 +40869,7 @@ export namespace Prisma {
     entryFee?: string | null
     qr?: string | null
     registrationsAvailable?: boolean
+    registrationStartTime?: Date | string | null
     endDate?: Date | string | null
     maxTeams?: number | null
     notification?: string | null
@@ -40829,6 +40877,7 @@ export namespace Prisma {
 
   export type EventUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     image?: StringFieldUpdateOperationsInput | string
@@ -40846,6 +40895,7 @@ export namespace Prisma {
     entryFee?: NullableStringFieldUpdateOperationsInput | string | null
     qr?: NullableStringFieldUpdateOperationsInput | string | null
     registrationsAvailable?: BoolFieldUpdateOperationsInput | boolean
+    registrationStartTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     maxTeams?: NullableIntFieldUpdateOperationsInput | number | null
     notification?: NullableStringFieldUpdateOperationsInput | string | null
@@ -40853,6 +40903,7 @@ export namespace Prisma {
 
   export type EventUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     image?: StringFieldUpdateOperationsInput | string
@@ -40870,6 +40921,7 @@ export namespace Prisma {
     entryFee?: NullableStringFieldUpdateOperationsInput | string | null
     qr?: NullableStringFieldUpdateOperationsInput | string | null
     registrationsAvailable?: BoolFieldUpdateOperationsInput | boolean
+    registrationStartTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     maxTeams?: NullableIntFieldUpdateOperationsInput | number | null
     notification?: NullableStringFieldUpdateOperationsInput | string | null
@@ -43081,6 +43133,7 @@ export namespace Prisma {
 
   export type EventCountOrderByAggregateInput = {
     id?: SortOrder
+    slug?: SortOrder
     title?: SortOrder
     description?: SortOrder
     image?: SortOrder
@@ -43098,6 +43151,7 @@ export namespace Prisma {
     entryFee?: SortOrder
     qr?: SortOrder
     registrationsAvailable?: SortOrder
+    registrationStartTime?: SortOrder
     endDate?: SortOrder
     maxTeams?: SortOrder
     notification?: SortOrder
@@ -43111,6 +43165,7 @@ export namespace Prisma {
 
   export type EventMaxOrderByAggregateInput = {
     id?: SortOrder
+    slug?: SortOrder
     title?: SortOrder
     description?: SortOrder
     image?: SortOrder
@@ -43127,6 +43182,7 @@ export namespace Prisma {
     entryFee?: SortOrder
     qr?: SortOrder
     registrationsAvailable?: SortOrder
+    registrationStartTime?: SortOrder
     endDate?: SortOrder
     maxTeams?: SortOrder
     notification?: SortOrder
@@ -43134,6 +43190,7 @@ export namespace Prisma {
 
   export type EventMinOrderByAggregateInput = {
     id?: SortOrder
+    slug?: SortOrder
     title?: SortOrder
     description?: SortOrder
     image?: SortOrder
@@ -43150,6 +43207,7 @@ export namespace Prisma {
     entryFee?: SortOrder
     qr?: SortOrder
     registrationsAvailable?: SortOrder
+    registrationStartTime?: SortOrder
     endDate?: SortOrder
     maxTeams?: SortOrder
     notification?: SortOrder
@@ -46417,6 +46475,7 @@ export namespace Prisma {
 
   export type EventCreateWithoutOrganizersInput = {
     id?: string
+    slug?: string | null
     title: string
     description?: string | null
     image: string
@@ -46434,6 +46493,7 @@ export namespace Prisma {
     entryFee?: string | null
     qr?: string | null
     registrationsAvailable?: boolean
+    registrationStartTime?: Date | string | null
     endDate?: Date | string | null
     maxTeams?: number | null
     notification?: string | null
@@ -46444,6 +46504,7 @@ export namespace Prisma {
 
   export type EventUncheckedCreateWithoutOrganizersInput = {
     id?: string
+    slug?: string | null
     title: string
     description?: string | null
     image: string
@@ -46461,6 +46522,7 @@ export namespace Prisma {
     entryFee?: string | null
     qr?: string | null
     registrationsAvailable?: boolean
+    registrationStartTime?: Date | string | null
     endDate?: Date | string | null
     maxTeams?: number | null
     notification?: string | null
@@ -46799,6 +46861,7 @@ export namespace Prisma {
     OR?: EventScalarWhereInput[]
     NOT?: EventScalarWhereInput | EventScalarWhereInput[]
     id?: StringFilter<"Event"> | string
+    slug?: StringNullableFilter<"Event"> | string | null
     title?: StringFilter<"Event"> | string
     description?: StringNullableFilter<"Event"> | string | null
     image?: StringFilter<"Event"> | string
@@ -46816,6 +46879,7 @@ export namespace Prisma {
     entryFee?: StringNullableFilter<"Event"> | string | null
     qr?: StringNullableFilter<"Event"> | string | null
     registrationsAvailable?: BoolFilter<"Event"> | boolean
+    registrationStartTime?: DateTimeNullableFilter<"Event"> | Date | string | null
     endDate?: DateTimeNullableFilter<"Event"> | Date | string | null
     maxTeams?: IntNullableFilter<"Event"> | number | null
     notification?: StringNullableFilter<"Event"> | string | null
@@ -48276,6 +48340,7 @@ export namespace Prisma {
 
   export type EventCreateWithoutCustomFieldsInput = {
     id?: string
+    slug?: string | null
     title: string
     description?: string | null
     image: string
@@ -48293,6 +48358,7 @@ export namespace Prisma {
     entryFee?: string | null
     qr?: string | null
     registrationsAvailable?: boolean
+    registrationStartTime?: Date | string | null
     endDate?: Date | string | null
     maxTeams?: number | null
     notification?: string | null
@@ -48303,6 +48369,7 @@ export namespace Prisma {
 
   export type EventUncheckedCreateWithoutCustomFieldsInput = {
     id?: string
+    slug?: string | null
     title: string
     description?: string | null
     image: string
@@ -48320,6 +48387,7 @@ export namespace Prisma {
     entryFee?: string | null
     qr?: string | null
     registrationsAvailable?: boolean
+    registrationStartTime?: Date | string | null
     endDate?: Date | string | null
     maxTeams?: number | null
     notification?: string | null
@@ -48346,6 +48414,7 @@ export namespace Prisma {
 
   export type EventUpdateWithoutCustomFieldsInput = {
     id?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     image?: StringFieldUpdateOperationsInput | string
@@ -48363,6 +48432,7 @@ export namespace Prisma {
     entryFee?: NullableStringFieldUpdateOperationsInput | string | null
     qr?: NullableStringFieldUpdateOperationsInput | string | null
     registrationsAvailable?: BoolFieldUpdateOperationsInput | boolean
+    registrationStartTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     maxTeams?: NullableIntFieldUpdateOperationsInput | number | null
     notification?: NullableStringFieldUpdateOperationsInput | string | null
@@ -48373,6 +48443,7 @@ export namespace Prisma {
 
   export type EventUncheckedUpdateWithoutCustomFieldsInput = {
     id?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     image?: StringFieldUpdateOperationsInput | string
@@ -48390,6 +48461,7 @@ export namespace Prisma {
     entryFee?: NullableStringFieldUpdateOperationsInput | string | null
     qr?: NullableStringFieldUpdateOperationsInput | string | null
     registrationsAvailable?: BoolFieldUpdateOperationsInput | boolean
+    registrationStartTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     maxTeams?: NullableIntFieldUpdateOperationsInput | number | null
     notification?: NullableStringFieldUpdateOperationsInput | string | null
@@ -48588,6 +48660,7 @@ export namespace Prisma {
 
   export type EventCreateWithoutParticipantsInput = {
     id?: string
+    slug?: string | null
     title: string
     description?: string | null
     image: string
@@ -48605,6 +48678,7 @@ export namespace Prisma {
     entryFee?: string | null
     qr?: string | null
     registrationsAvailable?: boolean
+    registrationStartTime?: Date | string | null
     endDate?: Date | string | null
     maxTeams?: number | null
     notification?: string | null
@@ -48615,6 +48689,7 @@ export namespace Prisma {
 
   export type EventUncheckedCreateWithoutParticipantsInput = {
     id?: string
+    slug?: string | null
     title: string
     description?: string | null
     image: string
@@ -48632,6 +48707,7 @@ export namespace Prisma {
     entryFee?: string | null
     qr?: string | null
     registrationsAvailable?: boolean
+    registrationStartTime?: Date | string | null
     endDate?: Date | string | null
     maxTeams?: number | null
     notification?: string | null
@@ -48699,6 +48775,7 @@ export namespace Prisma {
 
   export type EventUpdateWithoutParticipantsInput = {
     id?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     image?: StringFieldUpdateOperationsInput | string
@@ -48716,6 +48793,7 @@ export namespace Prisma {
     entryFee?: NullableStringFieldUpdateOperationsInput | string | null
     qr?: NullableStringFieldUpdateOperationsInput | string | null
     registrationsAvailable?: BoolFieldUpdateOperationsInput | boolean
+    registrationStartTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     maxTeams?: NullableIntFieldUpdateOperationsInput | number | null
     notification?: NullableStringFieldUpdateOperationsInput | string | null
@@ -48726,6 +48804,7 @@ export namespace Prisma {
 
   export type EventUncheckedUpdateWithoutParticipantsInput = {
     id?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     image?: StringFieldUpdateOperationsInput | string
@@ -48743,6 +48822,7 @@ export namespace Prisma {
     entryFee?: NullableStringFieldUpdateOperationsInput | string | null
     qr?: NullableStringFieldUpdateOperationsInput | string | null
     registrationsAvailable?: BoolFieldUpdateOperationsInput | boolean
+    registrationStartTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     maxTeams?: NullableIntFieldUpdateOperationsInput | number | null
     notification?: NullableStringFieldUpdateOperationsInput | string | null
@@ -50253,6 +50333,7 @@ export namespace Prisma {
 
   export type EventCreateWithoutWinnersInput = {
     id?: string
+    slug?: string | null
     title: string
     description?: string | null
     image: string
@@ -50270,6 +50351,7 @@ export namespace Prisma {
     entryFee?: string | null
     qr?: string | null
     registrationsAvailable?: boolean
+    registrationStartTime?: Date | string | null
     endDate?: Date | string | null
     maxTeams?: number | null
     notification?: string | null
@@ -50280,6 +50362,7 @@ export namespace Prisma {
 
   export type EventUncheckedCreateWithoutWinnersInput = {
     id?: string
+    slug?: string | null
     title: string
     description?: string | null
     image: string
@@ -50297,6 +50380,7 @@ export namespace Prisma {
     entryFee?: string | null
     qr?: string | null
     registrationsAvailable?: boolean
+    registrationStartTime?: Date | string | null
     endDate?: Date | string | null
     maxTeams?: number | null
     notification?: string | null
@@ -50356,6 +50440,7 @@ export namespace Prisma {
 
   export type EventUpdateWithoutWinnersInput = {
     id?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     image?: StringFieldUpdateOperationsInput | string
@@ -50373,6 +50458,7 @@ export namespace Prisma {
     entryFee?: NullableStringFieldUpdateOperationsInput | string | null
     qr?: NullableStringFieldUpdateOperationsInput | string | null
     registrationsAvailable?: BoolFieldUpdateOperationsInput | boolean
+    registrationStartTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     maxTeams?: NullableIntFieldUpdateOperationsInput | number | null
     notification?: NullableStringFieldUpdateOperationsInput | string | null
@@ -50383,6 +50469,7 @@ export namespace Prisma {
 
   export type EventUncheckedUpdateWithoutWinnersInput = {
     id?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     image?: StringFieldUpdateOperationsInput | string
@@ -50400,6 +50487,7 @@ export namespace Prisma {
     entryFee?: NullableStringFieldUpdateOperationsInput | string | null
     qr?: NullableStringFieldUpdateOperationsInput | string | null
     registrationsAvailable?: BoolFieldUpdateOperationsInput | boolean
+    registrationStartTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     maxTeams?: NullableIntFieldUpdateOperationsInput | number | null
     notification?: NullableStringFieldUpdateOperationsInput | string | null
@@ -51346,6 +51434,7 @@ export namespace Prisma {
 
   export type EventUpdateWithoutOrganizersInput = {
     id?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     image?: StringFieldUpdateOperationsInput | string
@@ -51363,6 +51452,7 @@ export namespace Prisma {
     entryFee?: NullableStringFieldUpdateOperationsInput | string | null
     qr?: NullableStringFieldUpdateOperationsInput | string | null
     registrationsAvailable?: BoolFieldUpdateOperationsInput | boolean
+    registrationStartTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     maxTeams?: NullableIntFieldUpdateOperationsInput | number | null
     notification?: NullableStringFieldUpdateOperationsInput | string | null
@@ -51373,6 +51463,7 @@ export namespace Prisma {
 
   export type EventUncheckedUpdateWithoutOrganizersInput = {
     id?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     image?: StringFieldUpdateOperationsInput | string
@@ -51390,6 +51481,7 @@ export namespace Prisma {
     entryFee?: NullableStringFieldUpdateOperationsInput | string | null
     qr?: NullableStringFieldUpdateOperationsInput | string | null
     registrationsAvailable?: BoolFieldUpdateOperationsInput | boolean
+    registrationStartTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     maxTeams?: NullableIntFieldUpdateOperationsInput | number | null
     notification?: NullableStringFieldUpdateOperationsInput | string | null
@@ -51400,6 +51492,7 @@ export namespace Prisma {
 
   export type EventUncheckedUpdateManyWithoutOrganizersInput = {
     id?: StringFieldUpdateOperationsInput | string
+    slug?: NullableStringFieldUpdateOperationsInput | string | null
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     image?: StringFieldUpdateOperationsInput | string
@@ -51417,6 +51510,7 @@ export namespace Prisma {
     entryFee?: NullableStringFieldUpdateOperationsInput | string | null
     qr?: NullableStringFieldUpdateOperationsInput | string | null
     registrationsAvailable?: BoolFieldUpdateOperationsInput | boolean
+    registrationStartTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     maxTeams?: NullableIntFieldUpdateOperationsInput | number | null
     notification?: NullableStringFieldUpdateOperationsInput | string | null

@@ -1,5 +1,6 @@
 export interface Event {
   id: string;
+  slug?: string | null;
   title: string;
   image: string;
   date: Date;
@@ -15,5 +16,7 @@ export interface Event {
   guests?: string[];
   reportLink?: string | null;
   status?: string;
+  published?: boolean;
   registrationsAvailable?: boolean;
+  registrationStartTime?: Date | null;
 }
