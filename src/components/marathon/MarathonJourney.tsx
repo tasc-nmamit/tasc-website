@@ -76,7 +76,7 @@ export default function MarathonJourney({ days }: MarathonJourneyProps) {
                 {index > 0 && (
                   <div 
                     className={`absolute left-0 right-1/2 h-[1px] ${
-                      pastDay || currentDay ? "bg-white/30" : "bg-white/10"
+                      pastDay || currentDay ? "bg-brand-accent/50 dark:bg-white/30" : "bg-border dark:bg-white/10"
                     }`} 
                   />
                 )}
@@ -84,22 +84,22 @@ export default function MarathonJourney({ days }: MarathonJourneyProps) {
                 {index < days.length - 1 && (
                   <div 
                     className={`absolute left-1/2 right-0 h-[1px] ${
-                      pastDay ? "bg-white/30" : "bg-white/10"
+                      pastDay ? "bg-brand-accent/50 dark:bg-white/30" : "bg-border dark:bg-white/10"
                     }`} 
                   />
                 )}
 
                 {/* Main Node Square (Sharp) */}
                 <div
-                  className={`relative z-10 flex h-6 w-6 items-center justify-center text-xs font-bold transition-colors ${
+                  className={`relative z-10 flex h-6 w-6 items-center justify-center text-xs font-bold transition-colors rounded-sm ${
                     currentDay
-                      ? "bg-emerald-500 text-black border border-emerald-400 font-extrabold"
+                      ? "bg-emerald-500 text-white dark:text-black border border-emerald-400 font-extrabold shadow-sm"
                       : isSolved
                       ? "bg-purple-600 text-white border border-purple-400"
                       : item.hasContest
-                      ? "border border-white/40 bg-black text-white hover:border-white"
-                      : "border border-white/10 bg-black text-slate-600"
-                  } ${isSelected ? "ring-2 ring-white" : ""}`}
+                      ? "border border-brand/30 dark:border-white/40 bg-card dark:bg-black text-foreground dark:text-white hover:border-brand-accent dark:hover:border-white shadow-sm"
+                      : "border border-border dark:border-white/10 bg-muted/60 dark:bg-black text-muted-foreground/50 dark:text-slate-600"
+                  } ${isSelected ? "ring-2 ring-brand-accent dark:ring-white" : ""}`}
                 >
                   {isSolved ? (
                     <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -110,7 +110,7 @@ export default function MarathonJourney({ days }: MarathonJourneyProps) {
                       {item.dayNumber || format(item.date, "d")}
                     </span>
                   ) : (
-                    <span className="h-1 w-1 bg-white/20" />
+                    <span className="h-1 w-1 bg-muted-foreground/30 dark:bg-white/20" />
                   )}
                 </div>
               </div>
@@ -118,11 +118,11 @@ export default function MarathonJourney({ days }: MarathonJourneyProps) {
               {/* Bottom Date Label */}
               <div className="mt-2 text-center">
                 <span className={`block text-xs font-semibold ${
-                  currentDay ? "text-white font-bold" : "text-slate-400"
+                  currentDay ? "text-brand-accent dark:text-white font-bold" : "text-muted-foreground dark:text-slate-400"
                 }`}>
                   {currentDay ? "TODAY" : format(item.date, "MMM d")}
                 </span>
-                <span className="block text-[10px] text-slate-500">
+                <span className="block text-[10px] text-muted-foreground/70 dark:text-slate-500">
                   {format(item.date, "EEE")}
                 </span>
               </div>
@@ -133,11 +133,11 @@ export default function MarathonJourney({ days }: MarathonJourneyProps) {
 
       {/* Selected Day Info Box */}
       {selectedDay && (
-        <div className="mt-4 border border-white/15 bg-black/70 p-3.5">
+        <div className="mt-4 border border-brand/20 dark:border-white/15 bg-card/90 dark:bg-black/70 p-3.5 rounded-lg shadow-md">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-purple-400">
+                <span className="text-xs font-bold uppercase tracking-wider text-brand-accent dark:text-purple-400">
                   {format(selectedDay.date, "EEEE, MMMM d, yyyy")}
                 </span>
                 {isToday(selectedDay.date) && (
@@ -146,14 +146,14 @@ export default function MarathonJourney({ days }: MarathonJourneyProps) {
                   </span>
                 )}
               </div>
-              <h4 className="text-sm sm:text-base font-bold text-white mt-0.5">
+              <h4 className="text-sm sm:text-base font-bold text-foreground dark:text-white mt-0.5">
                 {selectedDay.contestTitle || (selectedDay.hasContest ? `Day ${selectedDay.dayNumber} Challenge` : "No challenge scheduled")}
               </h4>
             </div>
 
             <div className="flex items-center gap-3">
               {typeof selectedDay.score === "number" && selectedDay.score > 0 && (
-                <div className="text-xs font-bold text-emerald-400">
+                <div className="text-xs font-bold text-emerald-500 dark:text-emerald-400">
                   Earned: +{selectedDay.score} pts
                 </div>
               )}
@@ -162,7 +162,7 @@ export default function MarathonJourney({ days }: MarathonJourneyProps) {
                   href={selectedDay.link}
                   target="_blank"
                   rel="noreferrer"
-                  className="bg-purple-600 hover:bg-purple-500 px-3 py-1 text-xs font-bold uppercase tracking-wider text-white transition-colors"
+                  className="bg-purple-600 hover:bg-purple-500 px-3 py-1 text-xs font-bold uppercase tracking-wider text-white transition-colors rounded-md"
                 >
                   Open Problem →
                 </a>

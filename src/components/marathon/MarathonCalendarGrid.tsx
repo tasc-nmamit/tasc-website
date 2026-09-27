@@ -62,28 +62,28 @@ export default function MarathonCalendarGrid({
     <div className="flex flex-col h-full justify-between">
       {/* Calendar Header */}
       <div>
-        <div className="flex items-center justify-between mb-4 border-b border-white/10 pb-3">
+        <div className="flex items-center justify-between mb-4 border-b border-border dark:border-white/10 pb-3">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-7 w-7 items-center justify-center bg-white/10 border border-white/15 text-white">
+            <div className="flex h-7 w-7 items-center justify-center bg-brand/10 dark:bg-white/10 border border-brand/20 dark:border-white/15 text-foreground dark:text-white">
               <CalendarIcon className="h-3.5 w-3.5" />
             </div>
             <div>
-              <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 block">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground dark:text-slate-400 block">
                 SCHEDULE {userBatch ? `• BATCH ${userBatch}` : ""}
               </span>
-              <h3 className="font-valley text-lg font-bold text-white tracking-tight">
+              <h3 className="font-valley text-lg font-bold text-foreground dark:text-white tracking-tight">
                 {format(currentDate, "MMMM yyyy")}
               </h3>
             </div>
           </div>
 
-          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 bg-white/5 border border-white/10 px-2.5 py-1">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground dark:text-slate-400 bg-muted/60 dark:bg-white/5 border border-border dark:border-white/10 px-2.5 py-1">
             MONTHLY VIEW
           </span>
         </div>
 
         {/* Days of Week Header */}
-        <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">
+        <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-bold uppercase tracking-wider text-muted-foreground dark:text-slate-400 mb-2">
           {["SU", "MO", "TU", "WE", "TH", "FR", "SA"].map((day) => (
             <div key={day} className="py-1">
               {day}
@@ -123,22 +123,22 @@ export default function MarathonCalendarGrid({
               selectedDay.getMonth() === day.getMonth();
 
             // Background & border dynamic styling
-            let cellStyle = "text-slate-300 border-white/5 hover:bg-white/5 hover:border-white/15";
+            let cellStyle = "text-foreground/80 dark:text-slate-300 border-border/60 dark:border-white/5 hover:bg-muted dark:hover:bg-white/5 hover:border-border dark:hover:border-white/15";
 
             if (!isSameMonth(day, currentDate)) {
-              cellStyle = "text-slate-600 border-transparent pointer-events-none";
+              cellStyle = "text-muted-foreground/30 dark:text-slate-600 border-transparent pointer-events-none";
             } else if (isCurrentDay) {
               cellStyle = "bg-purple-600 text-white font-bold border-purple-500 shadow-sm";
             } else if (isSelected) {
-              cellStyle = "ring-1 ring-white bg-white/20 text-white border-white/30";
+              cellStyle = "ring-1 ring-purple-500 bg-purple-500/15 text-foreground dark:ring-white dark:bg-white/20 dark:text-white border-purple-500/40 dark:border-white/30";
             } else if (dayAttendance && !dayAttendance.present) {
               // Missed class session - red highlight
-              cellStyle = "bg-rose-500/15 border-rose-500/40 text-rose-200 hover:bg-rose-500/25";
+              cellStyle = "bg-rose-500/15 border-rose-500/40 text-rose-700 dark:text-rose-200 hover:bg-rose-500/25";
             } else if (dayAttendance && dayAttendance.present) {
               // Attended class session - subtle green highlight
-              cellStyle = "bg-emerald-500/10 border-emerald-500/30 text-white hover:bg-emerald-500/20";
+              cellStyle = "bg-emerald-500/15 border-emerald-500/40 text-emerald-800 dark:text-emerald-200 hover:bg-emerald-500/25";
             } else if (hasContest) {
-              cellStyle = "bg-white/10 border-white/20 text-white hover:bg-white/20";
+              cellStyle = "bg-purple-500/10 border-purple-500/30 text-purple-900 dark:bg-white/10 dark:border-white/20 dark:text-white hover:bg-purple-500/20";
             }
 
             return (
@@ -155,7 +155,7 @@ export default function MarathonCalendarGrid({
                   {hasContest && (
                     <span
                       className={`h-1 w-1 rounded-full ${
-                        isCurrentDay ? "bg-white" : "bg-purple-400"
+                        isCurrentDay ? "bg-white" : "bg-purple-500 dark:bg-purple-400"
                       }`}
                       title={`Contest: ${dayContest?.title}`}
                     />
@@ -164,7 +164,7 @@ export default function MarathonCalendarGrid({
                     <span
                       className={`h-1 w-1 rounded-full ${
                         dayAttendance.present
-                          ? "bg-emerald-400"
+                          ? "bg-emerald-500 dark:bg-emerald-400"
                           : "bg-rose-500 ring-1 ring-rose-400"
                       }`}
                       title={
@@ -182,11 +182,11 @@ export default function MarathonCalendarGrid({
       </div>
 
       {/* Selected Day Info / Legend Area */}
-      <div className="mt-5 pt-3 border-t border-white/10">
+      <div className="mt-5 pt-3 border-t border-border dark:border-white/10">
         {selectedDay ? (
-          <div className="bg-black/60 border border-white/15 p-3 space-y-2.5">
-            <div className="flex items-center justify-between border-b border-white/10 pb-2">
-              <span className="text-[11px] font-bold text-slate-300 uppercase">
+          <div className="bg-card dark:bg-black/60 border border-border dark:border-white/15 p-3 space-y-2.5 rounded">
+            <div className="flex items-center justify-between border-b border-border dark:border-white/10 pb-2">
+              <span className="text-[11px] font-bold text-foreground dark:text-slate-300 uppercase">
                 {format(selectedDay, "EEEE, MMM d, yyyy")}
               </span>
               <div className="flex items-center gap-1.5">
@@ -198,7 +198,7 @@ export default function MarathonCalendarGrid({
                 <button
                   type="button"
                   onClick={() => setSelectedDay(null)}
-                  className="text-[10px] text-slate-400 hover:text-white underline cursor-pointer"
+                  className="text-[10px] text-muted-foreground hover:text-foreground dark:text-slate-400 dark:hover:text-white underline cursor-pointer"
                 >
                   Close
                 </button>
@@ -217,15 +217,15 @@ export default function MarathonCalendarGrid({
                 <div className="min-w-0 space-y-0.5">
                   <div className="flex items-center gap-1.5">
                     {selectedAttendance.present ? (
-                      <CheckCircle2Icon className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+                      <CheckCircle2Icon className="h-3.5 w-3.5 text-emerald-500 dark:text-emerald-400 shrink-0" />
                     ) : (
-                      <XCircleIcon className="h-3.5 w-3.5 text-rose-400 shrink-0" />
+                      <XCircleIcon className="h-3.5 w-3.5 text-rose-500 dark:text-rose-400 shrink-0" />
                     )}
-                    <span className="text-[10px] font-mono-tech font-bold uppercase tracking-wider text-slate-300">
+                    <span className="text-[10px] font-mono-tech font-bold uppercase tracking-wider text-muted-foreground dark:text-slate-300">
                       CLASS SESSION • BATCH {selectedAttendance.batch}
                     </span>
                   </div>
-                  <h4 className="text-xs font-bold text-white truncate">
+                  <h4 className="text-xs font-bold text-foreground dark:text-white truncate">
                     {selectedAttendance.topic || "Marathon Class Session"}
                   </h4>
                 </div>
@@ -233,8 +233,8 @@ export default function MarathonCalendarGrid({
                 <span
                   className={`text-[10px] font-mono-tech font-bold px-2 py-0.5 rounded border shrink-0 ${
                     selectedAttendance.present
-                      ? "border-emerald-500/50 bg-emerald-500/20 text-emerald-300"
-                      : "border-rose-500/50 bg-rose-500/20 text-rose-300"
+                      ? "border-emerald-500/50 bg-emerald-500/20 text-emerald-700 dark:text-emerald-300"
+                      : "border-rose-500/50 bg-rose-500/20 text-rose-700 dark:text-rose-300"
                   }`}
                 >
                   {selectedAttendance.present ? "✓ PRESENT" : "✗ ABSENT"}
@@ -246,10 +246,10 @@ export default function MarathonCalendarGrid({
             {selectedContest && (
               <div className="p-2.5 border border-purple-500/30 bg-purple-500/10 rounded flex items-center justify-between gap-2">
                 <div className="min-w-0">
-                  <span className="text-[10px] font-mono-tech text-purple-300 block uppercase font-bold">
+                  <span className="text-[10px] font-mono-tech text-purple-700 dark:text-purple-300 block uppercase font-bold">
                     DAILY CHALLENGE • DAY {selectedContest.dayNumber}
                   </span>
-                  <h4 className="text-xs font-bold text-white truncate mt-0.5">
+                  <h4 className="text-xs font-bold text-foreground dark:text-white truncate mt-0.5">
                     {selectedContest.title}
                   </h4>
                 </div>
@@ -265,24 +265,24 @@ export default function MarathonCalendarGrid({
             )}
 
             {!selectedAttendance && !selectedContest && (
-              <p className="text-xs text-slate-400 py-1">
+              <p className="text-xs text-muted-foreground dark:text-slate-400 py-1">
                 No classes or contests scheduled on this date.
               </p>
             )}
           </div>
         ) : (
           <div className="space-y-2">
-            <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] font-medium text-slate-400">
+            <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] font-medium text-muted-foreground dark:text-slate-400">
               <div className="flex items-center gap-1.5">
                 <div className="h-2 w-2 bg-purple-600" />
                 <span>Today</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <div className="h-2 w-2 rounded-full bg-purple-400" />
+                <div className="h-2 w-2 rounded-full bg-purple-500 dark:bg-purple-400" />
                 <span>Contest</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <div className="h-2 w-2 rounded-full bg-emerald-400" />
+                <div className="h-2 w-2 rounded-full bg-emerald-500 dark:bg-emerald-400" />
                 <span>Present</span>
               </div>
               <div className="flex items-center gap-1.5">
@@ -292,9 +292,9 @@ export default function MarathonCalendarGrid({
             </div>
 
             {userBatch && (
-              <div className="text-[10px] font-mono-tech text-slate-400 flex items-center justify-between pt-1 border-t border-white/5">
+              <div className="text-[10px] font-mono-tech text-muted-foreground dark:text-slate-400 flex items-center justify-between pt-1 border-t border-border dark:border-white/5">
                 <span>ASSIGNED BATCH:</span>
-                <span className="text-emerald-400 font-bold">BATCH {userBatch}</span>
+                <span className="text-emerald-600 dark:text-emerald-400 font-bold">BATCH {userBatch}</span>
               </div>
             )}
           </div>

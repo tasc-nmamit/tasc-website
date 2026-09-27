@@ -31,23 +31,23 @@ export default async function MarathonDashboard() {
       <main className="min-h-dvh px-4 pt-32 pb-20 flex items-center justify-center relative overflow-hidden bg-background bg-blueprint-grid text-foreground">
         <div className="absolute top-0 inset-x-0 h-96 bg-gradient-to-b from-brand/15 via-brand/5 to-transparent pointer-events-none" />
 
-        <div className="relative z-10 mx-auto max-w-lg text-center border border-brand/25 bg-card/85 backdrop-blur-xl p-8 md:p-10 shadow-2xl rounded-xl">
-          <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center bg-white/10 border border-white/20 text-white">
-            <TrophyIcon className="h-7 w-7 text-white" />
+        <div className="relative z-10 mx-auto max-w-lg text-center border border-border dark:border-brand/25 bg-card/95 backdrop-blur-xl p-8 md:p-10 shadow-2xl rounded-xl">
+          <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center bg-brand/10 dark:bg-white/10 border border-brand/20 dark:border-white/20 text-foreground dark:text-white rounded-lg">
+            <TrophyIcon className="h-7 w-7 text-brand-dark dark:text-white" />
           </div>
-          <span className="text-xs font-bold uppercase tracking-widest text-slate-400">
+          <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground dark:text-slate-400">
             TASC CODING MARATHON
           </span>
-          <h1 className="mt-2 font-valley text-2xl md:text-3xl font-bold text-white">
+          <h1 className="mt-2 font-valley text-2xl md:text-3xl font-bold text-foreground dark:text-white">
             This competition is currently unavailable to you.
           </h1>
-          <p className="mt-4 text-sm text-slate-300 leading-relaxed">
+          <p className="mt-4 text-sm text-muted-foreground dark:text-slate-300 leading-relaxed">
             The TASC Coding Marathon is currently reserved for 2nd and 3rd year AIML students. If you believe this is an error, please update your academic profile.
           </p>
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link
               href="/"
-              className="w-full sm:w-auto bg-white/10 hover:bg-white/20 border border-white/20 px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-white transition-colors"
+              className="w-full sm:w-auto bg-muted hover:bg-muted/80 dark:bg-white/10 dark:hover:bg-white/20 border border-border dark:border-white/20 px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-foreground dark:text-white transition-colors"
             >
               Return Home
             </Link>
@@ -197,20 +197,20 @@ export default async function MarathonDashboard() {
         {/* ========================================================================= */}
         {/* TOP HERO & PERFORMANCE METRICS */}
         {/* ========================================================================= */}
-        <section className="border border-white/20 bg-black/75 backdrop-blur-md p-6 sm:p-8">
+        <section className="border border-border dark:border-white/20 bg-card/90 dark:bg-black/75 backdrop-blur-md p-6 sm:p-8 shadow-sm">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             
             {/* Left: Competition Title */}
             <div className="lg:col-span-7 space-y-3">
-              <div className="inline-flex items-center gap-2 border border-white/20 bg-white/5 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-slate-300">
+              <div className="inline-flex items-center gap-2 border border-border dark:border-white/20 bg-muted/60 dark:bg-white/5 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-muted-foreground dark:text-slate-300">
                 <span>YEAR {targetYear} ARENA</span>
               </div>
 
-              <h1 className="font-valley text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-white leading-tight">
+              <h1 className="font-valley text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-foreground dark:text-white leading-tight">
                 Compete. Solve. Climb.
               </h1>
 
-              <p className="text-sm text-slate-300 max-w-xl leading-relaxed">
+              <p className="text-sm text-muted-foreground dark:text-slate-300 max-w-xl leading-relaxed">
                 Take on daily coding challenges, build your streak, and climb the university rankings at TASC.
               </p>
 
@@ -227,9 +227,9 @@ export default async function MarathonDashboard() {
                 {!user?.hackerrankUsername && (
                   <Link
                     href="/profile"
-                    className="inline-flex items-center gap-2 border border-amber-500/40 bg-amber-500/15 px-3.5 py-2 text-xs font-semibold text-amber-300 hover:bg-amber-500/25 transition-colors"
+                    className="inline-flex items-center gap-2 border border-amber-500/40 bg-amber-500/15 px-3.5 py-2 text-xs font-semibold text-amber-700 dark:text-amber-300 hover:bg-amber-500/25 transition-colors"
                   >
-                    <AlertCircleIcon className="h-4 w-4 shrink-0 text-amber-400" />
+                    <AlertCircleIcon className="h-4 w-4 shrink-0 text-amber-500 dark:text-amber-400" />
                     <span>Link HackerRank ID to Sync</span>
                   </Link>
                 )}
@@ -237,51 +237,51 @@ export default async function MarathonDashboard() {
             </div>
 
             {/* Right: Sharp Editorial Stats */}
-            <div className="lg:col-span-5 grid grid-cols-2 sm:grid-cols-4 gap-2 bg-black/60 border border-white/15 p-4">
+            <div className="lg:col-span-5 grid grid-cols-2 sm:grid-cols-4 gap-2 bg-muted/40 dark:bg-black/60 border border-border dark:border-white/15 p-4">
               {/* Total Points */}
-              <div className="flex flex-col items-center justify-center text-center p-2 border border-white/5">
-                <span className="font-sans text-xl sm:text-2xl font-extrabold text-white tracking-tight">
+              <div className="flex flex-col items-center justify-center text-center p-2 border border-border/60 dark:border-white/5">
+                <span className="font-sans text-xl sm:text-2xl font-extrabold text-foreground dark:text-white tracking-tight">
                   {(user?.marathonTotalScore || 0).toLocaleString()}
                 </span>
-                <span className="mt-1 text-[9px] font-bold uppercase tracking-widest text-slate-400">
+                <span className="mt-1 text-[9px] font-bold uppercase tracking-widest text-muted-foreground dark:text-slate-400">
                   POINTS
                 </span>
               </div>
 
               {/* Day Streak */}
-              <div className="flex flex-col items-center justify-center text-center p-2 border border-white/5">
+              <div className="flex flex-col items-center justify-center text-center p-2 border border-border/60 dark:border-white/5">
                 <div className="flex items-center gap-1">
                   <FlameIcon className="h-4 w-4 fill-amber-500 text-amber-500" />
-                  <span className="font-sans text-xl sm:text-2xl font-extrabold text-amber-400 tracking-tight">
+                  <span className="font-sans text-xl sm:text-2xl font-extrabold text-amber-600 dark:text-amber-400 tracking-tight">
                     {user?.marathonStreak || 0}
                   </span>
                 </div>
-                <span className="mt-1 text-[9px] font-bold uppercase tracking-widest text-slate-400">
+                <span className="mt-1 text-[9px] font-bold uppercase tracking-widest text-muted-foreground dark:text-slate-400">
                   DAY STREAK
                 </span>
               </div>
 
               {/* Attendance */}
-              <div className="flex flex-col items-center justify-center text-center p-2 border border-white/5">
-                <span className="font-sans text-xl sm:text-2xl font-extrabold text-emerald-400 tracking-tight">
+              <div className="flex flex-col items-center justify-center text-center p-2 border border-border/60 dark:border-white/5">
+                <span className="font-sans text-xl sm:text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 tracking-tight">
                   {attendanceStats?.percentage ?? 100}%
                 </span>
-                <span className="mt-1 text-[9px] font-bold uppercase tracking-widest text-slate-400 truncate max-w-full">
+                <span className="mt-1 text-[9px] font-bold uppercase tracking-widest text-muted-foreground dark:text-slate-400 truncate max-w-full">
                   {attendanceStats?.presentClasses ?? 0}/{attendanceStats?.totalClasses ?? 0} CLASSES
                 </span>
                 {attendanceStats?.batch && (
-                  <span className="text-[9px] font-mono-tech font-bold text-purple-400 uppercase tracking-wider mt-0.5">
+                  <span className="text-[9px] font-mono-tech font-bold text-purple-600 dark:text-purple-400 uppercase tracking-wider mt-0.5">
                     BATCH {attendanceStats.batch}
                   </span>
                 )}
               </div>
 
               {/* Global Rank */}
-              <div className="flex flex-col items-center justify-center text-center p-2 border border-white/5">
-                <span className="font-sans text-xl sm:text-2xl font-extrabold text-purple-400 tracking-tight">
+              <div className="flex flex-col items-center justify-center text-center p-2 border border-border/60 dark:border-white/5">
+                <span className="font-sans text-xl sm:text-2xl font-extrabold text-purple-600 dark:text-purple-400 tracking-tight">
                   {userRank ? `#${userRank}` : "—"}
                 </span>
-                <span className="mt-1 text-[9px] font-bold uppercase tracking-widest text-slate-400">
+                <span className="mt-1 text-[9px] font-bold uppercase tracking-widest text-muted-foreground dark:text-slate-400">
                   GLOBAL RANK
                 </span>
               </div>
@@ -299,13 +299,13 @@ export default async function MarathonDashboard() {
           
           {/* LEFT SIDE: Large Current Weekly Sprint Card */}
           <div className="lg:col-span-7 flex flex-col">
-            <div className="flex-1 border border-white/20 bg-black/75 backdrop-blur-md p-6 sm:p-8 flex flex-col justify-between">
+            <div className="flex-1 border border-border dark:border-white/20 bg-card/90 dark:bg-black/75 backdrop-blur-md p-6 sm:p-8 flex flex-col justify-between shadow-sm">
               
               {/* Sprint Content */}
               <div>
                 <div className="flex items-center justify-between gap-3 mb-4">
-                  <div className="inline-flex items-center gap-1.5 border border-white/15 bg-white/5 px-2.5 py-1 text-xs font-bold text-slate-300">
-                    <ZapIcon className="h-3.5 w-3.5 text-purple-400" />
+                  <div className="inline-flex items-center gap-1.5 border border-border dark:border-white/15 bg-muted/60 dark:bg-white/5 px-2.5 py-1 text-xs font-bold text-foreground dark:text-slate-300">
+                    <ZapIcon className="h-3.5 w-3.5 text-purple-600 dark:text-purple-400" />
                     <span>
                       {currentWeeklyContest
                         ? `WEEK ${String(currentWeeklyContest.weekNumber).padStart(2, "0")} SPRINT`
@@ -313,34 +313,34 @@ export default async function MarathonDashboard() {
                     </span>
                   </div>
 
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground dark:text-slate-400">
                     ACTIVE CHALLENGE
                   </span>
                 </div>
 
-                <h2 className="font-valley text-2xl sm:text-3xl font-bold text-white tracking-tight">
+                <h2 className="font-valley text-2xl sm:text-3xl font-bold text-foreground dark:text-white tracking-tight">
                   {currentWeeklyContest ? currentWeeklyContest.title : "Weekly Engineering Sprint"}
                 </h2>
 
-                <p className="mt-3 text-sm text-slate-300 leading-relaxed">
+                <p className="mt-3 text-sm text-muted-foreground dark:text-slate-300 leading-relaxed">
                   {currentWeeklyContest?.description ||
                     "Take on this week's algorithmic sprint to earn massive point rewards and boost your competitive standing."}
                 </p>
               </div>
 
               {/* Timer & Action Bar */}
-              <div className="mt-8 pt-6 border-t border-white/15 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-black/60 border border-white/10 p-4">
+              <div className="mt-8 pt-6 border-t border-border dark:border-white/15 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-muted/40 dark:bg-black/60 border border-border dark:border-white/10 p-4">
                 
                 {/* Red Deadline Timer */}
                 <div>
-                  <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-red-400 mb-1.5">
+                  <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-rose-600 dark:text-red-400 mb-1.5">
                     <TimerIcon className="h-3.5 w-3.5" />
                     <span>DEADLINE COUNTDOWN</span>
                   </div>
                   {currentWeeklyContest ? (
                     <CountdownTimer deadline={currentWeeklyContest.deadline} variant="red" />
                   ) : (
-                    <span className="text-xs text-slate-400 font-semibold">
+                    <span className="text-xs text-muted-foreground dark:text-slate-400 font-semibold">
                       Sprint launching soon
                     </span>
                   )}
@@ -360,7 +360,7 @@ export default async function MarathonDashboard() {
                 ) : (
                   <button
                     disabled
-                    className="w-full sm:w-auto bg-white/5 border border-white/10 px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-slate-500 cursor-not-allowed"
+                    className="w-full sm:w-auto bg-muted dark:bg-white/5 border border-border dark:border-white/10 px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-muted-foreground dark:text-slate-500 cursor-not-allowed"
                   >
                     COMING SOON
                   </button>
@@ -373,7 +373,7 @@ export default async function MarathonDashboard() {
 
           {/* RIGHT SIDE: Minimalist Monthly Calendar Grid */}
           <div className="lg:col-span-5 flex flex-col">
-            <div className="flex-1 border border-white/20 bg-black/75 backdrop-blur-md p-6">
+            <div className="flex-1 border border-border dark:border-white/20 bg-card/90 dark:bg-black/75 backdrop-blur-md p-6 shadow-sm">
               <MarathonCalendarGrid
                 currentDate={now}
                 startMonth={startMonth}
@@ -391,22 +391,22 @@ export default async function MarathonDashboard() {
         {/* TODAY'S DAILY CHALLENGE */}
         {/* ========================================================================= */}
         {todayContest && (
-          <section className="border border-white/20 bg-black/75 backdrop-blur-md p-6">
+          <section className="border border-border dark:border-white/20 bg-card/90 dark:bg-black/75 backdrop-blur-md p-6 shadow-sm">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
               <div className="space-y-1.5 max-w-2xl">
                 <div className="flex items-center gap-2">
-                  <span className="h-2 w-2 bg-emerald-500" />
-                  <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">
+                  <span className="h-2 w-2 bg-emerald-500 rounded-full" />
+                  <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
                     TODAY&apos;S DAILY CHALLENGE • DAY {todayContest.dayNumber}
                   </span>
                 </div>
 
-                <h3 className="font-valley text-xl sm:text-2xl font-bold text-white">
+                <h3 className="font-valley text-xl sm:text-2xl font-bold text-foreground dark:text-white">
                   {todayContest.title}
                 </h3>
 
                 {todayContest.description && (
-                  <p className="text-sm text-slate-300 line-clamp-2">
+                  <p className="text-sm text-muted-foreground dark:text-slate-300 line-clamp-2">
                     {todayContest.description}
                   </p>
                 )}
@@ -414,10 +414,10 @@ export default async function MarathonDashboard() {
 
               <div className="flex items-center gap-4 shrink-0">
                 <div className="text-right hidden sm:block">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground dark:text-slate-400 block">
                     REWARD
                   </span>
-                  <span className="font-sans text-base font-bold text-white">
+                  <span className="font-sans text-base font-bold text-foreground dark:text-white">
                     +100 PTS
                   </span>
                 </div>
@@ -442,14 +442,14 @@ export default async function MarathonDashboard() {
         <section className="space-y-3">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
             <div>
-              <h2 className="font-valley text-xl sm:text-2xl font-bold tracking-tight text-white">
+              <h2 className="font-valley text-xl sm:text-2xl font-bold tracking-tight text-foreground dark:text-white">
                 Marathon Journey
               </h2>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-muted-foreground dark:text-slate-400">
                 Track your active streaks, solved problems, and upcoming contests across the month.
               </p>
             </div>
-            <div className="flex items-center gap-4 text-xs text-slate-400 pt-1 sm:pt-0">
+            <div className="flex items-center gap-4 text-xs text-muted-foreground dark:text-slate-400 pt-1 sm:pt-0">
               <span className="flex items-center gap-1.5">
                 <span className="h-2 w-2 bg-purple-500" /> Solved
               </span>
@@ -457,12 +457,12 @@ export default async function MarathonDashboard() {
                 <span className="h-2 w-2 bg-emerald-500" /> Live
               </span>
               <span className="flex items-center gap-1.5">
-                <span className="h-2 w-2 border border-white/40" /> Scheduled
+                <span className="h-2 w-2 border border-border dark:border-white/40" /> Scheduled
               </span>
             </div>
           </div>
 
-          <div className="border border-white/20 bg-black/75 backdrop-blur-md p-5">
+          <div className="border border-border dark:border-white/20 bg-card/90 dark:bg-black/75 backdrop-blur-md p-5 shadow-sm">
             <MarathonJourney days={journeyDays} />
           </div>
         </section>
@@ -475,29 +475,29 @@ export default async function MarathonDashboard() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div>
                 <div className="flex items-center gap-2">
-                  <h2 className="font-valley text-xl sm:text-2xl font-bold tracking-tight text-white">
+                  <h2 className="font-valley text-xl sm:text-2xl font-bold tracking-tight text-foreground dark:text-white">
                     Class Attendance & Sessions
                   </h2>
                   {attendanceStats.batch && (
-                    <span className="text-[10px] font-mono-tech font-bold px-2 py-0.5 rounded bg-purple-600/30 border border-purple-500/50 text-purple-300">
+                    <span className="text-[10px] font-mono-tech font-bold px-2 py-0.5 rounded bg-purple-500/10 border border-purple-500/30 text-purple-700 dark:bg-purple-600/30 dark:border-purple-500/50 dark:text-purple-300">
                       BATCH {attendanceStats.batch}
                     </span>
                   )}
                 </div>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-muted-foreground dark:text-slate-400">
                   Attendance logs for scheduled marathon workshops and mentoring classes.
                 </p>
               </div>
-              <div className="text-xs font-mono-tech text-emerald-400 border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 rounded-md self-start sm:self-auto">
+              <div className="text-xs font-mono-tech text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 rounded-md self-start sm:self-auto">
                 {attendanceStats.percentage}% Attended ({attendanceStats.presentClasses}/{attendanceStats.totalClasses} Present)
               </div>
             </div>
 
-            <div className="border border-white/20 bg-black/75 backdrop-blur-md p-5">
+            <div className="border border-border dark:border-white/20 bg-card/90 dark:bg-black/75 backdrop-blur-md p-5 shadow-sm">
               {attendanceStats.records.length === 0 ? (
-                <div className="text-center py-6 text-slate-400 text-xs">
-                  <p className="font-semibold text-slate-300">No marathon classes scheduled yet{attendanceStats.batch ? ` for Batch ${attendanceStats.batch}` : ""}.</p>
-                  <p className="text-slate-500 mt-1">When coordinators schedule classes for your batch, your session history and attendance status will appear here.</p>
+                <div className="text-center py-6 text-muted-foreground dark:text-slate-400 text-xs">
+                  <p className="font-semibold text-foreground dark:text-slate-300">No marathon classes scheduled yet{attendanceStats.batch ? ` for Batch ${attendanceStats.batch}` : ""}.</p>
+                  <p className="text-muted-foreground dark:text-slate-500 mt-1">When coordinators schedule classes for your batch, your session history and attendance status will appear here.</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
@@ -506,22 +506,22 @@ export default async function MarathonDashboard() {
                       key={rec.id}
                       className={`p-3.5 border rounded-lg flex items-center justify-between gap-3 ${
                         rec.present
-                          ? "border-emerald-500/30 bg-emerald-500/5"
-                          : "border-red-500/30 bg-red-500/5"
+                          ? "border-emerald-500/30 bg-emerald-500/10 dark:bg-emerald-500/5"
+                          : "border-red-500/30 bg-red-500/10 dark:bg-red-500/5"
                       }`}
                     >
                       <div className="min-w-0">
-                        <span className="text-[10px] font-mono-tech text-slate-400 block">
+                        <span className="text-[10px] font-mono-tech text-muted-foreground dark:text-slate-400 block">
                           {new Date(rec.class.date).toLocaleDateString("en-US", {
                             month: "short",
                             day: "numeric",
                             year: "numeric",
                           })}
                         </span>
-                        <h4 className="text-xs font-bold text-white truncate mt-0.5">
+                        <h4 className="text-xs font-bold text-foreground dark:text-white truncate mt-0.5">
                           {rec.class.topic || "Marathon Class Session"}
                         </h4>
-                        <span className="text-[10px] font-mono-tech text-purple-400">
+                        <span className="text-[10px] font-mono-tech text-purple-600 dark:text-purple-400">
                           Batch {rec.batch}
                         </span>
                       </div>
@@ -529,8 +529,8 @@ export default async function MarathonDashboard() {
                       <span
                         className={`shrink-0 text-[10px] font-mono-tech font-bold px-2.5 py-1 rounded border ${
                           rec.present
-                            ? "border-emerald-500/40 bg-emerald-500/20 text-emerald-300"
-                            : "border-red-500/40 bg-red-500/20 text-red-300"
+                            ? "border-emerald-500/40 bg-emerald-500/20 text-emerald-700 dark:text-emerald-300"
+                            : "border-red-500/40 bg-red-500/20 text-red-700 dark:text-red-300"
                         }`}
                       >
                         {rec.present ? "✓ PRESENT" : "✗ ABSENT"}
@@ -549,17 +549,17 @@ export default async function MarathonDashboard() {
         <section className="space-y-3">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
             <div>
-              <span className="text-xs font-bold uppercase tracking-widest text-slate-400">
+              <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground dark:text-slate-400">
                 STANDINGS
               </span>
-              <h2 className="font-valley text-xl sm:text-2xl font-bold tracking-tight text-white mt-0.5">
+              <h2 className="font-valley text-xl sm:text-2xl font-bold tracking-tight text-foreground dark:text-white mt-0.5">
                 Who&apos;s Leading?
               </h2>
             </div>
 
             <Link
               href="/marathon/leaderboard"
-              className="inline-flex items-center gap-2 border border-white/20 bg-white/5 hover:bg-white/10 px-4 py-2 text-xs font-bold uppercase tracking-wider text-white transition-colors shrink-0"
+              className="inline-flex items-center gap-2 border border-border dark:border-white/20 bg-muted/60 hover:bg-muted dark:bg-white/5 dark:hover:bg-white/10 px-4 py-2 text-xs font-bold uppercase tracking-wider text-foreground dark:text-white transition-colors shrink-0"
             >
               <span>VIEW FULL LEADERBOARD</span>
               <ArrowRightIcon className="h-3.5 w-3.5" />
@@ -567,11 +567,11 @@ export default async function MarathonDashboard() {
           </div>
 
           {topLeaders.length === 0 ? (
-            <div className="border border-white/15 bg-black/60 p-8 text-center text-slate-400 text-sm">
+            <div className="border border-border dark:border-white/15 bg-card dark:bg-black/60 p-8 text-center text-muted-foreground dark:text-slate-400 text-sm rounded">
               No scores recorded yet. Complete today&apos;s contest to claim the top spot!
             </div>
           ) : (
-            <div className="border border-white/20 bg-black/75 backdrop-blur-md overflow-hidden divide-y divide-white/10">
+            <div className="border border-border dark:border-white/20 bg-card/90 dark:bg-black/75 backdrop-blur-md overflow-hidden divide-y divide-border dark:divide-white/10 shadow-sm">
               {topLeaders.map((leader, index) => {
                 const isCurrentUser = leader.id === user?.id;
                 const isTop3 = index < 3;
@@ -582,13 +582,13 @@ export default async function MarathonDashboard() {
                     key={leader.id}
                     className={`flex items-center justify-between p-4 transition-colors ${
                       isCurrentUser
-                        ? "bg-purple-600/15 border-l-4 border-l-purple-500"
-                        : "hover:bg-white/5"
+                        ? "bg-purple-500/10 dark:bg-purple-600/15 border-l-4 border-l-purple-500"
+                        : "hover:bg-muted/50 dark:hover:bg-white/5"
                     }`}
                   >
                     {/* Rank & User Info */}
                     <div className="flex items-center gap-4 sm:gap-6 min-w-0">
-                      <div className="flex h-7 w-7 rounded-full items-center justify-center bg-white/10 border border-white/15 font-sans font-bold text-xs text-white shrink-0">
+                      <div className="flex h-7 w-7 rounded-full items-center justify-center bg-muted dark:bg-white/10 border border-border dark:border-white/15 font-sans font-bold text-xs text-foreground dark:text-white shrink-0">
                         {isTop3 ? (
                           <span>{medals[index]}</span>
                         ) : (
@@ -598,16 +598,16 @@ export default async function MarathonDashboard() {
 
                       <div className="min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="font-sans font-bold text-white truncate text-sm sm:text-base">
+                          <span className="font-sans font-bold text-foreground dark:text-white truncate text-sm sm:text-base">
                             {leader.name}
                           </span>
                           {isCurrentUser && (
-                            <span className="text-[10px] font-bold text-purple-400 shrink-0 uppercase tracking-wider">
+                            <span className="text-[10px] font-bold text-purple-600 dark:text-purple-400 shrink-0 uppercase tracking-wider">
                               (YOU)
                             </span>
                           )}
                         </div>
-                        <span className="text-xs text-slate-400 truncate block">
+                        <span className="text-xs text-muted-foreground dark:text-slate-400 truncate block">
                           {leader.usn || "AIML STUDENT"}
                         </span>
                       </div>
@@ -615,16 +615,16 @@ export default async function MarathonDashboard() {
 
                     {/* Score & Streak */}
                     <div className="flex items-center gap-6 sm:gap-8 shrink-0 text-right">
-                      <div className="flex items-center gap-1 font-sans text-xs sm:text-sm font-semibold text-amber-400">
+                      <div className="flex items-center gap-1 font-sans text-xs sm:text-sm font-semibold text-amber-600 dark:text-amber-400">
                         <FlameIcon className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
                         <span>{leader.marathonStreak}d</span>
                       </div>
 
                       <div>
-                        <span className="font-sans text-sm sm:text-base font-extrabold text-white">
+                        <span className="font-sans text-sm sm:text-base font-extrabold text-foreground dark:text-white">
                           {leader.marathonTotalScore.toLocaleString()}
                         </span>
-                        <span className="hidden sm:inline text-[10px] font-bold text-slate-400 uppercase ml-1">
+                        <span className="hidden sm:inline text-[10px] font-bold text-muted-foreground dark:text-slate-400 uppercase ml-1">
                           pts
                         </span>
                       </div>

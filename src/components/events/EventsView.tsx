@@ -86,7 +86,7 @@ export function EventsView({ initialEvents }: EventsViewProps) {
                   }`}
                 >
                   <span className="flex items-center gap-2">
-                    <span>Academic Year {range.label}</span>
+                    <span>{range.label}</span>
                     <span
                       className={`text-[10px] font-mono-tech px-1.5 py-0.2 rounded ${
                         isActive
@@ -130,7 +130,7 @@ export function EventsView({ initialEvents }: EventsViewProps) {
       ) : (
         <div className="text-center py-16 bg-card/30 rounded-lg border border-brand/20">
           <p className="text-muted-foreground font-valley text-xs md:text-sm">
-            No events recorded for this academic year.
+            No events recorded for this year.
           </p>
         </div>
       )}

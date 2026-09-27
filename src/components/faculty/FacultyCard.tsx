@@ -25,7 +25,7 @@ export default function FacultyCard({ faculty }: FacultyCardProps) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <div className="w-64 cursor-pointer min-h-[280px] overflow-hidden rounded-xl border border-brand/20 dark:border-brand/30 bg-white dark:bg-card p-5 shadow-lg dark:shadow-xl transition-all duration-300 hover:border-brand-accent/60 hover:scale-105 relative group bg-blueprint-grid">
+        <div className="w-64 cursor-pointer overflow-hidden rounded-xl border border-brand/20 dark:border-brand/30 bg-card p-4 pb-3.5 shadow-md transition-all duration-300 hover:border-brand-accent/60 hover:scale-105 relative group bg-blueprint-grid">
           <CircuitTrace corners={true} />
 
           <div className="mx-auto flex items-center justify-center relative z-10">
@@ -45,11 +45,11 @@ export default function FacultyCard({ faculty }: FacultyCardProps) {
             </div>
           </div>
 
-          <div className="flex flex-col items-center justify-center pt-4 relative z-10 text-center">
+          <div className="flex flex-col items-center justify-center pt-3 relative z-10 text-center">
             <h3 className="text-base font-bold font-space-grotesk text-foreground line-clamp-1">
               {name}
             </h3>
-            <p className="mt-1 text-xs font-mono-tech text-brand-accent uppercase tracking-wider line-clamp-1">
+            <p className="mt-0.5 text-xs font-mono-tech text-brand-accent uppercase tracking-wider line-clamp-1">
               {designation}
             </p>
             {designation2 && (

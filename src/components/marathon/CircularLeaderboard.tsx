@@ -41,17 +41,17 @@ export default function CircularLeaderboard({
       {/* Search and Count Bar */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="relative w-full sm:w-72">
-          <SearchIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+          <SearchIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground dark:text-slate-400" />
           <input
             type="text"
             placeholder="Search student or USN..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-black/80 border border-white/20 rounded-full pl-10 pr-4 py-2 text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-purple-400"
+            className="w-full bg-card dark:bg-black/80 border border-border dark:border-white/20 rounded-full pl-10 pr-4 py-2 text-xs text-foreground dark:text-white placeholder:text-muted-foreground dark:placeholder:text-slate-400 focus:outline-none focus:border-purple-500 shadow-sm"
           />
         </div>
 
-        <div className="text-xs text-slate-400 font-semibold tracking-wider uppercase">
+        <div className="text-xs text-muted-foreground dark:text-slate-400 font-semibold tracking-wider uppercase">
           Showing {filteredStudents.length} of {students.length} Rankers
         </div>
       </div>
@@ -67,31 +67,31 @@ export default function CircularLeaderboard({
               key={student.id}
               onClick={() => setSelectedStudent(student)}
               type="button"
-              className={`relative flex flex-col items-center justify-center h-32 w-32 sm:h-36 sm:w-36 rounded-full border text-center p-3 transition-colors cursor-pointer ${
+              className={`relative flex flex-col items-center justify-center h-32 w-32 sm:h-36 sm:w-36 rounded-full border text-center p-3 transition-colors cursor-pointer shadow-sm ${
                 isCurrentUser
-                  ? "bg-purple-950/80 border border-white/40"
+                  ? "bg-purple-100 dark:bg-purple-950/80 border-purple-500 dark:border-white/40 ring-2 ring-purple-500"
                   : isTop3
-                  ? "bg-black/90 border border-white/30 hover:border-white/50"
-                  : "bg-black/80 border border-white/15 hover:border-white/40"
+                  ? "bg-card dark:bg-black/90 border-amber-500/40 dark:border-white/30 hover:border-amber-500 dark:hover:border-white/50"
+                  : "bg-card dark:bg-black/80 border-border dark:border-white/15 hover:border-purple-400 dark:hover:border-white/40"
               }`}
             >
               {/* Rank Circle Badge */}
               <div
-                className={`absolute -top-1.5 h-6 w-6 rounded-full flex items-center justify-center font-sans text-[10px] font-bold shrink-0 ${
+                className={`absolute -top-1.5 h-6 w-6 rounded-full flex items-center justify-center font-sans text-[10px] font-bold shrink-0 shadow-xs ${
                   student.rank === 1
-                    ? "bg-white text-black border border-white"
+                    ? "bg-amber-400 text-black border border-amber-400 dark:bg-white dark:border-white"
                     : student.rank === 2
                     ? "bg-slate-300 text-black border border-slate-300"
                     : student.rank === 3
                     ? "bg-amber-600 text-white border border-amber-600"
-                    : "bg-black text-white border border-white/20"
+                    : "bg-muted text-foreground border border-border dark:bg-black dark:text-white dark:border-white/20"
                 }`}
               >
                 {student.rank}
               </div>
 
               {/* Profile Avatar Circle */}
-              <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-full bg-white/10 border border-white/15 flex items-center justify-center overflow-hidden mb-1.5 shrink-0">
+              <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-full bg-muted dark:bg-white/10 border border-border dark:border-white/15 flex items-center justify-center overflow-hidden mb-1.5 shrink-0">
                 {student.image ? (
                   <Image
                     src={student.image}
@@ -101,19 +101,19 @@ export default function CircularLeaderboard({
                     className="h-full w-full object-cover rounded-full"
                   />
                 ) : (
-                  <span className="font-sans font-bold text-sm sm:text-base text-white">
+                  <span className="font-sans font-bold text-sm sm:text-base text-foreground dark:text-white">
                     {(student.name || "S").charAt(0).toUpperCase()}
                   </span>
                 )}
               </div>
 
               {/* Student Name */}
-              <span className="font-sans font-bold text-xs text-white truncate max-w-[95px] block">
+              <span className="font-sans font-bold text-xs text-foreground dark:text-white truncate max-w-[95px] block">
                 {student.name || "Student"}
               </span>
 
               {/* Points Text */}
-              <span className="text-[10px] text-slate-300 font-semibold block mt-0.5">
+              <span className="text-[10px] text-muted-foreground dark:text-slate-300 font-semibold block mt-0.5">
                 {student.marathonTotalScore.toLocaleString()} pts
               </span>
 
@@ -129,19 +129,19 @@ export default function CircularLeaderboard({
 
       {/* Profile Detail Modal (Sharp Box with Purple Shade Background) */}
       {selectedStudent && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80">
-          <div className="relative w-full max-w-sm rounded-none border border-white/20 bg-[#180d2e] p-6 text-center">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+          <div className="relative w-full max-w-sm rounded-none border border-border dark:border-white/20 bg-card dark:bg-[#180d2e] p-6 text-center shadow-xl">
             {/* Close Button */}
             <button
               onClick={() => setSelectedStudent(null)}
-              className="absolute right-4 top-4 text-slate-400 hover:text-white p-1"
+              className="absolute right-4 top-4 text-muted-foreground hover:text-foreground dark:text-slate-400 dark:hover:text-white p-1 cursor-pointer"
               aria-label="Close Profile"
             >
               <XIcon className="h-5 w-5" />
             </button>
 
             {/* Profile Avatar */}
-            <div className="mx-auto h-20 w-20 rounded-full bg-black/60 border border-white/20 flex items-center justify-center overflow-hidden mb-4">
+            <div className="mx-auto h-20 w-20 rounded-full bg-muted dark:bg-black/60 border border-border dark:border-white/20 flex items-center justify-center overflow-hidden mb-4 shadow-inner">
               {selectedStudent.image ? (
                 <Image
                   src={selectedStudent.image}
@@ -151,17 +151,17 @@ export default function CircularLeaderboard({
                   className="h-full w-full object-cover rounded-full"
                 />
               ) : (
-                <span className="font-sans text-2xl font-bold text-white">
+                <span className="font-sans text-2xl font-bold text-foreground dark:text-white">
                   {(selectedStudent.name || "S").charAt(0).toUpperCase()}
                 </span>
               )}
             </div>
 
             {/* Student Name & USN */}
-            <h3 className="font-sans text-lg font-bold text-white">
+            <h3 className="font-sans text-lg font-bold text-foreground dark:text-white">
               {selectedStudent.name || "Student"}
             </h3>
-            <p className="text-xs font-semibold text-purple-200/80 uppercase tracking-wider mt-0.5">
+            <p className="text-xs font-semibold text-muted-foreground dark:text-purple-200/80 uppercase tracking-wider mt-0.5">
               {selectedStudent.usn || "AIML STUDENT"}
             </p>
 
@@ -172,46 +172,46 @@ export default function CircularLeaderboard({
             )}
 
             {/* Full Stats Overview (Sharp Boxes) */}
-            <div className="grid grid-cols-4 gap-2 mt-6 pt-4 border-t border-white/10">
+            <div className="grid grid-cols-4 gap-2 mt-6 pt-4 border-t border-border dark:border-white/10">
               {/* Rank */}
-              <div className="p-2 rounded-none bg-black/50 border border-white/10">
-                <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400 block">
+              <div className="p-2 rounded-none bg-muted/60 dark:bg-black/50 border border-border dark:border-white/10">
+                <span className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground dark:text-slate-400 block">
                   RANK
                 </span>
-                <span className="font-sans text-base font-bold text-white mt-1 block">
+                <span className="font-sans text-base font-bold text-foreground dark:text-white mt-1 block">
                   #{selectedStudent.rank}
                 </span>
               </div>
 
               {/* Total Points */}
-              <div className="p-2 rounded-none bg-black/50 border border-white/10">
-                <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400 block">
+              <div className="p-2 rounded-none bg-muted/60 dark:bg-black/50 border border-border dark:border-white/10">
+                <span className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground dark:text-slate-400 block">
                   POINTS
                 </span>
-                <span className="font-sans text-base font-bold text-white mt-1 block">
+                <span className="font-sans text-base font-bold text-foreground dark:text-white mt-1 block">
                   {selectedStudent.marathonTotalScore.toLocaleString()}
                 </span>
               </div>
 
               {/* Day Streak */}
-              <div className="p-2 rounded-none bg-black/50 border border-white/10">
-                <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400 block">
+              <div className="p-2 rounded-none bg-muted/60 dark:bg-black/50 border border-border dark:border-white/10">
+                <span className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground dark:text-slate-400 block">
                   STREAK
                 </span>
                 <div className="flex items-center justify-center gap-1 mt-1">
                   <FlameIcon className="h-3 w-3 fill-amber-500 text-amber-500" />
-                  <span className="font-sans text-base font-bold text-amber-400">
+                  <span className="font-sans text-base font-bold text-amber-600 dark:text-amber-400">
                     {selectedStudent.marathonStreak}d
                   </span>
                 </div>
               </div>
 
               {/* Attendance */}
-              <div className="p-2 rounded-none bg-black/50 border border-white/10">
-                <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400 block">
+              <div className="p-2 rounded-none bg-muted/60 dark:bg-black/50 border border-border dark:border-white/10">
+                <span className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground dark:text-slate-400 block">
                   ATTEND
                 </span>
-                <span className="font-sans text-base font-bold text-emerald-400 mt-1 block">
+                <span className="font-sans text-base font-bold text-emerald-600 dark:text-emerald-400 mt-1 block">
                   {selectedStudent.attendancePercentage ?? 100}%
                 </span>
               </div>
@@ -220,7 +220,7 @@ export default function CircularLeaderboard({
             {/* Action Button (Sharp) */}
             <button
               onClick={() => setSelectedStudent(null)}
-              className="mt-6 w-full rounded-none bg-white/10 hover:bg-white/20 border border-white/20 py-2.5 text-xs font-bold text-white uppercase tracking-wider transition-colors"
+              className="mt-6 w-full rounded-none bg-muted hover:bg-muted/80 dark:bg-white/10 dark:hover:bg-white/20 border border-border dark:border-white/20 py-2.5 text-xs font-bold text-foreground dark:text-white uppercase tracking-wider transition-colors cursor-pointer"
             >
               Close Profile
             </button>

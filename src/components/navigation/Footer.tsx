@@ -48,7 +48,7 @@ export default function Footer() {
             rel="noopener noreferrer"
             className="inline-block text-[11px] text-brand-accent/80 hover:text-brand-accent font-semibold transition-colors"
           >
-            Engineered by TASC Technical Team
+            Engineered by TASC Technical Team 2026-27
           </a>
         </div>
       </div>

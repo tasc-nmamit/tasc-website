@@ -67,28 +67,28 @@ export default function CountdownTimer({ deadline, variant = "red" }: CountdownT
     { label: "SEC", value: String(timeLeft.seconds).padStart(2, "0") },
   ];
 
-  const numberColor = variant === "red" ? "text-red-400" : "text-white";
+  const numberColor = variant === "red" ? "text-red-500 dark:text-red-400" : "text-foreground dark:text-white";
 
   return (
     <div className="flex flex-wrap items-center gap-2 sm:gap-3">
       {units.map((unit, index) => (
         <div key={unit.label} className="flex items-center gap-2 sm:gap-3">
-          <div className="flex flex-col items-center bg-black/60 border border-white/15 px-3 py-1.5 min-w-[52px]">
+          <div className="flex flex-col items-center bg-card dark:bg-black/60 border border-border dark:border-white/15 px-3 py-1.5 min-w-[52px] rounded-md shadow-sm">
             <span className={`font-sans text-xl sm:text-2xl font-bold tracking-tight ${numberColor}`}>
               {unit.value}
             </span>
-            <span className="text-[9px] font-bold tracking-widest text-slate-400">
+            <span className="text-[9px] font-bold tracking-widest text-muted-foreground dark:text-slate-400">
               {unit.label}
             </span>
           </div>
           {index < units.length - 1 && (
-            <span className="font-sans text-base font-bold text-red-400/60 -mt-3">
+            <span className="font-sans text-base font-bold text-red-500/60 dark:text-red-400/60 -mt-3">
               :
             </span>
           )}
         </div>
       ))}
-      <span className="ml-1 text-[11px] font-bold uppercase tracking-wider text-slate-400 hidden sm:inline">
+      <span className="ml-1 text-[11px] font-bold uppercase tracking-wider text-muted-foreground dark:text-slate-400 hidden sm:inline">
         remaining
       </span>
     </div>

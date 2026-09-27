@@ -62,30 +62,30 @@ export default async function MarathonLeaderboard() {
         <div className="space-y-4">
           <Link
             href="/marathon"
-            className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-300 hover:text-white transition-colors"
+            className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground hover:text-foreground dark:text-slate-300 dark:hover:text-white transition-colors"
           >
             <ArrowLeftIcon className="h-3.5 w-3.5" />
             <span>Back to Marathon</span>
           </Link>
 
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/15 pb-6">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border dark:border-white/15 pb-6">
             <div>
-              <span className="text-xs font-bold uppercase tracking-widest text-slate-400">
+              <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground dark:text-slate-400">
                 COMPETITION STANDINGS
               </span>
-              <h1 className="mt-1 font-valley text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-white">
+              <h1 className="mt-1 font-valley text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-foreground dark:text-white">
                 Global Leaderboard
               </h1>
-              <p className="mt-2 text-sm text-slate-300">
+              <p className="mt-2 text-sm text-muted-foreground dark:text-slate-300">
                 Official standings verified across all daily algorithmic challenges and weekly engineering sprints.
               </p>
             </div>
 
-            <div className="text-left md:text-right shrink-0 bg-black/60 border border-white/20 px-5 py-2.5 rounded-full">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+            <div className="text-left md:text-right shrink-0 bg-card dark:bg-black/60 border border-border dark:border-white/20 px-5 py-2.5 rounded-full shadow-sm">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground dark:text-slate-400 block">
                 TOTAL PARTICIPANTS
               </span>
-              <span className="font-sans text-2xl font-bold text-white">
+              <span className="font-sans text-2xl font-bold text-foreground dark:text-white">
                 {students.length}
               </span>
             </div>
@@ -94,9 +94,9 @@ export default async function MarathonLeaderboard() {
 
         {/* Empty State */}
         {students.length === 0 ? (
-          <div className="rounded-none border border-white/20 bg-black/75 backdrop-blur-md p-16 text-center text-slate-400">
-            <TrophyIcon className="h-10 w-10 mx-auto text-white mb-3" />
-            <h3 className="font-sans text-lg font-bold text-white">
+          <div className="rounded-none border border-border dark:border-white/20 bg-card/90 dark:bg-black/75 backdrop-blur-md p-16 text-center text-muted-foreground dark:text-slate-400 shadow-sm">
+            <TrophyIcon className="h-10 w-10 mx-auto text-foreground dark:text-white mb-3" />
+            <h3 className="font-sans text-lg font-bold text-foreground dark:text-white">
               No contest scores recorded yet
             </h3>
             <p className="mt-2 text-sm max-w-md mx-auto">
@@ -118,10 +118,10 @@ export default async function MarathonLeaderboard() {
             {/* Circular Grid Leaderboard with Interactive Profile View on Click */}
             <section className="space-y-4">
               <div className="flex items-center justify-between px-2">
-                <h2 className="font-valley text-xl font-bold text-white">
+                <h2 className="font-valley text-xl font-bold text-foreground dark:text-white">
                   Rankings Directory
                 </h2>
-                <span className="text-xs text-slate-400">
+                <span className="text-xs text-muted-foreground dark:text-slate-400">
                   Click any circle to view complete profile
                 </span>
               </div>
