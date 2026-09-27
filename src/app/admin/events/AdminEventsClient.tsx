@@ -81,6 +81,7 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
 
   const [loading, setLoading] = useState(false);
   const [exporting, setExporting] = useState<string | null>(null);
+  const [deletingEventId, setDeletingEventId] = useState<string | null>(null);
 
   const addCustomField = () => {
     setCustomFields([
@@ -355,6 +356,38 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
       );
     } catch (err: any) {
       alert("Failed to toggle publication status: " + err.message);
+    }
+  };
+
+  const handleDeleteEvent = async (id: string, eventTitle?: string) => {
+    const displayName = eventTitle ? `"${eventTitle}"` : "this event";
+    if (
+      !confirm(
+        `Are you sure you want to permanently delete ${displayName}?\n\nThis will remove the event along with all participant registrations, teams, winners, and configured custom fields. This action cannot be undone.`
+      )
+    ) {
+      return;
+    }
+
+    try {
+      setDeletingEventId(id);
+      const res = await fetch(`/api/admin/events/${id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error || "Failed to delete event");
+      }
+
+      setEvents((prev) => prev.filter((e) => e.id !== id));
+      if (editingEvent?.id === id) {
+        setEditingEvent(null);
+      }
+      alert("Event permanently deleted.");
+    } catch (err: any) {
+      alert("Failed to delete event: " + err.message);
+    } finally {
+      setDeletingEventId(null);
     }
   };
 
@@ -724,6 +757,15 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
                   >
                     <FileSpreadsheetIcon className="w-3.5 h-3.5 text-emerald-400" />
                     Excel
+                  </button>
+
+                  <button
+                    onClick={() => handleDeleteEvent(event.id, event.title)}
+                    disabled={deletingEventId === event.id}
+                    className="rounded-xl border border-red-500/30 bg-red-500/10 p-2 text-red-400 hover:bg-red-500/20 hover:border-red-500/50 transition-all disabled:opacity-50 cursor-pointer flex items-center justify-center shrink-0"
+                    title="Delete Event"
+                  >
+                    <Trash2Icon className="w-4 h-4" />
                   </button>
                 </div>
               </div>
@@ -1662,21 +1704,33 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
                 Accept Registrations (Checked = Open, Unchecked = Paused)
               </label>
 
-              <div className="flex gap-3 pt-4 border-t border-brand/20">
+              <div className="flex flex-wrap sm:flex-nowrap gap-3 pt-4 border-t border-brand/20 items-center justify-between">
                 <button
                   type="button"
-                  onClick={() => setEditingEvent(null)}
-                  className="flex-1 rounded-xl border border-brand/30 bg-background/60 py-3 font-space-grotesk font-semibold text-foreground hover:bg-muted"
+                  onClick={() => handleDeleteEvent(editingEvent.id, editingEvent.title)}
+                  disabled={deletingEventId === editingEvent.id || loading}
+                  className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2.5 font-space-grotesk font-semibold text-red-400 hover:bg-red-500/20 hover:border-red-500/50 transition-all disabled:opacity-50 flex items-center gap-2 cursor-pointer text-xs"
                 >
-                  Cancel
+                  <Trash2Icon className="w-4 h-4" />
+                  {deletingEventId === editingEvent.id ? "Deleting..." : "Delete Event"}
                 </button>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="flex-1 rounded-xl bg-brand py-3 font-space-grotesk font-bold text-white shadow-lg shadow-brand/25 hover:bg-brand/90 disabled:opacity-50"
-                >
-                  {loading ? "Saving Changes..." : "Save Event Changes"}
-                </button>
+
+                <div className="flex gap-3 flex-1 justify-end">
+                  <button
+                    type="button"
+                    onClick={() => setEditingEvent(null)}
+                    className="rounded-xl border border-brand/30 bg-background/60 px-5 py-2.5 font-space-grotesk font-semibold text-foreground hover:bg-muted"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="rounded-xl bg-brand px-6 py-2.5 font-space-grotesk font-bold text-white shadow-lg shadow-brand/25 hover:bg-brand/90 disabled:opacity-50"
+                  >
+                    {loading ? "Saving Changes..." : "Save Event Changes"}
+                  </button>
+                </div>
               </div>
             </form>
           </div>

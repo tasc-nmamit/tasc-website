@@ -111,7 +111,34 @@ export async function DELETE(
   const { id } = await context.params;
 
   try {
-    await db.event.delete({ where: { id } });
+    await db.$transaction(async (tx) => {
+      // 1. Delete associated winners
+      await tx.winners.deleteMany({ where: { eventId: id } });
+
+      // 2. Delete registrations and teams
+      const teams = await tx.team.findMany({
+        where: { eventId: id },
+        select: { id: true },
+      });
+      const teamIds = teams.map((t) => t.id);
+      if (teamIds.length > 0) {
+        await tx.eventRegistration.deleteMany({
+          where: { teamId: { in: teamIds } },
+        });
+        await tx.team.deleteMany({
+          where: { eventId: id },
+        });
+      }
+
+      // 3. Delete custom fields
+      await tx.eventCustomField.deleteMany({
+        where: { eventId: id },
+      });
+
+      // 4. Delete the event record
+      await tx.event.delete({ where: { id } });
+    });
+
     return NextResponse.json({ success: true });
   } catch (error: any) {
     console.error("Failed to delete event:", error);
