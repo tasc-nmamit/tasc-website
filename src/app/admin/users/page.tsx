@@ -9,6 +9,9 @@ export default async function AdminUsersPage() {
   await requireOwner();
 
   const users = await db.user.findMany({
+    where: {
+      accounts: { some: {} }
+    },
     orderBy: { createdAt: "desc" },
     select: {
       id: true,
@@ -22,6 +25,23 @@ export default async function AdminUsersPage() {
       branch: true,
       onboardingComplete: true,
       createdAt: true,
+      hackerrankUsername: true,
+      leetcodeProfile: true,
+      githubProfile: true,
+      careerIntent: true,
+      phone: true,
+      usn: true,
+      skills: true,
+      languages: true,
+      marathonAttendance: {
+        include: { class: true }
+      },
+      marathonDailyScores: {
+        include: { contest: true }
+      },
+      marathonWeeklyScores: {
+        include: { contest: true }
+      },
     },
   });
 

@@ -9,10 +9,11 @@ import {
   Plus,
   Users,
   CheckCircle,
-  XCircle,
   Trash2,
   Search,
   Filter,
+  Download,
+  AlertCircle,
   AlertCircle,
   Clock,
   Sparkles,
@@ -326,6 +327,29 @@ export default function AttendanceClient({
     }
     return counts;
   }, [students]);
+
+  // Export filtered attendance to CSV
+  const handleExportCSV = () => {
+    if (!selectedClass || filteredAttendance.length === 0) return;
+    const headers = ["USN", "Name", "Email", "Batch", "Status"];
+    const csvRows = [headers.join(",")];
+    filteredAttendance.forEach(a => {
+      const status = a.present ? "Present" : "Absent";
+      const name = (a.user.name || "").replace(/,/g, " ");
+      const email = a.user.email;
+      const usn = (a.user.usn || "").replace(/,/g, " ");
+      csvRows.push(`${usn},${name},${email},${a.batch},${status}`);
+    });
+    const blob = new Blob([csvRows.join("\\n")], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `attendance_${selectedClass.date}_${batchFilter}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <div className="space-y-8">
@@ -711,6 +735,13 @@ export default function AttendanceClient({
                   className="px-3 py-1.5 rounded-lg border border-red-500/30 bg-red-500/10 hover:bg-red-500/20 text-xs font-mono-tech text-red-300 transition-colors cursor-pointer"
                 >
                   ✗ Mark Filtered Absent
+                </button>
+                <button
+                  onClick={handleExportCSV}
+                  className="px-3 py-1.5 rounded-lg border border-blue-500/30 bg-blue-500/10 hover:bg-blue-500/20 text-xs font-mono-tech text-blue-300 transition-colors cursor-pointer flex items-center gap-1"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  Export CSV
                 </button>
               </div>
             </div>
