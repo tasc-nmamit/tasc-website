@@ -14,6 +14,8 @@ export default function ProfileClient({ user }: { user: any }) {
     hackerrankUsername: user.hackerrankUsername || "",
     leetcodeProfile: user.leetcodeProfile || "",
     githubProfile: user.githubProfile || "",
+    skills: (user.skills || []).join(", "),
+    languages: (user.languages || []).join(", "),
     careerIntent: user.careerIntent || "PLACEMENT",
   });
 
@@ -23,13 +25,57 @@ export default function ProfileClient({ user }: { user: any }) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const nameTrimmed = formData.name.trim();
+    const phoneTrimmed = formData.phone.trim();
+    const hrTrimmed = formData.hackerrankUsername.trim();
+    const lcTrimmed = formData.leetcodeProfile.trim();
+    const ghTrimmed = formData.githubProfile.trim();
+    const skillsList = formData.skills
+      .split(",")
+      .map((s: string) => s.trim())
+      .filter(Boolean);
+    const languagesList = formData.languages
+      .split(",")
+      .map((l: string) => l.trim())
+      .filter(Boolean);
+
+    if (
+      !nameTrimmed ||
+      !phoneTrimmed ||
+      !hrTrimmed ||
+      !lcTrimmed ||
+      !ghTrimmed ||
+      skillsList.length === 0 ||
+      languagesList.length === 0 ||
+      !formData.careerIntent
+    ) {
+      alert("All fields are mandatory. Please make sure not to leave any field blank.");
+      return;
+    }
+
+    if (phoneTrimmed.replace(/\D/g, "").length < 10) {
+      alert("Please enter a valid 10-digit mobile number.");
+      return;
+    }
+
     setLoading(true);
 
     try {
       const res = await fetch("/api/user/profile", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          name: nameTrimmed,
+          phone: phoneTrimmed,
+          bio: formData.bio.trim(),
+          hackerrankUsername: hrTrimmed,
+          leetcodeProfile: lcTrimmed,
+          githubProfile: ghTrimmed,
+          skills: skillsList,
+          languages: languagesList,
+          careerIntent: formData.careerIntent,
+        }),
       });
 
       if (!res.ok) {
@@ -52,10 +98,13 @@ export default function ProfileClient({ user }: { user: any }) {
 
       <div className="relative z-10 grid gap-6 sm:grid-cols-2 font-space-grotesk">
         <div className="sm:col-span-2">
-          <label className="mb-1.5 block text-xs font-mono-tech text-muted-foreground uppercase">Full Name</label>
+          <label className="mb-1.5 block text-xs font-mono-tech text-muted-foreground uppercase">
+            Full Name <span className="text-red-500">*</span>
+          </label>
           <input
             type="text"
             name="name"
+            required
             value={formData.name}
             onChange={handleChange}
             className="w-full rounded-lg border border-brand/30 bg-background px-4 py-2.5 outline-none focus:border-brand-accent text-sm font-space-grotesk text-foreground"
@@ -63,20 +112,27 @@ export default function ProfileClient({ user }: { user: any }) {
         </div>
 
         <div>
-          <label className="mb-1.5 block text-xs font-mono-tech text-muted-foreground uppercase">Phone Number</label>
+          <label className="mb-1.5 block text-xs font-mono-tech text-muted-foreground uppercase">
+            Phone Number <span className="text-red-500">*</span>
+          </label>
           <input
             type="tel"
             name="phone"
+            required
             value={formData.phone}
             onChange={handleChange}
             className="w-full rounded-lg border border-brand/30 bg-background px-4 py-2.5 outline-none focus:border-brand-accent text-sm font-mono-tech text-foreground"
+            placeholder="10-digit mobile number"
           />
         </div>
 
         <div>
-          <label className="mb-1.5 block text-xs font-mono-tech text-muted-foreground uppercase">Career Intent (AIML)</label>
+          <label className="mb-1.5 block text-xs font-mono-tech text-muted-foreground uppercase">
+            Career Intent (AIML) <span className="text-red-500">*</span>
+          </label>
           <select
             name="careerIntent"
+            required
             value={formData.careerIntent}
             onChange={handleChange}
             className="w-full rounded-lg border border-brand/30 bg-background px-4 py-2.5 outline-none focus:border-brand-accent text-sm font-space-grotesk text-foreground"
@@ -88,10 +144,13 @@ export default function ProfileClient({ user }: { user: any }) {
         </div>
 
         <div className="sm:col-span-2">
-          <label className="mb-1.5 block text-xs font-mono-tech text-muted-foreground uppercase">HackerRank Username</label>
+          <label className="mb-1.5 block text-xs font-mono-tech text-muted-foreground uppercase">
+            HackerRank Username <span className="text-red-500">*</span>
+          </label>
           <input
             type="text"
             name="hackerrankUsername"
+            required
             value={formData.hackerrankUsername}
             onChange={handleChange}
             placeholder="e.g. johndoe123"
@@ -101,26 +160,62 @@ export default function ProfileClient({ user }: { user: any }) {
         </div>
 
         <div>
-          <label className="mb-1.5 block text-xs font-mono-tech text-muted-foreground uppercase">LeetCode Profile URL</label>
+          <label className="mb-1.5 block text-xs font-mono-tech text-muted-foreground uppercase">
+            LeetCode Profile URL / Username <span className="text-red-500">*</span>
+          </label>
           <input
-            type="url"
+            type="text"
             name="leetcodeProfile"
+            required
             value={formData.leetcodeProfile}
             onChange={handleChange}
-            placeholder="https://leetcode.com/u/..."
+            placeholder="https://leetcode.com/u/... or username"
             className="w-full rounded-lg border border-brand/30 bg-background px-4 py-2.5 outline-none focus:border-brand-accent text-sm font-mono-tech text-foreground"
           />
         </div>
 
         <div>
-          <label className="mb-1.5 block text-xs font-mono-tech text-muted-foreground uppercase">GitHub Profile URL</label>
+          <label className="mb-1.5 block text-xs font-mono-tech text-muted-foreground uppercase">
+            GitHub Profile URL / Username <span className="text-red-500">*</span>
+          </label>
           <input
-            type="url"
+            type="text"
             name="githubProfile"
+            required
             value={formData.githubProfile}
             onChange={handleChange}
-            placeholder="https://github.com/..."
+            placeholder="https://github.com/... or username"
             className="w-full rounded-lg border border-brand/30 bg-background px-4 py-2.5 outline-none focus:border-brand-accent text-sm font-mono-tech text-foreground"
+          />
+        </div>
+
+        <div className="sm:col-span-2">
+          <label className="mb-1.5 block text-xs font-mono-tech text-muted-foreground uppercase">
+            Skills <span className="text-red-500">*</span> <span className="text-[11px] text-muted-foreground lowercase">(comma-separated)</span>
+          </label>
+          <input
+            type="text"
+            name="skills"
+            required
+            value={formData.skills}
+            onChange={handleChange}
+            placeholder="e.g. Machine Learning, Python, Next.js, PyTorch"
+            className="w-full rounded-lg border border-brand/30 bg-background px-4 py-2.5 outline-none focus:border-brand-accent text-sm font-space-grotesk text-foreground"
+          />
+        </div>
+
+        <div className="sm:col-span-2">
+          <label className="mb-1.5 block text-xs font-mono-tech text-muted-foreground uppercase">
+            Languages Known <span className="text-red-500">*</span> <span className="text-[11px] text-muted-foreground lowercase">(comma-separated)</span>
+          </label>
+          <input
+            type="text"
+            name="languages"
+            required
+            value={formData.languages}
+            onChange={handleChange}
+            placeholder="e.g. Python, Java, C++, JavaScript"
+            className="w-full rounded-lg border border-brand/30 bg-background px-4 py-2.5 outline-none focus:border-brand-accent text-sm font-space-grotesk text-foreground"
           />
         </div>
 

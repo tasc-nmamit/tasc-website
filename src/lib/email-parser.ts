@@ -55,7 +55,7 @@ function computeCurrentYear(joiningYear: number): number {
   return Math.max(1, Math.min(4, yearOfStudy));
 }
 
-const AIML_BRANCH_CODES = new Set(["AM", "AIM", "AI"]);
+const AIML_BRANCH_CODES = new Set(["AM", "AIM"]);
 
 // Pattern: (nn|nnm|4nm){2-digit year}{branch code: 2-4 letters}{roll number: 2-4 digits}@nmamit.in
 const EMAIL_REGEX = /^(nnm|nn|4nm)(\d{2})([a-zA-Z]{2,4})(\d{2,4})@nmamit\.in$/i;

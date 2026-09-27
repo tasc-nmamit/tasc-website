@@ -7,6 +7,7 @@ import { useState, useEffect } from "react";
 interface OnboardingData {
   name: string;
   usn: string;
+  phone: string;
   year: string;
   hackerrankUsername: string;
   leetcodeProfile: string;
@@ -24,6 +25,7 @@ export default function OnboardingPage() {
   const [data, setData] = useState<OnboardingData>({
     name: "",
     usn: "",
+    phone: "",
     year: "",
     hackerrankUsername: "",
     leetcodeProfile: "",
@@ -40,8 +42,9 @@ export default function OnboardingPage() {
     if (session?.user) {
       setData((prev) => ({
         ...prev,
-        name: session.user.name || "",
-        year: session.user.year?.toString() || "",
+        name: session.user.name || prev.name,
+        usn: session.user.usn || prev.usn,
+        year: session.user.year?.toString() || prev.year,
       }));
     }
   }, [session, status, router]);
@@ -80,24 +83,62 @@ export default function OnboardingPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setLoading(true);
     setError("");
+
+    const nameTrimmed = data.name.trim();
+    const usnTrimmed = data.usn.trim().toUpperCase();
+    const phoneTrimmed = data.phone.trim();
+    const hrTrimmed = data.hackerrankUsername.trim();
+    const lcTrimmed = data.leetcodeProfile.trim();
+    const ghTrimmed = data.githubProfile.trim();
+    const skillsList = data.skills
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    const languagesList = data.languages
+      .split(",")
+      .map((l) => l.trim())
+      .filter(Boolean);
+
+    // Strict validation to ensure no field is left blank
+    if (
+      !nameTrimmed ||
+      !usnTrimmed ||
+      !phoneTrimmed ||
+      !data.year ||
+      !hrTrimmed ||
+      !lcTrimmed ||
+      !ghTrimmed ||
+      skillsList.length === 0 ||
+      languagesList.length === 0 ||
+      !data.careerIntent
+    ) {
+      setError("All fields are mandatory. Please make sure not to leave any field blank.");
+      return;
+    }
+
+    if (phoneTrimmed.replace(/\D/g, "").length < 10) {
+      setError("Please enter a valid 10-digit mobile number.");
+      return;
+    }
+
+    setLoading(true);
 
     try {
       const res = await fetch("/api/onboarding", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ...data,
+          name: nameTrimmed,
+          usn: usnTrimmed,
+          phone: phoneTrimmed,
           year: parseInt(data.year),
-          skills: data.skills
-            .split(",")
-            .map((s) => s.trim())
-            .filter(Boolean),
-          languages: data.languages
-            .split(",")
-            .map((l) => l.trim())
-            .filter(Boolean),
+          hackerrankUsername: hrTrimmed,
+          leetcodeProfile: lcTrimmed,
+          githubProfile: ghTrimmed,
+          skills: skillsList,
+          languages: languagesList,
+          careerIntent: data.careerIntent,
         }),
       });
 
@@ -126,9 +167,9 @@ export default function OnboardingPage() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
           </div>
-          <h1 className="text-3xl font-bold text-foreground">Complete Your Profile</h1>
-          <p className="mt-2 text-muted-foreground">
-            Fill in your details to access all AIML features
+          <h1 className="text-3xl font-bold text-foreground">Complete Your AIML Profile</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            All fields are mandatory. Please provide all details to unlock your Marathon access and student tools.
           </p>
         </div>
 
@@ -169,75 +210,103 @@ export default function OnboardingPage() {
                 required
                 value={data.usn}
                 onChange={(e) => setData({ ...data, usn: e.target.value.toUpperCase() })}
-                className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-sm text-foreground outline-none transition-colors focus:border-brand focus:ring-1 focus:ring-brand/30"
+                className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-sm text-foreground outline-none transition-colors focus:border-brand focus:ring-1 focus:ring-brand/30 uppercase"
                 placeholder="e.g. NNM24AM045"
               />
             </div>
           </div>
 
-          {/* Year */}
-          <div>
-            <label htmlFor="year" className="mb-1.5 block text-sm font-medium text-foreground">
-              Year of Study <span className="text-red-500">*</span>
-            </label>
-            <select
-              id="year"
-              required
-              value={data.year}
-              onChange={(e) => setData({ ...data, year: e.target.value })}
-              className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-sm text-foreground outline-none transition-colors focus:border-brand focus:ring-1 focus:ring-brand/30"
-            >
-              <option value="">Select year</option>
-              <option value="2">2nd Year</option>
-              <option value="3">3rd Year</option>
-              <option value="4">4th Year</option>
-            </select>
+          {/* Phone & Year of Study */}
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label htmlFor="phone" className="mb-1.5 block text-sm font-medium text-foreground">
+                Phone Number <span className="text-red-500">*</span>
+              </label>
+              <input
+                id="phone"
+                type="tel"
+                required
+                value={data.phone}
+                onChange={(e) => setData({ ...data, phone: e.target.value })}
+                className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-sm text-foreground outline-none transition-colors focus:border-brand focus:ring-1 focus:ring-brand/30"
+                placeholder="e.g. 9876543210"
+              />
+            </div>
+            <div>
+              <label htmlFor="year" className="mb-1.5 block text-sm font-medium text-foreground">
+                Year of Study <span className="text-red-500">*</span>
+              </label>
+              <select
+                id="year"
+                required
+                value={data.year}
+                onChange={(e) => setData({ ...data, year: e.target.value })}
+                className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-sm text-foreground outline-none transition-colors focus:border-brand focus:ring-1 focus:ring-brand/30"
+              >
+                <option value="">Select year</option>
+                <option value="2">2nd Year</option>
+                <option value="3">3rd Year</option>
+                <option value="4">4th Year</option>
+              </select>
+            </div>
           </div>
 
           {/* Coding Profiles */}
           <div className="space-y-4">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-              Coding Profiles
-            </h3>
+            <div>
+              <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                Coding Profiles <span className="text-red-500">*</span>
+              </h3>
+              <p className="text-[11px] text-muted-foreground mt-0.5">
+                All handles and profile links are mandatory for performance verification and Marathon leaderboard syncing.
+              </p>
+            </div>
+
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <label htmlFor="hackerrank" className="mb-1.5 block text-sm font-medium text-foreground">
-                  HackerRank Username
+                  HackerRank Username <span className="text-red-500">*</span>
                 </label>
                 <input
                   id="hackerrank"
                   type="text"
+                  required
                   value={data.hackerrankUsername}
                   onChange={(e) => setData({ ...data, hackerrankUsername: e.target.value })}
                   className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-sm text-foreground outline-none transition-colors focus:border-brand focus:ring-1 focus:ring-brand/30"
-                  placeholder="your_username"
+                  placeholder="e.g. johndoe123"
                 />
+                <p className="mt-1 text-[11px] text-brand">Required for automated Marathon score syncing</p>
               </div>
+
               <div>
-                <label htmlFor="github" className="mb-1.5 block text-sm font-medium text-foreground">
-                  GitHub Profile Link
+                <label htmlFor="leetcode" className="mb-1.5 block text-sm font-medium text-foreground">
+                  LeetCode Profile Link / Username <span className="text-red-500">*</span>
                 </label>
                 <input
-                  id="github"
-                  type="url"
-                  value={data.githubProfile}
-                  onChange={(e) => setData({ ...data, githubProfile: e.target.value })}
+                  id="leetcode"
+                  type="text"
+                  required
+                  value={data.leetcodeProfile}
+                  onChange={(e) => setData({ ...data, leetcodeProfile: e.target.value })}
                   className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-sm text-foreground outline-none transition-colors focus:border-brand focus:ring-1 focus:ring-brand/30"
-                  placeholder="https://github.com/username"
+                  placeholder="https://leetcode.com/u/username or username"
                 />
               </div>
             </div>
+
             <div>
-              <label htmlFor="leetcode" className="mb-1.5 block text-sm font-medium text-foreground">
-                LeetCode Profile Link
+              <label htmlFor="github" className="mb-1.5 block text-sm font-medium text-foreground">
+                GitHub Profile Link / Username <span className="text-red-500">*</span>
               </label>
               <input
-                id="leetcode"
-                type="url"
-                value={data.leetcodeProfile}
-                onChange={(e) => setData({ ...data, leetcodeProfile: e.target.value })}
+                id="github"
+                type="text"
+                required
+                value={data.githubProfile}
+                onChange={(e) => setData({ ...data, githubProfile: e.target.value })}
                 className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-sm text-foreground outline-none transition-colors focus:border-brand focus:ring-1 focus:ring-brand/30"
-                placeholder="https://leetcode.com/username"
+                placeholder="https://github.com/username or username"
               />
             </div>
           </div>
@@ -245,28 +314,30 @@ export default function OnboardingPage() {
           {/* Skills & Languages */}
           <div className="space-y-4">
             <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-              Skills & Languages
+              Skills & Languages <span className="text-red-500">*</span>
             </h3>
             <div>
               <label htmlFor="skills" className="mb-1.5 block text-sm font-medium text-foreground">
-                Skills <span className="text-xs text-muted-foreground">(comma-separated)</span>
+                Skills <span className="text-red-500">*</span> <span className="text-xs text-muted-foreground">(comma-separated)</span>
               </label>
               <input
                 id="skills"
                 type="text"
+                required
                 value={data.skills}
                 onChange={(e) => setData({ ...data, skills: e.target.value })}
                 className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-sm text-foreground outline-none transition-colors focus:border-brand focus:ring-1 focus:ring-brand/30"
-                placeholder="e.g. Machine Learning, Web Development, Data Analysis"
+                placeholder="e.g. Machine Learning, Python, Web Development, Data Structures"
               />
             </div>
             <div>
               <label htmlFor="languages" className="mb-1.5 block text-sm font-medium text-foreground">
-                Languages Known <span className="text-xs text-muted-foreground">(comma-separated)</span>
+                Languages Known <span className="text-red-500">*</span> <span className="text-xs text-muted-foreground">(comma-separated)</span>
               </label>
               <input
                 id="languages"
                 type="text"
+                required
                 value={data.languages}
                 onChange={(e) => setData({ ...data, languages: e.target.value })}
                 className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-sm text-foreground outline-none transition-colors focus:border-brand focus:ring-1 focus:ring-brand/30"
@@ -322,10 +393,10 @@ export default function OnboardingPage() {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                 </svg>
-                Saving...
+                Saving Profile...
               </span>
             ) : (
-              "Complete Profile"
+              "Complete Profile & Register"
             )}
           </button>
         </form>
