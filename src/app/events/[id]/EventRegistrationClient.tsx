@@ -378,7 +378,7 @@ export default function EventRegistrationClient({
               <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
                 {members.map((reg: any) => {
                   const isMemberLeader = userTeam.leaderId === reg.userId;
-                  const canRemove = isLeader && !isMemberLeader;
+                  const canRemove = !isTeamConfirmed && isLeader && !isMemberLeader;
                   const memberName = reg.user?.displayName || reg.user?.name || "Student";
                   return (
                     <div
@@ -420,34 +420,35 @@ export default function EventRegistrationClient({
 
             {/* Team Actions & Confirmation */}
             <div className="pt-2 border-t border-brand/20 space-y-2.5">
-              {isLeader ? (
+              {isTeamConfirmed ? (
+                <div className="flex items-center gap-2 text-xs font-space-grotesk text-emerald-400 bg-emerald-500/10 p-2.5 rounded-lg border border-emerald-500/20">
+                  <ShieldCheckIcon className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>Team roster is confirmed and locked. Members cannot leave or be removed.</span>
+                </div>
+              ) : isLeader ? (
                 <>
-                  {!isTeamConfirmed && (
-                    <>
-                      <p className="text-xs font-space-grotesk text-muted-foreground leading-relaxed">
-                        {hasMinMembers
-                          ? `All team members joined! Click below to confirm and lock your team roster.`
-                          : `Your team requires at least ${minSize} members to confirm. Share your team code above.`}
-                      </p>
+                  <p className="text-xs font-space-grotesk text-muted-foreground leading-relaxed">
+                    {hasMinMembers
+                      ? `All team members joined! Click below to confirm and lock your team roster.`
+                      : `Your team requires at least ${minSize} members to confirm. Share your team code above.`}
+                  </p>
 
-                      <button
-                        onClick={handleConfirmTeam}
-                        disabled={!hasMinMembers || confirmingTeam}
-                        className={`w-full rounded-lg py-2.5 px-4 font-space-grotesk font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${
-                          hasMinMembers
-                            ? "bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/25 cursor-pointer"
-                            : "bg-muted text-muted-foreground border border-border cursor-not-allowed opacity-60"
-                        }`}
-                      >
-                        <ShieldCheckIcon className="w-4 h-4" />
-                        {confirmingTeam
-                          ? "Confirming Roster..."
-                          : hasMinMembers
-                          ? "Confirm Team Roster"
-                          : `Need ${minSize - members.length} More Member(s)`}
-                      </button>
-                    </>
-                  )}
+                  <button
+                    onClick={handleConfirmTeam}
+                    disabled={!hasMinMembers || confirmingTeam}
+                    className={`w-full rounded-lg py-2.5 px-4 font-space-grotesk font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${
+                      hasMinMembers
+                        ? "bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/25 cursor-pointer"
+                        : "bg-muted text-muted-foreground border border-border cursor-not-allowed opacity-60"
+                    }`}
+                  >
+                    <ShieldCheckIcon className="w-4 h-4" />
+                    {confirmingTeam
+                      ? "Confirming Roster..."
+                      : hasMinMembers
+                      ? "Confirm Team Roster"
+                      : `Need ${minSize - members.length} More Member(s)`}
+                  </button>
 
                   <button
                     type="button"
@@ -461,12 +462,10 @@ export default function EventRegistrationClient({
                 </>
               ) : (
                 <>
-                  {!isTeamConfirmed && (
-                    <div className="flex items-center gap-2 text-xs font-space-grotesk text-muted-foreground bg-background/40 p-2.5 rounded-lg border border-brand/15">
-                      <ClockIcon className="w-4 h-4 text-amber-400 shrink-0" />
-                      <span>Waiting for your team leader to review and finalize the team confirmation.</span>
-                    </div>
-                  )}
+                  <div className="flex items-center gap-2 text-xs font-space-grotesk text-muted-foreground bg-background/40 p-2.5 rounded-lg border border-brand/15">
+                    <ClockIcon className="w-4 h-4 text-amber-400 shrink-0" />
+                    <span>Waiting for your team leader to review and finalize the team confirmation.</span>
+                  </div>
 
                   <button
                     type="button"

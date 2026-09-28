@@ -168,6 +168,13 @@ export async function POST(request: Request, context: Context) {
         );
       }
 
+      if (team.status === "CONFIRMED") {
+        return NextResponse.json(
+          { error: "Team is already confirmed. Members cannot be removed." },
+          { status: 400 }
+        );
+      }
+
       const targetMemberId = memberId || body.userId;
       const targetRegId = registrationId;
 
@@ -202,18 +209,6 @@ export async function POST(request: Request, context: Context) {
         where: { id: targetReg.id },
       });
 
-      // If team was confirmed and now drops below minTeamSize, revert to PENDING
-      const remainingCount = team.registrations.length - 1;
-      if (team.status === "CONFIRMED" && remainingCount < event.minTeamSize) {
-        await db.team.update({
-          where: { id: team.id },
-          data: {
-            status: "PENDING",
-            isConfirmed: false,
-          },
-        });
-      }
-
       return NextResponse.json({
         success: true,
         message: "Member removed from team successfully",
@@ -243,6 +238,13 @@ export async function POST(request: Request, context: Context) {
 
       const team = userReg.team;
 
+      if (team.status === "CONFIRMED") {
+        return NextResponse.json(
+          { error: "Team is already confirmed. Members cannot leave the team." },
+          { status: 400 }
+        );
+      }
+
       if (team.leaderId === session.user.id) {
         return NextResponse.json(
           {
@@ -256,18 +258,6 @@ export async function POST(request: Request, context: Context) {
       await db.eventRegistration.delete({
         where: { id: userReg.id },
       });
-
-      // If team was confirmed and now drops below minTeamSize, revert to PENDING
-      const remainingCount = team.registrations.length - 1;
-      if (team.status === "CONFIRMED" && remainingCount < event.minTeamSize) {
-        await db.team.update({
-          where: { id: team.id },
-          data: {
-            status: "PENDING",
-            isConfirmed: false,
-          },
-        });
-      }
 
       return NextResponse.json({
         success: true,
@@ -288,6 +278,13 @@ export async function POST(request: Request, context: Context) {
         return NextResponse.json(
           { error: "Only the team leader can disband the team" },
           { status: 403 }
+        );
+      }
+
+      if (team.status === "CONFIRMED") {
+        return NextResponse.json(
+          { error: "Team is already confirmed. Confirmed teams cannot be disbanded." },
+          { status: 400 }
         );
       }
 
