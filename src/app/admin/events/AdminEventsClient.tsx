@@ -1169,11 +1169,12 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
                   <label className="mb-1 text-xs font-mono-tech uppercase text-muted-foreground">Participation Type</label>
                   <select
                     value={editType}
-                    onChange={(e) => setEditType(e.target.value as "SOLO" | "TEAM")}
+                    onChange={(e) => setEditType(e.target.value as "SOLO" | "TEAM" | "SOLO_OR_TEAM")}
                     className="w-full rounded-xl border border-brand/30 bg-card px-4 py-2 text-sm text-foreground outline-none focus:border-brand-accent"
                   >
                     <option value="SOLO">Solo (Individual)</option>
                     <option value="TEAM">Team Based</option>
+                    <option value="SOLO_OR_TEAM">Solo or Team (Participant Chooses)</option>
                   </select>
                 </div>
                 <div>
@@ -1187,7 +1188,7 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
                 </div>
               </div>
 
-              {editType === "TEAM" && (
+              {(editType === "TEAM" || editType === "SOLO_OR_TEAM") && (
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="mb-1 text-xs font-mono-tech uppercase text-muted-foreground">Min Team Size</label>

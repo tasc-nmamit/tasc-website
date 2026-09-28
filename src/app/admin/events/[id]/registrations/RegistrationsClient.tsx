@@ -231,12 +231,17 @@ export default function RegistrationsClient({ event, teams, allUsers }: Registra
                         )}
                       </h3>
                       <p className="text-xs text-muted-foreground font-mono-tech">
-                        MEMBERS: {members.length} / {event.type === "TEAM" ? event.maxTeamSize : 1}
+                        MEMBERS: {members.length} / {(event.type === "TEAM" || (event.type === "SOLO_OR_TEAM" && team.teamCode)) ? event.maxTeamSize : 1}
                       </p>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-2 self-end sm:self-auto">
+                    {team.teamCode && (
+                      <span className={`px-2 py-1 rounded text-[10px] font-bold font-mono-tech uppercase ${team.status === "CONFIRMED" ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40" : "bg-amber-500/20 text-amber-400 border border-amber-500/40"}`}>
+                        {team.status || "PENDING"}
+                      </span>
+                    )}
                     {canAddMore && (
                       <button
                         onClick={() => {

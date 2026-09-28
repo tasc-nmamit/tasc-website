@@ -82,7 +82,7 @@ export default function EventRegistrationClient({
     }
   };
 
-  const isSolo = selectedFormat === "SOLO";
+  const isSolo = isRegistered ? !userTeam?.teamCode : selectedFormat === "SOLO";
 
   const handleCopyCode = (code: string) => {
     navigator.clipboard.writeText(code);
