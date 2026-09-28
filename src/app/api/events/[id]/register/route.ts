@@ -71,7 +71,7 @@ export async function POST(request: Request, context: Context) {
 
   try {
     const body = await request.json();
-    const { action, teamName, teamCode, responses, format } = body;
+    const { action, teamName, teamCode, responses, format, memberId, registrationId } = body;
 
     const event = await db.event.findFirst({
       where: {
@@ -80,7 +80,229 @@ export async function POST(request: Request, context: Context) {
       include: { participants: { include: { registrations: true } } },
     });
 
-    if (!event || !event.registrationsAvailable) {
+    if (!event) {
+      return NextResponse.json(
+        { error: "Event not found" },
+        { status: 404 }
+      );
+    }
+
+    // Check if event is concluded
+    let eventEndDateTime: Date | null = event.endDate ? new Date(event.endDate) : null;
+    if (!eventEndDateTime && event.date && event.time) {
+      const [hours, minutes] = event.time.split(":").map(Number);
+      const start = new Date(event.date);
+      start.setHours(hours || 0, minutes || 0, 0, 0);
+      eventEndDateTime = new Date(start.getTime() + 3 * 60 * 60 * 1000);
+    }
+    if (eventEndDateTime && new Date() > eventEndDateTime) {
+      return NextResponse.json(
+        { error: "Event has already concluded" },
+        { status: 400 }
+      );
+    }
+
+    // --- Action: CONFIRM_TEAM ---
+    if (action === "CONFIRM_TEAM") {
+      const team = await db.team.findFirst({
+        where: {
+          eventId: event.id,
+          leaderId: session.user.id,
+        },
+        include: { registrations: true },
+      });
+
+      if (!team) {
+        return NextResponse.json(
+          { error: "Only the team leader can confirm the team" },
+          { status: 403 }
+        );
+      }
+
+      if (team.status === "CONFIRMED") {
+        return NextResponse.json(
+          { error: "Team is already confirmed" },
+          { status: 400 }
+        );
+      }
+
+      if (team.registrations.length < event.minTeamSize) {
+        return NextResponse.json(
+          { error: `Team must have at least ${event.minTeamSize} member(s) before confirming` },
+          { status: 400 }
+        );
+      }
+
+      if (team.registrations.length > event.maxTeamSize) {
+        return NextResponse.json(
+          { error: `Team cannot exceed ${event.maxTeamSize} member(s)` },
+          { status: 400 }
+        );
+      }
+
+      await db.team.update({
+        where: { id: team.id },
+        data: {
+          status: "CONFIRMED",
+          isConfirmed: true,
+        },
+      });
+
+      return NextResponse.json({ success: true, message: "Team confirmed successfully!" });
+    }
+
+    // --- Action: REMOVE_MEMBER ---
+    if (action === "REMOVE_MEMBER") {
+      const team = await db.team.findFirst({
+        where: {
+          eventId: event.id,
+          leaderId: session.user.id,
+        },
+        include: { registrations: true },
+      });
+
+      if (!team) {
+        return NextResponse.json(
+          { error: "Only the team leader can remove members" },
+          { status: 403 }
+        );
+      }
+
+      const targetMemberId = memberId || body.userId;
+      const targetRegId = registrationId;
+
+      if (!targetMemberId && !targetRegId) {
+        return NextResponse.json(
+          { error: "Member identifier is required to remove member" },
+          { status: 400 }
+        );
+      }
+
+      const targetReg = team.registrations.find(
+        (r) =>
+          (targetRegId && r.id === targetRegId) ||
+          (targetMemberId && r.userId === targetMemberId)
+      );
+
+      if (!targetReg) {
+        return NextResponse.json(
+          { error: "Member not found in your team" },
+          { status: 404 }
+        );
+      }
+
+      if (targetReg.userId === session.user.id) {
+        return NextResponse.json(
+          { error: "Team leader cannot be removed from the team" },
+          { status: 400 }
+        );
+      }
+
+      await db.eventRegistration.delete({
+        where: { id: targetReg.id },
+      });
+
+      // If team was confirmed and now drops below minTeamSize, revert to PENDING
+      const remainingCount = team.registrations.length - 1;
+      if (team.status === "CONFIRMED" && remainingCount < event.minTeamSize) {
+        await db.team.update({
+          where: { id: team.id },
+          data: {
+            status: "PENDING",
+            isConfirmed: false,
+          },
+        });
+      }
+
+      return NextResponse.json({
+        success: true,
+        message: "Member removed from team successfully",
+      });
+    }
+
+    // --- Action: QUIT_TEAM / LEAVE_TEAM ---
+    if (action === "QUIT_TEAM" || action === "LEAVE_TEAM") {
+      const userReg = await db.eventRegistration.findFirst({
+        where: {
+          userId: session.user.id,
+          team: { eventId: event.id },
+        },
+        include: {
+          team: {
+            include: { registrations: true },
+          },
+        },
+      });
+
+      if (!userReg || !userReg.team) {
+        return NextResponse.json(
+          { error: "You are not registered in a team for this event" },
+          { status: 400 }
+        );
+      }
+
+      const team = userReg.team;
+
+      if (team.leaderId === session.user.id) {
+        return NextResponse.json(
+          {
+            error:
+              "As team leader, you cannot quit the team. You can remove members or disband the team.",
+          },
+          { status: 400 }
+        );
+      }
+
+      await db.eventRegistration.delete({
+        where: { id: userReg.id },
+      });
+
+      // If team was confirmed and now drops below minTeamSize, revert to PENDING
+      const remainingCount = team.registrations.length - 1;
+      if (team.status === "CONFIRMED" && remainingCount < event.minTeamSize) {
+        await db.team.update({
+          where: { id: team.id },
+          data: {
+            status: "PENDING",
+            isConfirmed: false,
+          },
+        });
+      }
+
+      return NextResponse.json({
+        success: true,
+        message: "You have left the team successfully",
+      });
+    }
+
+    // --- Action: DISBAND_TEAM ---
+    if (action === "DISBAND_TEAM") {
+      const team = await db.team.findFirst({
+        where: {
+          eventId: event.id,
+          leaderId: session.user.id,
+        },
+      });
+
+      if (!team) {
+        return NextResponse.json(
+          { error: "Only the team leader can disband the team" },
+          { status: 403 }
+        );
+      }
+
+      await db.team.delete({
+        where: { id: team.id },
+      });
+
+      return NextResponse.json({
+        success: true,
+        message: "Team disbanded successfully",
+      });
+    }
+
+    // --- New Registration Flow (CREATE or JOIN) ---
+    if (!event.registrationsAvailable) {
       return NextResponse.json(
         { error: "Event not available for registration" },
         { status: 400 }
@@ -182,6 +404,7 @@ export async function POST(request: Request, context: Context) {
           eventId: event.id,
           leaderId: session.user.id,
           status: "CONFIRMED", // Solo teams are auto-confirmed
+          isConfirmed: true,
           customFieldResponses: responses ?? undefined,
         },
       });
@@ -207,6 +430,7 @@ export async function POST(request: Request, context: Context) {
             leaderId: session.user.id,
             teamCode: newTeamCode,
             status: "PENDING",
+            isConfirmed: false,
             customFieldResponses: responses ?? undefined,
           },
         });
@@ -234,6 +458,10 @@ export async function POST(request: Request, context: Context) {
           return NextResponse.json({ error: "Team code belongs to a different event" }, { status: 400 });
         }
 
+        if (team.status === "CONFIRMED") {
+          return NextResponse.json({ error: "Team roster has already been confirmed and locked" }, { status: 400 });
+        }
+
         if (team.registrations.length >= event.maxTeamSize) {
           return NextResponse.json({ error: "Team is already full" }, { status: 400 });
         }
@@ -247,32 +475,6 @@ export async function POST(request: Request, context: Context) {
         });
 
         return NextResponse.json({ success: true });
-      } else if (action === "CONFIRM_TEAM") {
-        const team = await db.team.findFirst({
-          where: {
-            eventId: event.id,
-            leaderId: session.user.id,
-          },
-          include: { registrations: true },
-        });
-
-        if (!team) {
-          return NextResponse.json({ error: "Only the team leader can confirm the team" }, { status: 403 });
-        }
-
-        if (team.registrations.length < event.minTeamSize) {
-          return NextResponse.json(
-            { error: `Team must have at least ${event.minTeamSize} member(s) before confirming` },
-            { status: 400 }
-          );
-        }
-
-        await db.team.update({
-          where: { id: team.id },
-          data: { status: "CONFIRMED" },
-        });
-
-        return NextResponse.json({ success: true, message: "Team confirmed successfully!" });
       }
       return NextResponse.json({ error: "Invalid team action" }, { status: 400 });
     }

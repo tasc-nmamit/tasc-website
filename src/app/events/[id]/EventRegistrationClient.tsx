@@ -13,6 +13,9 @@ import {
   UserPlusIcon,
   ShieldCheckIcon,
   ClockIcon,
+  UserMinusIcon,
+  LogOutIcon,
+  Trash2Icon,
 } from "lucide-react";
 import CircuitTrace from "@/components/ui/circuit-ink/CircuitTrace";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
@@ -42,6 +45,9 @@ export default function EventRegistrationClient({
   const [teamCode, setTeamCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [confirmingTeam, setConfirmingTeam] = useState(false);
+  const [removingMemberId, setRemovingMemberId] = useState<string | null>(null);
+  const [leavingTeam, setLeavingTeam] = useState(false);
+  const [disbandingTeam, setDisbandingTeam] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
   const [selectedFormat, setSelectedFormat] = useState<"SOLO" | "TEAM">(
     event.type === "SOLO" ? "SOLO" : event.type === "TEAM" ? "TEAM" : "SOLO"
@@ -56,7 +62,7 @@ export default function EventRegistrationClient({
     setUploadingFiles((prev) => ({ ...prev, [fieldId]: true }));
     try {
       const ext = file.name.split(".").pop();
-      const fileName = `registration-uploads/${event.id}/${session?.user?.id || "anon"}_${Date.now()}.${ext}`;
+      const fileName = `registration-uploads/${event.id}/${session?.user?.id || "anon"}_${file.lastModified || "upload"}.${ext}`;
       const storageRef = ref(storage, fileName);
       const uploadTask = uploadBytesResumable(storageRef, file);
 
@@ -178,6 +184,84 @@ export default function EventRegistrationClient({
     }
   };
 
+  const handleRemoveMember = async (memberId: string, memberName: string) => {
+    if (!confirm(`Are you sure you want to remove ${memberName} from your team?`)) return;
+
+    setRemovingMemberId(memberId);
+    try {
+      const res = await fetch(`/api/events/${event.id}/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "REMOVE_MEMBER", memberId }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to remove member");
+      }
+
+      alert(`${memberName} was removed from the team.`);
+      router.refresh();
+    } catch (err: any) {
+      alert("Error: " + err.message);
+    } finally {
+      setRemovingMemberId(null);
+    }
+  };
+
+  const handleLeaveTeam = async () => {
+    const confirmMsg = userTeam?.status === "CONFIRMED"
+      ? "Are you sure you want to quit this team? Because your team is currently confirmed, leaving will revert the team status back to pending."
+      : "Are you sure you want to quit this team? You will be removed from the roster and can join or create another team.";
+    if (!confirm(confirmMsg)) return;
+
+    setLeavingTeam(true);
+    try {
+      const res = await fetch(`/api/events/${event.id}/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "QUIT_TEAM" }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to leave team");
+      }
+
+      alert("You have left the team.");
+      router.refresh();
+    } catch (err: any) {
+      alert("Error: " + err.message);
+    } finally {
+      setLeavingTeam(false);
+    }
+  };
+
+  const handleDisbandTeam = async () => {
+    if (!confirm("Are you sure you want to disband this team? All members will be removed and your registration will be cancelled.")) return;
+
+    setDisbandingTeam(true);
+    try {
+      const res = await fetch(`/api/events/${event.id}/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "DISBAND_TEAM" }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to disband team");
+      }
+
+      alert("Team has been disbanded.");
+      router.refresh();
+    } catch (err: any) {
+      alert("Error: " + err.message);
+    } finally {
+      setDisbandingTeam(false);
+    }
+  };
+
   // Render: Event Concluded
   if (isPast) {
     return (
@@ -294,66 +378,108 @@ export default function EventRegistrationClient({
               <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
                 {members.map((reg: any) => {
                   const isMemberLeader = userTeam.leaderId === reg.userId;
+                  const canRemove = isLeader && !isMemberLeader;
+                  const memberName = reg.user?.displayName || reg.user?.name || "Student";
                   return (
                     <div
                       key={reg.id}
-                      className="flex items-center justify-between p-2 rounded-lg border border-brand/15 bg-background/50 text-xs"
+                      className="flex items-center justify-between p-2 rounded-lg border border-brand/15 bg-background/50 text-xs gap-2"
                     >
-                      <div className="min-w-0 pr-2">
+                      <div className="min-w-0 flex-1">
                         <p className="font-semibold text-foreground truncate font-space-grotesk">
-                          {reg.user?.displayName || reg.user?.name || "Student"}
+                          {memberName}
                         </p>
                         <p className="text-[10px] font-mono-tech text-muted-foreground truncate">
                           {reg.user?.email}
                         </p>
                       </div>
-                      {isMemberLeader && (
-                        <span className="shrink-0 text-[9px] font-mono-tech uppercase font-bold bg-brand/20 text-brand-accent border border-brand/30 px-1.5 py-0.5 rounded">
-                          LEADER
-                        </span>
-                      )}
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        {isMemberLeader && (
+                          <span className="text-[9px] font-mono-tech uppercase font-bold bg-brand/20 text-brand-accent border border-brand/30 px-1.5 py-0.5 rounded">
+                            LEADER
+                          </span>
+                        )}
+                        {canRemove && (
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveMember(reg.userId, memberName)}
+                            disabled={removingMemberId === reg.userId}
+                            className="inline-flex items-center gap-1 text-[10px] font-mono-tech uppercase font-bold text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 px-2 py-1 rounded transition-colors disabled:opacity-50 cursor-pointer"
+                            title={`Remove ${memberName} from team`}
+                          >
+                            <UserMinusIcon className="w-3 h-3" />
+                            <span>{removingMemberId === reg.userId ? "..." : "Remove"}</span>
+                          </button>
+                        )}
+                      </div>
                     </div>
                   );
                 })}
               </div>
             </div>
 
-            {/* Team Leader Confirmation Button */}
-            {!isTeamConfirmed && (
-              <div className="pt-2 border-t border-brand/20 space-y-2.5">
-                {isLeader ? (
-                  <>
-                    <p className="text-xs font-space-grotesk text-muted-foreground leading-relaxed">
-                      {hasMinMembers
-                        ? `All team members joined! Click below to confirm and lock your team roster.`
-                        : `Your team requires at least ${minSize} members to confirm. Share your team code above.`}
-                    </p>
+            {/* Team Actions & Confirmation */}
+            <div className="pt-2 border-t border-brand/20 space-y-2.5">
+              {isLeader ? (
+                <>
+                  {!isTeamConfirmed && (
+                    <>
+                      <p className="text-xs font-space-grotesk text-muted-foreground leading-relaxed">
+                        {hasMinMembers
+                          ? `All team members joined! Click below to confirm and lock your team roster.`
+                          : `Your team requires at least ${minSize} members to confirm. Share your team code above.`}
+                      </p>
 
-                    <button
-                      onClick={handleConfirmTeam}
-                      disabled={!hasMinMembers || confirmingTeam}
-                      className={`w-full rounded-lg py-2.5 px-4 font-space-grotesk font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${
-                        hasMinMembers
-                          ? "bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/25 cursor-pointer"
-                          : "bg-muted text-muted-foreground border border-border cursor-not-allowed opacity-60"
-                      }`}
-                    >
-                      <ShieldCheckIcon className="w-4 h-4" />
-                      {confirmingTeam
-                        ? "Confirming Roster..."
-                        : hasMinMembers
-                        ? "Confirm Team Roster"
-                        : `Need ${minSize - members.length} More Member(s)`}
-                    </button>
-                  </>
-                ) : (
-                  <div className="flex items-center gap-2 text-xs font-space-grotesk text-muted-foreground bg-background/40 p-2.5 rounded-lg border border-brand/15">
-                    <ClockIcon className="w-4 h-4 text-amber-400 shrink-0" />
-                    <span>Waiting for your team leader to review and finalize the team confirmation.</span>
-                  </div>
-                )}
-              </div>
-            )}
+                      <button
+                        onClick={handleConfirmTeam}
+                        disabled={!hasMinMembers || confirmingTeam}
+                        className={`w-full rounded-lg py-2.5 px-4 font-space-grotesk font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${
+                          hasMinMembers
+                            ? "bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/25 cursor-pointer"
+                            : "bg-muted text-muted-foreground border border-border cursor-not-allowed opacity-60"
+                        }`}
+                      >
+                        <ShieldCheckIcon className="w-4 h-4" />
+                        {confirmingTeam
+                          ? "Confirming Roster..."
+                          : hasMinMembers
+                          ? "Confirm Team Roster"
+                          : `Need ${minSize - members.length} More Member(s)`}
+                      </button>
+                    </>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={handleDisbandTeam}
+                    disabled={disbandingTeam}
+                    className="w-full rounded-lg py-1.5 px-3 border border-red-500/20 bg-red-500/5 hover:bg-red-500/15 text-red-400/80 hover:text-red-300 font-space-grotesk font-medium text-[11px] uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer"
+                  >
+                    <Trash2Icon className="w-3 h-3" />
+                    {disbandingTeam ? "Disbanding Team..." : "Disband Team"}
+                  </button>
+                </>
+              ) : (
+                <>
+                  {!isTeamConfirmed && (
+                    <div className="flex items-center gap-2 text-xs font-space-grotesk text-muted-foreground bg-background/40 p-2.5 rounded-lg border border-brand/15">
+                      <ClockIcon className="w-4 h-4 text-amber-400 shrink-0" />
+                      <span>Waiting for your team leader to review and finalize the team confirmation.</span>
+                    </div>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={handleLeaveTeam}
+                    disabled={leavingTeam}
+                    className="w-full rounded-lg py-2 px-3 border border-red-500/30 bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 font-space-grotesk font-semibold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer"
+                  >
+                    <LogOutIcon className="w-3.5 h-3.5" />
+                    {leavingTeam ? "Leaving Team..." : "Quit Team"}
+                  </button>
+                </>
+              )}
+            </div>
           </div>
         )}
       </div>
