@@ -69,6 +69,10 @@ export async function PATCH(
       updateData.endDate = body.endDate ? new Date(body.endDate) : null;
     }
 
+    if (body.type !== undefined) {
+      updateData.type = body.type as EventType;
+    }
+
     if (body.minTeamSize !== undefined) {
       updateData.minTeamSize = Number(body.minTeamSize) || 1;
     }
@@ -87,9 +91,60 @@ export async function PATCH(
       updateData.notification = body.galleryPublished ? "GALLERY_PUBLISHED" : "GALLERY_DRAFT";
     }
 
+    if (body.customFields !== undefined && Array.isArray(body.customFields)) {
+      const existingFields = await db.eventCustomField.findMany({
+        where: { eventId: id },
+      });
+      const incomingIds = new Set(
+        body.customFields.filter((cf: any) => cf.id).map((cf: any) => cf.id)
+      );
+
+      const fieldsToDelete = existingFields.filter((ef) => !incomingIds.has(ef.id));
+      if (fieldsToDelete.length > 0) {
+        await db.eventCustomField.deleteMany({
+          where: { id: { in: fieldsToDelete.map((f) => f.id) } },
+        });
+      }
+
+      for (let i = 0; i < body.customFields.length; i++) {
+        const cf = body.customFields[i];
+        const fieldData = {
+          label: cf.label,
+          fieldType: cf.fieldType || "TEXT",
+          isRequired: cf.fieldType === "DISPLAY_IMAGE" ? false : !!cf.isRequired,
+          options: cf.options || null,
+          order: i,
+          registrationMode: cf.registrationMode || "ALL",
+          targetRole: cf.targetRole || "ALL_MEMBERS",
+        };
+
+        if (cf.id && existingFields.some((ef) => ef.id === cf.id)) {
+          await db.eventCustomField.update({
+            where: { id: cf.id },
+            data: fieldData,
+          });
+        } else {
+          await db.eventCustomField.create({
+            data: {
+              ...fieldData,
+              eventId: id,
+            },
+          });
+        }
+      }
+    }
+
     const event = await db.event.update({
       where: { id },
       data: updateData,
+      include: {
+        customFields: {
+          orderBy: { order: "asc" },
+        },
+        _count: {
+          select: { participants: true },
+        },
+      },
     });
 
     return NextResponse.json(event);

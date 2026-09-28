@@ -57,29 +57,7 @@ export default function OnboardingPage() {
     );
   }
 
-  if (!session?.user?.isAiml) {
-    return (
-      <main className="flex min-h-dvh flex-col items-center justify-center pt-24 px-4">
-        <div className="max-w-md text-center">
-          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-amber-500/10">
-            <svg className="h-8 w-8 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-          <h1 className="text-2xl font-bold text-foreground">Not Applicable</h1>
-          <p className="mt-2 text-muted-foreground">
-            Onboarding is only required for AIML department students.
-          </p>
-          <button
-            onClick={() => router.push("/")}
-            className="mt-6 rounded-lg bg-brand px-6 py-2.5 text-sm font-medium text-white transition-all hover:bg-brand/90"
-          >
-            Go Home
-          </button>
-        </div>
-      </main>
-    );
-  }
+  const isAiml = session?.user?.isAiml;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -100,21 +78,25 @@ export default function OnboardingPage() {
       .map((l) => l.trim())
       .filter(Boolean);
 
-    // Strict validation to ensure no field is left blank
-    if (
-      !nameTrimmed ||
-      !usnTrimmed ||
-      !phoneTrimmed ||
-      !data.year ||
-      !hrTrimmed ||
-      !lcTrimmed ||
-      !ghTrimmed ||
-      skillsList.length === 0 ||
-      languagesList.length === 0 ||
-      !data.careerIntent
-    ) {
-      setError("All fields are mandatory. Please make sure not to leave any field blank.");
+    // Basic validation for all users
+    if (!nameTrimmed || !usnTrimmed || !phoneTrimmed || !data.year) {
+      setError("Name, USN, Phone, and Year are mandatory.");
       return;
+    }
+
+    // Strict validation for AIML users
+    if (isAiml) {
+      if (
+        !hrTrimmed ||
+        !lcTrimmed ||
+        !ghTrimmed ||
+        skillsList.length === 0 ||
+        languagesList.length === 0 ||
+        !data.careerIntent
+      ) {
+        setError("All fields are mandatory. Please make sure not to leave any field blank.");
+        return;
+      }
     }
 
     if (phoneTrimmed.replace(/\D/g, "").length < 10) {
@@ -133,12 +115,12 @@ export default function OnboardingPage() {
           usn: usnTrimmed,
           phone: phoneTrimmed,
           year: parseInt(data.year),
-          hackerrankUsername: hrTrimmed,
-          leetcodeProfile: lcTrimmed,
-          githubProfile: ghTrimmed,
-          skills: skillsList,
-          languages: languagesList,
-          careerIntent: data.careerIntent,
+          hackerrankUsername: isAiml ? hrTrimmed : "",
+          leetcodeProfile: isAiml ? lcTrimmed : "",
+          githubProfile: isAiml ? ghTrimmed : "",
+          skills: isAiml ? skillsList : [],
+          languages: isAiml ? languagesList : [],
+          careerIntent: isAiml ? data.careerIntent : "NO",
         }),
       });
 
@@ -167,9 +149,11 @@ export default function OnboardingPage() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
           </div>
-          <h1 className="text-3xl font-bold text-foreground">Complete Your AIML Profile</h1>
+          <h1 className="text-3xl font-bold text-foreground">Complete Your Profile</h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            All fields are mandatory. Please provide all details to unlock your Marathon access and student tools.
+            {isAiml
+              ? "All fields are mandatory. Please provide all details to unlock your Marathon access and student tools."
+              : "Please provide your basic information to complete registration."}
           </p>
         </div>
 
@@ -244,6 +228,7 @@ export default function OnboardingPage() {
                 className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-sm text-foreground outline-none transition-colors focus:border-brand focus:ring-1 focus:ring-brand/30"
               >
                 <option value="">Select year</option>
+                <option value="1">1st Year</option>
                 <option value="2">2nd Year</option>
                 <option value="3">3rd Year</option>
                 <option value="4">4th Year</option>
@@ -251,135 +236,139 @@ export default function OnboardingPage() {
             </div>
           </div>
 
-          {/* Coding Profiles */}
-          <div className="space-y-4">
-            <div>
-              <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-                Coding Profiles <span className="text-red-500">*</span>
-              </h3>
-              <p className="text-[11px] text-muted-foreground mt-0.5">
-                All handles and profile links are mandatory for performance verification and Marathon leaderboard syncing.
-              </p>
-            </div>
+          {isAiml && (
+            <>
+              {/* Coding Profiles */}
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                    Coding Profiles <span className="text-red-500">*</span>
+                  </h3>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">
+                    All handles and profile links are mandatory for performance verification and Marathon leaderboard syncing.
+                  </p>
+                </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <label htmlFor="hackerrank" className="mb-1.5 block text-sm font-medium text-foreground">
-                  HackerRank Username <span className="text-red-500">*</span>
-                </label>
-                <input
-                  id="hackerrank"
-                  type="text"
-                  required
-                  value={data.hackerrankUsername}
-                  onChange={(e) => setData({ ...data, hackerrankUsername: e.target.value })}
-                  className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-sm text-foreground outline-none transition-colors focus:border-brand focus:ring-1 focus:ring-brand/30"
-                  placeholder="e.g. johndoe123"
-                />
-                <p className="mt-1 text-[11px] text-brand">Required for automated Marathon score syncing</p>
-              </div>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <label htmlFor="hackerrank" className="mb-1.5 block text-sm font-medium text-foreground">
+                      HackerRank Username <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      id="hackerrank"
+                      type="text"
+                      required
+                      value={data.hackerrankUsername}
+                      onChange={(e) => setData({ ...data, hackerrankUsername: e.target.value })}
+                      className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-sm text-foreground outline-none transition-colors focus:border-brand focus:ring-1 focus:ring-brand/30"
+                      placeholder="e.g. johndoe123"
+                    />
+                    <p className="mt-1 text-[11px] text-brand">Required for automated Marathon score syncing</p>
+                  </div>
 
-              <div>
-                <label htmlFor="leetcode" className="mb-1.5 block text-sm font-medium text-foreground">
-                  LeetCode Profile Link / Username <span className="text-red-500">*</span>
-                </label>
-                <input
-                  id="leetcode"
-                  type="text"
-                  required
-                  value={data.leetcodeProfile}
-                  onChange={(e) => setData({ ...data, leetcodeProfile: e.target.value })}
-                  className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-sm text-foreground outline-none transition-colors focus:border-brand focus:ring-1 focus:ring-brand/30"
-                  placeholder="https://leetcode.com/u/username or username"
-                />
-              </div>
-            </div>
+                  <div>
+                    <label htmlFor="leetcode" className="mb-1.5 block text-sm font-medium text-foreground">
+                      LeetCode Profile Link / Username <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      id="leetcode"
+                      type="text"
+                      required
+                      value={data.leetcodeProfile}
+                      onChange={(e) => setData({ ...data, leetcodeProfile: e.target.value })}
+                      className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-sm text-foreground outline-none transition-colors focus:border-brand focus:ring-1 focus:ring-brand/30"
+                      placeholder="https://leetcode.com/u/username or username"
+                    />
+                  </div>
+                </div>
 
-            <div>
-              <label htmlFor="github" className="mb-1.5 block text-sm font-medium text-foreground">
-                GitHub Profile Link / Username <span className="text-red-500">*</span>
-              </label>
-              <input
-                id="github"
-                type="text"
-                required
-                value={data.githubProfile}
-                onChange={(e) => setData({ ...data, githubProfile: e.target.value })}
-                className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-sm text-foreground outline-none transition-colors focus:border-brand focus:ring-1 focus:ring-brand/30"
-                placeholder="https://github.com/username or username"
-              />
-            </div>
-          </div>
-
-          {/* Skills & Languages */}
-          <div className="space-y-4">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-              Skills & Languages <span className="text-red-500">*</span>
-            </h3>
-            <div>
-              <label htmlFor="skills" className="mb-1.5 block text-sm font-medium text-foreground">
-                Skills <span className="text-red-500">*</span> <span className="text-xs text-muted-foreground">(comma-separated)</span>
-              </label>
-              <input
-                id="skills"
-                type="text"
-                required
-                value={data.skills}
-                onChange={(e) => setData({ ...data, skills: e.target.value })}
-                className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-sm text-foreground outline-none transition-colors focus:border-brand focus:ring-1 focus:ring-brand/30"
-                placeholder="e.g. Machine Learning, Python, Web Development, Data Structures"
-              />
-            </div>
-            <div>
-              <label htmlFor="languages" className="mb-1.5 block text-sm font-medium text-foreground">
-                Languages Known <span className="text-red-500">*</span> <span className="text-xs text-muted-foreground">(comma-separated)</span>
-              </label>
-              <input
-                id="languages"
-                type="text"
-                required
-                value={data.languages}
-                onChange={(e) => setData({ ...data, languages: e.target.value })}
-                className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-sm text-foreground outline-none transition-colors focus:border-brand focus:ring-1 focus:ring-brand/30"
-                placeholder="e.g. Python, Java, C++, JavaScript"
-              />
-            </div>
-          </div>
-
-          {/* Career Intent */}
-          <div>
-            <label className="mb-3 block text-sm font-medium text-foreground">
-              Career Plan <span className="text-red-500">*</span>
-            </label>
-            <div className="grid gap-3 sm:grid-cols-3">
-              {[
-                { value: "PLACEMENT", label: "Will sit for placements", icon: "💼" },
-                { value: "NO", label: "Will not sit for placements", icon: "🚫" },
-                { value: "HIGHER_STUDIES", label: "Will take higher studies", icon: "🎓" },
-              ].map((option) => (
-                <label
-                  key={option.value}
-                  className={`flex cursor-pointer items-center gap-3 rounded-xl border-2 p-4 transition-all ${
-                    data.careerIntent === option.value
-                      ? "border-brand bg-brand/5 shadow-md shadow-brand/10"
-                      : "border-border/50 hover:border-brand/30"
-                  }`}
-                >
+                <div>
+                  <label htmlFor="github" className="mb-1.5 block text-sm font-medium text-foreground">
+                    GitHub Profile Link / Username <span className="text-red-500">*</span>
+                  </label>
                   <input
-                    type="radio"
-                    name="careerIntent"
-                    value={option.value}
-                    checked={data.careerIntent === option.value}
-                    onChange={(e) => setData({ ...data, careerIntent: e.target.value })}
-                    className="sr-only"
+                    id="github"
+                    type="text"
                     required
+                    value={data.githubProfile}
+                    onChange={(e) => setData({ ...data, githubProfile: e.target.value })}
+                    className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-sm text-foreground outline-none transition-colors focus:border-brand focus:ring-1 focus:ring-brand/30"
+                    placeholder="https://github.com/username or username"
                   />
-                  <span className="text-2xl">{option.icon}</span>
-                  <span className="text-sm font-medium">{option.label}</span>
+                </div>
+              </div>
+
+              {/* Skills & Languages */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                  Skills & Languages <span className="text-red-500">*</span>
+                </h3>
+                <div>
+                  <label htmlFor="skills" className="mb-1.5 block text-sm font-medium text-foreground">
+                    Skills <span className="text-red-500">*</span> <span className="text-xs text-muted-foreground">(comma-separated)</span>
+                  </label>
+                  <input
+                    id="skills"
+                    type="text"
+                    required
+                    value={data.skills}
+                    onChange={(e) => setData({ ...data, skills: e.target.value })}
+                    className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-sm text-foreground outline-none transition-colors focus:border-brand focus:ring-1 focus:ring-brand/30"
+                    placeholder="e.g. Machine Learning, Python, Web Development, Data Structures"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="languages" className="mb-1.5 block text-sm font-medium text-foreground">
+                    Languages Known <span className="text-red-500">*</span> <span className="text-xs text-muted-foreground">(comma-separated)</span>
+                  </label>
+                  <input
+                    id="languages"
+                    type="text"
+                    required
+                    value={data.languages}
+                    onChange={(e) => setData({ ...data, languages: e.target.value })}
+                    className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-sm text-foreground outline-none transition-colors focus:border-brand focus:ring-1 focus:ring-brand/30"
+                    placeholder="e.g. Python, Java, C++, JavaScript"
+                  />
+                </div>
+              </div>
+
+              {/* Career Intent */}
+              <div>
+                <label className="mb-3 block text-sm font-medium text-foreground">
+                  Career Plan <span className="text-red-500">*</span>
                 </label>
-              ))}
-            </div>
-          </div>
+                <div className="grid gap-3 sm:grid-cols-3">
+                  {[
+                    { value: "PLACEMENT", label: "Will sit for placements", icon: "💼" },
+                    { value: "NO", label: "Will not sit for placements", icon: "🚫" },
+                    { value: "HIGHER_STUDIES", label: "Will take higher studies", icon: "🎓" },
+                  ].map((option) => (
+                    <label
+                      key={option.value}
+                      className={`flex cursor-pointer items-center gap-3 rounded-xl border-2 p-4 transition-all ${
+                        data.careerIntent === option.value
+                          ? "border-brand bg-brand/5 shadow-md shadow-brand/10"
+                          : "border-border/50 hover:border-brand/30"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="careerIntent"
+                        value={option.value}
+                        checked={data.careerIntent === option.value}
+                        onChange={(e) => setData({ ...data, careerIntent: e.target.value })}
+                        className="sr-only"
+                        required
+                      />
+                      <span className="text-2xl">{option.icon}</span>
+                      <span className="text-sm font-medium">{option.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
 
           {/* Submit */}
           <button

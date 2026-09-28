@@ -15,6 +15,9 @@ export default async function AdminEventsPage() {
       _count: {
         select: { participants: true },
       },
+      customFields: {
+        orderBy: { order: "asc" },
+      },
     },
   });
 

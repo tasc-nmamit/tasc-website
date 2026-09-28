@@ -77,6 +77,8 @@ export async function POST(request: Request) {
             isRequired: !!cf.isRequired,
             options: cf.options || null,
             order: index,
+            registrationMode: cf.registrationMode || "ALL",
+            targetRole: cf.targetRole || "ALL_MEMBERS",
           })) || [],
         },
       },
@@ -101,6 +103,9 @@ export async function GET(request: Request) {
       include: {
         _count: {
           select: { participants: true },
+        },
+        customFields: {
+          orderBy: { order: "asc" },
         },
       }
     });

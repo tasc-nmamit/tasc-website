@@ -71,7 +71,7 @@ export async function POST(request: Request, context: Context) {
 
   try {
     const body = await request.json();
-    const { action, teamName, teamCode, responses } = body;
+    const { action, teamName, teamCode, responses, format } = body;
 
     const event = await db.event.findFirst({
       where: {
@@ -114,17 +114,34 @@ export async function POST(request: Request, context: Context) {
       );
     }
 
-    const isLeaderOrSolo = event.type === "SOLO" || action === "CREATE";
+    const actualFormat = format || (event.type === "SOLO" ? "SOLO" : "TEAM");
 
-    if (isLeaderOrSolo) {
+    if (action === "CREATE" || action === "JOIN") {
       // Validate custom fields and number thresholds
       const customFields = await db.eventCustomField.findMany({
         where: { eventId: event.id },
       });
 
+      const activeCustomFields = customFields.filter((cf) => {
+        // 1. Format check
+        if (cf.registrationMode === "SOLO" && actualFormat !== "SOLO") return false;
+        if (cf.registrationMode === "TEAM" && actualFormat !== "TEAM") return false;
+
+        // 2. Team role check
+        if (actualFormat === "TEAM") {
+          // Teammates joining via code only answer fields designated for all members
+          if (action === "JOIN" && cf.targetRole === "LEADER_ONLY") {
+            return false;
+          }
+        }
+        return true;
+      });
+
       const fieldResponses = responses || {};
 
-      for (const field of customFields) {
+      for (const field of activeCustomFields) {
+        if (field.fieldType === "DISPLAY_IMAGE") continue;
+
         const val = fieldResponses[field.id];
         if (field.isRequired && (val === undefined || val === null || val === "" || (Array.isArray(val) && val.length === 0))) {
           return NextResponse.json(
@@ -158,7 +175,7 @@ export async function POST(request: Request, context: Context) {
       }
     }
 
-    if (event.type === "SOLO") {
+    if (actualFormat === "SOLO") {
       // Create a dummy "Team" for the solo user
       const team = await db.team.create({
         data: {
@@ -225,7 +242,7 @@ export async function POST(request: Request, context: Context) {
           data: {
             userId: session.user.id,
             teamId: team.id,
-            customFieldResponses: undefined, // Members joining via code don't need custom fields
+            customFieldResponses: responses ?? undefined,
           },
         });
 

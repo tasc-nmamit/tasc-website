@@ -204,7 +204,8 @@ export type CareerIntent = (typeof CareerIntent)[keyof typeof CareerIntent]
 
 export const EventType: {
   SOLO: 'SOLO',
-  TEAM: 'TEAM'
+  TEAM: 'TEAM',
+  SOLO_OR_TEAM: 'SOLO_OR_TEAM'
 };
 
 export type EventType = (typeof EventType)[keyof typeof EventType]
@@ -13980,6 +13981,8 @@ export namespace Prisma {
     fieldType: string | null
     isRequired: boolean | null
     order: number | null
+    registrationMode: string | null
+    targetRole: string | null
   }
 
   export type EventCustomFieldMaxAggregateOutputType = {
@@ -13989,6 +13992,8 @@ export namespace Prisma {
     fieldType: string | null
     isRequired: boolean | null
     order: number | null
+    registrationMode: string | null
+    targetRole: string | null
   }
 
   export type EventCustomFieldCountAggregateOutputType = {
@@ -13999,6 +14004,8 @@ export namespace Prisma {
     isRequired: number
     options: number
     order: number
+    registrationMode: number
+    targetRole: number
     _all: number
   }
 
@@ -14018,6 +14025,8 @@ export namespace Prisma {
     fieldType?: true
     isRequired?: true
     order?: true
+    registrationMode?: true
+    targetRole?: true
   }
 
   export type EventCustomFieldMaxAggregateInputType = {
@@ -14027,6 +14036,8 @@ export namespace Prisma {
     fieldType?: true
     isRequired?: true
     order?: true
+    registrationMode?: true
+    targetRole?: true
   }
 
   export type EventCustomFieldCountAggregateInputType = {
@@ -14037,6 +14048,8 @@ export namespace Prisma {
     isRequired?: true
     options?: true
     order?: true
+    registrationMode?: true
+    targetRole?: true
     _all?: true
   }
 
@@ -14134,6 +14147,8 @@ export namespace Prisma {
     isRequired: boolean
     options: JsonValue | null
     order: number
+    registrationMode: string
+    targetRole: string
     _count: EventCustomFieldCountAggregateOutputType | null
     _avg: EventCustomFieldAvgAggregateOutputType | null
     _sum: EventCustomFieldSumAggregateOutputType | null
@@ -14163,6 +14178,8 @@ export namespace Prisma {
     isRequired?: boolean
     options?: boolean
     order?: boolean
+    registrationMode?: boolean
+    targetRole?: boolean
     event?: boolean | EventDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["eventCustomField"]>
 
@@ -14174,6 +14191,8 @@ export namespace Prisma {
     isRequired?: boolean
     options?: boolean
     order?: boolean
+    registrationMode?: boolean
+    targetRole?: boolean
     event?: boolean | EventDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["eventCustomField"]>
 
@@ -14185,6 +14204,8 @@ export namespace Prisma {
     isRequired?: boolean
     options?: boolean
     order?: boolean
+    registrationMode?: boolean
+    targetRole?: boolean
     event?: boolean | EventDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["eventCustomField"]>
 
@@ -14196,9 +14217,11 @@ export namespace Prisma {
     isRequired?: boolean
     options?: boolean
     order?: boolean
+    registrationMode?: boolean
+    targetRole?: boolean
   }
 
-  export type EventCustomFieldOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "eventId" | "label" | "fieldType" | "isRequired" | "options" | "order", ExtArgs["result"]["eventCustomField"]>
+  export type EventCustomFieldOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "eventId" | "label" | "fieldType" | "isRequired" | "options" | "order" | "registrationMode" | "targetRole", ExtArgs["result"]["eventCustomField"]>
   export type EventCustomFieldInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     event?: boolean | EventDefaultArgs<ExtArgs>
   }
@@ -14222,6 +14245,8 @@ export namespace Prisma {
       isRequired: boolean
       options: Prisma.JsonValue | null
       order: number
+      registrationMode: string
+      targetRole: string
     }, ExtArgs["result"]["eventCustomField"]>
     composites: {}
   }
@@ -14653,6 +14678,8 @@ export namespace Prisma {
     readonly isRequired: FieldRef<"EventCustomField", 'Boolean'>
     readonly options: FieldRef<"EventCustomField", 'Json'>
     readonly order: FieldRef<"EventCustomField", 'Int'>
+    readonly registrationMode: FieldRef<"EventCustomField", 'String'>
+    readonly targetRole: FieldRef<"EventCustomField", 'String'>
   }
     
 
@@ -37393,7 +37420,9 @@ export namespace Prisma {
     fieldType: 'fieldType',
     isRequired: 'isRequired',
     options: 'options',
-    order: 'order'
+    order: 'order',
+    registrationMode: 'registrationMode',
+    targetRole: 'targetRole'
   };
 
   export type EventCustomFieldScalarFieldEnum = (typeof EventCustomFieldScalarFieldEnum)[keyof typeof EventCustomFieldScalarFieldEnum]
@@ -38658,6 +38687,8 @@ export namespace Prisma {
     isRequired?: BoolFilter<"EventCustomField"> | boolean
     options?: JsonNullableFilter<"EventCustomField">
     order?: IntFilter<"EventCustomField"> | number
+    registrationMode?: StringFilter<"EventCustomField"> | string
+    targetRole?: StringFilter<"EventCustomField"> | string
     event?: XOR<EventScalarRelationFilter, EventWhereInput>
   }
 
@@ -38669,6 +38700,8 @@ export namespace Prisma {
     isRequired?: SortOrder
     options?: SortOrderInput | SortOrder
     order?: SortOrder
+    registrationMode?: SortOrder
+    targetRole?: SortOrder
     event?: EventOrderByWithRelationInput
   }
 
@@ -38683,6 +38716,8 @@ export namespace Prisma {
     isRequired?: BoolFilter<"EventCustomField"> | boolean
     options?: JsonNullableFilter<"EventCustomField">
     order?: IntFilter<"EventCustomField"> | number
+    registrationMode?: StringFilter<"EventCustomField"> | string
+    targetRole?: StringFilter<"EventCustomField"> | string
     event?: XOR<EventScalarRelationFilter, EventWhereInput>
   }, "id">
 
@@ -38694,6 +38729,8 @@ export namespace Prisma {
     isRequired?: SortOrder
     options?: SortOrderInput | SortOrder
     order?: SortOrder
+    registrationMode?: SortOrder
+    targetRole?: SortOrder
     _count?: EventCustomFieldCountOrderByAggregateInput
     _avg?: EventCustomFieldAvgOrderByAggregateInput
     _max?: EventCustomFieldMaxOrderByAggregateInput
@@ -38712,6 +38749,8 @@ export namespace Prisma {
     isRequired?: BoolWithAggregatesFilter<"EventCustomField"> | boolean
     options?: JsonNullableWithAggregatesFilter<"EventCustomField">
     order?: IntWithAggregatesFilter<"EventCustomField"> | number
+    registrationMode?: StringWithAggregatesFilter<"EventCustomField"> | string
+    targetRole?: StringWithAggregatesFilter<"EventCustomField"> | string
   }
 
   export type LinksWhereInput = {
@@ -40934,6 +40973,8 @@ export namespace Prisma {
     isRequired?: boolean
     options?: NullableJsonNullValueInput | InputJsonValue
     order?: number
+    registrationMode?: string
+    targetRole?: string
     event: EventCreateNestedOneWithoutCustomFieldsInput
   }
 
@@ -40945,6 +40986,8 @@ export namespace Prisma {
     isRequired?: boolean
     options?: NullableJsonNullValueInput | InputJsonValue
     order?: number
+    registrationMode?: string
+    targetRole?: string
   }
 
   export type EventCustomFieldUpdateInput = {
@@ -40954,6 +40997,8 @@ export namespace Prisma {
     isRequired?: BoolFieldUpdateOperationsInput | boolean
     options?: NullableJsonNullValueInput | InputJsonValue
     order?: IntFieldUpdateOperationsInput | number
+    registrationMode?: StringFieldUpdateOperationsInput | string
+    targetRole?: StringFieldUpdateOperationsInput | string
     event?: EventUpdateOneRequiredWithoutCustomFieldsNestedInput
   }
 
@@ -40965,6 +41010,8 @@ export namespace Prisma {
     isRequired?: BoolFieldUpdateOperationsInput | boolean
     options?: NullableJsonNullValueInput | InputJsonValue
     order?: IntFieldUpdateOperationsInput | number
+    registrationMode?: StringFieldUpdateOperationsInput | string
+    targetRole?: StringFieldUpdateOperationsInput | string
   }
 
   export type EventCustomFieldCreateManyInput = {
@@ -40975,6 +41022,8 @@ export namespace Prisma {
     isRequired?: boolean
     options?: NullableJsonNullValueInput | InputJsonValue
     order?: number
+    registrationMode?: string
+    targetRole?: string
   }
 
   export type EventCustomFieldUpdateManyMutationInput = {
@@ -40984,6 +41033,8 @@ export namespace Prisma {
     isRequired?: BoolFieldUpdateOperationsInput | boolean
     options?: NullableJsonNullValueInput | InputJsonValue
     order?: IntFieldUpdateOperationsInput | number
+    registrationMode?: StringFieldUpdateOperationsInput | string
+    targetRole?: StringFieldUpdateOperationsInput | string
   }
 
   export type EventCustomFieldUncheckedUpdateManyInput = {
@@ -40994,6 +41045,8 @@ export namespace Prisma {
     isRequired?: BoolFieldUpdateOperationsInput | boolean
     options?: NullableJsonNullValueInput | InputJsonValue
     order?: IntFieldUpdateOperationsInput | number
+    registrationMode?: StringFieldUpdateOperationsInput | string
+    targetRole?: StringFieldUpdateOperationsInput | string
   }
 
   export type LinksCreateInput = {
@@ -43271,6 +43324,8 @@ export namespace Prisma {
     isRequired?: SortOrder
     options?: SortOrder
     order?: SortOrder
+    registrationMode?: SortOrder
+    targetRole?: SortOrder
   }
 
   export type EventCustomFieldAvgOrderByAggregateInput = {
@@ -43284,6 +43339,8 @@ export namespace Prisma {
     fieldType?: SortOrder
     isRequired?: SortOrder
     order?: SortOrder
+    registrationMode?: SortOrder
+    targetRole?: SortOrder
   }
 
   export type EventCustomFieldMinOrderByAggregateInput = {
@@ -43293,6 +43350,8 @@ export namespace Prisma {
     fieldType?: SortOrder
     isRequired?: SortOrder
     order?: SortOrder
+    registrationMode?: SortOrder
+    targetRole?: SortOrder
   }
 
   export type EventCustomFieldSumOrderByAggregateInput = {
@@ -48179,6 +48238,8 @@ export namespace Prisma {
     isRequired?: boolean
     options?: NullableJsonNullValueInput | InputJsonValue
     order?: number
+    registrationMode?: string
+    targetRole?: string
   }
 
   export type EventCustomFieldUncheckedCreateWithoutEventInput = {
@@ -48188,6 +48249,8 @@ export namespace Prisma {
     isRequired?: boolean
     options?: NullableJsonNullValueInput | InputJsonValue
     order?: number
+    registrationMode?: string
+    targetRole?: string
   }
 
   export type EventCustomFieldCreateOrConnectWithoutEventInput = {
@@ -48336,6 +48399,8 @@ export namespace Prisma {
     isRequired?: BoolFilter<"EventCustomField"> | boolean
     options?: JsonNullableFilter<"EventCustomField">
     order?: IntFilter<"EventCustomField"> | number
+    registrationMode?: StringFilter<"EventCustomField"> | string
+    targetRole?: StringFilter<"EventCustomField"> | string
   }
 
   export type EventCreateWithoutCustomFieldsInput = {
@@ -51803,6 +51868,8 @@ export namespace Prisma {
     isRequired?: boolean
     options?: NullableJsonNullValueInput | InputJsonValue
     order?: number
+    registrationMode?: string
+    targetRole?: string
   }
 
   export type TeamUpdateWithoutEventInput = {
@@ -51988,6 +52055,8 @@ export namespace Prisma {
     isRequired?: BoolFieldUpdateOperationsInput | boolean
     options?: NullableJsonNullValueInput | InputJsonValue
     order?: IntFieldUpdateOperationsInput | number
+    registrationMode?: StringFieldUpdateOperationsInput | string
+    targetRole?: StringFieldUpdateOperationsInput | string
   }
 
   export type EventCustomFieldUncheckedUpdateWithoutEventInput = {
@@ -51997,6 +52066,8 @@ export namespace Prisma {
     isRequired?: BoolFieldUpdateOperationsInput | boolean
     options?: NullableJsonNullValueInput | InputJsonValue
     order?: IntFieldUpdateOperationsInput | number
+    registrationMode?: StringFieldUpdateOperationsInput | string
+    targetRole?: StringFieldUpdateOperationsInput | string
   }
 
   export type EventCustomFieldUncheckedUpdateManyWithoutEventInput = {
@@ -52006,6 +52077,8 @@ export namespace Prisma {
     isRequired?: BoolFieldUpdateOperationsInput | boolean
     options?: NullableJsonNullValueInput | InputJsonValue
     order?: IntFieldUpdateOperationsInput | number
+    registrationMode?: StringFieldUpdateOperationsInput | string
+    targetRole?: StringFieldUpdateOperationsInput | string
   }
 
   export type EventRegistrationCreateManyTeamInput = {

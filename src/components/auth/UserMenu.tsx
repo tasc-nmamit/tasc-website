@@ -91,7 +91,7 @@ export default function UserMenu({ user }: UserMenuProps) {
 
           {/* Menu Items */}
           <div className="py-1.5">
-            {!user.onboardingComplete && user.isAiml && (
+            {!user.onboardingComplete && (
               <Link
                 href="/onboarding"
                 onClick={() => setOpen(false)}
@@ -104,7 +104,7 @@ export default function UserMenu({ user }: UserMenuProps) {
               </Link>
             )}
 
-            {user.isAiml && (
+            {user.onboardingComplete && (
               <Link
                 href="/profile"
                 onClick={() => setOpen(false)}

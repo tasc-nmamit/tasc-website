@@ -1,0 +1,1 @@
+import "dotenv/config"; import { db } from "./src/lib/db"; async function main() { await db.$executeRawUnsafe(`ALTER TABLE "EventCustomField" SET (schema_locked = false);`); console.log("Unlocked"); process.exit(0); } main();

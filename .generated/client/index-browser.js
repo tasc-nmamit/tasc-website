@@ -242,7 +242,9 @@ exports.Prisma.EventCustomFieldScalarFieldEnum = {
   fieldType: 'fieldType',
   isRequired: 'isRequired',
   options: 'options',
-  order: 'order'
+  order: 'order',
+  registrationMode: 'registrationMode',
+  targetRole: 'targetRole'
 };
 
 exports.Prisma.LinksScalarFieldEnum = {
@@ -491,7 +493,8 @@ exports.TeamSection = exports.$Enums.TeamSection = {
 
 exports.EventType = exports.$Enums.EventType = {
   SOLO: 'SOLO',
-  TEAM: 'TEAM'
+  TEAM: 'TEAM',
+  SOLO_OR_TEAM: 'SOLO_OR_TEAM'
 };
 
 exports.EventStatus = exports.$Enums.EventStatus = {

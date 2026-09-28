@@ -168,14 +168,16 @@ model Event {
 }
 
 model EventCustomField {
-  id         String  @id @default(cuid())
-  eventId    String
-  label      String
-  fieldType  String  @default("TEXT")
-  isRequired Boolean @default(false)
-  options    Json?
-  order      Int     @default(0)
-  event      Event   @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  id               String  @id @default(cuid())
+  eventId          String
+  label            String
+  fieldType        String  @default("TEXT")
+  isRequired       Boolean @default(false)
+  options          Json?
+  order            Int     @default(0)
+  registrationMode String  @default("ALL") // ALL, SOLO, TEAM
+  targetRole       String  @default("ALL_MEMBERS") // ALL_MEMBERS, LEADER_ONLY
+  event            Event   @relation(fields: [eventId], references: [id], onDelete: Cascade)
 }
 
 model Links {
@@ -438,6 +440,7 @@ enum CareerIntent {
 enum EventType {
   SOLO
   TEAM
+  SOLO_OR_TEAM
 }
 
 enum TeamStatus {

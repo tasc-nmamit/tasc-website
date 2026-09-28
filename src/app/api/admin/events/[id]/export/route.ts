@@ -51,9 +51,10 @@ export async function GET(
         };
 
         // Add custom field responses
-        const responses = reg.customFieldResponses as Record<string, string> || {};
+        const regResponses = (reg.customFieldResponses as Record<string, string>) || {};
+        const teamResponses = (team.customFieldResponses as Record<string, string>) || {};
         for (const field of event.customFields) {
-          row[field.label] = responses[field.id] || "N/A";
+          row[field.label] = regResponses[field.id] ?? (field.targetRole === "LEADER_ONLY" ? teamResponses[field.id] : undefined) ?? "N/A";
         }
 
         exportData.push(row);

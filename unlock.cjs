@@ -1,0 +1,1 @@
+const { PrismaClient } = require("./.generated/client/index.js"); const prisma = new PrismaClient(); async function main() { await prisma.$executeRawUnsafe(`ALTER TABLE "Event" SET (schema_locked = false);`); console.log("Unlocked"); } main();

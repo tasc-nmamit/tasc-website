@@ -42,12 +42,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  if (!session.user.isAiml && session.user.role !== "ADMIN" && session.user.role !== "OWNER") {
-    return NextResponse.json(
-      { error: "Onboarding is only applicable for AIML students" },
-      { status: 403 }
-    );
-  }
+  const isAiml = session.user.isAiml;
 
   try {
     const body = await request.json();
@@ -84,7 +79,7 @@ export async function POST(request: Request) {
       ? languages.split(",").map((l) => l.trim()).filter(Boolean)
       : [];
 
-    // Strictly validate that NO field is left blank
+    // Basic validation for everyone
     if (!cleanName) {
       return NextResponse.json({ error: "Full Name is mandatory and cannot be left blank." }, { status: 400 });
     }
@@ -94,43 +89,52 @@ export async function POST(request: Request) {
     if (!cleanPhone || cleanPhone.replace(/\D/g, "").length < 10) {
       return NextResponse.json({ error: "Valid 10-digit Phone Number is mandatory." }, { status: 400 });
     }
-    if (![2, 3, 4].includes(cleanYear)) {
-      return NextResponse.json({ error: "Year of study is mandatory (must be 2nd, 3rd, or 4th Year)." }, { status: 400 });
+    if (![1, 2, 3, 4].includes(cleanYear)) {
+      return NextResponse.json({ error: "Year of study is mandatory (must be 1st, 2nd, 3rd, or 4th Year)." }, { status: 400 });
     }
-    if (!cleanHackerRank) {
-      return NextResponse.json({ error: "HackerRank Username is mandatory for AIML marathon score syncing." }, { status: 400 });
+
+    // Strict validation for AIML
+    if (isAiml) {
+      if (!cleanHackerRank) {
+        return NextResponse.json({ error: "HackerRank Username is mandatory for AIML marathon score syncing." }, { status: 400 });
+      }
+      if (!cleanLeetCode) {
+        return NextResponse.json({ error: "LeetCode Profile Link is mandatory and cannot be left blank." }, { status: 400 });
+      }
+      if (!cleanGitHub) {
+        return NextResponse.json({ error: "GitHub Profile Link is mandatory and cannot be left blank." }, { status: 400 });
+      }
+      if (cleanSkills.length === 0) {
+        return NextResponse.json({ error: "Skills field is mandatory. Please provide at least one skill." }, { status: 400 });
+      }
+      if (cleanLanguages.length === 0) {
+        return NextResponse.json({ error: "Languages Known field is mandatory. Please provide at least one language." }, { status: 400 });
+      }
+      if (!careerIntent || !Object.values(CareerIntent).includes(careerIntent as CareerIntent)) {
+        return NextResponse.json({ error: "Career Plan is mandatory. Please select your placement intent." }, { status: 400 });
+      }
     }
-    if (!cleanLeetCode) {
-      return NextResponse.json({ error: "LeetCode Profile Link is mandatory and cannot be left blank." }, { status: 400 });
-    }
-    if (!cleanGitHub) {
-      return NextResponse.json({ error: "GitHub Profile Link is mandatory and cannot be left blank." }, { status: 400 });
-    }
-    if (cleanSkills.length === 0) {
-      return NextResponse.json({ error: "Skills field is mandatory. Please provide at least one skill." }, { status: 400 });
-    }
-    if (cleanLanguages.length === 0) {
-      return NextResponse.json({ error: "Languages Known field is mandatory. Please provide at least one language." }, { status: 400 });
-    }
-    if (!careerIntent || !Object.values(CareerIntent).includes(careerIntent as CareerIntent)) {
-      return NextResponse.json({ error: "Career Plan is mandatory. Please select your placement intent." }, { status: 400 });
+
+    const updateData: any = {
+      name: cleanName,
+      usn: cleanUsn,
+      phone: cleanPhone,
+      year: cleanYear,
+      onboardingComplete: true,
+    };
+
+    if (isAiml) {
+      updateData.hackerrankUsername = cleanHackerRank;
+      updateData.leetcodeProfile = cleanLeetCode;
+      updateData.githubProfile = cleanGitHub;
+      updateData.skills = cleanSkills;
+      updateData.languages = cleanLanguages;
+      updateData.careerIntent = careerIntent as CareerIntent;
     }
 
     await db.user.update({
       where: { id: session.user.id },
-      data: {
-        name: cleanName,
-        usn: cleanUsn,
-        phone: cleanPhone,
-        year: cleanYear,
-        hackerrankUsername: cleanHackerRank,
-        leetcodeProfile: cleanLeetCode,
-        githubProfile: cleanGitHub,
-        skills: cleanSkills,
-        languages: cleanLanguages,
-        careerIntent: careerIntent as CareerIntent,
-        onboardingComplete: true,
-      },
+      data: updateData,
     });
 
     return NextResponse.json({ success: true });

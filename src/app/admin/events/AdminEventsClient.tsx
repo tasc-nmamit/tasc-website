@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { storage } from "@/lib/firebase";
 import { slugify } from "@/lib/slug";
+import CustomFieldsEditor from "./CustomFieldsEditor";
 import {
   PlusIcon,
   FileSpreadsheetIcon,
@@ -36,7 +37,7 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
   const [time, setTime] = useState("");
   const [endDate, setEndDate] = useState("");
   const [venue, setVenue] = useState("");
-  const [type, setType] = useState<"SOLO" | "TEAM">("SOLO");
+  const [type, setType] = useState<"SOLO" | "TEAM" | "SOLO_OR_TEAM">("SOLO");
   const [minTeamSize, setMinTeamSize] = useState(1);
   const [maxTeamSize, setMaxTeamSize] = useState(1);
   const [maxTeams, setMaxTeams] = useState("");
@@ -56,7 +57,7 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
   const [editTime, setEditTime] = useState("");
   const [editEndDate, setEditEndDate] = useState("");
   const [editVenue, setEditVenue] = useState("");
-  const [editType, setEditType] = useState<"SOLO" | "TEAM">("SOLO");
+  const [editType, setEditType] = useState<"SOLO" | "TEAM" | "SOLO_OR_TEAM">("SOLO");
   const [editMinTeamSize, setEditMinTeamSize] = useState(1);
   const [editMaxTeamSize, setEditMaxTeamSize] = useState(1);
   const [editMaxTeams, setEditMaxTeams] = useState("");
@@ -78,122 +79,38 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
 
   // Custom Fields State
   const [customFields, setCustomFields] = useState<any[]>([]);
+  const [editCustomFields, setEditCustomFields] = useState<any[]>([]);
 
   const [loading, setLoading] = useState(false);
   const [exporting, setExporting] = useState<string | null>(null);
   const [deletingEventId, setDeletingEventId] = useState<string | null>(null);
 
-  const addCustomField = () => {
-    setCustomFields([
-      ...customFields,
-      { label: "", fieldType: "TEXT", isRequired: false, options: [], min: "", max: "" },
-    ]);
-  };
-
-  const updateField = (index: number, key: string, value: any) => {
-    const updated = [...customFields];
-    updated[index][key] = value;
-    setCustomFields(updated);
-  };
-
-  const removeField = (index: number) => {
-    setCustomFields(customFields.filter((_, i) => i !== index));
-  };
-
-  // Text Option Helpers for SELECT / MULTI_SELECT
-  const addTextOption = (fieldIndex: number) => {
-    const updated = [...customFields];
-    if (!Array.isArray(updated[fieldIndex].options)) {
-      updated[fieldIndex].options = [];
-    }
-    updated[fieldIndex].options.push("");
-    setCustomFields(updated);
-  };
-
-  const updateTextOption = (fieldIndex: number, optIndex: number, value: string) => {
-    const updated = [...customFields];
-    updated[fieldIndex].options[optIndex] = value;
-    setCustomFields(updated);
-  };
-
-  const removeTextOption = (fieldIndex: number, optIndex: number) => {
-    const updated = [...customFields];
-    updated[fieldIndex].options.splice(optIndex, 1);
-    setCustomFields(updated);
-  };
-
-  // Image Option Helpers for IMAGE_POLL
-  const addImageOption = (fieldIndex: number) => {
-    const updated = [...customFields];
-    if (!Array.isArray(updated[fieldIndex].options)) {
-      updated[fieldIndex].options = [];
-    }
-    updated[fieldIndex].options.push({ label: "", imageUrl: "" });
-    setCustomFields(updated);
-  };
-
-  const updateImageOption = (fieldIndex: number, optIndex: number, key: string, value: string) => {
-    const updated = [...customFields];
-    updated[fieldIndex].options[optIndex][key] = value;
-    setCustomFields(updated);
-  };
-
-  const removeImageOption = (fieldIndex: number, optIndex: number) => {
-    const updated = [...customFields];
-    updated[fieldIndex].options.splice(optIndex, 1);
-    setCustomFields(updated);
-  };
-
-  const handleFieldImageUpload = async (fieldIndex: number, optIndex: number, file: File) => {
-    if (!file) return;
-
-    const uploadId = `${fieldIndex}-${optIndex}`;
-    setUploadingFieldImage(uploadId);
-
-    const fileExtension = file.name.split(".").pop();
-    const fileName = `event-field-images/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExtension}`;
-    const storageRef = ref(storage, fileName);
-    const uploadTask = uploadBytesResumable(storageRef, file);
-
-    uploadTask.on(
-      "state_changed",
-      () => {},
-      (error) => {
-        alert("Upload failed: " + error.message);
-        setUploadingFieldImage(null);
-      },
-      async () => {
-        const url = await getDownloadURL(uploadTask.snapshot.ref);
-        updateImageOption(fieldIndex, optIndex, "imageUrl", url);
-        setUploadingFieldImage(null);
+  const formatCustomFieldsPayload = (fieldsList: any[]) => {
+    return fieldsList.map((cf) => {
+      let fieldOptions: any = null;
+      if (cf.fieldType === "SELECT" || cf.fieldType === "MULTI_SELECT" || cf.fieldType === "IMAGE_POLL") {
+        fieldOptions = cf.options;
+      } else if (cf.fieldType === "NUMBER") {
+        fieldOptions = {
+          min: cf.min !== "" && cf.min !== undefined && cf.min !== null ? Number(cf.min) : null,
+          max: cf.max !== "" && cf.max !== undefined && cf.max !== null ? Number(cf.max) : null,
+        };
+      } else if (cf.fieldType === "DISPLAY_IMAGE") {
+        fieldOptions = {
+          imageUrl: cf.imageUrl || "",
+          caption: cf.caption || "",
+        };
       }
-    );
-  };
-
-  const handleDisplayImageUpload = async (fieldIndex: number, file: File) => {
-    if (!file) return;
-
-    const uploadId = `display-${fieldIndex}`;
-    setUploadingFieldImage(uploadId);
-
-    const fileExtension = file.name.split(".").pop();
-    const fileName = `event-display-images/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExtension}`;
-    const storageRef = ref(storage, fileName);
-    const uploadTask = uploadBytesResumable(storageRef, file);
-
-    uploadTask.on(
-      "state_changed",
-      () => {},
-      (error) => {
-        alert("Upload failed: " + error.message);
-        setUploadingFieldImage(null);
-      },
-      async () => {
-        const url = await getDownloadURL(uploadTask.snapshot.ref);
-        updateField(fieldIndex, "imageUrl", url);
-        setUploadingFieldImage(null);
-      }
-    );
+      return {
+        id: cf.id,
+        label: cf.label,
+        fieldType: cf.fieldType,
+        isRequired: cf.fieldType === "DISPLAY_IMAGE" ? false : !!cf.isRequired,
+        options: fieldOptions,
+        registrationMode: cf.registrationMode || "ALL",
+        targetRole: cf.targetRole || "ALL_MEMBERS",
+      };
+    });
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, target: "create" | "edit") => {
@@ -267,28 +184,7 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
         maxTeams: maxTeams ? Number(maxTeams) : null,
         registrationsAvailable,
         registrationStartTime: publishMode === "SCHEDULED" && registrationStartTime ? new Date(registrationStartTime).toISOString() : null,
-        customFields: customFields.map((cf) => {
-          let fieldOptions: any = null;
-          if (cf.fieldType === "SELECT" || cf.fieldType === "MULTI_SELECT" || cf.fieldType === "IMAGE_POLL") {
-            fieldOptions = cf.options;
-          } else if (cf.fieldType === "NUMBER") {
-            fieldOptions = {
-              min: cf.min !== "" && cf.min !== undefined && cf.min !== null ? Number(cf.min) : null,
-              max: cf.max !== "" && cf.max !== undefined && cf.max !== null ? Number(cf.max) : null,
-            };
-          } else if (cf.fieldType === "DISPLAY_IMAGE") {
-            fieldOptions = {
-              imageUrl: cf.imageUrl || "",
-              caption: cf.caption || "",
-            };
-          }
-          return {
-            label: cf.label,
-            fieldType: cf.fieldType,
-            isRequired: cf.fieldType === "DISPLAY_IMAGE" ? false : !!cf.isRequired,
-            options: fieldOptions,
-          };
-        }),
+        customFields: formatCustomFieldsPayload(customFields),
       };
 
       const res = await fetch("/api/admin/events", {
@@ -420,6 +316,24 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
         ? new Date(ev.registrationStartTime).toISOString().slice(0, 16)
         : ""
     );
+
+    const mappedFields = (ev.customFields || []).map((cf: any) => {
+      const opts = cf.options;
+      return {
+        id: cf.id,
+        label: cf.label || "",
+        fieldType: cf.fieldType || "TEXT",
+        isRequired: !!cf.isRequired,
+        options: Array.isArray(opts) ? opts : [],
+        min: opts?.min !== undefined && opts?.min !== null ? opts.min : "",
+        max: opts?.max !== undefined && opts?.max !== null ? opts.max : "",
+        imageUrl: opts?.imageUrl || "",
+        caption: opts?.caption || "",
+        registrationMode: cf.registrationMode || "ALL",
+        targetRole: cf.targetRole || "ALL_MEMBERS",
+      };
+    });
+    setEditCustomFields(mappedFields);
   };
 
   const handleSaveEventEdit = async (e: React.FormEvent) => {
@@ -456,6 +370,7 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
             ? new Date(editRegistrationStartTime).toISOString()
             : null,
         registrationsAvailable: editRegistrationsAvailable,
+        customFields: formatCustomFieldsPayload(editCustomFields),
       };
 
       const res = await fetch(`/api/admin/events/${editingEvent.id}`, {
@@ -936,11 +851,12 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
               </label>
               <select
                 value={type}
-                onChange={(e) => setType(e.target.value as "SOLO" | "TEAM")}
+                onChange={(e) => setType(e.target.value as "SOLO" | "TEAM" | "SOLO_OR_TEAM")}
                 className="w-full rounded-xl border border-brand/30 bg-card px-4 py-2.5 text-sm text-foreground outline-none focus:border-brand-accent"
               >
                 <option value="SOLO">Solo (Individual)</option>
                 <option value="TEAM">Team Based</option>
+                <option value="SOLO_OR_TEAM">Solo or Team (Participant Chooses)</option>
               </select>
             </div>
 
@@ -958,7 +874,7 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
               />
             </div>
 
-            {type === "TEAM" && (
+            {(type === "TEAM" || type === "SOLO_OR_TEAM") && (
               <>
                 <div>
                   <label className="mb-2 block text-sm font-semibold font-space-grotesk text-foreground">
@@ -1084,315 +1000,12 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
             </div>
           </div>
 
-          {/* Synchronized Dynamic Custom Fields */}
-          <div className="border-t border-brand/20 pt-8 space-y-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-xl font-bold font-space-grotesk text-foreground">Dynamic Registration Fields</h3>
-                <p className="text-xs text-muted-foreground font-space-grotesk mt-0.5">
-                  Collect custom information from participants (T-Shirt Size, GitHub link, dietary preference, image choices, numbers).
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={addCustomField}
-                className="rounded-xl bg-brand/20 border border-brand/40 px-4 py-2 text-xs font-bold font-mono-tech uppercase tracking-wider text-brand-accent transition-all hover:bg-brand/30 flex items-center gap-1.5 shadow-sm"
-              >
-                <PlusIcon className="w-3.5 h-3.5" />
-                ADD_CUSTOM_FIELD
-              </button>
-            </div>
-
-            <div className="space-y-4">
-              {customFields.map((cf, index) => (
-                <div
-                  key={index}
-                  className="flex flex-col gap-4 rounded-2xl border border-brand/20 bg-background/60 backdrop-blur-md p-5 sm:flex-row sm:items-start relative group"
-                >
-                  <div className="flex-1 space-y-4">
-                    <div className="grid gap-4 sm:grid-cols-3">
-                      <div className="sm:col-span-2">
-                        <label className="mb-1 text-xs font-mono-tech text-muted-foreground uppercase">
-                          Label / Question
-                        </label>
-                        <input
-                          type="text"
-                          required
-                          value={cf.label}
-                          onChange={(e) => updateField(index, "label", e.target.value)}
-                          className="w-full rounded-xl border border-brand/30 bg-card px-3.5 py-2 text-sm text-foreground outline-none focus:border-brand-accent"
-                          placeholder="e.g. GitHub Repository Link"
-                        />
-                      </div>
-                      <div>
-                        <label className="mb-1 text-xs font-mono-tech text-muted-foreground uppercase">
-                          Field Type
-                        </label>
-                        <select
-                          value={cf.fieldType}
-                          onChange={(e) => updateField(index, "fieldType", e.target.value)}
-                          className="w-full rounded-xl border border-brand/30 bg-card px-3.5 py-2 text-sm text-foreground outline-none focus:border-brand-accent"
-                        >
-                          <option value="TEXT">Short Text</option>
-                          <option value="TEXTAREA">Long Text</option>
-                          <option value="NUMBER">Number (With Min/Max)</option>
-                          <option value="SELECT">Dropdown (Single Select)</option>
-                          <option value="MULTI_SELECT">Checkboxes (Multi Select)</option>
-                          <option value="IMAGE_POLL">Image Poll (Visual Choices)</option>
-                          <option value="DISPLAY_IMAGE">Display Image / QR Code (Info Only)</option>
-                          <option value="FILE_UPLOAD">File Upload (Screenshot / Document)</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    {/* Numeric Min/Max Threshold Controls */}
-                    {cf.fieldType === "NUMBER" && (
-                      <div className="grid grid-cols-2 gap-4 rounded-xl border border-brand/20 bg-card/40 p-4">
-                        <div>
-                          <label className="mb-1 text-xs font-mono-tech text-muted-foreground uppercase">
-                            Minimum Value (Threshold)
-                          </label>
-                          <input
-                            type="number"
-                            value={cf.min ?? ""}
-                            onChange={(e) => updateField(index, "min", e.target.value)}
-                            placeholder="e.g. 1"
-                            className="w-full rounded-lg border border-brand/30 bg-background/70 px-3 py-1.5 text-sm text-foreground outline-none focus:border-brand-accent"
-                          />
-                        </div>
-                        <div>
-                          <label className="mb-1 text-xs font-mono-tech text-muted-foreground uppercase">
-                            Maximum Value (Threshold)
-                          </label>
-                          <input
-                            type="number"
-                            value={cf.max ?? ""}
-                            onChange={(e) => updateField(index, "max", e.target.value)}
-                            placeholder="e.g. 100"
-                            className="w-full rounded-lg border border-brand/30 bg-background/70 px-3 py-1.5 text-sm text-foreground outline-none focus:border-brand-accent"
-                          />
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Options for Select and Multi Select */}
-                    {(cf.fieldType === "SELECT" || cf.fieldType === "MULTI_SELECT") && (
-                      <div className="space-y-3 rounded-xl border border-brand/20 bg-card/40 p-4">
-                        <div className="flex items-center justify-between">
-                          <h4 className="text-xs font-mono-tech uppercase font-bold text-brand-accent">
-                            {cf.fieldType === "SELECT" ? "Dropdown Choices" : "Checkbox Choices"}
-                          </h4>
-                          <button
-                            type="button"
-                            onClick={() => addTextOption(index)}
-                            className="text-xs font-mono-tech text-gold hover:underline"
-                          >
-                            + ADD_OPTION
-                          </button>
-                        </div>
-                        {(Array.isArray(cf.options) ? cf.options : []).map((opt: string, optIndex: number) => (
-                          <div key={optIndex} className="flex gap-2">
-                            <input
-                              type="text"
-                              required
-                              value={opt}
-                              onChange={(e) => updateTextOption(index, optIndex, e.target.value)}
-                              placeholder={`Option ${optIndex + 1}`}
-                              className="flex-1 rounded-lg border border-brand/30 bg-background/70 px-3 py-1.5 text-sm text-foreground outline-none focus:border-brand-accent"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => removeTextOption(index, optIndex)}
-                              className="rounded-lg text-red-400 hover:bg-red-500/10 px-2.5 transition-colors"
-                            >
-                              &times;
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Options for Image Poll */}
-                    {cf.fieldType === "IMAGE_POLL" && (
-                      <div className="space-y-3 rounded-xl border border-brand/20 bg-card/40 p-4">
-                        <div className="flex items-center justify-between">
-                          <h4 className="text-xs font-mono-tech uppercase font-bold text-brand-accent">
-                            Visual Poll Candidates / Images
-                          </h4>
-                          <button
-                            type="button"
-                            onClick={() => addImageOption(index)}
-                            className="text-xs font-mono-tech text-gold hover:underline"
-                          >
-                            + ADD_IMAGE_OPTION
-                          </button>
-                        </div>
-                        {(Array.isArray(cf.options) ? cf.options : []).map((opt: any, optIndex: number) => (
-                          <div key={optIndex} className="flex gap-2 items-center flex-wrap sm:flex-nowrap">
-                            <input
-                              type="text"
-                              required
-                              value={opt.label || ""}
-                              onChange={(e) => updateImageOption(index, optIndex, "label", e.target.value)}
-                              placeholder="Title / Name (e.g. Logo 1)"
-                              className="w-full sm:w-1/3 rounded-lg border border-brand/30 bg-background/70 px-3 py-1.5 text-sm text-foreground outline-none focus:border-brand-accent"
-                            />
-
-                            {opt.imageUrl ? (
-                              <div className="flex-1 flex items-center gap-2 overflow-hidden bg-background/50 border border-brand/20 rounded-lg p-1.5">
-                                <img
-                                  src={opt.imageUrl}
-                                  alt="preview"
-                                  className="h-8 w-8 object-cover rounded border border-brand/30"
-                                />
-                                <span className="text-xs text-muted-foreground truncate flex-1 font-mono-tech">
-                                  {opt.imageUrl}
-                                </span>
-                                <button
-                                  type="button"
-                                  onClick={() => updateImageOption(index, optIndex, "imageUrl", "")}
-                                  className="text-xs text-red-400 hover:underline px-1"
-                                >
-                                  Replace
-                                </button>
-                              </div>
-                            ) : (
-                              <div className="flex-1 flex items-center gap-2">
-                                <input
-                                  type="file"
-                                  required
-                                  accept="image/*"
-                                  onChange={(e) => {
-                                    if (e.target.files && e.target.files[0]) {
-                                      handleFieldImageUpload(index, optIndex, e.target.files[0]);
-                                    }
-                                  }}
-                                  className="flex-1 text-xs file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-brand/20 file:text-brand-accent hover:file:bg-brand/30 cursor-pointer"
-                                />
-                                {uploadingFieldImage === `${index}-${optIndex}` && (
-                                  <span className="text-xs text-gold font-mono-tech animate-pulse">
-                                    UPLOADING...
-                                  </span>
-                                )}
-                              </div>
-                            )}
-
-                            <button
-                              type="button"
-                              onClick={() => removeImageOption(index, optIndex)}
-                              className="rounded-lg text-red-400 hover:bg-red-500/10 p-1.5 transition-colors"
-                            >
-                              <Trash2Icon className="w-4 h-4" />
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Options for Display Image / QR Code */}
-                    {cf.fieldType === "DISPLAY_IMAGE" && (
-                      <div className="space-y-3 rounded-xl border border-brand/20 bg-card/40 p-4">
-                        <div className="flex items-center justify-between">
-                          <h4 className="text-xs font-mono-tech uppercase font-bold text-brand-accent">
-                            Display Image (QR Code / Poster / Info Image)
-                          </h4>
-                        </div>
-                        <div className="space-y-3">
-                          {cf.imageUrl ? (
-                            <div className="flex items-center gap-3 bg-background/50 border border-brand/20 rounded-lg p-3">
-                              <img
-                                src={cf.imageUrl}
-                                alt="preview"
-                                className="h-20 w-20 object-contain rounded border border-brand/30 bg-white p-1"
-                              />
-                              <div className="flex-1 min-w-0">
-                                <span className="text-xs text-muted-foreground truncate block font-mono-tech">
-                                  {cf.imageUrl}
-                                </span>
-                                <button
-                                  type="button"
-                                  onClick={() => updateField(index, "imageUrl", "")}
-                                  className="text-xs text-red-400 hover:underline mt-1"
-                                >
-                                  Replace Image
-                                </button>
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="flex items-center gap-3">
-                              <input
-                                type="file"
-                                accept="image/*"
-                                onChange={(e) => {
-                                  if (e.target.files && e.target.files[0]) {
-                                    handleDisplayImageUpload(index, e.target.files[0]);
-                                  }
-                                }}
-                                className="flex-1 text-xs file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-brand/20 file:text-brand-accent hover:file:bg-brand/30 cursor-pointer"
-                              />
-                              {uploadingFieldImage === `display-${index}` && (
-                                <span className="text-xs text-gold font-mono-tech animate-pulse">
-                                  UPLOADING...
-                                </span>
-                              )}
-                            </div>
-                          )}
-                          <div>
-                            <label className="mb-1 text-xs font-mono-tech text-muted-foreground uppercase block">
-                              Optional Caption / Payment Instructions
-                            </label>
-                            <input
-                              type="text"
-                              value={cf.caption || ""}
-                              onChange={(e) => updateField(index, "caption", e.target.value)}
-                              placeholder="e.g. Scan QR via UPI and upload transaction screenshot below"
-                              className="w-full rounded-lg border border-brand/30 bg-background/70 px-3 py-1.5 text-sm text-foreground outline-none focus:border-brand-accent"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* File Upload Info Box */}
-                    {cf.fieldType === "FILE_UPLOAD" && (
-                      <div className="rounded-xl border border-brand/20 bg-card/40 p-3.5">
-                        <p className="text-xs font-mono-tech text-muted-foreground">
-                          [FILE_UPLOAD] Participants will see a file upload field to attach their document or screenshot (e.g. payment receipt).
-                        </p>
-                      </div>
-                    )}
-
-                    {cf.fieldType !== "DISPLAY_IMAGE" && (
-                      <label className="flex items-center gap-2 text-sm text-foreground cursor-pointer font-space-grotesk font-medium">
-                        <input
-                          type="checkbox"
-                          checked={cf.isRequired}
-                          onChange={(e) => updateField(index, "isRequired", e.target.checked)}
-                          className="rounded border-brand/30 text-brand focus:ring-brand-accent"
-                        />
-                        Required Field
-                      </label>
-                    )}
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => removeField(index)}
-                    className="rounded-xl border border-red-500/30 bg-red-500/10 p-2 text-red-400 hover:bg-red-500/20 transition-all shrink-0"
-                    title="Remove Question"
-                  >
-                    <Trash2Icon className="w-4 h-4" />
-                  </button>
-                </div>
-              ))}
-
-              {customFields.length === 0 && (
-                <div className="rounded-2xl border border-dashed border-brand/30 p-8 text-center text-sm text-muted-foreground font-space-grotesk">
-                  No custom questions added. Default participant details (Name, USN, Email) will be gathered automatically.
-                </div>
-              )}
-            </div>
-          </div>
+          {/* Dynamic Registration Fields */}
+          <CustomFieldsEditor
+            fields={customFields}
+            setFields={setCustomFields}
+            eventType={type}
+          />
 
           <button
             type="submit"
@@ -1703,6 +1316,15 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
                 />
                 Accept Registrations (Checked = Open, Unchecked = Paused)
               </label>
+
+              {/* Editable Dynamic Registration Fields in Edit Modal */}
+              <CustomFieldsEditor
+                fields={editCustomFields}
+                setFields={setEditCustomFields}
+                eventType={editType}
+                title="Registration Questionnaire & Custom Fields"
+                subtitle="Modify existing questions, add new ones, reorder, or delete obsolete fields."
+              />
 
               <div className="flex flex-wrap sm:flex-nowrap gap-3 pt-4 border-t border-brand/20 items-center justify-between">
                 <button

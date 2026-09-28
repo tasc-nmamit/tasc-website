@@ -43,6 +43,9 @@ export default function EventRegistrationClient({
   const [loading, setLoading] = useState(false);
   const [confirmingTeam, setConfirmingTeam] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
+  const [selectedFormat, setSelectedFormat] = useState<"SOLO" | "TEAM">(
+    event.type === "SOLO" ? "SOLO" : event.type === "TEAM" ? "TEAM" : "SOLO"
+  );
 
   // Dynamic responses for custom fields
   const [responses, setResponses] = useState<Record<string, any>>({});
@@ -79,7 +82,7 @@ export default function EventRegistrationClient({
     }
   };
 
-  const isSolo = event.type === "SOLO";
+  const isSolo = selectedFormat === "SOLO";
 
   const handleCopyCode = (code: string) => {
     navigator.clipboard.writeText(code);
@@ -93,7 +96,7 @@ export default function EventRegistrationClient({
 
     try {
       const payload: any = {
-        action: isSolo ? "CREATE" : teamAction,
+        action: isSolo ? "CREATE" : teamAction, format: selectedFormat,
       };
 
       if (!isSolo) {
@@ -109,22 +112,23 @@ export default function EventRegistrationClient({
         throw new Error("Please wait for your file upload to complete.");
       }
 
-      // Solo participants and team leaders provide questionnaire responses
-      if (isSolo || teamAction === "CREATE") {
-        for (const field of event.customFields || []) {
-          if (field.fieldType === "DISPLAY_IMAGE") continue;
-          if (field.isRequired) {
-            const val = responses[field.id];
-            if (
-              val === undefined ||
-              val === null ||
-              (typeof val === "string" && val.trim() === "") ||
-              (Array.isArray(val) && val.length === 0)
-            ) {
-              throw new Error(`Please provide a response for "${field.label}"`);
-            }
+      // Validate responses for all currently active questionnaire fields
+      for (const field of activeFields) {
+        if (field.fieldType === "DISPLAY_IMAGE") continue;
+        if (field.isRequired) {
+          const val = responses[field.id];
+          if (
+            val === undefined ||
+            val === null ||
+            (typeof val === "string" && val.trim() === "") ||
+            (Array.isArray(val) && val.length === 0)
+          ) {
+            throw new Error(`Please provide a response for "${field.label}"`);
           }
         }
+      }
+
+      if (activeFields.length > 0) {
         payload.responses = responses;
       }
 
@@ -375,7 +379,21 @@ export default function EventRegistrationClient({
     );
   }
 
-  const showCustomFields = (isSolo || teamAction === "CREATE") && event.customFields && event.customFields.length > 0;
+  const activeFields = (event.customFields || []).filter((f: any) => {
+    // 1. Format check
+    if (f.registrationMode === "SOLO" && !isSolo) return false;
+    if (f.registrationMode === "TEAM" && isSolo) return false;
+
+    // 2. Team role check
+    if (!isSolo) {
+      if (teamAction === "JOIN" && f.targetRole === "LEADER_ONLY") {
+        return false;
+      }
+    }
+    return true;
+  });
+
+  const showCustomFields = activeFields.length > 0;
 
   return (
     <>
@@ -384,7 +402,11 @@ export default function EventRegistrationClient({
         <CircuitTrace corners={true} />
         <h3 className="font-bold font-space-grotesk text-base text-foreground">Ready to participate?</h3>
         <p className="text-xs text-muted-foreground font-space-grotesk">
-          {isSolo ? "Secure your individual registration spot now." : "Create your team or join with an invite code."}
+          {event.type === "SOLO_OR_TEAM"
+            ? "Secure your registration spot as an individual or create/join a team."
+            : isSolo
+            ? "Secure your individual registration spot now."
+            : "Create your team or join with an invite code."}
         </p>
         <button
           onClick={() => setModalOpen(true)}
@@ -410,6 +432,38 @@ export default function EventRegistrationClient({
               </div>
 
               <form onSubmit={handleRegister} className="space-y-6">
+                {event.type === "SOLO_OR_TEAM" && (
+                  <div className="space-y-4">
+                    <label className="block text-xs font-mono-tech text-muted-foreground uppercase mb-1">
+                      Participation Format
+                    </label>
+                    <div className="flex rounded-lg bg-background/60 p-1 border border-brand/20">
+                      <button
+                        type="button"
+                        className={`flex-1 rounded-md py-2 text-xs font-bold font-space-grotesk uppercase tracking-wider transition-colors ${
+                          selectedFormat === "SOLO"
+                            ? "bg-brand/20 text-brand-accent border border-brand/30 shadow-sm"
+                            : "text-muted-foreground hover:text-foreground"
+                        }`}
+                        onClick={() => setSelectedFormat("SOLO")}
+                      >
+                        Participate Solo
+                      </button>
+                      <button
+                        type="button"
+                        className={`flex-1 rounded-md py-2 text-xs font-bold font-space-grotesk uppercase tracking-wider transition-colors ${
+                          selectedFormat === "TEAM"
+                            ? "bg-brand/20 text-brand-accent border border-brand/30 shadow-sm"
+                            : "text-muted-foreground hover:text-foreground"
+                        }`}
+                        onClick={() => setSelectedFormat("TEAM")}
+                      >
+                        Participate as Team
+                      </button>
+                    </div>
+                  </div>
+                )}
+
                 {!isSolo && (
                   <div className="space-y-4">
                     {/* Square Action Toggle */}
@@ -479,7 +533,7 @@ export default function EventRegistrationClient({
                       </h4>
                     </div>
 
-                    {event.customFields.map((field: any) => {
+                    {activeFields.map((field: any) => {
                       const opts = field.options || {};
 
                       return (
