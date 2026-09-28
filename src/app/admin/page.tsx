@@ -3,7 +3,16 @@ import Link from "next/link";
 import TechnicalLabel from "@/components/ui/circuit-ink/TechnicalLabel";
 import CircuitTrace from "@/components/ui/circuit-ink/CircuitTrace";
 
-const ADMIN_SECTIONS = [
+interface AdminSection {
+  title: string;
+  description: string;
+  href: string;
+  icon: string;
+  tag: string;
+  ownerOnly?: boolean;
+}
+
+const ADMIN_SECTIONS: AdminSection[] = [
   {
     title: "Events",
     description: "Create, manage and track event registrations",
@@ -13,11 +22,10 @@ const ADMIN_SECTIONS = [
   },
   {
     title: "Users",
-    description: "Manage user roles and privileges",
+    description: "Manage users, AIML status and privileges",
     href: "/admin/users",
     icon: "MODULE_02",
     tag: "USER_DIRECTORY",
-    ownerOnly: true,
   },
   {
     title: "Forms & Voting",

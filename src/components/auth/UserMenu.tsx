@@ -2,7 +2,7 @@
 
 import { signOut } from "next-auth/react";
 import { useState, useRef, useEffect } from "react";
-import Image from "next/image";
+import UserAvatar from "@/components/ui/UserAvatar";
 import Link from "next/link";
 
 interface UserMenuProps {
@@ -47,19 +47,13 @@ export default function UserMenu({ user }: UserMenuProps) {
         onClick={() => setOpen(!open)}
         className="flex items-center gap-2 rounded-full border border-border/50 bg-background/80 p-1 pr-3 backdrop-blur-sm transition-all duration-300 hover:border-brand/50 hover:shadow-lg hover:shadow-brand/10 active:scale-[0.98]"
       >
-        {user.image ? (
-          <Image
-            src={user.image}
-            alt={user.name || "User"}
-            width={32}
-            height={32}
-            className="rounded-full"
-          />
-        ) : (
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand/20 text-sm font-bold text-brand">
-            {(user.name || user.email || "U")[0].toUpperCase()}
-          </div>
-        )}
+        <UserAvatar
+          src={user.image}
+          name={user.name}
+          email={user.email}
+          size={32}
+          className="rounded-full"
+        />
         <span className="hidden text-sm font-medium sm:inline">
           {user.name || user.email?.split("@")[0]}
         </span>

@@ -1,4 +1,4 @@
-import { requireOwner } from "@/lib/auth-guards";
+import { requireAdmin } from "@/lib/auth-guards";
 import { db } from "@/lib/db";
 import UserRoleManager from "./UserRoleManager";
 import Link from "next/link";
@@ -6,7 +6,8 @@ import TechnicalLabel from "@/components/ui/circuit-ink/TechnicalLabel";
 import { ArrowLeft } from "lucide-react";
 
 export default async function AdminUsersPage() {
-  await requireOwner();
+  const session = await requireAdmin();
+  const isOwner = session.user.role === "OWNER";
 
   const users = await db.user.findMany({
     where: {
@@ -71,7 +72,7 @@ export default async function AdminUsersPage() {
           </p>
         </div>
 
-        <UserRoleManager users={users as any} />
+        <UserRoleManager users={users as any} isOwner={isOwner} />
       </div>
     </main>
   );

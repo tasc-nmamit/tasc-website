@@ -31,6 +31,19 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       const allowed = isAllowedEmail(normalizedEmail);
       if (!allowed) return false;
 
+      // Ensure latest Google profile picture is synchronized to database
+      const profilePic = (profile as any)?.picture || user?.image;
+      if (profilePic) {
+        try {
+          await db.user.updateMany({
+            where: { email: normalizedEmail },
+            data: { image: profilePic },
+          });
+        } catch {
+          // ignore if user not created yet
+        }
+      }
+
       // If allowed external email, ensure role is USER and onboarding is marked complete
       if (ALLOWED_EXTERNAL_EMAILS.has(normalizedEmail)) {
         try {
@@ -59,6 +72,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           select: {
             id: true,
             email: true,
+            image: true,
             usn: true,
             role: true,
             isAiml: true,
@@ -87,6 +101,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           }
 
           session.user.id = dbUser.id;
+          session.user.image = dbUser.image || session.user.image;
           session.user.usn = dbUser.usn;
           session.user.role = dbUser.email === "nnm24am045@nmamit.in" ? "OWNER" : dbUser.role;
           session.user.isAiml = dbUser.isAiml;

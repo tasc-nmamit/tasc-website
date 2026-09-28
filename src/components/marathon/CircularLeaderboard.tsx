@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { FlameIcon, XIcon, SearchIcon } from "lucide-react";
-import Image from "next/image";
+import UserAvatar from "@/components/ui/UserAvatar";
 
 export interface LeaderboardStudent {
   id: string;
@@ -90,21 +90,14 @@ export default function CircularLeaderboard({
                 {student.rank}
               </div>
 
-              {/* Profile Avatar Circle */}
-              <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-full bg-muted dark:bg-white/10 border border-border dark:border-white/15 flex items-center justify-center overflow-hidden mb-1.5 shrink-0">
-                {student.image ? (
-                  <Image
-                    src={student.image}
-                    alt={student.name || "Student"}
-                    width={56}
-                    height={56}
-                    className="h-full w-full object-cover rounded-full"
-                  />
-                ) : (
-                  <span className="font-sans font-bold text-sm sm:text-base text-foreground dark:text-white">
-                    {(student.name || "S").charAt(0).toUpperCase()}
-                  </span>
-                )}
+              <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-full flex items-center justify-center overflow-hidden mb-1.5 shrink-0">
+                <UserAvatar
+                  src={student.image}
+                  name={student.name}
+                  size={56}
+                  className="h-full w-full object-cover rounded-full"
+                  fallbackClassName="h-full w-full"
+                />
               </div>
 
               {/* Student Name */}
@@ -141,20 +134,14 @@ export default function CircularLeaderboard({
             </button>
 
             {/* Profile Avatar */}
-            <div className="mx-auto h-20 w-20 rounded-full bg-muted dark:bg-black/60 border border-border dark:border-white/20 flex items-center justify-center overflow-hidden mb-4 shadow-inner">
-              {selectedStudent.image ? (
-                <Image
-                  src={selectedStudent.image}
-                  alt={selectedStudent.name || "Student"}
-                  width={80}
-                  height={80}
-                  className="h-full w-full object-cover rounded-full"
-                />
-              ) : (
-                <span className="font-sans text-2xl font-bold text-foreground dark:text-white">
-                  {(selectedStudent.name || "S").charAt(0).toUpperCase()}
-                </span>
-              )}
+            <div className="mx-auto h-20 w-20 rounded-full flex items-center justify-center overflow-hidden mb-4 shadow-inner">
+              <UserAvatar
+                src={selectedStudent.image}
+                name={selectedStudent.name}
+                size={80}
+                className="h-full w-full object-cover rounded-full"
+                fallbackClassName="h-full w-full"
+              />
             </div>
 
             {/* Student Name & USN */}
