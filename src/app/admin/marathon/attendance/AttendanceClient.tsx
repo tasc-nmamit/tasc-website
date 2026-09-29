@@ -255,8 +255,16 @@ export default function AttendanceClient({
         }),
       });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to schedule class");
+      let data: any = null;
+      try {
+        data = await res.json();
+      } catch {
+        // Not JSON response
+      }
+
+      if (!res.ok) {
+        throw new Error(data?.error || `Server error (${res.status}): Please try again`);
+      }
 
       alert(`Class scheduled successfully! ${data.studentsCount} students marked present by default.`);
       setClasses((prev) => [data.class, ...prev]);

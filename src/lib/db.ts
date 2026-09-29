@@ -12,9 +12,8 @@ const connectionString = process.env.DATABASE_URL;
 if (!globalForPrisma.pool) {
   globalForPrisma.pool = new Pool({
     connectionString,
-    max: 5,
+    max: 10,
     idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 5000,
   });
 }
 
@@ -25,5 +24,5 @@ if (!globalForPrisma.prisma) {
   });
 }
 
-export const db = globalForPrisma.prisma;
+export const db = globalForPrisma.prisma!;
 

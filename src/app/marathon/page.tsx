@@ -15,6 +15,7 @@ import MarathonCalendarGrid, { CalendarContest, CalendarAttendanceRecord } from 
 import MarathonJourney, { JourneyDay } from "@/components/marathon/MarathonJourney";
 import { startOfMonth, endOfMonth, eachDayOfInterval, isSameDay } from "date-fns";
 import { getUserAttendanceStats } from "@/lib/marathon-streak";
+import { getBatchForUser } from "@/lib/marathon-batches";
 
 export default async function MarathonDashboard() {
   const session = await requireAiml();
@@ -141,17 +142,87 @@ export default async function MarathonDashboard() {
     orderBy: { date: "desc" },
   });
 
-  // Calculate Global Rank
-  const userScore = user?.marathonTotalScore || 0;
-  const userRank =
-    userScore > 0
-      ? (await db.user.count({
-          where: {
-            isAiml: true,
-            marathonTotalScore: { gt: userScore },
-          },
-        })) + 1
-      : null;
+  // User year detection (defaults to 2nd year if unassigned)
+  const currentUserBatch = user ? getBatchForUser(user) : null;
+  const userIs3rdYear = currentUserBatch === "3A1" || currentUserBatch === "3A2" || user?.year === 3;
+  const userTargetYear = userIs3rdYear ? 3 : 2;
+
+  // Fetch all AIML students with attendance records
+  const allAimlStudentsForRanking = await db.user.findMany({
+    where: {
+      isAiml: true,
+      role: "USER",
+    },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      usn: true,
+      marathonTotalScore: true,
+      marathonStreak: true,
+      marathonAttendance: {
+        select: { present: true },
+      },
+    },
+  });
+
+  const mappedAimlStudents = allAimlStudentsForRanking
+    .map((u) => {
+      const batch = getBatchForUser(u);
+      if (!batch) return null; // Exclude non-batch emails
+
+      const totalClasses = u.marathonAttendance?.length || 0;
+      const presentClasses = u.marathonAttendance?.filter((a) => a.present).length || 0;
+      const attendancePercentage = totalClasses > 0 ? Math.round((presentClasses / totalClasses) * 100) : 0;
+      const studentYear = batch === "3A1" || batch === "3A2" ? 3 : 2;
+
+      return {
+        id: u.id,
+        name: u.name,
+        usn: u.usn,
+        batch,
+        studentYear,
+        marathonTotalScore: u.marathonTotalScore || 0,
+        marathonStreak: u.marathonStreak || 0,
+        attendancePercentage,
+      };
+    })
+    .filter(Boolean) as {
+      id: string;
+      name: string | null;
+      usn: string | null;
+      batch: string;
+      studentYear: number;
+      marathonTotalScore: number;
+      marathonStreak: number;
+      attendancePercentage: number;
+    }[];
+
+  // Sort: 1. Weekly Points -> 2. Attendance % (tie breaker) -> 3. Streak -> 4. Name
+  const sortYearStudents = (list: typeof mappedAimlStudents) => {
+    list.sort((a, b) => {
+      if (b.marathonTotalScore !== a.marathonTotalScore) {
+        return b.marathonTotalScore - a.marathonTotalScore;
+      }
+      if (b.attendancePercentage !== a.attendancePercentage) {
+        return b.attendancePercentage - a.attendancePercentage;
+      }
+      if (b.marathonStreak !== a.marathonStreak) {
+        return b.marathonStreak - a.marathonStreak;
+      }
+      return (a.name || "").localeCompare(b.name || "");
+    });
+    return list;
+  };
+
+  const year2Ranked = sortYearStudents(mappedAimlStudents.filter((s) => s.studentYear === 2));
+  const year3Ranked = sortYearStudents(mappedAimlStudents.filter((s) => s.studentYear === 3));
+
+  const relevantRankedList = userTargetYear === 3 ? year3Ranked : year2Ranked;
+
+  // Calculate Year-specific Rank for logged-in user
+  const userRankIndex = user?.id ? relevantRankedList.findIndex((u) => u.id === user.id) : -1;
+  const userRank = userRankIndex !== -1 ? userRankIndex + 1 : null;
 
   // Fetch Attendance Statistics for current student
   const attendanceStats = user?.id ? await getUserAttendanceStats(user.id) : null;
@@ -166,25 +237,8 @@ export default async function MarathonDashboard() {
     present: r.present,
   }));
 
-  // Fetch Top 5 Performers for Preview
-  const topLeaders = await db.user.findMany({
-    where: {
-      isAiml: true,
-      marathonTotalScore: { gt: 0 },
-    },
-    select: {
-      id: true,
-      name: true,
-      usn: true,
-      marathonTotalScore: true,
-      marathonStreak: true,
-    },
-    orderBy: [
-      { marathonTotalScore: "desc" },
-      { marathonStreak: "desc" },
-    ],
-    take: 5,
-  });
+  // Fetch Top 5 Performers for current user's year
+  const topLeaders = relevantRankedList.slice(0, 5);
 
   return (
     <main className="min-h-dvh px-4 pt-28 pb-20 relative bg-background bg-blueprint-grid overflow-x-hidden text-foreground">
@@ -276,13 +330,13 @@ export default async function MarathonDashboard() {
                 )}
               </div>
 
-              {/* Global Rank */}
+              {/* Year Rank */}
               <div className="flex flex-col items-center justify-center text-center p-2 border border-border/60 dark:border-white/5">
                 <span className="font-sans text-xl sm:text-2xl font-extrabold text-purple-600 dark:text-purple-400 tracking-tight">
                   {userRank ? `#${userRank}` : "—"}
                 </span>
                 <span className="mt-1 text-[9px] font-bold uppercase tracking-widest text-muted-foreground dark:text-slate-400">
-                  GLOBAL RANK
+                  YEAR {userTargetYear} RANK
                 </span>
               </div>
             </div>
@@ -550,10 +604,10 @@ export default async function MarathonDashboard() {
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
             <div>
               <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground dark:text-slate-400">
-                STANDINGS
+                STANDINGS • YEAR {userTargetYear}
               </span>
               <h2 className="font-valley text-xl sm:text-2xl font-bold tracking-tight text-foreground dark:text-white mt-0.5">
-                Who&apos;s Leading?
+                Who&apos;s Leading? (Batch {userTargetYear === 3 ? "3A1 & 3A2" : "2A & 2B"})
               </h2>
             </div>
 
@@ -613,8 +667,12 @@ export default async function MarathonDashboard() {
                       </div>
                     </div>
 
-                    {/* Score & Streak */}
-                    <div className="flex items-center gap-6 sm:gap-8 shrink-0 text-right">
+                    {/* Score, Attendance & Streak */}
+                    <div className="flex items-center gap-4 sm:gap-6 shrink-0 text-right">
+                      <div className="hidden sm:flex items-center gap-1 font-sans text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                        <span>{leader.attendancePercentage}% att</span>
+                      </div>
+
                       <div className="flex items-center gap-1 font-sans text-xs sm:text-sm font-semibold text-amber-600 dark:text-amber-400">
                         <FlameIcon className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
                         <span>{leader.marathonStreak}d</span>

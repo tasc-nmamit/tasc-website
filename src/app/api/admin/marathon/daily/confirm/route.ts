@@ -54,25 +54,7 @@ export async function POST(request: Request) {
         data: { isConfirmed: true }
       });
 
-      // 2. Increment marathonTotalScore for users who scored
-      for (const score of contest.scores) {
-        if (score.user.role === "ADMIN" || score.user.role === "OWNER") {
-          if (score.user.hackerrankUsername) {
-            skippedNonStudents.push(score.user.hackerrankUsername);
-          }
-          continue; // Skip non-students
-        }
-
-        if (score.score > 0) {
-          await tx.user.update({
-            where: { id: score.userId },
-            data: {
-              marathonTotalScore: { increment: score.score },
-            }
-          });
-          updatedCount++;
-        }
-      }
+      // 2. Streaks will be maintained; points are reserved exclusively for weekly contests
 
       // 3. Recalculate streaks for the entire targetYear
       // This ensures all students who completed continue their streak,

@@ -7,6 +7,7 @@ export interface PodiumUser {
   marathonTotalScore: number;
   marathonStreak: number;
   image?: string | null;
+  attendancePercentage?: number;
 }
 
 interface LeaderboardPodiumProps {
@@ -46,8 +47,8 @@ export default function LeaderboardPodium({ topUsers, currentUserId }: Leaderboa
             </p>
 
             {/* Circular Pill Stats */}
-            <div className="mt-4 pt-3 border-t border-border dark:border-white/10 w-full flex items-center justify-around gap-2">
-              <div className="rounded-full bg-muted/60 dark:bg-white/10 border border-border dark:border-white/15 px-3.5 py-1">
+            <div className="mt-4 pt-3 border-t border-border dark:border-white/10 w-full flex items-center justify-around gap-1.5 flex-wrap">
+              <div className="rounded-full bg-muted/60 dark:bg-white/10 border border-border dark:border-white/15 px-3 py-1">
                 <span className="font-sans text-sm font-bold text-foreground dark:text-white">
                   {second.marathonTotalScore.toLocaleString()}
                 </span>
@@ -56,7 +57,16 @@ export default function LeaderboardPodium({ topUsers, currentUserId }: Leaderboa
                 </span>
               </div>
 
-              <div className="rounded-full bg-amber-500/15 border border-amber-500/30 px-3 py-1 flex items-center gap-1">
+              <div className="rounded-full bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-1 flex items-center gap-1">
+                <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                  {second.attendancePercentage ?? 0}%
+                </span>
+                <span className="text-[8px] font-bold uppercase tracking-wider text-emerald-600/80 dark:text-emerald-400/80">
+                  att
+                </span>
+              </div>
+
+              <div className="rounded-full bg-amber-500/15 border border-amber-500/30 px-2.5 py-1 flex items-center gap-1">
                 <FlameIcon className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
                 <span className="text-xs font-bold text-amber-600 dark:text-amber-400">
                   {second.marathonStreak}d
@@ -95,8 +105,8 @@ export default function LeaderboardPodium({ topUsers, currentUserId }: Leaderboa
             </p>
 
             {/* Circular Pill Stats */}
-            <div className="mt-5 pt-3 border-t border-border dark:border-white/15 w-full flex items-center justify-around gap-2">
-              <div className="rounded-full bg-muted/60 dark:bg-white/10 border border-border dark:border-white/20 px-4 py-1.5">
+            <div className="mt-5 pt-3 border-t border-border dark:border-white/15 w-full flex items-center justify-around gap-1.5 flex-wrap">
+              <div className="rounded-full bg-muted/60 dark:bg-white/10 border border-border dark:border-white/20 px-3.5 py-1.5">
                 <span className="font-sans text-base font-bold text-foreground dark:text-white">
                   {first.marathonTotalScore.toLocaleString()}
                 </span>
@@ -105,7 +115,16 @@ export default function LeaderboardPodium({ topUsers, currentUserId }: Leaderboa
                 </span>
               </div>
 
-              <div className="rounded-full bg-amber-500/15 border border-amber-500/30 px-3.5 py-1.5 flex items-center gap-1">
+              <div className="rounded-full bg-emerald-500/15 border border-emerald-500/30 px-3 py-1.5 flex items-center gap-1">
+                <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                  {first.attendancePercentage ?? 0}%
+                </span>
+                <span className="text-[8px] font-bold uppercase tracking-wider text-emerald-600/80 dark:text-emerald-400/80">
+                  att
+                </span>
+              </div>
+
+              <div className="rounded-full bg-amber-500/15 border border-amber-500/30 px-3 py-1.5 flex items-center gap-1">
                 <FlameIcon className="h-4 w-4 fill-amber-500 text-amber-500" />
                 <span className="text-xs font-bold text-amber-600 dark:text-amber-400">
                   {first.marathonStreak}d
@@ -144,8 +163,8 @@ export default function LeaderboardPodium({ topUsers, currentUserId }: Leaderboa
             </p>
 
             {/* Circular Pill Stats */}
-            <div className="mt-4 pt-3 border-t border-border dark:border-white/10 w-full flex items-center justify-around gap-2">
-              <div className="rounded-full bg-muted/60 dark:bg-white/10 border border-border dark:border-white/15 px-3.5 py-1">
+            <div className="mt-4 pt-3 border-t border-border dark:border-white/10 w-full flex items-center justify-around gap-1.5 flex-wrap">
+              <div className="rounded-full bg-muted/60 dark:bg-white/10 border border-border dark:border-white/15 px-3 py-1">
                 <span className="font-sans text-sm font-bold text-foreground dark:text-white">
                   {third.marathonTotalScore.toLocaleString()}
                 </span>
@@ -154,7 +173,16 @@ export default function LeaderboardPodium({ topUsers, currentUserId }: Leaderboa
                 </span>
               </div>
 
-              <div className="rounded-full bg-amber-500/15 border border-amber-500/30 px-3 py-1 flex items-center gap-1">
+              <div className="rounded-full bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-1 flex items-center gap-1">
+                <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                  {third.attendancePercentage ?? 0}%
+                </span>
+                <span className="text-[8px] font-bold uppercase tracking-wider text-emerald-600/80 dark:text-emerald-400/80">
+                  att
+                </span>
+              </div>
+
+              <div className="rounded-full bg-amber-500/15 border border-amber-500/30 px-2.5 py-1 flex items-center gap-1">
                 <FlameIcon className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
                 <span className="text-xs font-bold text-amber-600 dark:text-amber-400">
                   {third.marathonStreak}d

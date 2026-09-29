@@ -14,6 +14,7 @@ export interface LeaderboardStudent {
   image?: string | null;
   rank: number;
   attendancePercentage?: number;
+  batch?: string;
 }
 
 interface CircularLeaderboardProps {
@@ -165,8 +166,14 @@ export default function CircularLeaderboard({
               {selectedStudent.usn || "AIML STUDENT"}
             </p>
 
+            {selectedStudent.batch && (
+              <span className="inline-block mt-1 rounded bg-brand/15 border border-brand/30 px-2 py-0.5 text-[10px] font-mono-tech font-bold text-brand-accent uppercase">
+                Batch {selectedStudent.batch}
+              </span>
+            )}
+
             {selectedStudent.id === currentUserId && (
-              <span className="inline-block mt-2 rounded-full bg-purple-600 px-3 py-0.5 text-[9px] font-bold text-white uppercase">
+              <span className="inline-block mt-2 ml-1 rounded-full bg-purple-600 px-3 py-0.5 text-[9px] font-bold text-white uppercase">
                 Your Profile
               </span>
             )}

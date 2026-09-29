@@ -147,62 +147,73 @@ export async function recalculateYearStreaks(
 }
 
 /**
- * Recalculates total score for all students based on confirmed daily & weekly contests
- * and attended marathon classes.
+ * Recalculates total score for all students (or specific user IDs / target year)
+ * based exclusively on confirmed weekly contests.
+ * Class attendance does NOT award points (attendance percentage is used as a tie-breaker).
+ * Daily contests maintain streaks, not marathon total points.
  */
 export async function recalculateTotalScores(
-  targetYear?: number,
+  targetYearOrUserIds?: number | string[],
   client: any = db
 ): Promise<{ totalUpdated: number }> {
-  const whereYear = targetYear ? { year: targetYear } : {};
+  let whereUser: any = {
+    isAiml: true,
+    role: "USER",
+  };
+
+  if (typeof targetYearOrUserIds === "number") {
+    whereUser.year = targetYearOrUserIds;
+  } else if (Array.isArray(targetYearOrUserIds)) {
+    if (targetYearOrUserIds.length === 0) return { totalUpdated: 0 };
+    whereUser.id = { in: targetYearOrUserIds };
+  }
+
   const students = await client.user.findMany({
-    where: {
-      ...whereYear,
-      isAiml: true,
-      role: "USER",
-    },
+    where: whereUser,
     select: { id: true, marathonTotalScore: true },
   });
 
+  if (students.length === 0) {
+    return { totalUpdated: 0 };
+  }
+
+  const studentIds = students.map((s: { id: string }) => s.id);
+
+  // Points are based ONLY on confirmed weekly contests
+  const weeklyScores = await client.marathonWeeklyScore.groupBy({
+    by: ["userId"],
+    where: {
+      userId: { in: studentIds },
+      completed: true,
+      contest: { isConfirmed: true },
+    },
+    _sum: { score: true },
+  });
+
+  const weeklyMap = new Map<string, number>();
+  for (const w of weeklyScores) {
+    weeklyMap.set(w.userId, w._sum.score || 0);
+  }
+
   let totalUpdated = 0;
+  const updatePromises: Promise<any>[] = [];
 
   for (const student of students) {
-    const [dailySum, weeklySum, presentCount] = await Promise.all([
-      client.marathonDailyScore.aggregate({
-        where: {
-          userId: student.id,
-          completed: true,
-          contest: { isConfirmed: true },
-        },
-        _sum: { score: true },
-      }),
-      client.marathonWeeklyScore.aggregate({
-        where: {
-          userId: student.id,
-          completed: true,
-          contest: { isConfirmed: true },
-        },
-        _sum: { score: true },
-      }),
-      client.marathonAttendance.count({
-        where: {
-          userId: student.id,
-          present: true,
-        },
-      }),
-    ]);
-
-    // Attended marathon classes contribute 25 points each
-    const attendancePoints = presentCount * 25;
-    const totalScore = (dailySum._sum.score || 0) + (weeklySum._sum.score || 0) + attendancePoints;
+    const totalScore = weeklyMap.get(student.id) || 0;
 
     if (student.marathonTotalScore !== totalScore) {
-      await client.user.update({
-        where: { id: student.id },
-        data: { marathonTotalScore: totalScore },
-      });
+      updatePromises.push(
+        client.user.update({
+          where: { id: student.id },
+          data: { marathonTotalScore: totalScore },
+        })
+      );
       totalUpdated++;
     }
+  }
+
+  if (updatePromises.length > 0) {
+    await Promise.all(updatePromises);
   }
 
   return { totalUpdated };

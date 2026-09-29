@@ -1,23 +1,26 @@
 import { requireAiml } from "@/lib/auth-guards";
 import { db } from "@/lib/db";
 import Link from "next/link";
-import { ArrowLeftIcon, TrophyIcon } from "lucide-react";
-import LeaderboardPodium, { PodiumUser } from "@/components/marathon/LeaderboardPodium";
-import CircularLeaderboard, { LeaderboardStudent } from "@/components/marathon/CircularLeaderboard";
+import { ArrowLeftIcon } from "lucide-react";
+import MarathonLeaderboardTabs from "@/components/marathon/MarathonLeaderboardTabs";
+import { LeaderboardStudent } from "@/components/marathon/CircularLeaderboard";
+import { getBatchForUser } from "@/lib/marathon-batches";
 
 export default async function MarathonLeaderboard() {
   const session = await requireAiml();
 
-  // Fetch top users sorted by score, then streak
+  // Fetch all AIML students with attendance records
   const rawUsers = await db.user.findMany({
     where: {
       isAiml: true,
-      marathonTotalScore: { gt: 0 }, // Only show people with points
+      role: "USER",
     },
     select: {
       id: true,
       name: true,
+      email: true,
       usn: true,
+      year: true,
       marathonTotalScore: true,
       marathonStreak: true,
       image: true,
@@ -25,31 +28,77 @@ export default async function MarathonLeaderboard() {
         select: { present: true },
       },
     },
-    orderBy: [
-      { marathonTotalScore: "desc" },
-      { marathonStreak: "desc" },
-    ],
-    take: 100, // Limit to top 100
   });
 
-  const students: LeaderboardStudent[] = rawUsers.map((user, idx) => {
+  const year2List: LeaderboardStudent[] = [];
+  const year3List: LeaderboardStudent[] = [];
+
+  for (const user of rawUsers) {
+    const batch = getBatchForUser(user);
+    if (!batch) {
+      // Only include emails/students that are mapped with class batches
+      continue;
+    }
+
     const totalClasses = user.marathonAttendance?.length || 0;
     const presentClasses = user.marathonAttendance?.filter((a) => a.present).length || 0;
-    const attendancePercentage = totalClasses > 0 ? Math.round((presentClasses / totalClasses) * 100) : 100;
+    const attendancePercentage = totalClasses > 0 ? Math.round((presentClasses / totalClasses) * 100) : 0;
 
-    return {
+    const studentData: LeaderboardStudent = {
       id: user.id,
       name: user.name,
       usn: user.usn,
-      marathonTotalScore: user.marathonTotalScore,
-      marathonStreak: user.marathonStreak,
+      marathonTotalScore: user.marathonTotalScore || 0,
+      marathonStreak: user.marathonStreak || 0,
       image: user.image,
-      rank: idx + 1,
+      rank: 0,
       attendancePercentage,
+      batch,
     };
-  });
 
-  const top3Users: PodiumUser[] = students.slice(0, 3);
+    if (batch === "2A" || batch === "2B") {
+      year2List.push(studentData);
+    } else if (batch === "3A1" || batch === "3A2") {
+      year3List.push(studentData);
+    }
+  }
+
+  // Sort function: 1. Weekly Points -> 2. Attendance % (tie breaker) -> 3. Streak -> 4. Name
+  const sortStudents = (list: LeaderboardStudent[]) => {
+    list.sort((a, b) => {
+      // 1. Weekly contest points (desc)
+      if (b.marathonTotalScore !== a.marathonTotalScore) {
+        return b.marathonTotalScore - a.marathonTotalScore;
+      }
+      // 2. Attendance percentage as tie breaker (desc)
+      if ((b.attendancePercentage ?? 0) !== (a.attendancePercentage ?? 0)) {
+        return (b.attendancePercentage ?? 0) - (a.attendancePercentage ?? 0);
+      }
+      // 3. Day streak as secondary tie breaker (desc)
+      if (b.marathonStreak !== a.marathonStreak) {
+        return b.marathonStreak - a.marathonStreak;
+      }
+      // 4. Alphabetical by name
+      return (a.name || "").localeCompare(b.name || "");
+    });
+
+    return list.map((user, idx) => ({
+      ...user,
+      rank: idx + 1,
+    }));
+  };
+
+  const year2Students = sortStudents(year2List);
+  const year3Students = sortStudents(year3List);
+
+  // Default to student's year if available
+  let defaultYear: "2" | "3" = "2";
+  const userBatch = getBatchForUser(session.user);
+  if (userBatch === "3A1" || userBatch === "3A2" || session.user.year === 3) {
+    defaultYear = "3";
+  }
+
+  const totalEnrolled = year2Students.length + year3Students.length;
 
   return (
     <main className="min-h-dvh px-4 pt-28 pb-20 relative bg-background bg-blueprint-grid overflow-x-hidden text-foreground">
@@ -74,65 +123,31 @@ export default async function MarathonLeaderboard() {
                 COMPETITION STANDINGS
               </span>
               <h1 className="mt-1 font-valley text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-foreground dark:text-white">
-                Global Leaderboard
+                Marathon Leaderboard
               </h1>
               <p className="mt-2 text-sm text-muted-foreground dark:text-slate-300">
-                Official standings verified across all daily algorithmic challenges and weekly engineering sprints.
+                Independent leaderboards for 2nd and 3rd year students. Points are calculated solely from weekly engineering sprints.
               </p>
             </div>
 
             <div className="text-left md:text-right shrink-0 bg-card dark:bg-black/60 border border-border dark:border-white/20 px-5 py-2.5 rounded-full shadow-sm">
               <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground dark:text-slate-400 block">
-                TOTAL PARTICIPANTS
+                ENROLLED PARTICIPANTS
               </span>
               <span className="font-sans text-2xl font-bold text-foreground dark:text-white">
-                {students.length}
+                {totalEnrolled}
               </span>
             </div>
           </div>
         </div>
 
-        {/* Empty State */}
-        {students.length === 0 ? (
-          <div className="rounded-none border border-border dark:border-white/20 bg-card/90 dark:bg-black/75 backdrop-blur-md p-16 text-center text-muted-foreground dark:text-slate-400 shadow-sm">
-            <TrophyIcon className="h-10 w-10 mx-auto text-foreground dark:text-white mb-3" />
-            <h3 className="font-sans text-lg font-bold text-foreground dark:text-white">
-              No contest scores recorded yet
-            </h3>
-            <p className="mt-2 text-sm max-w-md mx-auto">
-              The competition leaderboard will update automatically as soon as students complete their first challenge.
-            </p>
-          </div>
-        ) : (
-          <>
-            {/* Top 3 Visual Podium */}
-            {top3Users.length > 0 && (
-              <section>
-                <LeaderboardPodium
-                  topUsers={top3Users}
-                  currentUserId={session.user.id}
-                />
-              </section>
-            )}
-
-            {/* Circular Grid Leaderboard with Interactive Profile View on Click */}
-            <section className="space-y-4">
-              <div className="flex items-center justify-between px-2">
-                <h2 className="font-valley text-xl font-bold text-foreground dark:text-white">
-                  Rankings Directory
-                </h2>
-                <span className="text-xs text-muted-foreground dark:text-slate-400">
-                  Click any circle to view complete profile
-                </span>
-              </div>
-
-              <CircularLeaderboard
-                students={students}
-                currentUserId={session.user.id}
-              />
-            </section>
-          </>
-        )}
+        {/* Tabbed Year-specific Leaderboards */}
+        <MarathonLeaderboardTabs
+          year2Students={year2Students}
+          year3Students={year3Students}
+          currentUserId={session.user.id}
+          defaultYear={defaultYear}
+        />
 
       </div>
     </main>

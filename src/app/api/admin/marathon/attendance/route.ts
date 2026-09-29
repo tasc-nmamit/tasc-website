@@ -162,8 +162,11 @@ export async function POST(request: Request) {
       });
     }
 
-    // 5. Recalculate marathon total scores
-    await recalculateTotalScores();
+    // 5. Recalculate marathon total scores for affected students only
+    const affectedUserIds = attendanceRecordsToCreate.map((r) => r.userId);
+    if (affectedUserIds.length > 0) {
+      await recalculateTotalScores(affectedUserIds);
+    }
 
     // 6. Return created class with attendance
     const createdWithAttendance = await db.marathonClass.findUnique({

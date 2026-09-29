@@ -91,7 +91,14 @@ export async function PATCH(request: Request, context: Context) {
     }
 
     // Recalculate leaderboard scores to reflect updated attendance
-    await recalculateTotalScores();
+    const patchedUserIds = (attendanceUpdates || [])
+      .map((u: any) => u.userId)
+      .filter(Boolean);
+    if (patchedUserIds.length > 0) {
+      await recalculateTotalScores(patchedUserIds);
+    } else {
+      await recalculateTotalScores();
+    }
 
     const updated = await db.marathonClass.findUnique({
       where: { id: classId },
@@ -136,12 +143,20 @@ export async function DELETE(request: Request, context: Context) {
   const { classId } = await context.params;
 
   try {
+    const attendees = await db.marathonAttendance.findMany({
+      where: { classId },
+      select: { userId: true },
+    });
+    const attendeeUserIds = attendees.map((a) => a.userId);
+
     await db.marathonClass.delete({
       where: { id: classId },
     });
 
-    // Recalculate scores
-    await recalculateTotalScores();
+    // Recalculate scores for affected users
+    if (attendeeUserIds.length > 0) {
+      await recalculateTotalScores(attendeeUserIds);
+    }
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
