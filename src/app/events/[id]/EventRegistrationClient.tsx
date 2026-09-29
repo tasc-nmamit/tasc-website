@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -16,8 +16,10 @@ import {
   UserMinusIcon,
   LogOutIcon,
   Trash2Icon,
+  XIcon,
 } from "lucide-react";
 import CircuitTrace from "@/components/ui/circuit-ink/CircuitTrace";
+import ClientPortal from "@/components/ui/ClientPortal";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { storage } from "@/lib/firebase";
 
@@ -56,6 +58,17 @@ export default function EventRegistrationClient({
   // Dynamic responses for custom fields
   const [responses, setResponses] = useState<Record<string, any>>({});
   const [uploadingFiles, setUploadingFiles] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    if (modalOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [modalOpen]);
 
   const handleFileUpload = async (fieldId: string, file: File) => {
     if (!file) return;
@@ -543,20 +556,31 @@ export default function EventRegistrationClient({
 
       {/* Registration Modal: Square Technical Blueprint Styling */}
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6">
-          <div className="absolute inset-0 bg-background/80 backdrop-blur-md" onClick={() => setModalOpen(false)} />
-          <div className="relative w-full max-w-lg rounded-xl border border-brand/30 bg-card p-4 sm:p-6 shadow-2xl max-h-[88vh] overflow-y-auto backdrop-blur-xl bg-blueprint-grid">
-            <CircuitTrace corners={true} />
+        <ClientPortal>
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+            <div className="fixed inset-0 bg-background/80 backdrop-blur-md" onClick={() => setModalOpen(false)} />
+            <div className="relative w-full max-w-lg rounded-xl border border-brand/30 bg-card p-4 sm:p-6 shadow-2xl max-h-[90dvh] overflow-y-auto backdrop-blur-xl bg-blueprint-grid my-auto">
+              <CircuitTrace corners={true} />
 
-            <div className="relative z-10 space-y-6">
-              <div className="border-b border-brand/20 pb-3">
-                <span className="text-[10px] font-mono-tech text-gold uppercase tracking-widest block">
-                  Registration • {event.type} Format
-                </span>
-                <h2 className="text-xl font-bold font-space-grotesk text-foreground">{event.title}</h2>
-              </div>
+              <div className="relative z-10 space-y-6">
+                <div className="border-b border-brand/20 pb-3 flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] font-mono-tech text-gold uppercase tracking-widest block">
+                      Registration • {event.type} Format
+                    </span>
+                    <h2 className="text-xl font-bold font-space-grotesk text-foreground">{event.title}</h2>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setModalOpen(false)}
+                    className="p-1.5 rounded-lg border border-brand/20 bg-background/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                    aria-label="Close modal"
+                  >
+                    <XIcon className="w-4 h-4" />
+                  </button>
+                </div>
 
-              <form onSubmit={handleRegister} className="space-y-6">
+                <form onSubmit={handleRegister} className="space-y-6">
                 {event.type === "SOLO_OR_TEAM" && (
                   <div className="space-y-4">
                     <label className="block text-xs font-mono-tech text-muted-foreground uppercase mb-1">
@@ -839,26 +863,27 @@ export default function EventRegistrationClient({
                   </div>
                 )}
 
-                <div className="flex gap-3 pt-4 border-t border-brand/20">
-                  <button
-                    type="button"
-                    onClick={() => setModalOpen(false)}
-                    className="flex-1 rounded-lg border border-brand/30 bg-background/60 py-2.5 font-space-grotesk font-semibold text-xs text-foreground hover:bg-muted transition-colors cursor-pointer"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="flex-1 rounded-lg bg-brand py-2.5 font-space-grotesk font-bold text-xs uppercase tracking-wider text-white shadow-lg shadow-brand/20 hover:bg-brand/90 disabled:opacity-50 transition-all cursor-pointer"
-                  >
-                    {loading ? "Processing..." : "Complete Registration"}
-                  </button>
-                </div>
-              </form>
+                  <div className="flex gap-3 pt-4 border-t border-brand/20">
+                    <button
+                      type="button"
+                      onClick={() => setModalOpen(false)}
+                      className="flex-1 rounded-lg border border-brand/30 bg-background/60 py-2.5 font-space-grotesk font-semibold text-xs text-foreground hover:bg-muted transition-colors cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="flex-1 rounded-lg bg-brand py-2.5 font-space-grotesk font-bold text-xs uppercase tracking-wider text-white shadow-lg shadow-brand/20 hover:bg-brand/90 disabled:opacity-50 transition-all cursor-pointer"
+                    >
+                      {loading ? "Processing..." : "Complete Registration"}
+                    </button>
+                  </div>
+                </form>
+              </div>
             </div>
           </div>
-        </div>
+        </ClientPortal>
       )}
     </>
   );

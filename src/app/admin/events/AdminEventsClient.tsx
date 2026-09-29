@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { downloadCSV, downloadExcel } from "@/lib/export";
 import Link from "next/link";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { storage } from "@/lib/firebase";
 import { slugify } from "@/lib/slug";
 import CustomFieldsEditor from "./CustomFieldsEditor";
+import ClientPortal from "@/components/ui/ClientPortal";
 import {
   PlusIcon,
   FileSpreadsheetIcon,
@@ -71,6 +72,17 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
   const [galleryPhotos, setGalleryPhotos] = useState<string[]>([]);
   const [galleryPublished, setGalleryPublished] = useState(false);
   const [uploadingGalleryPhoto, setUploadingGalleryPhoto] = useState(false);
+
+  useEffect(() => {
+    if (editingEvent || galleryEvent) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [editingEvent, galleryEvent]);
 
   // Firebase Upload State
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -517,7 +529,7 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
         <div className="space-y-4">
           {events.length === 0 ? (
             <div className="rounded-2xl border border-brand/20 bg-card/60 backdrop-blur-xl p-12 text-center text-muted-foreground font-space-grotesk">
-              No events found. Click "Create New Event" above to publish a competition or workshop.
+              No events found. Click &ldquo;Create New Event&rdquo; above to publish a competition or workshop.
             </div>
           ) : (
             events.map((event) => (
@@ -1019,9 +1031,10 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
 
       {/* Edit Full Event Modal */}
       {editingEvent && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-background/80 backdrop-blur-md" onClick={() => setEditingEvent(null)} />
-          <div className="relative w-full max-w-2xl rounded-3xl border border-brand/30 bg-card/95 p-6 sm:p-8 shadow-2xl max-h-[90vh] overflow-y-auto backdrop-blur-xl">
+        <ClientPortal>
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 overflow-y-auto">
+            <div className="fixed inset-0 bg-background/80 backdrop-blur-md" onClick={() => setEditingEvent(null)} />
+            <div className="relative w-full max-w-2xl rounded-3xl border border-brand/30 bg-card/95 p-6 sm:p-8 shadow-2xl max-h-[90vh] overflow-y-auto backdrop-blur-xl my-auto">
             <h2 className="text-2xl font-bold font-space-grotesk mb-2 text-foreground">Edit Event Details</h2>
             <p className="text-xs text-muted-foreground font-space-grotesk mb-6">
               Update timings, dates, poster, location, format, or registration toggles.
@@ -1358,13 +1371,15 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
             </form>
           </div>
         </div>
+      </ClientPortal>
       )}
 
       {/* Event Photo Gallery & Showcase Modal */}
       {galleryEvent && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-background/80 backdrop-blur-md" onClick={() => setGalleryEvent(null)} />
-          <div className="relative w-full max-w-2xl rounded-3xl border border-brand/30 bg-card/95 p-6 sm:p-8 shadow-2xl max-h-[90vh] overflow-y-auto backdrop-blur-xl space-y-6">
+        <ClientPortal>
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 overflow-y-auto">
+            <div className="fixed inset-0 bg-background/80 backdrop-blur-md" onClick={() => setGalleryEvent(null)} />
+            <div className="relative w-full max-w-2xl rounded-3xl border border-brand/30 bg-card/95 p-6 sm:p-8 shadow-2xl max-h-[90vh] overflow-y-auto backdrop-blur-xl space-y-6 my-auto">
             <div className="border-b border-brand/20 pb-3">
               <span className="text-[10px] font-mono-tech text-gold uppercase tracking-widest block">
                 EVENT RECAP & PHOTO ARCHIVE
@@ -1467,6 +1482,7 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
             </div>
           </div>
         </div>
+      </ClientPortal>
       )}
     </div>
   );

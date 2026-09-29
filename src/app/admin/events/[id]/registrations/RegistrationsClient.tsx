@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Trash2Icon, UserPlusIcon, SearchIcon, PlusIcon, UsersIcon, ShieldCheckIcon, UserMinusIcon } from "lucide-react";
+import ClientPortal from "@/components/ui/ClientPortal";
 
 interface RegistrationsClientProps {
   event: any;
@@ -26,6 +27,17 @@ export default function RegistrationsClient({ event, teams, allUsers }: Registra
   // Add Member to Team Modal State
   const [targetTeamId, setTargetTeamId] = useState<string | null>(null);
   const [memberSearchTerm, setMemberSearchTerm] = useState("");
+
+  useEffect(() => {
+    if (isCreateModalOpen || targetTeamId) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isCreateModalOpen, targetTeamId]);
 
   // Set of all registered user IDs across all teams
   const registeredUserIds = new Set(
@@ -308,9 +320,10 @@ export default function RegistrationsClient({ event, teams, allUsers }: Registra
 
       {/* Modal: Create Team & Fill Dynamic Custom Form */}
       {isCreateModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-background/80 backdrop-blur-md" onClick={() => setIsCreateModalOpen(false)} />
-          <div className="relative w-full max-w-xl rounded-3xl border border-brand/30 bg-card/95 p-6 sm:p-8 shadow-2xl max-h-[90vh] overflow-y-auto backdrop-blur-xl">
+        <ClientPortal>
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 overflow-y-auto">
+            <div className="fixed inset-0 bg-background/80 backdrop-blur-md" onClick={() => setIsCreateModalOpen(false)} />
+            <div className="relative w-full max-w-xl rounded-3xl border border-brand/30 bg-card/95 p-6 sm:p-8 shadow-2xl max-h-[90vh] overflow-y-auto backdrop-blur-xl my-auto">
             <h2 className="text-2xl font-bold font-space-grotesk mb-2 text-foreground">
               {event.type === "TEAM" ? "Create Team & Fill Details" : "Register Participant"}
             </h2>
@@ -481,13 +494,15 @@ export default function RegistrationsClient({ event, teams, allUsers }: Registra
             </form>
           </div>
         </div>
+      </ClientPortal>
       )}
 
       {/* Modal: Add Member to Existing Team */}
       {targetTeamId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-background/80 backdrop-blur-md" onClick={() => setTargetTeamId(null)} />
-          <div className="relative w-full max-w-md rounded-3xl border border-brand/30 bg-card/95 p-6 shadow-2xl backdrop-blur-xl">
+        <ClientPortal>
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 overflow-y-auto">
+            <div className="fixed inset-0 bg-background/80 backdrop-blur-md" onClick={() => setTargetTeamId(null)} />
+            <div className="relative w-full max-w-md rounded-3xl border border-brand/30 bg-card/95 p-6 shadow-2xl backdrop-blur-xl my-auto">
             <h2 className="text-xl font-bold font-space-grotesk mb-2 text-foreground">Add Teammate</h2>
             <p className="text-xs text-muted-foreground font-space-grotesk mb-4">
               Select an unregistered student to join this team.
@@ -543,6 +558,7 @@ export default function RegistrationsClient({ event, teams, allUsers }: Registra
             </div>
           </div>
         </div>
+      </ClientPortal>
       )}
     </div>
   );

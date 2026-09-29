@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { Camera, ChevronLeft, ChevronRight, X, Maximize2, ExternalLink } from "lucide-react";
 import CircuitTrace from "@/components/ui/circuit-ink/CircuitTrace";
+import ClientPortal from "@/components/ui/ClientPortal";
 
 interface EventPhotoGalleryProps {
   photos: string[];
@@ -37,6 +38,17 @@ export default function EventPhotoGallery({ photos, eventTitle }: EventPhotoGall
     if (lightboxIndex === null || validPhotos.length === 0) return;
     setLightboxIndex((prev) => (prev !== null ? (prev - 1 + validPhotos.length) % validPhotos.length : null));
   }, [lightboxIndex, validPhotos.length]);
+
+  useEffect(() => {
+    if (lightboxIndex !== null) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [lightboxIndex]);
 
   // Keyboard navigation
   useEffect(() => {
@@ -169,12 +181,13 @@ export default function EventPhotoGallery({ photos, eventTitle }: EventPhotoGall
 
       {/* Lightbox Modal */}
       {lightboxIndex !== null && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          onClick={closeLightbox}
-          className="fixed inset-0 z-50 flex flex-col items-center justify-between p-4 md:p-6 bg-black/95 backdrop-blur-md animate-fadeIn"
-        >
+        <ClientPortal>
+          <div
+            role="dialog"
+            aria-modal="true"
+            onClick={closeLightbox}
+            className="fixed inset-0 z-[9999] flex flex-col items-center justify-between p-4 md:p-6 bg-black/95 backdrop-blur-md animate-fadeIn"
+          >
           {/* Top Bar */}
           <div
             onClick={(e) => e.stopPropagation()}
@@ -278,6 +291,7 @@ export default function EventPhotoGallery({ photos, eventTitle }: EventPhotoGall
             </div>
           )}
         </div>
+        </ClientPortal>
       )}
     </section>
   );

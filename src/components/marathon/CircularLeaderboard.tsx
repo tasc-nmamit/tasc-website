@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FlameIcon, XIcon, SearchIcon } from "lucide-react";
 import UserAvatar from "@/components/ui/UserAvatar";
+import ClientPortal from "@/components/ui/ClientPortal";
 
 export interface LeaderboardStudent {
   id: string;
@@ -26,6 +27,17 @@ export default function CircularLeaderboard({
 }: CircularLeaderboardProps) {
   const [selectedStudent, setSelectedStudent] = useState<LeaderboardStudent | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    if (selectedStudent) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [selectedStudent]);
 
   const filteredStudents = students.filter((s) => {
     const query = searchQuery.toLowerCase().trim();
@@ -122,8 +134,9 @@ export default function CircularLeaderboard({
 
       {/* Profile Detail Modal (Sharp Box with Purple Shade Background) */}
       {selectedStudent && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div className="relative w-full max-w-sm rounded-none border border-border dark:border-white/20 bg-card dark:bg-[#180d2e] p-6 text-center shadow-xl">
+        <ClientPortal>
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs overflow-y-auto">
+            <div className="relative w-full max-w-sm rounded-none border border-border dark:border-white/20 bg-card dark:bg-[#180d2e] p-6 text-center shadow-xl my-auto">
             {/* Close Button */}
             <button
               onClick={() => setSelectedStudent(null)}
@@ -213,6 +226,7 @@ export default function CircularLeaderboard({
             </button>
           </div>
         </div>
+      </ClientPortal>
       )}
     </div>
   );

@@ -50,7 +50,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`font-valley ${jetbrainsMono.variable} bg-background text-foreground min-h-screen flex flex-col`}
+        className={`font-valley ${jetbrainsMono.variable} bg-background text-foreground min-h-dvh flex flex-col`}
       >
         <SessionProvider>
           <ThemeProvider
@@ -62,7 +62,7 @@ export default function RootLayout({
             <OnboardingGuard>
               <Navbar />
               {/* <Vectorall /> */}
-              <div className="relative z-10 flex-1">{children}</div>
+              <div className="flex-1 w-full">{children}</div>
               <Footer />
             </OnboardingGuard>
           </ThemeProvider>

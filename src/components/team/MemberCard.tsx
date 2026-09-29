@@ -1,9 +1,12 @@
-import { useState } from "react";
+"use client";
+
+import { useState, useEffect } from "react";
 import { Member } from "@/lib/types/Member";
 import Image from "next/image";
 import { Github, Linkedin, Instagram, X } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import CircuitTrace from "@/components/ui/circuit-ink/CircuitTrace";
+import ClientPortal from "@/components/ui/ClientPortal";
 
 interface MemberCardProps {
   member: Member;
@@ -12,7 +15,26 @@ interface MemberCardProps {
 
 export function MemberCard({ member, featured = false }: MemberCardProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [imgSrc, setImgSrc] = useState(member.image || "/fallback_profile.png");
+  const [prevImage, setPrevImage] = useState(member.image);
   const [isLoading, setIsLoading] = useState(true);
+
+  if (member.image !== prevImage) {
+    setPrevImage(member.image);
+    setImgSrc(member.image || "/fallback_profile.png");
+    setIsLoading(true);
+  }
+
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
 
   return (
     <>
@@ -33,13 +55,18 @@ export function MemberCard({ member, featured = false }: MemberCardProps) {
               <Skeleton className="absolute inset-0 rounded-full bg-muted/40" />
             )}
             <Image
-              src={member.image || "/fallback_profile.png"}
+              src={imgSrc}
               alt={member.name}
               fill
+              unoptimized
               className={`rounded-full object-cover transition-transform duration-500 group-hover:scale-110 ${
                 isLoading ? "grayscale" : "grayscale-0"
               }`}
               onLoad={() => setIsLoading(false)}
+              onError={() => {
+                setImgSrc("/fallback_profile.png");
+                setIsLoading(false);
+              }}
             />
           </div>
         </div>
@@ -58,86 +85,89 @@ export function MemberCard({ member, featured = false }: MemberCardProps) {
 
       {/* Modal Overlay */}
       {isOpen && (
-        <div
-          onClick={() => setIsOpen(false)}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-md animate-fadeIn"
-        >
-          {/* Modal Content */}
+        <ClientPortal>
           <div
-            onClick={(e) => e.stopPropagation()}
-            className="relative w-full max-w-md bg-white dark:bg-card border border-brand/30 rounded-xl p-6 shadow-2xl overflow-hidden bg-blueprint-grid"
+            onClick={() => setIsOpen(false)}
+            className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-background/80 backdrop-blur-md animate-fadeIn overflow-y-auto"
           >
-            <CircuitTrace corners={true} />
-
-            <button
-              onClick={() => setIsOpen(false)}
-              className="absolute top-4 right-4 p-1.5 rounded-full bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors z-20"
+            {/* Modal Content */}
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className="relative w-full max-w-md max-h-[90dvh] overflow-y-auto bg-white dark:bg-card border border-brand/30 rounded-xl p-6 shadow-2xl bg-blueprint-grid my-auto"
             >
-              <X className="w-4 h-4" />
-            </button>
+              <CircuitTrace corners={true} />
 
-            <div className="flex flex-col items-center justify-center relative z-10 pt-2">
-              <div className="relative h-36 w-36 rounded-full overflow-hidden border-2 border-gold shadow-lg mb-4">
-                {isLoading && (
-                  <Skeleton className="absolute inset-0 rounded-full bg-muted/40" />
-                )}
-                <Image
-                  src={member.image || "/fallback_profile.png"}
-                  alt={member.name}
-                  fill
-                  className="rounded-full object-cover"
-                  onLoad={() => setIsLoading(false)}
-                />
-              </div>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="absolute top-4 right-4 p-1.5 rounded-full bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors z-20 cursor-pointer"
+                aria-label="Close modal"
+              >
+                <X className="w-4 h-4" />
+              </button>
 
-              <h2 className="text-2xl font-bold font-space-grotesk text-foreground text-center">
-                {member.name}
-              </h2>
-              <span className="mt-1 px-3 py-1 rounded text-xs font-mono-tech text-brand-accent bg-brand/15 border border-brand/30 uppercase tracking-wider">
-                {member.post}
-              </span>
+              <div className="flex flex-col items-center justify-center relative z-10 pt-2">
+                <div className="relative h-36 w-36 rounded-full overflow-hidden border-2 border-gold shadow-lg mb-4">
+                  <Image
+                    src={imgSrc}
+                    alt={member.name}
+                    fill
+                    unoptimized
+                    className="rounded-full object-cover"
+                    onError={() => {
+                      setImgSrc("/fallback_profile.png");
+                    }}
+                  />
+                </div>
 
-              {member.quote && (
-                <p className="mt-4 px-4 py-3 text-xs md:text-sm font-space-grotesk text-muted-foreground text-center italic bg-background/60 rounded-lg border border-brand/20">
-                  &ldquo;{member.quote}&rdquo;
-                </p>
-              )}
+                <h2 className="text-2xl font-bold font-space-grotesk text-foreground text-center">
+                  {member.name}
+                </h2>
+                <span className="mt-1 px-3 py-1 rounded text-xs font-mono-tech text-brand-accent bg-brand/15 border border-brand/30 uppercase tracking-wider">
+                  {member.post}
+                </span>
 
-              <div className="flex gap-4 mt-6">
-                {member.instagram && (
-                  <a
-                    href={member.instagram}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-2 rounded-lg bg-background border border-brand/30 hover:border-brand-accent hover:text-brand-accent transition-all"
-                  >
-                    <Instagram className="w-5 h-5" />
-                  </a>
+                {member.quote && (
+                  <p className="mt-4 px-4 py-3 text-xs md:text-sm font-space-grotesk text-muted-foreground text-center italic bg-background/60 rounded-lg border border-brand/20">
+                    &ldquo;{member.quote}&rdquo;
+                  </p>
                 )}
-                {member.github && (
-                  <a
-                    href={member.github}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-2 rounded-lg bg-background border border-brand/30 hover:border-brand-accent hover:text-brand-accent transition-all"
-                  >
-                    <Github className="w-5 h-5" />
-                  </a>
-                )}
-                {member.linkedin && (
-                  <a
-                    href={member.linkedin}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-2 rounded-lg bg-background border border-brand/30 hover:border-brand-accent hover:text-brand-accent transition-all"
-                  >
-                    <Linkedin className="w-5 h-5" />
-                  </a>
-                )}
+
+                <div className="flex gap-4 mt-6">
+                  {member.instagram && (
+                    <a
+                      href={member.instagram}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-2 rounded-lg bg-background border border-brand/30 hover:border-brand-accent hover:text-brand-accent transition-all"
+                    >
+                      <Instagram className="w-5 h-5" />
+                    </a>
+                  )}
+                  {member.github && (
+                    <a
+                      href={member.github}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-2 rounded-lg bg-background border border-brand/30 hover:border-brand-accent hover:text-brand-accent transition-all"
+                    >
+                      <Github className="w-5 h-5" />
+                    </a>
+                  )}
+                  {member.linkedin && (
+                    <a
+                      href={member.linkedin}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-2 rounded-lg bg-background border border-brand/30 hover:border-brand-accent hover:text-brand-accent transition-all"
+                    >
+                      <Linkedin className="w-5 h-5" />
+                    </a>
+                  )}
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        </ClientPortal>
       )}
     </>
   );

@@ -4,7 +4,7 @@ import { GithubIcon, InstagramIcon, LinkedinIcon } from "lucide-react";
 
 export default function Footer() {
   return (
-    <footer className="w-full bg-background bg-blueprint-grid border-t border-brand/15 mt-16 py-8 relative z-30 text-foreground">
+    <footer className="w-full bg-background bg-blueprint-grid border-t border-brand/15 mt-16 py-8 text-foreground">
       <div className="flex w-full flex-col items-center justify-center px-4 max-w-6xl mx-auto space-y-4">
         {/* Social Links */}
         <div className="flex items-center space-x-6 text-muted-foreground">

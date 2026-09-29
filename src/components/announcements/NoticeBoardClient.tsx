@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import CircuitTrace from "@/components/ui/circuit-ink/CircuitTrace";
 import TechnicalLabel from "@/components/ui/circuit-ink/TechnicalLabel";
+import ClientPortal from "@/components/ui/ClientPortal";
 
 export type NoticeType = "ALL" | "ANNOUNCEMENT" | "EVENT" | "FORM" | "GALLERY";
 
@@ -63,6 +64,17 @@ export default function NoticeBoardClient({ initialNotices }: NoticeBoardClientP
   // Lightbox State for Photo Galleries
   const [activeGalleryPhotos, setActiveGalleryPhotos] = useState<string[] | null>(null);
   const [galleryPhotoIndex, setGalleryPhotoIndex] = useState(0);
+
+  useEffect(() => {
+    if (activeGalleryPhotos) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [activeGalleryPhotos]);
 
   const openLightbox = (photos: string[], index: number = 0) => {
     setActiveGalleryPhotos(photos);
@@ -324,55 +336,60 @@ export default function NoticeBoardClient({ initialNotices }: NoticeBoardClientP
 
       {/* Lightbox Modal for Photo Gallery */}
       {activeGalleryPhotos && (
-        <div
-          onClick={closeLightbox}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-fadeIn"
-        >
+        <ClientPortal>
           <div
-            onClick={(e) => e.stopPropagation()}
-            className="relative w-full max-w-4xl max-h-[90vh] flex flex-col items-center justify-center"
+            onClick={closeLightbox}
+            className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-fadeIn"
           >
-            {/* Close Button */}
-            <button
-              onClick={closeLightbox}
-              className="absolute -top-12 right-0 text-white hover:text-red-400 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className="relative w-full max-w-4xl max-h-[90vh] flex flex-col items-center justify-center"
             >
-              <XIcon className="w-6 h-6" />
-            </button>
+              {/* Close Button */}
+              <button
+                onClick={closeLightbox}
+                className="absolute -top-12 right-0 text-white hover:text-red-400 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors cursor-pointer"
+                aria-label="Close lightbox"
+              >
+                <XIcon className="w-6 h-6" />
+              </button>
 
-            {/* Photo Container */}
-            <div className="relative w-full aspect-video rounded-xl overflow-hidden border border-white/20 shadow-2xl bg-black">
-              <img
-                src={activeGalleryPhotos[galleryPhotoIndex]}
-                alt="Highlight preview"
-                className="w-full h-full object-contain"
-              />
+              {/* Photo Container */}
+              <div className="relative w-full aspect-video rounded-xl overflow-hidden border border-white/20 shadow-2xl bg-black">
+                <img
+                  src={activeGalleryPhotos[galleryPhotoIndex]}
+                  alt="Highlight preview"
+                  className="w-full h-full object-contain"
+                />
 
-              {/* Prev / Next Controls */}
-              {activeGalleryPhotos.length > 1 && (
-                <>
-                  <button
-                    onClick={prevPhoto}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/60 hover:bg-black/80 text-white transition-all border border-white/20 cursor-pointer"
-                  >
-                    <ChevronLeftIcon className="w-5 h-5" />
-                  </button>
-                  <button
-                    onClick={nextPhoto}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/60 hover:bg-black/80 text-white transition-all border border-white/20 cursor-pointer"
-                  >
-                    <ChevronRightIcon className="w-5 h-5" />
-                  </button>
-                </>
-              )}
-            </div>
+                {/* Prev / Next Controls */}
+                {activeGalleryPhotos.length > 1 && (
+                  <>
+                    <button
+                      onClick={prevPhoto}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/60 hover:bg-black/80 text-white transition-all border border-white/20 cursor-pointer"
+                      aria-label="Previous photo"
+                    >
+                      <ChevronLeftIcon className="w-5 h-5" />
+                    </button>
+                    <button
+                      onClick={nextPhoto}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/60 hover:bg-black/80 text-white transition-all border border-white/20 cursor-pointer"
+                      aria-label="Next photo"
+                    >
+                      <ChevronRightIcon className="w-5 h-5" />
+                    </button>
+                  </>
+                )}
+              </div>
 
-            {/* Counter Footer */}
-            <div className="mt-3 text-xs font-mono-tech text-slate-400">
-              PHOTO {galleryPhotoIndex + 1} OF {activeGalleryPhotos.length}
+              {/* Counter Footer */}
+              <div className="mt-3 text-xs font-mono-tech text-slate-400">
+                PHOTO {galleryPhotoIndex + 1} OF {activeGalleryPhotos.length}
+              </div>
             </div>
           </div>
-        </div>
+        </ClientPortal>
       )}
     </div>
   );

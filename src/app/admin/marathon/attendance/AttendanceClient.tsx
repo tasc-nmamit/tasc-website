@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   Calendar as CalendarIcon,
@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import CircuitTrace from "@/components/ui/circuit-ink/CircuitTrace";
 import { MarathonBatch, BATCH_DETAILS, MARATHON_BATCHES } from "@/lib/marathon-batches";
+import ClientPortal from "@/components/ui/ClientPortal";
 
 interface Student {
   id: string;
@@ -84,6 +85,17 @@ export default function AttendanceClient({
 
   // Scheduling Modal State
   const [isScheduleOpen, setIsScheduleOpen] = useState(false);
+
+  useEffect(() => {
+    if (isScheduleOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isScheduleOpen]);
   const [schedDate, setSchedDate] = useState<string>(
     today.toISOString().split("T")[0]
   );
@@ -868,8 +880,9 @@ export default function AttendanceClient({
       {/* SCHEDULE CLASS MODAL */}
       {/* ========================================================================= */}
       {isScheduleOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in">
-          <div className="w-full max-w-lg rounded-2xl border border-brand/30 bg-background/95 p-6 shadow-2xl relative overflow-hidden">
+        <ClientPortal>
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in overflow-y-auto">
+            <div className="w-full max-w-lg rounded-2xl border border-brand/30 bg-background/95 p-6 shadow-2xl relative overflow-hidden my-auto">
             <CircuitTrace corners={true} />
 
             <div className="flex items-center justify-between pb-4 border-b border-brand/15">
@@ -1026,6 +1039,7 @@ export default function AttendanceClient({
             </form>
           </div>
         </div>
+      </ClientPortal>
       )}
     </div>
   );
