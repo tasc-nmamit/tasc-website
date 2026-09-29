@@ -210,11 +210,13 @@
 @font-face {
   font-family: "Koulen";
   src: url("/fonts/Koulen-Regular.ttf");
+  font-display: swap;
 }
 
 @font-face {
   font-family: "LuxuriousScript";
   src: url("/fonts/LuxuriousScript-Regular.ttf");
+  font-display: swap;
 }
 
 .grid-container {

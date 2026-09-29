@@ -119,6 +119,8 @@ model Core {
   quote   String?
   section TeamSection @default(ADMIN)
   User    User        @relation(fields: [userId], references: [id])
+
+  @@index([year, order])
 }
 
 model Faculty {
@@ -165,6 +167,8 @@ model Event {
   winners                Winners[]
   organizers             User[]             @relation("EventToUser")
   customFields           EventCustomField[]
+
+  @@index([published, date])
 }
 
 model EventCustomField {

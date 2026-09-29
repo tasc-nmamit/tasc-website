@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
@@ -27,7 +27,7 @@ export default function Navbar() {
 
   const [mounted, setMounted] = useState(false);
   const [visible, setVisible] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
+  const lastScrollYRef = useRef(0);
 
   useEffect(() => {
     setMounted(true);
@@ -37,24 +37,22 @@ export default function Navbar() {
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
+      const lastY = lastScrollYRef.current;
 
       if (currentScrollY < 25) {
-        // At the very top, always show navbar
         setVisible(true);
-      } else if (currentScrollY > lastScrollY && currentScrollY > 60) {
-        // Scrolling down past threshold -> hide navbar
+      } else if (currentScrollY > lastY && currentScrollY > 60) {
         setVisible(false);
-      } else if (currentScrollY < lastScrollY) {
-        // Scrolling up -> reveal navbar
+      } else if (currentScrollY < lastY) {
         setVisible(true);
       }
 
-      setLastScrollY(currentScrollY);
+      lastScrollYRef.current = currentScrollY;
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [lastScrollY]);
+  }, []);
 
   // Filter nav items based on auth state
   const visibleNavItems = NAVITEM.filter((item) => {

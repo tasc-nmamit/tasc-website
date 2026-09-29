@@ -4,7 +4,7 @@ import NoticeBoardClient, { NoticeItem } from "@/components/announcements/Notice
 import TechnicalLabel from "@/components/ui/circuit-ink/TechnicalLabel";
 import CircuitTrace from "@/components/ui/circuit-ink/CircuitTrace";
 
-export const dynamic = "force-dynamic";
+
 
 export default async function AnnouncementsPage() {
   await requireAiml();

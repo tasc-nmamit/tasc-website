@@ -3,7 +3,7 @@ import { getSession } from "@/lib/auth-guards";
 import TerminalAccordionStream, { FormItem } from "@/components/forms/TerminalAccordionStream";
 import TechnicalLabel from "@/components/ui/circuit-ink/TechnicalLabel";
 
-export const dynamic = "force-dynamic";
+
 
 export default async function FormsListPage() {
   const session = await getSession();

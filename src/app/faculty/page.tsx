@@ -1,7 +1,7 @@
 import FacultyView from "@/components/faculty/FacultyView";
 import { db } from "@/lib/db";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300; // ISR: revalidate every 5 minutes
 
 export default async function FacultyPage() {
   const faculties = await db.faculty.findMany({

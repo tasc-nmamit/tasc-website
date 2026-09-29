@@ -6,6 +6,8 @@ import ScrollReveal from "@/components/ui/ScrollReveal";
 import { db } from "@/lib/db";
 import { CalendarIcon, UsersIcon, TrophyIcon, ArrowRightIcon } from "lucide-react";
 
+export const revalidate = 60; // ISR: revalidate home page every 60s
+
 export default async function Home() {
   const latestCore = await db.core.findFirst({
     orderBy: { year: "desc" },

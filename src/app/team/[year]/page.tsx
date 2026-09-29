@@ -6,6 +6,8 @@ interface PageProps {
   params: Promise<{ year: string }>;
 }
 
+export const revalidate = 300; // ISR: revalidate team page every 5 minutes
+
 export default async function TeamPage({ params }: PageProps) {
   const { year } = await params;
 

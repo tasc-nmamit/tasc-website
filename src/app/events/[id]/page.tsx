@@ -112,9 +112,10 @@ export default async function EventDetailsPage({ params }: PageProps) {
           <CircuitTrace corners={true} />
 
           <Image
-            src={event.image || "/placeholder.png"}
+            src={event.image || "/fallback-image.jpg"}
             alt={event.title}
             fill
+            sizes="(max-width: 1024px) 100vw, 1024px"
             className="object-cover transition-transform duration-1000 group-hover:scale-105"
             priority
           />

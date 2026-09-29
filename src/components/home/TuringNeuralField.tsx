@@ -40,10 +40,13 @@ export default function TuringNeuralField() {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) return;
 
     let animationFrameId: number;
+    let isVisible = true;
+    let lastFrameTime = 0;
+    const FRAME_INTERVAL = 1000 / 30; // Cap at 30fps
     let width = (canvas.width = window.innerWidth);
     let height = (canvas.height = window.innerHeight);
 
@@ -55,8 +58,11 @@ export default function TuringNeuralField() {
       isHovered: false,
     };
 
-    // Responsive node count
-    const nodeCount = Math.min(65, Math.floor((width * height) / 18000));
+    // Responsive node count — fewer on mobile for performance
+    const isMobile = width < 768;
+    const nodeCount = isMobile
+      ? Math.min(25, Math.floor((width * height) / 30000))
+      : Math.min(50, Math.floor((width * height) / 22000));
     const nodes: Node[] = [];
     const colors = [
       "rgba(139, 92, 246, ",  // Brand violet / amethyst
@@ -80,8 +86,8 @@ export default function TuringNeuralField() {
       });
     }
 
-    // Algorithmic Floating Tokens
-    const tokenCount = Math.min(12, Math.floor(width / 110));
+    // Algorithmic Floating Tokens — fewer on mobile
+    const tokenCount = isMobile ? Math.min(4, Math.floor(width / 200)) : Math.min(10, Math.floor(width / 130));
     const tokens: Token[] = [];
     for (let i = 0; i < tokenCount; i++) {
       tokens.push({
@@ -139,7 +145,14 @@ export default function TuringNeuralField() {
 
     const maxDistance = 145;
 
-    const render = () => {
+    const render = (timestamp: number) => {
+      animationFrameId = requestAnimationFrame(render);
+
+      // Skip frame if not visible or too soon
+      if (!isVisible) return;
+      if (timestamp - lastFrameTime < FRAME_INTERVAL) return;
+      lastFrameTime = timestamp;
+
       ctx.clearRect(0, 0, width, height);
 
       // 1. Draw subtle floating Turing/AI tokens
@@ -286,13 +299,28 @@ export default function TuringNeuralField() {
         ctx.shadowBlur = 0;
       }
 
-      animationFrameId = requestAnimationFrame(render);
     };
 
-    render();
+    // IntersectionObserver to pause when off-screen
+    const observer = new IntersectionObserver(
+      ([entry]) => { isVisible = entry.isIntersecting; },
+      { threshold: 0.05 }
+    );
+    observer.observe(canvas);
+
+    // Visibility API to pause when tab is hidden
+    const handleVisibilityChange = () => {
+      if (document.hidden) isVisible = false;
+      // Let IntersectionObserver re-enable when tab is visible
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    animationFrameId = requestAnimationFrame(render);
 
     return () => {
       cancelAnimationFrame(animationFrameId);
+      observer.disconnect();
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
       window.removeEventListener("resize", handleResize);
       window.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseleave", handleMouseLeave);

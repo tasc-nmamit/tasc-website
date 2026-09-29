@@ -2,13 +2,35 @@ import { db } from "@/lib/db";
 import { EventsView } from "@/components/events/EventsView";
 import { Event } from "@/lib/types/Event";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60; // ISR: revalidate every 60 seconds
 
 export default async function EventsPage() {
   const eventsData = await db.event.findMany({
     orderBy: { date: "desc" },
     where: {
       published: true,
+    },
+    select: {
+      id: true,
+      slug: true,
+      title: true,
+      image: true,
+      date: true,
+      endDate: true,
+      time: true,
+      type: true,
+      venue: true,
+      description: true,
+      brief: true,
+      status: true,
+      minTeamSize: true,
+      maxTeamSize: true,
+      maxTeams: true,
+      guests: true,
+      reportLink: true,
+      published: true,
+      registrationStartTime: true,
+      registrationsAvailable: true,
     },
   });
 
@@ -34,6 +56,7 @@ export default async function EventsPage() {
       type: e.type,
       venue: e.venue,
       description: e.description,
+      brief: e.brief,
       status: isScheduled ? "SCHEDULED" : e.status,
       minTeamSize: e.minTeamSize,
       maxTeamSize: e.maxTeamSize,
@@ -55,3 +78,4 @@ export default async function EventsPage() {
     </main>
   );
 }
+
