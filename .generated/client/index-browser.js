@@ -350,6 +350,7 @@ exports.Prisma.MarathonWeeklyContestScalarFieldEnum = {
   description: 'description',
   link: 'link',
   slug: 'slug',
+  quizLink: 'quizLink',
   isConfirmed: 'isConfirmed'
 };
 
@@ -358,6 +359,8 @@ exports.Prisma.MarathonWeeklyScoreScalarFieldEnum = {
   userId: 'userId',
   contestId: 'contestId',
   score: 'score',
+  quizScore: 'quizScore',
+  contestScore: 'contestScore',
   completed: 'completed',
   updatedAt: 'updatedAt'
 };

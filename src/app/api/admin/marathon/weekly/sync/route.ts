@@ -62,6 +62,13 @@ export async function POST(request: Request) {
         const userId = hrToUserId.get(hrUser.hacker);
         if (!userId) continue; 
 
+        const existing = await tx.marathonWeeklyScore.findUnique({
+          where: { userId_contestId: { userId, contestId } }
+        });
+
+        const currentQuizScore = existing?.quizScore || 0;
+        const totalScore = currentQuizScore + hrUser.score;
+
         await tx.marathonWeeklyScore.upsert({
           where: {
             userId_contestId: { userId, contestId }
@@ -69,12 +76,15 @@ export async function POST(request: Request) {
           create: {
             userId,
             contestId,
-            score: hrUser.score,
-            completed: hrUser.score > 0
+            quizScore: 0,
+            contestScore: hrUser.score,
+            score: totalScore,
+            completed: totalScore > 0
           },
           update: {
-            score: hrUser.score,
-            completed: hrUser.score > 0
+            contestScore: hrUser.score,
+            score: totalScore,
+            completed: totalScore > 0
           }
         });
         updatedCount++;

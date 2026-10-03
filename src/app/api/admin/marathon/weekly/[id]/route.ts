@@ -9,19 +9,59 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
   }
 
   try {
-    const { slug } = await request.json();
+    const { slug, date, deadline } = await request.json();
     const params = await context.params;
 
-    if (slug === undefined) {
-      return NextResponse.json({ error: "Missing slug" }, { status: 400 });
-    }
+    const data: any = {};
+    if (slug !== undefined) data.slug = slug;
+    if (date !== undefined) data.date = new Date(date);
+    if (deadline !== undefined) data.deadline = new Date(deadline);
 
     const updated = await db.marathonWeeklyContest.update({
       where: { id: params.id },
-      data: { slug },
+      data,
     });
 
     return NextResponse.json(updated);
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: Request, context: { params: Promise<{ id: string }> }) {
+  const session = await auth();
+  if (!session?.user?.id || (session.user.role !== "ADMIN" && session.user.role !== "OWNER")) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+  }
+
+  try {
+    const params = await context.params;
+    const contest = await db.marathonWeeklyContest.findUnique({
+      where: { id: params.id },
+      include: { scores: true }
+    });
+
+    if (!contest) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
+    await db.$transaction(async (tx) => {
+      // Deduct points if confirmed
+      if (contest.isConfirmed) {
+        for (const score of contest.scores) {
+          if (score.score > 0) {
+            await tx.user.update({
+              where: { id: score.userId },
+              data: { marathonTotalScore: { decrement: score.score } }
+            });
+          }
+        }
+      }
+
+      await tx.marathonWeeklyContest.delete({
+        where: { id: params.id }
+      });
+    });
+
+    return NextResponse.json({ success: true });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

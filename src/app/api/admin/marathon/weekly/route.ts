@@ -9,7 +9,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const { weekNumber, targetYear, date, deadline, title, description, link } = await request.json();
+    const { weekNumber, targetYear, date, deadline, title, description, link, slug, quizLink } = await request.json();
 
     if (!weekNumber || !targetYear || !date || !deadline || !title || !link) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -24,6 +24,8 @@ export async function POST(request: Request) {
         title,
         description,
         link,
+        slug: slug || null,
+        quizLink: quizLink || null,
       }
     });
 

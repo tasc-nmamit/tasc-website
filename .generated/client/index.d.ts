@@ -25182,6 +25182,7 @@ export namespace Prisma {
     description: string | null
     link: string | null
     slug: string | null
+    quizLink: string | null
     isConfirmed: boolean | null
   }
 
@@ -25195,6 +25196,7 @@ export namespace Prisma {
     description: string | null
     link: string | null
     slug: string | null
+    quizLink: string | null
     isConfirmed: boolean | null
   }
 
@@ -25208,6 +25210,7 @@ export namespace Prisma {
     description: number
     link: number
     slug: number
+    quizLink: number
     isConfirmed: number
     _all: number
   }
@@ -25233,6 +25236,7 @@ export namespace Prisma {
     description?: true
     link?: true
     slug?: true
+    quizLink?: true
     isConfirmed?: true
   }
 
@@ -25246,6 +25250,7 @@ export namespace Prisma {
     description?: true
     link?: true
     slug?: true
+    quizLink?: true
     isConfirmed?: true
   }
 
@@ -25259,6 +25264,7 @@ export namespace Prisma {
     description?: true
     link?: true
     slug?: true
+    quizLink?: true
     isConfirmed?: true
     _all?: true
   }
@@ -25359,6 +25365,7 @@ export namespace Prisma {
     description: string | null
     link: string
     slug: string | null
+    quizLink: string | null
     isConfirmed: boolean
     _count: MarathonWeeklyContestCountAggregateOutputType | null
     _avg: MarathonWeeklyContestAvgAggregateOutputType | null
@@ -25391,6 +25398,7 @@ export namespace Prisma {
     description?: boolean
     link?: boolean
     slug?: boolean
+    quizLink?: boolean
     isConfirmed?: boolean
     scores?: boolean | MarathonWeeklyContest$scoresArgs<ExtArgs>
     _count?: boolean | MarathonWeeklyContestCountOutputTypeDefaultArgs<ExtArgs>
@@ -25406,6 +25414,7 @@ export namespace Prisma {
     description?: boolean
     link?: boolean
     slug?: boolean
+    quizLink?: boolean
     isConfirmed?: boolean
   }, ExtArgs["result"]["marathonWeeklyContest"]>
 
@@ -25419,6 +25428,7 @@ export namespace Prisma {
     description?: boolean
     link?: boolean
     slug?: boolean
+    quizLink?: boolean
     isConfirmed?: boolean
   }, ExtArgs["result"]["marathonWeeklyContest"]>
 
@@ -25432,10 +25442,11 @@ export namespace Prisma {
     description?: boolean
     link?: boolean
     slug?: boolean
+    quizLink?: boolean
     isConfirmed?: boolean
   }
 
-  export type MarathonWeeklyContestOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "weekNumber" | "targetYear" | "date" | "deadline" | "title" | "description" | "link" | "slug" | "isConfirmed", ExtArgs["result"]["marathonWeeklyContest"]>
+  export type MarathonWeeklyContestOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "weekNumber" | "targetYear" | "date" | "deadline" | "title" | "description" | "link" | "slug" | "quizLink" | "isConfirmed", ExtArgs["result"]["marathonWeeklyContest"]>
   export type MarathonWeeklyContestInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     scores?: boolean | MarathonWeeklyContest$scoresArgs<ExtArgs>
     _count?: boolean | MarathonWeeklyContestCountOutputTypeDefaultArgs<ExtArgs>
@@ -25458,6 +25469,7 @@ export namespace Prisma {
       description: string | null
       link: string
       slug: string | null
+      quizLink: string | null
       isConfirmed: boolean
     }, ExtArgs["result"]["marathonWeeklyContest"]>
     composites: {}
@@ -25892,6 +25904,7 @@ export namespace Prisma {
     readonly description: FieldRef<"MarathonWeeklyContest", 'String'>
     readonly link: FieldRef<"MarathonWeeklyContest", 'String'>
     readonly slug: FieldRef<"MarathonWeeklyContest", 'String'>
+    readonly quizLink: FieldRef<"MarathonWeeklyContest", 'String'>
     readonly isConfirmed: FieldRef<"MarathonWeeklyContest", 'Boolean'>
   }
     
@@ -26342,10 +26355,14 @@ export namespace Prisma {
 
   export type MarathonWeeklyScoreAvgAggregateOutputType = {
     score: number | null
+    quizScore: number | null
+    contestScore: number | null
   }
 
   export type MarathonWeeklyScoreSumAggregateOutputType = {
     score: number | null
+    quizScore: number | null
+    contestScore: number | null
   }
 
   export type MarathonWeeklyScoreMinAggregateOutputType = {
@@ -26353,6 +26370,8 @@ export namespace Prisma {
     userId: string | null
     contestId: string | null
     score: number | null
+    quizScore: number | null
+    contestScore: number | null
     completed: boolean | null
     updatedAt: Date | null
   }
@@ -26362,6 +26381,8 @@ export namespace Prisma {
     userId: string | null
     contestId: string | null
     score: number | null
+    quizScore: number | null
+    contestScore: number | null
     completed: boolean | null
     updatedAt: Date | null
   }
@@ -26371,6 +26392,8 @@ export namespace Prisma {
     userId: number
     contestId: number
     score: number
+    quizScore: number
+    contestScore: number
     completed: number
     updatedAt: number
     _all: number
@@ -26379,10 +26402,14 @@ export namespace Prisma {
 
   export type MarathonWeeklyScoreAvgAggregateInputType = {
     score?: true
+    quizScore?: true
+    contestScore?: true
   }
 
   export type MarathonWeeklyScoreSumAggregateInputType = {
     score?: true
+    quizScore?: true
+    contestScore?: true
   }
 
   export type MarathonWeeklyScoreMinAggregateInputType = {
@@ -26390,6 +26417,8 @@ export namespace Prisma {
     userId?: true
     contestId?: true
     score?: true
+    quizScore?: true
+    contestScore?: true
     completed?: true
     updatedAt?: true
   }
@@ -26399,6 +26428,8 @@ export namespace Prisma {
     userId?: true
     contestId?: true
     score?: true
+    quizScore?: true
+    contestScore?: true
     completed?: true
     updatedAt?: true
   }
@@ -26408,6 +26439,8 @@ export namespace Prisma {
     userId?: true
     contestId?: true
     score?: true
+    quizScore?: true
+    contestScore?: true
     completed?: true
     updatedAt?: true
     _all?: true
@@ -26504,6 +26537,8 @@ export namespace Prisma {
     userId: string
     contestId: string
     score: number
+    quizScore: number
+    contestScore: number
     completed: boolean
     updatedAt: Date
     _count: MarathonWeeklyScoreCountAggregateOutputType | null
@@ -26532,6 +26567,8 @@ export namespace Prisma {
     userId?: boolean
     contestId?: boolean
     score?: boolean
+    quizScore?: boolean
+    contestScore?: boolean
     completed?: boolean
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -26543,6 +26580,8 @@ export namespace Prisma {
     userId?: boolean
     contestId?: boolean
     score?: boolean
+    quizScore?: boolean
+    contestScore?: boolean
     completed?: boolean
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -26554,6 +26593,8 @@ export namespace Prisma {
     userId?: boolean
     contestId?: boolean
     score?: boolean
+    quizScore?: boolean
+    contestScore?: boolean
     completed?: boolean
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -26565,11 +26606,13 @@ export namespace Prisma {
     userId?: boolean
     contestId?: boolean
     score?: boolean
+    quizScore?: boolean
+    contestScore?: boolean
     completed?: boolean
     updatedAt?: boolean
   }
 
-  export type MarathonWeeklyScoreOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "contestId" | "score" | "completed" | "updatedAt", ExtArgs["result"]["marathonWeeklyScore"]>
+  export type MarathonWeeklyScoreOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "contestId" | "score" | "quizScore" | "contestScore" | "completed" | "updatedAt", ExtArgs["result"]["marathonWeeklyScore"]>
   export type MarathonWeeklyScoreInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     contest?: boolean | MarathonWeeklyContestDefaultArgs<ExtArgs>
@@ -26594,6 +26637,8 @@ export namespace Prisma {
       userId: string
       contestId: string
       score: number
+      quizScore: number
+      contestScore: number
       completed: boolean
       updatedAt: Date
     }, ExtArgs["result"]["marathonWeeklyScore"]>
@@ -27025,6 +27070,8 @@ export namespace Prisma {
     readonly userId: FieldRef<"MarathonWeeklyScore", 'String'>
     readonly contestId: FieldRef<"MarathonWeeklyScore", 'String'>
     readonly score: FieldRef<"MarathonWeeklyScore", 'Int'>
+    readonly quizScore: FieldRef<"MarathonWeeklyScore", 'Int'>
+    readonly contestScore: FieldRef<"MarathonWeeklyScore", 'Int'>
     readonly completed: FieldRef<"MarathonWeeklyScore", 'Boolean'>
     readonly updatedAt: FieldRef<"MarathonWeeklyScore", 'DateTime'>
   }
@@ -37558,6 +37605,7 @@ export namespace Prisma {
     description: 'description',
     link: 'link',
     slug: 'slug',
+    quizLink: 'quizLink',
     isConfirmed: 'isConfirmed'
   };
 
@@ -37569,6 +37617,8 @@ export namespace Prisma {
     userId: 'userId',
     contestId: 'contestId',
     score: 'score',
+    quizScore: 'quizScore',
+    contestScore: 'contestScore',
     completed: 'completed',
     updatedAt: 'updatedAt'
   };
@@ -39394,6 +39444,7 @@ export namespace Prisma {
     description?: StringNullableFilter<"MarathonWeeklyContest"> | string | null
     link?: StringFilter<"MarathonWeeklyContest"> | string
     slug?: StringNullableFilter<"MarathonWeeklyContest"> | string | null
+    quizLink?: StringNullableFilter<"MarathonWeeklyContest"> | string | null
     isConfirmed?: BoolFilter<"MarathonWeeklyContest"> | boolean
     scores?: MarathonWeeklyScoreListRelationFilter
   }
@@ -39408,6 +39459,7 @@ export namespace Prisma {
     description?: SortOrderInput | SortOrder
     link?: SortOrder
     slug?: SortOrderInput | SortOrder
+    quizLink?: SortOrderInput | SortOrder
     isConfirmed?: SortOrder
     scores?: MarathonWeeklyScoreOrderByRelationAggregateInput
   }
@@ -39426,6 +39478,7 @@ export namespace Prisma {
     description?: StringNullableFilter<"MarathonWeeklyContest"> | string | null
     link?: StringFilter<"MarathonWeeklyContest"> | string
     slug?: StringNullableFilter<"MarathonWeeklyContest"> | string | null
+    quizLink?: StringNullableFilter<"MarathonWeeklyContest"> | string | null
     isConfirmed?: BoolFilter<"MarathonWeeklyContest"> | boolean
     scores?: MarathonWeeklyScoreListRelationFilter
   }, "id" | "weekNumber_targetYear">
@@ -39440,6 +39493,7 @@ export namespace Prisma {
     description?: SortOrderInput | SortOrder
     link?: SortOrder
     slug?: SortOrderInput | SortOrder
+    quizLink?: SortOrderInput | SortOrder
     isConfirmed?: SortOrder
     _count?: MarathonWeeklyContestCountOrderByAggregateInput
     _avg?: MarathonWeeklyContestAvgOrderByAggregateInput
@@ -39461,6 +39515,7 @@ export namespace Prisma {
     description?: StringNullableWithAggregatesFilter<"MarathonWeeklyContest"> | string | null
     link?: StringWithAggregatesFilter<"MarathonWeeklyContest"> | string
     slug?: StringNullableWithAggregatesFilter<"MarathonWeeklyContest"> | string | null
+    quizLink?: StringNullableWithAggregatesFilter<"MarathonWeeklyContest"> | string | null
     isConfirmed?: BoolWithAggregatesFilter<"MarathonWeeklyContest"> | boolean
   }
 
@@ -39472,6 +39527,8 @@ export namespace Prisma {
     userId?: StringFilter<"MarathonWeeklyScore"> | string
     contestId?: StringFilter<"MarathonWeeklyScore"> | string
     score?: IntFilter<"MarathonWeeklyScore"> | number
+    quizScore?: IntFilter<"MarathonWeeklyScore"> | number
+    contestScore?: IntFilter<"MarathonWeeklyScore"> | number
     completed?: BoolFilter<"MarathonWeeklyScore"> | boolean
     updatedAt?: DateTimeFilter<"MarathonWeeklyScore"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
@@ -39483,6 +39540,8 @@ export namespace Prisma {
     userId?: SortOrder
     contestId?: SortOrder
     score?: SortOrder
+    quizScore?: SortOrder
+    contestScore?: SortOrder
     completed?: SortOrder
     updatedAt?: SortOrder
     user?: UserOrderByWithRelationInput
@@ -39498,6 +39557,8 @@ export namespace Prisma {
     userId?: StringFilter<"MarathonWeeklyScore"> | string
     contestId?: StringFilter<"MarathonWeeklyScore"> | string
     score?: IntFilter<"MarathonWeeklyScore"> | number
+    quizScore?: IntFilter<"MarathonWeeklyScore"> | number
+    contestScore?: IntFilter<"MarathonWeeklyScore"> | number
     completed?: BoolFilter<"MarathonWeeklyScore"> | boolean
     updatedAt?: DateTimeFilter<"MarathonWeeklyScore"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
@@ -39509,6 +39570,8 @@ export namespace Prisma {
     userId?: SortOrder
     contestId?: SortOrder
     score?: SortOrder
+    quizScore?: SortOrder
+    contestScore?: SortOrder
     completed?: SortOrder
     updatedAt?: SortOrder
     _count?: MarathonWeeklyScoreCountOrderByAggregateInput
@@ -39526,6 +39589,8 @@ export namespace Prisma {
     userId?: StringWithAggregatesFilter<"MarathonWeeklyScore"> | string
     contestId?: StringWithAggregatesFilter<"MarathonWeeklyScore"> | string
     score?: IntWithAggregatesFilter<"MarathonWeeklyScore"> | number
+    quizScore?: IntWithAggregatesFilter<"MarathonWeeklyScore"> | number
+    contestScore?: IntWithAggregatesFilter<"MarathonWeeklyScore"> | number
     completed?: BoolWithAggregatesFilter<"MarathonWeeklyScore"> | boolean
     updatedAt?: DateTimeWithAggregatesFilter<"MarathonWeeklyScore"> | Date | string
   }
@@ -41720,6 +41785,7 @@ export namespace Prisma {
     description?: string | null
     link: string
     slug?: string | null
+    quizLink?: string | null
     isConfirmed?: boolean
     scores?: MarathonWeeklyScoreCreateNestedManyWithoutContestInput
   }
@@ -41734,6 +41800,7 @@ export namespace Prisma {
     description?: string | null
     link: string
     slug?: string | null
+    quizLink?: string | null
     isConfirmed?: boolean
     scores?: MarathonWeeklyScoreUncheckedCreateNestedManyWithoutContestInput
   }
@@ -41748,6 +41815,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     link?: StringFieldUpdateOperationsInput | string
     slug?: NullableStringFieldUpdateOperationsInput | string | null
+    quizLink?: NullableStringFieldUpdateOperationsInput | string | null
     isConfirmed?: BoolFieldUpdateOperationsInput | boolean
     scores?: MarathonWeeklyScoreUpdateManyWithoutContestNestedInput
   }
@@ -41762,6 +41830,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     link?: StringFieldUpdateOperationsInput | string
     slug?: NullableStringFieldUpdateOperationsInput | string | null
+    quizLink?: NullableStringFieldUpdateOperationsInput | string | null
     isConfirmed?: BoolFieldUpdateOperationsInput | boolean
     scores?: MarathonWeeklyScoreUncheckedUpdateManyWithoutContestNestedInput
   }
@@ -41776,6 +41845,7 @@ export namespace Prisma {
     description?: string | null
     link: string
     slug?: string | null
+    quizLink?: string | null
     isConfirmed?: boolean
   }
 
@@ -41789,6 +41859,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     link?: StringFieldUpdateOperationsInput | string
     slug?: NullableStringFieldUpdateOperationsInput | string | null
+    quizLink?: NullableStringFieldUpdateOperationsInput | string | null
     isConfirmed?: BoolFieldUpdateOperationsInput | boolean
   }
 
@@ -41802,12 +41873,15 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     link?: StringFieldUpdateOperationsInput | string
     slug?: NullableStringFieldUpdateOperationsInput | string | null
+    quizLink?: NullableStringFieldUpdateOperationsInput | string | null
     isConfirmed?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type MarathonWeeklyScoreCreateInput = {
     id?: string
     score?: number
+    quizScore?: number
+    contestScore?: number
     completed?: boolean
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutMarathonWeeklyScoresInput
@@ -41819,6 +41893,8 @@ export namespace Prisma {
     userId: string
     contestId: string
     score?: number
+    quizScore?: number
+    contestScore?: number
     completed?: boolean
     updatedAt?: Date | string
   }
@@ -41826,6 +41902,8 @@ export namespace Prisma {
   export type MarathonWeeklyScoreUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     score?: IntFieldUpdateOperationsInput | number
+    quizScore?: IntFieldUpdateOperationsInput | number
+    contestScore?: IntFieldUpdateOperationsInput | number
     completed?: BoolFieldUpdateOperationsInput | boolean
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutMarathonWeeklyScoresNestedInput
@@ -41837,6 +41915,8 @@ export namespace Prisma {
     userId?: StringFieldUpdateOperationsInput | string
     contestId?: StringFieldUpdateOperationsInput | string
     score?: IntFieldUpdateOperationsInput | number
+    quizScore?: IntFieldUpdateOperationsInput | number
+    contestScore?: IntFieldUpdateOperationsInput | number
     completed?: BoolFieldUpdateOperationsInput | boolean
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -41846,6 +41926,8 @@ export namespace Prisma {
     userId: string
     contestId: string
     score?: number
+    quizScore?: number
+    contestScore?: number
     completed?: boolean
     updatedAt?: Date | string
   }
@@ -41853,6 +41935,8 @@ export namespace Prisma {
   export type MarathonWeeklyScoreUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     score?: IntFieldUpdateOperationsInput | number
+    quizScore?: IntFieldUpdateOperationsInput | number
+    contestScore?: IntFieldUpdateOperationsInput | number
     completed?: BoolFieldUpdateOperationsInput | boolean
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -41862,6 +41946,8 @@ export namespace Prisma {
     userId?: StringFieldUpdateOperationsInput | string
     contestId?: StringFieldUpdateOperationsInput | string
     score?: IntFieldUpdateOperationsInput | number
+    quizScore?: IntFieldUpdateOperationsInput | number
+    contestScore?: IntFieldUpdateOperationsInput | number
     completed?: BoolFieldUpdateOperationsInput | boolean
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -43796,6 +43882,7 @@ export namespace Prisma {
     description?: SortOrder
     link?: SortOrder
     slug?: SortOrder
+    quizLink?: SortOrder
     isConfirmed?: SortOrder
   }
 
@@ -43814,6 +43901,7 @@ export namespace Prisma {
     description?: SortOrder
     link?: SortOrder
     slug?: SortOrder
+    quizLink?: SortOrder
     isConfirmed?: SortOrder
   }
 
@@ -43827,6 +43915,7 @@ export namespace Prisma {
     description?: SortOrder
     link?: SortOrder
     slug?: SortOrder
+    quizLink?: SortOrder
     isConfirmed?: SortOrder
   }
 
@@ -43850,12 +43939,16 @@ export namespace Prisma {
     userId?: SortOrder
     contestId?: SortOrder
     score?: SortOrder
+    quizScore?: SortOrder
+    contestScore?: SortOrder
     completed?: SortOrder
     updatedAt?: SortOrder
   }
 
   export type MarathonWeeklyScoreAvgOrderByAggregateInput = {
     score?: SortOrder
+    quizScore?: SortOrder
+    contestScore?: SortOrder
   }
 
   export type MarathonWeeklyScoreMaxOrderByAggregateInput = {
@@ -43863,6 +43956,8 @@ export namespace Prisma {
     userId?: SortOrder
     contestId?: SortOrder
     score?: SortOrder
+    quizScore?: SortOrder
+    contestScore?: SortOrder
     completed?: SortOrder
     updatedAt?: SortOrder
   }
@@ -43872,12 +43967,16 @@ export namespace Prisma {
     userId?: SortOrder
     contestId?: SortOrder
     score?: SortOrder
+    quizScore?: SortOrder
+    contestScore?: SortOrder
     completed?: SortOrder
     updatedAt?: SortOrder
   }
 
   export type MarathonWeeklyScoreSumOrderByAggregateInput = {
     score?: SortOrder
+    quizScore?: SortOrder
+    contestScore?: SortOrder
   }
 
   export type EnumWinnerTypeFilter<$PrismaModel = never> = {
@@ -46700,6 +46799,8 @@ export namespace Prisma {
   export type MarathonWeeklyScoreCreateWithoutUserInput = {
     id?: string
     score?: number
+    quizScore?: number
+    contestScore?: number
     completed?: boolean
     updatedAt?: Date | string
     contest: MarathonWeeklyContestCreateNestedOneWithoutScoresInput
@@ -46709,6 +46810,8 @@ export namespace Prisma {
     id?: string
     contestId: string
     score?: number
+    quizScore?: number
+    contestScore?: number
     completed?: boolean
     updatedAt?: Date | string
   }
@@ -47079,6 +47182,8 @@ export namespace Prisma {
     userId?: StringFilter<"MarathonWeeklyScore"> | string
     contestId?: StringFilter<"MarathonWeeklyScore"> | string
     score?: IntFilter<"MarathonWeeklyScore"> | number
+    quizScore?: IntFilter<"MarathonWeeklyScore"> | number
+    contestScore?: IntFilter<"MarathonWeeklyScore"> | number
     completed?: BoolFilter<"MarathonWeeklyScore"> | boolean
     updatedAt?: DateTimeFilter<"MarathonWeeklyScore"> | Date | string
   }
@@ -50101,6 +50206,8 @@ export namespace Prisma {
   export type MarathonWeeklyScoreCreateWithoutContestInput = {
     id?: string
     score?: number
+    quizScore?: number
+    contestScore?: number
     completed?: boolean
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutMarathonWeeklyScoresInput
@@ -50110,6 +50217,8 @@ export namespace Prisma {
     id?: string
     userId: string
     score?: number
+    quizScore?: number
+    contestScore?: number
     completed?: boolean
     updatedAt?: Date | string
   }
@@ -50241,6 +50350,7 @@ export namespace Prisma {
     description?: string | null
     link: string
     slug?: string | null
+    quizLink?: string | null
     isConfirmed?: boolean
   }
 
@@ -50254,6 +50364,7 @@ export namespace Prisma {
     description?: string | null
     link: string
     slug?: string | null
+    quizLink?: string | null
     isConfirmed?: boolean
   }
 
@@ -50380,6 +50491,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     link?: StringFieldUpdateOperationsInput | string
     slug?: NullableStringFieldUpdateOperationsInput | string | null
+    quizLink?: NullableStringFieldUpdateOperationsInput | string | null
     isConfirmed?: BoolFieldUpdateOperationsInput | boolean
   }
 
@@ -50393,6 +50505,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     link?: StringFieldUpdateOperationsInput | string
     slug?: NullableStringFieldUpdateOperationsInput | string | null
+    quizLink?: NullableStringFieldUpdateOperationsInput | string | null
     isConfirmed?: BoolFieldUpdateOperationsInput | boolean
   }
 
@@ -51388,6 +51501,8 @@ export namespace Prisma {
     id?: string
     contestId: string
     score?: number
+    quizScore?: number
+    contestScore?: number
     completed?: boolean
     updatedAt?: Date | string
   }
@@ -51677,6 +51792,8 @@ export namespace Prisma {
   export type MarathonWeeklyScoreUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     score?: IntFieldUpdateOperationsInput | number
+    quizScore?: IntFieldUpdateOperationsInput | number
+    contestScore?: IntFieldUpdateOperationsInput | number
     completed?: BoolFieldUpdateOperationsInput | boolean
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     contest?: MarathonWeeklyContestUpdateOneRequiredWithoutScoresNestedInput
@@ -51686,6 +51803,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     contestId?: StringFieldUpdateOperationsInput | string
     score?: IntFieldUpdateOperationsInput | number
+    quizScore?: IntFieldUpdateOperationsInput | number
+    contestScore?: IntFieldUpdateOperationsInput | number
     completed?: BoolFieldUpdateOperationsInput | boolean
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -51694,6 +51813,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     contestId?: StringFieldUpdateOperationsInput | string
     score?: IntFieldUpdateOperationsInput | number
+    quizScore?: IntFieldUpdateOperationsInput | number
+    contestScore?: IntFieldUpdateOperationsInput | number
     completed?: BoolFieldUpdateOperationsInput | boolean
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -52209,6 +52330,8 @@ export namespace Prisma {
     id?: string
     userId: string
     score?: number
+    quizScore?: number
+    contestScore?: number
     completed?: boolean
     updatedAt?: Date | string
   }
@@ -52216,6 +52339,8 @@ export namespace Prisma {
   export type MarathonWeeklyScoreUpdateWithoutContestInput = {
     id?: StringFieldUpdateOperationsInput | string
     score?: IntFieldUpdateOperationsInput | number
+    quizScore?: IntFieldUpdateOperationsInput | number
+    contestScore?: IntFieldUpdateOperationsInput | number
     completed?: BoolFieldUpdateOperationsInput | boolean
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutMarathonWeeklyScoresNestedInput
@@ -52225,6 +52350,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     score?: IntFieldUpdateOperationsInput | number
+    quizScore?: IntFieldUpdateOperationsInput | number
+    contestScore?: IntFieldUpdateOperationsInput | number
     completed?: BoolFieldUpdateOperationsInput | boolean
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -52233,6 +52360,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     score?: IntFieldUpdateOperationsInput | number
+    quizScore?: IntFieldUpdateOperationsInput | number
+    contestScore?: IntFieldUpdateOperationsInput | number
     completed?: BoolFieldUpdateOperationsInput | boolean
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

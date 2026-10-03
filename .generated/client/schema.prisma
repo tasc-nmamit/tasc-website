@@ -308,8 +308,9 @@ model MarathonWeeklyContest {
   deadline    DateTime
   title       String
   description String?
-  link        String
+  link        String // HackerRank contest link
   slug        String?
+  quizLink    String? // Aptitude / technical quiz form link (e.g. Google Form)
   isConfirmed Boolean  @default(false)
 
   scores MarathonWeeklyScore[]
@@ -318,14 +319,16 @@ model MarathonWeeklyContest {
 }
 
 model MarathonWeeklyScore {
-  id        String                @id @default(cuid())
-  userId    String
-  contestId String
-  score     Int                   @default(0)
-  completed Boolean               @default(false)
-  updatedAt DateTime              @updatedAt
-  user      User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  contest   MarathonWeeklyContest @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  id           String                @id @default(cuid())
+  userId       String
+  contestId    String
+  score        Int                   @default(0) // Total = quizScore + contestScore
+  quizScore    Int                   @default(0) // From uploaded quiz CSV
+  contestScore Int                   @default(0) // From HackerRank leaderboard
+  completed    Boolean               @default(false)
+  updatedAt    DateTime              @updatedAt
+  user         User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contest      MarathonWeeklyContest @relation(fields: [contestId], references: [id], onDelete: Cascade)
 
   @@unique([userId, contestId])
 }

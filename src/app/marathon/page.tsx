@@ -402,15 +402,28 @@ export default async function MarathonDashboard() {
 
                 {/* Sharp "Join Sprint" Button */}
                 {currentWeeklyContest ? (
-                  <a
-                    href={currentWeeklyContest.link}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-500 px-6 py-3 text-xs font-bold uppercase tracking-wider text-white transition-colors shrink-0"
-                  >
-                    <span>JOIN SPRINT</span>
-                    <ArrowRightIcon className="h-3.5 w-3.5" />
-                  </a>
+                  <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto shrink-0">
+                    {currentWeeklyContest.quizLink && (
+                      <a
+                        href={currentWeeklyContest.quizLink}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="w-full sm:w-auto inline-flex items-center justify-center gap-2 border border-emerald-500/50 bg-emerald-600/10 hover:bg-emerald-600/20 px-6 py-3 text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 transition-colors"
+                      >
+                        <span>TAKE APTITUDE QUIZ</span>
+                        <ArrowRightIcon className="h-3.5 w-3.5" />
+                      </a>
+                    )}
+                    <a
+                      href={currentWeeklyContest.link}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-500 px-6 py-3 text-xs font-bold uppercase tracking-wider text-white transition-colors"
+                    >
+                      <span>JOIN HR SPRINT</span>
+                      <ArrowRightIcon className="h-3.5 w-3.5" />
+                    </a>
+                  </div>
                 ) : (
                   <button
                     disabled
