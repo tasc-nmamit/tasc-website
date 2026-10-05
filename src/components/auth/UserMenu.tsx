@@ -45,7 +45,13 @@ export default function UserMenu({ user }: UserMenuProps) {
     <div className="relative" ref={menuRef}>
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-2 rounded-full border border-border/50 bg-background/80 p-1 pr-3 backdrop-blur-sm transition-all duration-300 hover:border-brand/50 hover:shadow-lg hover:shadow-brand/10 active:scale-[0.98]"
+        className="flex items-center gap-2 rounded-full border border-border/50 bg-background/80 p-1 pr-3 transition-all duration-300 hover:border-brand/50 hover:shadow-lg hover:shadow-brand/10 active:scale-[0.98]"
+        style={{
+          backdropFilter: "blur(8px)",
+          WebkitBackdropFilter: "blur(8px)",
+          transform: "translate3d(0, 0, 0)",
+          WebkitTransform: "translate3d(0, 0, 0)",
+        }}
       >
         <UserAvatar
           src={user.image}
@@ -73,13 +79,30 @@ export default function UserMenu({ user }: UserMenuProps) {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full z-50 mt-2 w-64 origin-top-right animate-in fade-in slide-in-from-top-2 rounded-2xl border border-border bg-card/95 p-2.5 shadow-2xl backdrop-blur-xl">
+        <div
+          className="absolute right-0 top-full z-50 mt-2 w-64 origin-top-right rounded-2xl border border-border/80 p-2.5 shadow-2xl animate-in fade-in duration-150 isolate overflow-hidden"
+          style={{
+            transform: "translate3d(0, 0, 0)",
+            WebkitTransform: "translate3d(0, 0, 0)",
+          }}
+        >
+          {/* Dedicated Glassmorphic Background Layer for iOS Safari */}
+          <div
+            className="absolute inset-0 -z-10 bg-card/85 dark:bg-card/90"
+            style={{
+              backdropFilter: "blur(20px)",
+              WebkitBackdropFilter: "blur(20px)",
+              transform: "translate3d(0, 0, 0)",
+              WebkitTransform: "translate3d(0, 0, 0)",
+            }}
+          />
+
           {/* User Info */}
           <div className="border-b border-border/30 px-3 py-3">
             <p className="text-sm font-semibold text-foreground">
               {user.name || "User"}
             </p>
-            <p className="mt-0.5 text-xs text-muted-foreground">
+            <p className="mt-0.5 text-xs text-muted-foreground truncate">
               {user.email}
             </p>
             <span
@@ -136,7 +159,7 @@ export default function UserMenu({ user }: UserMenuProps) {
                 setOpen(false);
                 signOut();
               }}
-              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-red-500 transition-colors hover:bg-red-500/10"
+              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-red-500 transition-colors hover:bg-red-500/10 cursor-pointer"
             >
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />

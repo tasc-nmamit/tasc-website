@@ -71,6 +71,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           where: { id: user.id },
           select: {
             id: true,
+            name: true,
             email: true,
             image: true,
             usn: true,
@@ -83,24 +84,35 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         });
 
         if (dbUser) {
-          // If usn is missing and email is nmamit, derive it and persist
-          if (!dbUser.usn && dbUser.email && isNmamitEmail(dbUser.email)) {
-            const derivedUsn = dbUser.email.split("@")[0].toUpperCase();
+          // If usn is missing or AIML details need syncing from nmamit email, update and persist
+          if (dbUser.email && isNmamitEmail(dbUser.email)) {
+            const derivedUsn = dbUser.usn || dbUser.email.split("@")[0].toUpperCase();
             const parsed = parseNmamitEmail(dbUser.email);
-            await db.user.update({
-              where: { id: dbUser.id },
-              data: {
-                usn: derivedUsn,
-                ...(parsed?.isAiml ? { isAiml: true } : {}),
-                ...(parsed?.branch && !dbUser.branch ? { branch: parsed.branch } : {}),
-                ...(parsed?.currentYear && !dbUser.year ? { year: parsed.currentYear } : {}),
-              },
-            });
-            dbUser.usn = derivedUsn;
-            if (parsed?.isAiml) dbUser.isAiml = true;
+            const needsSync = 
+              !dbUser.usn || 
+              (parsed?.isAiml && !dbUser.isAiml) ||
+              (parsed?.branch && !dbUser.branch) ||
+              (parsed?.currentYear && !dbUser.year);
+
+            if (needsSync) {
+              await db.user.update({
+                where: { id: dbUser.id },
+                data: {
+                  usn: derivedUsn,
+                  ...(parsed?.isAiml ? { isAiml: true } : {}),
+                  ...(parsed?.branch && !dbUser.branch ? { branch: parsed.branch } : {}),
+                  ...(parsed?.currentYear && !dbUser.year ? { year: parsed.currentYear } : {}),
+                },
+              });
+              dbUser.usn = derivedUsn;
+              if (parsed?.isAiml) dbUser.isAiml = true;
+              if (parsed?.branch && !dbUser.branch) dbUser.branch = parsed.branch;
+              if (parsed?.currentYear && !dbUser.year) dbUser.year = parsed.currentYear;
+            }
           }
 
           session.user.id = dbUser.id;
+          session.user.name = dbUser.name || session.user.name;
           session.user.image = dbUser.image || session.user.image;
           session.user.usn = dbUser.usn;
           session.user.role = dbUser.email === "nnm24am045@nmamit.in" ? "OWNER" : dbUser.role;

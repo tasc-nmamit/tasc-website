@@ -3,38 +3,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { CareerIntent } from "@prisma";
 
-// Helper to extract clean username from URL or return trimmed username
-function extractUsername(val: string): string {
-  if (!val) return "";
-  const trimmed = val.trim();
-  try {
-    const url = new URL(trimmed.startsWith("http") ? trimmed : `https://${trimmed}`);
-    const parts = url.pathname.split("/").filter(Boolean);
-    return parts[parts.length - 1] || trimmed;
-  } catch {
-    return trimmed;
-  }
-}
-
-// Helper to normalize LeetCode URL
-function normalizeLeetCode(val: string): string {
-  const trimmed = val.trim();
-  if (!trimmed) return "";
-  if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
-    return trimmed;
-  }
-  return `https://leetcode.com/u/${trimmed.replace(/^\/+/, "")}`;
-}
-
-// Helper to normalize GitHub URL
-function normalizeGitHub(val: string): string {
-  const trimmed = val.trim();
-  if (!trimmed) return "";
-  if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
-    return trimmed;
-  }
-  return `https://github.com/${trimmed.replace(/^\/+/, "")}`;
-}
+import { extractHackerRankUsername, normalizeLeetCode, normalizeGitHub } from "@/lib/profile-utils";
 
 export async function POST(request: Request) {
   const session = await auth();
@@ -63,7 +32,7 @@ export async function POST(request: Request) {
     const cleanUsn = typeof usn === "string" ? usn.trim().toUpperCase() : "";
     const cleanPhone = typeof phone === "string" ? phone.trim() : "";
     const cleanYear = parseInt(year);
-    const cleanHackerRank = typeof hackerrankUsername === "string" ? extractUsername(hackerrankUsername) : "";
+    const cleanHackerRank = typeof hackerrankUsername === "string" ? extractHackerRankUsername(hackerrankUsername) : "";
     const cleanLeetCode = typeof leetcodeProfile === "string" ? normalizeLeetCode(leetcodeProfile) : "";
     const cleanGitHub = typeof githubProfile === "string" ? normalizeGitHub(githubProfile) : "";
 

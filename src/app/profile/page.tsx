@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
+import { isNmamitEmail, parseNmamitEmail } from "@/lib/email-parser";
 import ProfileClient from "./ProfileClient";
 
 export default async function ProfilePage() {
@@ -10,12 +11,34 @@ export default async function ProfilePage() {
     redirect("/auth/signin");
   }
 
-  const user = await db.user.findUnique({
+  let user = await db.user.findUnique({
     where: { id: session.user.id },
   });
 
   if (!user) {
     redirect("/");
+  }
+
+  // Auto-sync AIML status and academic details from NMAMIT email if needed
+  if (user.email && isNmamitEmail(user.email)) {
+    const parsed = parseNmamitEmail(user.email);
+    if (
+      parsed &&
+      (!user.usn ||
+        (parsed.isAiml && !user.isAiml) ||
+        (parsed.branch && !user.branch) ||
+        (parsed.currentYear && !user.year))
+    ) {
+      user = await db.user.update({
+        where: { id: user.id },
+        data: {
+          usn: user.usn || user.email.split("@")[0].toUpperCase(),
+          ...(parsed.isAiml ? { isAiml: true } : {}),
+          ...(parsed.branch && !user.branch ? { branch: parsed.branch } : {}),
+          ...(parsed.currentYear && !user.year ? { year: parsed.currentYear } : {}),
+        },
+      });
+    }
   }
 
   return (
@@ -30,7 +53,7 @@ export default async function ProfilePage() {
             Edit <span className="text-gold">Profile</span>
           </h1>
         </div>
-        <ProfileClient user={user} />
+        <ProfileClient key={user.updatedAt?.toISOString() || user.id} user={user} />
       </div>
     </main>
   );
