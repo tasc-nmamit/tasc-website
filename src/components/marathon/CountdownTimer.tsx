@@ -4,7 +4,9 @@ import { useEffect, useState } from "react";
 
 interface CountdownTimerProps {
   deadline: Date | string;
-  variant?: "default" | "red";
+  variant?: "default" | "red" | "amber" | "emerald";
+  expiredLabel?: string;
+  onExpire?: () => void;
 }
 
 interface TimeRemaining {
@@ -29,33 +31,42 @@ function calculateTimeRemaining(targetDate: Date): TimeRemaining {
   return { days, hours, minutes, seconds, isExpired: false };
 }
 
-export default function CountdownTimer({ deadline, variant = "red" }: CountdownTimerProps) {
+export default function CountdownTimer({
+  deadline,
+  variant = "red",
+  expiredLabel = "Sprint Concluded",
+  onExpire,
+}: CountdownTimerProps) {
   const targetDate = new Date(deadline);
   const [timeLeft, setTimeLeft] = useState<TimeRemaining | null>(null);
 
   useEffect(() => {
-    setTimeLeft(calculateTimeRemaining(targetDate));
+    const update = () => {
+      const remaining = calculateTimeRemaining(targetDate);
+      setTimeLeft(remaining);
+      if (remaining.isExpired && onExpire) {
+        onExpire();
+      }
+    };
 
-    const interval = setInterval(() => {
-      setTimeLeft(calculateTimeRemaining(targetDate));
-    }, 1000);
-
+    update();
+    const interval = setInterval(update, 1000);
     return () => clearInterval(interval);
   }, [deadline]);
 
   if (!timeLeft) {
     return (
-      <div className="flex items-center gap-2 py-1 text-muted-foreground">
-        <div className="h-10 w-24 bg-white/10 animate-pulse" />
+      <div className="flex items-center gap-1.5 py-1 text-muted-foreground">
+        <div className="h-9 w-32 bg-muted/40 dark:bg-white/10 animate-pulse rounded-md" />
       </div>
     );
   }
 
   if (timeLeft.isExpired) {
     return (
-      <div className="inline-flex items-center gap-2 border border-red-500/40 bg-red-500/10 px-3.5 py-1.5 text-xs font-semibold text-red-400">
-        <span className="h-2 w-2 bg-red-500" />
-        Sprint Concluded
+      <div className="inline-flex items-center gap-2 border border-border/70 dark:border-white/15 bg-muted/40 dark:bg-white/5 px-3 py-1.5 text-xs font-semibold text-muted-foreground rounded-lg">
+        <span className="h-2 w-2 rounded-full bg-muted-foreground/60" />
+        {expiredLabel}
       </div>
     );
   }
@@ -67,30 +78,39 @@ export default function CountdownTimer({ deadline, variant = "red" }: CountdownT
     { label: "SEC", value: String(timeLeft.seconds).padStart(2, "0") },
   ];
 
-  const numberColor = variant === "red" ? "text-red-500 dark:text-red-400" : "text-foreground dark:text-white";
+  const numberColor = {
+    red: "text-red-500 dark:text-red-400",
+    amber: "text-amber-500 dark:text-amber-400",
+    emerald: "text-emerald-500 dark:text-emerald-400",
+    default: "text-foreground dark:text-white",
+  }[variant] || "text-foreground dark:text-white";
+
+  const colonColor = {
+    red: "text-red-500/60 dark:text-red-400/60",
+    amber: "text-amber-500/60 dark:text-amber-400/60",
+    emerald: "text-emerald-500/60 dark:text-emerald-400/60",
+    default: "text-muted-foreground/50",
+  }[variant] || "text-muted-foreground/50";
 
   return (
-    <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+    <div className="flex flex-nowrap items-center gap-1 sm:gap-2 select-none">
       {units.map((unit, index) => (
-        <div key={unit.label} className="flex items-center gap-2 sm:gap-3">
-          <div className="flex flex-col items-center bg-card dark:bg-black/60 border border-border dark:border-white/15 px-3 py-1.5 min-w-[52px] rounded-md shadow-sm">
-            <span className={`font-sans text-xl sm:text-2xl font-bold tracking-tight ${numberColor}`}>
+        <div key={unit.label} className="flex items-center gap-1 sm:gap-2">
+          <div className="flex flex-col items-center justify-center bg-card dark:bg-black/75 border border-border/80 dark:border-white/15 px-2 sm:px-3 py-1 min-w-[42px] sm:min-w-[50px] rounded-lg shadow-sm">
+            <span className={`font-mono-tech text-base sm:text-xl font-bold tracking-tight tabular-nums ${numberColor}`}>
               {unit.value}
             </span>
-            <span className="text-[9px] font-bold tracking-widest text-muted-foreground dark:text-slate-400">
+            <span className="text-[8px] sm:text-[9px] font-bold tracking-widest text-muted-foreground dark:text-slate-400">
               {unit.label}
             </span>
           </div>
           {index < units.length - 1 && (
-            <span className="font-sans text-base font-bold text-red-500/60 dark:text-red-400/60 -mt-3">
+            <span className={`font-mono-tech text-xs sm:text-sm font-bold -mt-2.5 ${colonColor}`}>
               :
             </span>
           )}
         </div>
       ))}
-      <span className="ml-1 text-[11px] font-bold uppercase tracking-wider text-muted-foreground dark:text-slate-400 hidden sm:inline">
-        remaining
-      </span>
     </div>
   );
 }

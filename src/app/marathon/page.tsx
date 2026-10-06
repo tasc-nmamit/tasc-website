@@ -11,6 +11,7 @@ import {
   TimerIcon,
 } from "lucide-react";
 import CountdownTimer from "@/components/marathon/CountdownTimer";
+import WeeklySprintCard from "@/components/marathon/WeeklySprintCard";
 import MarathonCalendarGrid, { CalendarContest, CalendarAttendanceRecord } from "@/components/marathon/MarathonCalendarGrid";
 import MarathonJourney, { JourneyDay } from "@/components/marathon/MarathonJourney";
 import { startOfMonth, endOfMonth, eachDayOfInterval, isSameDay } from "date-fns";
@@ -133,14 +134,37 @@ export default async function MarathonDashboard() {
     orderBy: { date: "desc" },
   });
 
-  // Fetch Current Active Weekly Sprint Contest
-  const currentWeeklyContest = await db.marathonWeeklyContest.findFirst({
+  // Fetch Current Active or Upcoming Weekly Sprint Contest
+  // 1. Check for ongoing contest (started <= now, deadline > now)
+  let currentWeeklyContest = await db.marathonWeeklyContest.findFirst({
     where: {
       targetYear,
       date: { lte: now },
+      deadline: { gt: now },
     },
     orderBy: { date: "desc" },
   });
+
+  // 2. If no active contest, check for upcoming scheduled contest in the future (date > now)
+  if (!currentWeeklyContest) {
+    currentWeeklyContest = await db.marathonWeeklyContest.findFirst({
+      where: {
+        targetYear,
+        date: { gt: now },
+      },
+      orderBy: { date: "asc" },
+    });
+  }
+
+  // 3. Fallback: most recent contest (concluded)
+  if (!currentWeeklyContest) {
+    currentWeeklyContest = await db.marathonWeeklyContest.findFirst({
+      where: {
+        targetYear,
+      },
+      orderBy: { date: "desc" },
+    });
+  }
 
   // User year detection (defaults to 2nd year if unassigned)
   const currentUserBatch = user ? getBatchForUser(user) : null;
@@ -351,91 +375,9 @@ export default async function MarathonDashboard() {
         {/* ========================================================================= */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
           
-          {/* LEFT SIDE: Large Current Weekly Sprint Card */}
+          {/* LEFT SIDE: Large Current/Upcoming Weekly Sprint Card */}
           <div className="lg:col-span-7 flex flex-col">
-            <div className="flex-1 border border-border dark:border-white/20 bg-card/90 dark:bg-black/75 backdrop-blur-md p-6 sm:p-8 flex flex-col justify-between shadow-sm">
-              
-              {/* Sprint Content */}
-              <div>
-                <div className="flex items-center justify-between gap-3 mb-4">
-                  <div className="inline-flex items-center gap-1.5 border border-border dark:border-white/15 bg-muted/60 dark:bg-white/5 px-2.5 py-1 text-xs font-bold text-foreground dark:text-slate-300">
-                    <ZapIcon className="h-3.5 w-3.5 text-purple-600 dark:text-purple-400" />
-                    <span>
-                      {currentWeeklyContest
-                        ? `WEEK ${String(currentWeeklyContest.weekNumber).padStart(2, "0")} SPRINT`
-                        : "WEEKLY SPRINT"}
-                    </span>
-                  </div>
-
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground dark:text-slate-400">
-                    ACTIVE CHALLENGE
-                  </span>
-                </div>
-
-                <h2 className="font-valley text-2xl sm:text-3xl font-bold text-foreground dark:text-white tracking-tight">
-                  {currentWeeklyContest ? currentWeeklyContest.title : "Weekly Engineering Sprint"}
-                </h2>
-
-                <p className="mt-3 text-sm text-muted-foreground dark:text-slate-300 leading-relaxed">
-                  {currentWeeklyContest?.description ||
-                    "Take on this week's algorithmic sprint to earn massive point rewards and boost your competitive standing."}
-                </p>
-              </div>
-
-              {/* Timer & Action Bar */}
-              <div className="mt-8 pt-6 border-t border-border dark:border-white/15 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-muted/40 dark:bg-black/60 border border-border dark:border-white/10 p-4">
-                
-                {/* Red Deadline Timer */}
-                <div>
-                  <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-rose-600 dark:text-red-400 mb-1.5">
-                    <TimerIcon className="h-3.5 w-3.5" />
-                    <span>DEADLINE COUNTDOWN</span>
-                  </div>
-                  {currentWeeklyContest ? (
-                    <CountdownTimer deadline={currentWeeklyContest.deadline} variant="red" />
-                  ) : (
-                    <span className="text-xs text-muted-foreground dark:text-slate-400 font-semibold">
-                      Sprint launching soon
-                    </span>
-                  )}
-                </div>
-
-                {/* Sharp "Join Sprint" Button */}
-                {currentWeeklyContest ? (
-                  <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto shrink-0">
-                    {currentWeeklyContest.quizLink && (
-                      <a
-                        href={currentWeeklyContest.quizLink}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="w-full sm:w-auto inline-flex items-center justify-center gap-2 border border-emerald-500/50 bg-emerald-600/10 hover:bg-emerald-600/20 px-6 py-3 text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 transition-colors"
-                      >
-                        <span>TAKE APTITUDE QUIZ</span>
-                        <ArrowRightIcon className="h-3.5 w-3.5" />
-                      </a>
-                    )}
-                    <a
-                      href={currentWeeklyContest.link}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-500 px-6 py-3 text-xs font-bold uppercase tracking-wider text-white transition-colors"
-                    >
-                      <span>JOIN HR SPRINT</span>
-                      <ArrowRightIcon className="h-3.5 w-3.5" />
-                    </a>
-                  </div>
-                ) : (
-                  <button
-                    disabled
-                    className="w-full sm:w-auto bg-muted dark:bg-white/5 border border-border dark:border-white/10 px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-muted-foreground dark:text-slate-500 cursor-not-allowed"
-                  >
-                    COMING SOON
-                  </button>
-                )}
-
-              </div>
-
-            </div>
+            <WeeklySprintCard contest={currentWeeklyContest} />
           </div>
 
           {/* RIGHT SIDE: Minimalist Monthly Calendar Grid */}
