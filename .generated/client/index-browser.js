@@ -344,6 +344,7 @@ exports.Prisma.MarathonWeeklyContestScalarFieldEnum = {
   id: 'id',
   weekNumber: 'weekNumber',
   targetYear: 'targetYear',
+  targetBatch: 'targetBatch',
   date: 'date',
   deadline: 'deadline',
   title: 'title',

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { format } from "date-fns";
 import {
@@ -11,6 +11,7 @@ import {
   ArrowRightIcon,
   CheckCircle2Icon,
   TrophyIcon,
+  SparklesIcon,
 } from "lucide-react";
 import CountdownTimer from "./CountdownTimer";
 
@@ -18,6 +19,7 @@ export interface WeeklyContestData {
   id: string;
   weekNumber: number;
   targetYear: number;
+  targetBatch?: string | null;
   date: Date | string;
   deadline: Date | string;
   title: string;
@@ -28,10 +30,16 @@ export interface WeeklyContestData {
 }
 
 interface WeeklySprintCardProps {
-  contest: WeeklyContestData | null;
+  contest?: WeeklyContestData | null;
+  contests?: WeeklyContestData[];
+  userBatch?: string | null;
 }
 
-export default function WeeklySprintCard({ contest }: WeeklySprintCardProps) {
+export default function WeeklySprintCard({
+  contest,
+  contests,
+  userBatch,
+}: WeeklySprintCardProps) {
   const [mounted, setMounted] = useState(false);
   const [now, setNow] = useState<Date>(new Date());
 
@@ -43,12 +51,70 @@ export default function WeeklySprintCard({ contest }: WeeklySprintCardProps) {
     return () => clearInterval(interval);
   }, []);
 
-  if (!contest) {
+  // Consolidate contest list
+  const contestList = useMemo(() => {
+    if (contests && contests.length > 0) return contests;
+    if (contest) return [contest];
+    return [];
+  }, [contest, contests]);
+
+  // Determine initial selected contest
+  const initialSelectedId = useMemo(() => {
+    if (contestList.length === 0) return "";
+    const currTime = new Date();
+
+    // 1. Try to find an ongoing contest matching user's batch
+    if (userBatch) {
+      const liveForBatch = contestList.find(
+        (c) =>
+          c.targetBatch === userBatch &&
+          new Date(c.date) <= currTime &&
+          new Date(c.deadline) > currTime
+      );
+      if (liveForBatch) return liveForBatch.id;
+    }
+
+    // 2. Any ongoing contest
+    const anyLive = contestList.find(
+      (c) => new Date(c.date) <= currTime && new Date(c.deadline) > currTime
+    );
+    if (anyLive) return anyLive.id;
+
+    // 3. Upcoming contest matching user's batch
+    if (userBatch) {
+      const upcomingForBatch = contestList.find(
+        (c) => c.targetBatch === userBatch && new Date(c.date) > currTime
+      );
+      if (upcomingForBatch) return upcomingForBatch.id;
+    }
+
+    // 4. Any upcoming contest (closest start date)
+    const upcoming = contestList
+      .filter((c) => new Date(c.date) > currTime)
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())[0];
+    if (upcoming) return upcoming.id;
+
+    // 5. Default to the most recent contest
+    return contestList[0].id;
+  }, [contestList, userBatch]);
+
+  const [activeContestId, setActiveContestId] = useState<string>(initialSelectedId);
+
+  // Keep activeContestId valid if list updates
+  useEffect(() => {
+    if (initialSelectedId && (!activeContestId || !contestList.some((c) => c.id === activeContestId))) {
+      setActiveContestId(initialSelectedId);
+    }
+  }, [initialSelectedId, contestList, activeContestId]);
+
+  const activeContest = contestList.find((c) => c.id === activeContestId) || contestList[0] || null;
+
+  if (!activeContest) {
     return (
       <div className="flex-1 border border-border dark:border-white/20 bg-card/90 dark:bg-black/75 backdrop-blur-md p-6 sm:p-8 flex flex-col justify-between shadow-sm">
         <div>
           <div className="flex items-center justify-between gap-3 mb-4">
-            <div className="inline-flex items-center gap-1.5 border border-border dark:border-white/15 bg-muted/60 dark:bg-white/5 px-2.5 py-1 text-xs font-bold text-foreground dark:text-slate-300">
+            <div className="inline-flex items-center gap-1.5 border border-border dark:border-white/15 bg-muted/60 dark:bg-white/5 px-2.5 py-1 text-xs font-bold text-foreground dark:text-slate-300 rounded">
               <ZapIcon className="h-3.5 w-3.5 text-purple-600 dark:text-purple-400" />
               <span>WEEKLY SPRINT</span>
             </div>
@@ -62,7 +128,7 @@ export default function WeeklySprintCard({ contest }: WeeklySprintCardProps) {
           </h2>
 
           <p className="mt-3 text-sm text-muted-foreground dark:text-slate-300 leading-relaxed">
-            Take on this week's algorithmic sprint to earn massive point rewards and boost your competitive standing.
+            Take on this week's algorithmic sprint and aptitude assessment to earn massive point rewards and boost your competitive standing.
           </p>
         </div>
 
@@ -88,10 +154,10 @@ export default function WeeklySprintCard({ contest }: WeeklySprintCardProps) {
     );
   }
 
-  const startDate = new Date(contest.date);
-  const deadlineDate = new Date(contest.deadline);
+  const startDate = new Date(activeContest.date);
+  const deadlineDate = new Date(activeContest.deadline);
 
-  // States
+  // Status checks in real-time
   const isFuture = mounted ? now < startDate : new Date() < startDate;
   const isLive = mounted ? now >= startDate && now < deadlineDate : false;
   const isConcluded = mounted ? now >= deadlineDate : false;
@@ -103,16 +169,101 @@ export default function WeeklySprintCard({ contest }: WeeklySprintCardProps) {
     ? format(deadlineDate, "EEE, MMM d, yyyy • h:mm a")
     : deadlineDate.toISOString();
 
+  const is2ndYearContest = activeContest.targetYear === 2 || activeContest.targetBatch === "2A" || activeContest.targetBatch === "2B";
+
   return (
     <div className="flex-1 border border-border dark:border-white/20 bg-card/90 dark:bg-black/75 backdrop-blur-md p-6 sm:p-8 flex flex-col justify-between shadow-sm">
-      {/* Top Header & Badges */}
       <div>
+        {/* MULTI-CONTEST SWITCHER (when more than 1 contest scheduled for the year) */}
+        {contestList.length > 1 && (
+          <div className="mb-6 pb-4 border-b border-border/80 dark:border-white/10">
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-2.5">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground dark:text-slate-400">
+                Available Sprints ({contestList.length})
+              </span>
+              {is2ndYearContest && (
+                <span className="text-[10px] text-purple-600 dark:text-purple-400 font-semibold">
+                  2nd years can attempt both 2A & 2B sprints
+                </span>
+              )}
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              {contestList.map((c) => {
+                const isSelected = c.id === activeContest.id;
+                const cStart = new Date(c.date);
+                const cEnd = new Date(c.deadline);
+                const cLive = mounted ? now >= cStart && now < cEnd : false;
+                const cFuture = mounted ? now < cStart : new Date() < cStart;
+
+                return (
+                  <button
+                    key={c.id}
+                    type="button"
+                    onClick={() => setActiveContestId(c.id)}
+                    className={`inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-lg border transition-all ${
+                      isSelected
+                        ? "border-purple-500 bg-purple-500/15 text-purple-600 dark:text-purple-300 shadow-sm"
+                        : "border-border dark:border-white/15 bg-muted/40 dark:bg-white/5 text-muted-foreground hover:text-foreground hover:bg-muted/70"
+                    }`}
+                  >
+                    <span
+                      className={`h-2 w-2 rounded-full ${
+                        cLive
+                          ? "bg-emerald-500 animate-pulse"
+                          : cFuture
+                          ? "bg-amber-500"
+                          : "bg-muted-foreground/60"
+                      }`}
+                    />
+                    <span>
+                      Week {c.weekNumber}
+                      {c.targetBatch ? ` • Batch ${c.targetBatch}` : ""}
+                    </span>
+                    {cLive && (
+                      <span className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 uppercase">
+                        Live
+                      </span>
+                    )}
+                    {cFuture && (
+                      <span className="text-[9px] font-bold text-amber-600 dark:text-amber-400 uppercase">
+                        Upcoming
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Top Header & Badges */}
         <div className="flex flex-wrap items-center justify-between gap-2.5 mb-4">
-          <div className="inline-flex items-center gap-1.5 border border-border dark:border-white/15 bg-muted/60 dark:bg-white/5 px-2.5 py-1 text-xs font-bold text-foreground dark:text-slate-300 rounded">
-            <ZapIcon className="h-3.5 w-3.5 text-purple-600 dark:text-purple-400" />
-            <span>WEEK {String(contest.weekNumber).padStart(2, "0")} SPRINT</span>
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="inline-flex items-center gap-1.5 border border-border dark:border-white/15 bg-muted/60 dark:bg-white/5 px-2.5 py-1 text-xs font-bold text-foreground dark:text-slate-300 rounded">
+              <ZapIcon className="h-3.5 w-3.5 text-purple-600 dark:text-purple-400" />
+              <span>WEEK {String(activeContest.weekNumber).padStart(2, "0")} SPRINT</span>
+            </div>
+
+            {/* Target Batch Badge */}
+            {activeContest.targetBatch === "2A" && (
+              <span className="inline-flex items-center gap-1 border border-blue-500/40 bg-blue-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 rounded">
+                BATCH 2A
+              </span>
+            )}
+            {activeContest.targetBatch === "2B" && (
+              <span className="inline-flex items-center gap-1 border border-indigo-500/40 bg-indigo-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 rounded">
+                BATCH 2B
+              </span>
+            )}
+            {activeContest.targetBatch === "3" && (
+              <span className="inline-flex items-center gap-1 border border-emerald-500/40 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 rounded">
+                3RD YEAR
+              </span>
+            )}
           </div>
 
+          {/* Contest Status Badges */}
           {isFuture && (
             <span className="inline-flex items-center gap-1.5 border border-amber-500/40 bg-amber-500/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 rounded">
               <CalendarIcon className="h-3 w-3" />
@@ -136,13 +287,23 @@ export default function WeeklySprintCard({ contest }: WeeklySprintCardProps) {
         </div>
 
         <h2 className="font-valley text-2xl sm:text-3xl font-bold text-foreground dark:text-white tracking-tight">
-          {contest.title}
+          {activeContest.title}
         </h2>
 
         <p className="mt-3 text-sm text-muted-foreground dark:text-slate-300 leading-relaxed">
-          {contest.description ||
+          {activeContest.description ||
             "Take on this week's algorithmic sprint and aptitude assessment to earn massive point rewards and boost your competitive standing."}
         </p>
+
+        {/* Cross-batch attempt note for 2nd years */}
+        {is2ndYearContest && (
+          <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
+            <SparklesIcon className="h-3.5 w-3.5 text-purple-500 shrink-0" />
+            <span>
+              2nd year students are welcome to attempt sprints for both 2A and 2B batches.
+            </span>
+          </div>
+        )}
 
         {/* Schedule Timing Pills */}
         <div className="mt-4 flex flex-wrap items-center gap-2 font-mono-tech text-xs text-muted-foreground">
@@ -157,7 +318,7 @@ export default function WeeklySprintCard({ contest }: WeeklySprintCardProps) {
         </div>
       </div>
 
-      {/* Bottom Area: Dedicated Horizontal Timer & Actions */}
+      {/* Bottom Area: Dedicated Horizontal Timer & Action Links */}
       <div className="mt-8 pt-6 border-t border-border dark:border-white/15 space-y-4">
         {/* Horizontal Timer Box */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-muted/40 dark:bg-black/60 border border-border dark:border-white/10 p-4 sm:p-5 rounded-xl">
@@ -220,7 +381,7 @@ export default function WeeklySprintCard({ contest }: WeeklySprintCardProps) {
         <div>
           {isFuture ? (
             <div className="flex flex-col sm:flex-row gap-3 w-full">
-              {contest.quizLink && (
+              {activeContest.quizLink && (
                 <button
                   type="button"
                   disabled
@@ -243,9 +404,9 @@ export default function WeeklySprintCard({ contest }: WeeklySprintCardProps) {
             </div>
           ) : isLive ? (
             <div className="flex flex-col sm:flex-row gap-3 w-full">
-              {contest.quizLink && (
+              {activeContest.quizLink && (
                 <a
-                  href={contest.quizLink}
+                  href={activeContest.quizLink}
                   target="_blank"
                   rel="noreferrer"
                   className="w-full sm:flex-1 inline-flex items-center justify-center gap-2 border border-emerald-500/50 bg-emerald-600/10 hover:bg-emerald-600/20 px-6 py-3 text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 transition-colors rounded-lg shadow-sm"
@@ -255,7 +416,7 @@ export default function WeeklySprintCard({ contest }: WeeklySprintCardProps) {
                 </a>
               )}
               <a
-                href={contest.link}
+                href={activeContest.link}
                 target="_blank"
                 rel="noreferrer"
                 className="w-full sm:flex-1 inline-flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-500 px-6 py-3 text-xs font-bold uppercase tracking-wider text-white transition-colors rounded-lg shadow-sm"

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { parseContestDate } from "@/lib/date-utils";
 
 export async function POST(request: Request) {
   const session = await auth();
@@ -9,18 +10,27 @@ export async function POST(request: Request) {
   }
 
   try {
-    const { weekNumber, targetYear, date, deadline, title, description, link, slug, quizLink } = await request.json();
+    const { weekNumber, targetYear, targetBatch, date, deadline, title, description, link, slug, quizLink } = await request.json();
 
-    if (!weekNumber || !targetYear || !date || !deadline || !title || !link) {
+    if (!weekNumber || !date || !deadline || !title || !link) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    }
+
+    // Determine target year from targetBatch or targetYear
+    let resolvedTargetYear = Number(targetYear) || 2;
+    if (targetBatch === "2A" || targetBatch === "2B" || targetBatch === "2") {
+      resolvedTargetYear = 2;
+    } else if (targetBatch === "3") {
+      resolvedTargetYear = 3;
     }
 
     const contest = await db.marathonWeeklyContest.create({
       data: {
         weekNumber: Number(weekNumber),
-        targetYear: Number(targetYear),
-        date: new Date(date),
-        deadline: new Date(deadline),
+        targetYear: resolvedTargetYear,
+        targetBatch: targetBatch || (resolvedTargetYear === 3 ? "3" : "2"),
+        date: parseContestDate(date),
+        deadline: parseContestDate(deadline),
         title,
         description,
         link,
@@ -31,10 +41,8 @@ export async function POST(request: Request) {
 
     return NextResponse.json(contest);
   } catch (error: any) {
-    if (error.code === "P2002") {
-      return NextResponse.json({ error: "A contest for this week and target year already exists." }, { status: 400 });
-    }
     console.error("Weekly Contest Creation Error:", error);
-    return NextResponse.json({ error: "Failed to create weekly contest" }, { status: 500 });
+    return NextResponse.json({ error: error.message || "Failed to create weekly contest" }, { status: 500 });
   }
 }
+

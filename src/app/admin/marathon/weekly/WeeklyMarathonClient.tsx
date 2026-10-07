@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Papa from "papaparse";
+import { formatDateForDateTimeLocal } from "@/lib/date-utils";
 
 export default function WeeklyMarathonClient({ initialContests, aimlUsers }: { initialContests: any[], aimlUsers: any[] }) {
   const [activeTab, setActiveTab] = useState<"CONTESTS" | "SCORES">("CONTESTS");
@@ -9,7 +10,7 @@ export default function WeeklyMarathonClient({ initialContests, aimlUsers }: { i
   // Contests State
   const [contests] = useState(initialContests);
   const [weekNumber, setWeekNumber] = useState(1);
-  const [targetYear, setTargetYear] = useState(2);
+  const [targetBatch, setTargetBatch] = useState("2A");
   const [date, setDate] = useState("");
   const [deadline, setDeadline] = useState("");
   const [title, setTitle] = useState("");
@@ -109,10 +110,22 @@ export default function WeeklyMarathonClient({ initialContests, aimlUsers }: { i
     setLoading(true);
 
     try {
+      const resolvedTargetYear = targetBatch === "3" ? 3 : 2;
       const res = await fetch("/api/admin/marathon/weekly", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ weekNumber, targetYear, date, deadline, title, description, link, slug, quizLink }),
+        body: JSON.stringify({
+          weekNumber,
+          targetYear: resolvedTargetYear,
+          targetBatch,
+          date,
+          deadline,
+          title,
+          description,
+          link,
+          slug,
+          quizLink
+        }),
       });
 
       if (!res.ok) {
@@ -212,7 +225,15 @@ export default function WeeklyMarathonClient({ initialContests, aimlUsers }: { i
                           </td>
                           <td className="px-4 py-3 whitespace-nowrap">
                             <span className="inline-block px-2 py-1 bg-purple-500/10 text-purple-500 font-bold text-xs rounded">Week {contest.weekNumber}</span>
-                            <span className="ml-2 text-xs font-semibold text-muted-foreground">Year {contest.targetYear}</span>
+                            {contest.targetBatch === "2A" ? (
+                              <span className="ml-2 px-2 py-0.5 bg-blue-500/10 text-blue-500 font-bold text-xs rounded border border-blue-500/20">Batch 2A</span>
+                            ) : contest.targetBatch === "2B" ? (
+                              <span className="ml-2 px-2 py-0.5 bg-indigo-500/10 text-indigo-500 font-bold text-xs rounded border border-indigo-500/20">Batch 2B</span>
+                            ) : contest.targetBatch === "3" ? (
+                              <span className="ml-2 px-2 py-0.5 bg-emerald-500/10 text-emerald-500 font-bold text-xs rounded border border-emerald-500/20">3rd Year</span>
+                            ) : (
+                              <span className="ml-2 text-xs font-semibold text-muted-foreground">Year {contest.targetYear}</span>
+                            )}
                           </td>
                           <td className="px-4 py-3 font-medium text-foreground max-w-[200px] truncate" title={contest.title}>
                             {contest.title}
@@ -228,7 +249,7 @@ export default function WeeklyMarathonClient({ initialContests, aimlUsers }: { i
                           </td>
                           <td className="px-4 py-3 whitespace-nowrap text-right" onClick={e => e.stopPropagation()}>
                             <a href={contest.link} target="_blank" rel="noreferrer" className="text-brand hover:underline font-medium text-xs">Link ↗</a>
-                            <button onClick={() => { setEditingContestId(contest.id); setEditContestDate(new Date(new Date(contest.date).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0,16)); setEditContestDeadline(new Date(new Date(contest.deadline).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0,16)); }} className="ml-3 text-blue-500 hover:underline text-xs">Edit</button>
+                            <button onClick={() => { setEditingContestId(contest.id); setEditContestDate(formatDateForDateTimeLocal(contest.date)); setEditContestDeadline(formatDateForDateTimeLocal(contest.deadline)); }} className="ml-3 text-blue-500 hover:underline text-xs">Edit</button>
                             <button onClick={() => handleDeleteContest(contest.id)} className="ml-3 text-red-500 hover:underline text-xs">Delete</button>
                           </td>
                         </tr>
@@ -250,10 +271,12 @@ export default function WeeklyMarathonClient({ initialContests, aimlUsers }: { i
                   <input required type="number" min={1} value={weekNumber} onChange={e => setWeekNumber(Number(e.target.value))} className="w-full rounded-lg border border-border bg-background px-4 py-2" />
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium">Target Year *</label>
-                  <select required value={targetYear} onChange={e => setTargetYear(Number(e.target.value))} className="w-full rounded-lg border border-border bg-background px-4 py-2">
-                    <option value={2}>2nd Year</option>
-                    <option value={3}>3rd Year</option>
+                  <label className="mb-1.5 block text-sm font-medium">Target Batch / Audience *</label>
+                  <select required value={targetBatch} onChange={e => setTargetBatch(e.target.value)} className="w-full rounded-lg border border-border bg-background px-4 py-2">
+                    <option value="2A">2nd Year — Batch 2A</option>
+                    <option value="2B">2nd Year — Batch 2B</option>
+                    <option value="3">3rd Year</option>
+                    <option value="2">2nd Year (All Batches)</option>
                   </select>
                 </div>
               </div>
@@ -313,7 +336,23 @@ export default function WeeklyMarathonClient({ initialContests, aimlUsers }: { i
             <div className="rounded-2xl border border-border/50 bg-background/80 p-6 shadow-xl">
               <div className="flex items-center gap-4 mb-4">
                 <button onClick={() => { setActiveTab("CONTESTS"); setSelectedContest(""); }} className="text-sm font-medium text-muted-foreground hover:text-foreground">&larr; Back to Contests</button>
-                <h3 className="text-xl font-bold border-b border-border/50 pb-2 flex-1">HackerRank Sync</h3>
+                <h3 className="text-xl font-bold border-b border-border/50 pb-2 flex-1">HackerRank Sync & Quiz Scores</h3>
+              </div>
+
+              <div className="mb-4">
+                <label className="text-xs font-semibold text-muted-foreground block mb-1.5">Select Contest</label>
+                <select 
+                  value={selectedContest} 
+                  onChange={e => setSelectedContest(e.target.value)} 
+                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm font-medium text-foreground"
+                >
+                  <option value="">-- Choose a contest --</option>
+                  {contests.map(c => (
+                    <option key={c.id} value={c.id}>
+                      Week {c.weekNumber} • {c.targetBatch ? `Batch ${c.targetBatch}` : `Year ${c.targetYear}`} • {c.title}
+                    </option>
+                  ))}
+                </select>
               </div>
               
               <div className="space-y-4">

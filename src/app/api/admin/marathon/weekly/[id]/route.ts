@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { parseContestDate } from "@/lib/date-utils";
 
 export async function PATCH(request: Request, context: { params: Promise<{ id: string }> }) {
   const session = await auth();
@@ -9,13 +10,21 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
   }
 
   try {
-    const { slug, date, deadline } = await request.json();
+    const { slug, date, deadline, targetBatch } = await request.json();
     const params = await context.params;
 
     const data: any = {};
     if (slug !== undefined) data.slug = slug;
-    if (date !== undefined) data.date = new Date(date);
-    if (deadline !== undefined) data.deadline = new Date(deadline);
+    if (date !== undefined) data.date = parseContestDate(date);
+    if (deadline !== undefined) data.deadline = parseContestDate(deadline);
+    if (targetBatch !== undefined) {
+      data.targetBatch = targetBatch;
+      if (targetBatch === "2A" || targetBatch === "2B" || targetBatch === "2") {
+        data.targetYear = 2;
+      } else if (targetBatch === "3") {
+        data.targetYear = 3;
+      }
+    }
 
     const updated = await db.marathonWeeklyContest.update({
       where: { id: params.id },

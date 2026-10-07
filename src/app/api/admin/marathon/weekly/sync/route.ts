@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { fetchHackerRankLeaderboard } from "@/lib/hackerrank";
+import { getBatchForUser } from "@/lib/marathon-batches";
 
 export async function POST(request: Request) {
   const session = await auth();
@@ -32,19 +33,27 @@ export async function POST(request: Request) {
     const hrLeaderboard = await fetchHackerRankLeaderboard(contestSlug, cookieString);
     const hrUsernames = hrLeaderboard.map(hr => hr.hacker);
     
-    // Weekly contests are filtered by targetYear AND they must be students (role: USER)
+    // Weekly contests are filtered by year, allowing 2nd years (2A & 2B) to attempt each other's batch
     const users = await db.user.findMany({
       where: {
         hackerrankUsername: { in: hrUsernames },
-        year: contest.targetYear,
         isAiml: true,
         role: "USER"
       },
-      select: { id: true, hackerrankUsername: true }
+      select: { id: true, hackerrankUsername: true, email: true, usn: true, year: true }
     });
 
-    const hrToUserId = new Map(users.map(u => [u.hackerrankUsername, u.id]));
-    const matchedUsernames = new Set(users.map(u => u.hackerrankUsername));
+    const eligibleUsers = users.filter((u) => {
+      const batch = getBatchForUser(u);
+      const is2ndYear = batch === "2A" || batch === "2B" || u.year === 2;
+      const is3rdYear = batch === "3A1" || batch === "3A2" || u.year === 3;
+      if (contest.targetYear === 2) return is2ndYear;
+      if (contest.targetYear === 3) return is3rdYear;
+      return u.year === contest.targetYear;
+    });
+
+    const hrToUserId = new Map(eligibleUsers.map(u => [u.hackerrankUsername, u.id]));
+    const matchedUsernames = new Set(eligibleUsers.map(u => u.hackerrankUsername));
     
     // Unmatched are those in HR leaderboard but not found in our users list
     const unmatchedUsernames = hrUsernames.filter(username => !matchedUsernames.has(username));

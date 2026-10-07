@@ -304,6 +304,7 @@ model MarathonWeeklyContest {
   id          String   @id @default(cuid())
   weekNumber  Int
   targetYear  Int // 2, 3, or 4
+  targetBatch String? // "2A", "2B", "3", or "ALL"
   date        DateTime
   deadline    DateTime
   title       String
@@ -314,8 +315,6 @@ model MarathonWeeklyContest {
   isConfirmed Boolean  @default(false)
 
   scores MarathonWeeklyScore[]
-
-  @@unique([weekNumber, targetYear])
 }
 
 model MarathonWeeklyScore {

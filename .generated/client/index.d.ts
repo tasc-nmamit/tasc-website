@@ -25176,6 +25176,7 @@ export namespace Prisma {
     id: string | null
     weekNumber: number | null
     targetYear: number | null
+    targetBatch: string | null
     date: Date | null
     deadline: Date | null
     title: string | null
@@ -25190,6 +25191,7 @@ export namespace Prisma {
     id: string | null
     weekNumber: number | null
     targetYear: number | null
+    targetBatch: string | null
     date: Date | null
     deadline: Date | null
     title: string | null
@@ -25204,6 +25206,7 @@ export namespace Prisma {
     id: number
     weekNumber: number
     targetYear: number
+    targetBatch: number
     date: number
     deadline: number
     title: number
@@ -25230,6 +25233,7 @@ export namespace Prisma {
     id?: true
     weekNumber?: true
     targetYear?: true
+    targetBatch?: true
     date?: true
     deadline?: true
     title?: true
@@ -25244,6 +25248,7 @@ export namespace Prisma {
     id?: true
     weekNumber?: true
     targetYear?: true
+    targetBatch?: true
     date?: true
     deadline?: true
     title?: true
@@ -25258,6 +25263,7 @@ export namespace Prisma {
     id?: true
     weekNumber?: true
     targetYear?: true
+    targetBatch?: true
     date?: true
     deadline?: true
     title?: true
@@ -25359,6 +25365,7 @@ export namespace Prisma {
     id: string
     weekNumber: number
     targetYear: number
+    targetBatch: string | null
     date: Date
     deadline: Date
     title: string
@@ -25392,6 +25399,7 @@ export namespace Prisma {
     id?: boolean
     weekNumber?: boolean
     targetYear?: boolean
+    targetBatch?: boolean
     date?: boolean
     deadline?: boolean
     title?: boolean
@@ -25408,6 +25416,7 @@ export namespace Prisma {
     id?: boolean
     weekNumber?: boolean
     targetYear?: boolean
+    targetBatch?: boolean
     date?: boolean
     deadline?: boolean
     title?: boolean
@@ -25422,6 +25431,7 @@ export namespace Prisma {
     id?: boolean
     weekNumber?: boolean
     targetYear?: boolean
+    targetBatch?: boolean
     date?: boolean
     deadline?: boolean
     title?: boolean
@@ -25436,6 +25446,7 @@ export namespace Prisma {
     id?: boolean
     weekNumber?: boolean
     targetYear?: boolean
+    targetBatch?: boolean
     date?: boolean
     deadline?: boolean
     title?: boolean
@@ -25446,7 +25457,7 @@ export namespace Prisma {
     isConfirmed?: boolean
   }
 
-  export type MarathonWeeklyContestOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "weekNumber" | "targetYear" | "date" | "deadline" | "title" | "description" | "link" | "slug" | "quizLink" | "isConfirmed", ExtArgs["result"]["marathonWeeklyContest"]>
+  export type MarathonWeeklyContestOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "weekNumber" | "targetYear" | "targetBatch" | "date" | "deadline" | "title" | "description" | "link" | "slug" | "quizLink" | "isConfirmed", ExtArgs["result"]["marathonWeeklyContest"]>
   export type MarathonWeeklyContestInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     scores?: boolean | MarathonWeeklyContest$scoresArgs<ExtArgs>
     _count?: boolean | MarathonWeeklyContestCountOutputTypeDefaultArgs<ExtArgs>
@@ -25463,6 +25474,7 @@ export namespace Prisma {
       id: string
       weekNumber: number
       targetYear: number
+      targetBatch: string | null
       date: Date
       deadline: Date
       title: string
@@ -25898,6 +25910,7 @@ export namespace Prisma {
     readonly id: FieldRef<"MarathonWeeklyContest", 'String'>
     readonly weekNumber: FieldRef<"MarathonWeeklyContest", 'Int'>
     readonly targetYear: FieldRef<"MarathonWeeklyContest", 'Int'>
+    readonly targetBatch: FieldRef<"MarathonWeeklyContest", 'String'>
     readonly date: FieldRef<"MarathonWeeklyContest", 'DateTime'>
     readonly deadline: FieldRef<"MarathonWeeklyContest", 'DateTime'>
     readonly title: FieldRef<"MarathonWeeklyContest", 'String'>
@@ -37599,6 +37612,7 @@ export namespace Prisma {
     id: 'id',
     weekNumber: 'weekNumber',
     targetYear: 'targetYear',
+    targetBatch: 'targetBatch',
     date: 'date',
     deadline: 'deadline',
     title: 'title',
@@ -39438,6 +39452,7 @@ export namespace Prisma {
     id?: StringFilter<"MarathonWeeklyContest"> | string
     weekNumber?: IntFilter<"MarathonWeeklyContest"> | number
     targetYear?: IntFilter<"MarathonWeeklyContest"> | number
+    targetBatch?: StringNullableFilter<"MarathonWeeklyContest"> | string | null
     date?: DateTimeFilter<"MarathonWeeklyContest"> | Date | string
     deadline?: DateTimeFilter<"MarathonWeeklyContest"> | Date | string
     title?: StringFilter<"MarathonWeeklyContest"> | string
@@ -39453,6 +39468,7 @@ export namespace Prisma {
     id?: SortOrder
     weekNumber?: SortOrder
     targetYear?: SortOrder
+    targetBatch?: SortOrderInput | SortOrder
     date?: SortOrder
     deadline?: SortOrder
     title?: SortOrder
@@ -39466,12 +39482,12 @@ export namespace Prisma {
 
   export type MarathonWeeklyContestWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    weekNumber_targetYear?: MarathonWeeklyContestWeekNumberTargetYearCompoundUniqueInput
     AND?: MarathonWeeklyContestWhereInput | MarathonWeeklyContestWhereInput[]
     OR?: MarathonWeeklyContestWhereInput[]
     NOT?: MarathonWeeklyContestWhereInput | MarathonWeeklyContestWhereInput[]
     weekNumber?: IntFilter<"MarathonWeeklyContest"> | number
     targetYear?: IntFilter<"MarathonWeeklyContest"> | number
+    targetBatch?: StringNullableFilter<"MarathonWeeklyContest"> | string | null
     date?: DateTimeFilter<"MarathonWeeklyContest"> | Date | string
     deadline?: DateTimeFilter<"MarathonWeeklyContest"> | Date | string
     title?: StringFilter<"MarathonWeeklyContest"> | string
@@ -39481,12 +39497,13 @@ export namespace Prisma {
     quizLink?: StringNullableFilter<"MarathonWeeklyContest"> | string | null
     isConfirmed?: BoolFilter<"MarathonWeeklyContest"> | boolean
     scores?: MarathonWeeklyScoreListRelationFilter
-  }, "id" | "weekNumber_targetYear">
+  }, "id">
 
   export type MarathonWeeklyContestOrderByWithAggregationInput = {
     id?: SortOrder
     weekNumber?: SortOrder
     targetYear?: SortOrder
+    targetBatch?: SortOrderInput | SortOrder
     date?: SortOrder
     deadline?: SortOrder
     title?: SortOrder
@@ -39509,6 +39526,7 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"MarathonWeeklyContest"> | string
     weekNumber?: IntWithAggregatesFilter<"MarathonWeeklyContest"> | number
     targetYear?: IntWithAggregatesFilter<"MarathonWeeklyContest"> | number
+    targetBatch?: StringNullableWithAggregatesFilter<"MarathonWeeklyContest"> | string | null
     date?: DateTimeWithAggregatesFilter<"MarathonWeeklyContest"> | Date | string
     deadline?: DateTimeWithAggregatesFilter<"MarathonWeeklyContest"> | Date | string
     title?: StringWithAggregatesFilter<"MarathonWeeklyContest"> | string
@@ -41779,6 +41797,7 @@ export namespace Prisma {
     id?: string
     weekNumber: number
     targetYear: number
+    targetBatch?: string | null
     date: Date | string
     deadline: Date | string
     title: string
@@ -41794,6 +41813,7 @@ export namespace Prisma {
     id?: string
     weekNumber: number
     targetYear: number
+    targetBatch?: string | null
     date: Date | string
     deadline: Date | string
     title: string
@@ -41809,6 +41829,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     weekNumber?: IntFieldUpdateOperationsInput | number
     targetYear?: IntFieldUpdateOperationsInput | number
+    targetBatch?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     deadline?: DateTimeFieldUpdateOperationsInput | Date | string
     title?: StringFieldUpdateOperationsInput | string
@@ -41824,6 +41845,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     weekNumber?: IntFieldUpdateOperationsInput | number
     targetYear?: IntFieldUpdateOperationsInput | number
+    targetBatch?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     deadline?: DateTimeFieldUpdateOperationsInput | Date | string
     title?: StringFieldUpdateOperationsInput | string
@@ -41839,6 +41861,7 @@ export namespace Prisma {
     id?: string
     weekNumber: number
     targetYear: number
+    targetBatch?: string | null
     date: Date | string
     deadline: Date | string
     title: string
@@ -41853,6 +41876,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     weekNumber?: IntFieldUpdateOperationsInput | number
     targetYear?: IntFieldUpdateOperationsInput | number
+    targetBatch?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     deadline?: DateTimeFieldUpdateOperationsInput | Date | string
     title?: StringFieldUpdateOperationsInput | string
@@ -41867,6 +41891,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     weekNumber?: IntFieldUpdateOperationsInput | number
     targetYear?: IntFieldUpdateOperationsInput | number
+    targetBatch?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     deadline?: DateTimeFieldUpdateOperationsInput | Date | string
     title?: StringFieldUpdateOperationsInput | string
@@ -43867,15 +43892,11 @@ export namespace Prisma {
     score?: SortOrder
   }
 
-  export type MarathonWeeklyContestWeekNumberTargetYearCompoundUniqueInput = {
-    weekNumber: number
-    targetYear: number
-  }
-
   export type MarathonWeeklyContestCountOrderByAggregateInput = {
     id?: SortOrder
     weekNumber?: SortOrder
     targetYear?: SortOrder
+    targetBatch?: SortOrder
     date?: SortOrder
     deadline?: SortOrder
     title?: SortOrder
@@ -43895,6 +43916,7 @@ export namespace Prisma {
     id?: SortOrder
     weekNumber?: SortOrder
     targetYear?: SortOrder
+    targetBatch?: SortOrder
     date?: SortOrder
     deadline?: SortOrder
     title?: SortOrder
@@ -43909,6 +43931,7 @@ export namespace Prisma {
     id?: SortOrder
     weekNumber?: SortOrder
     targetYear?: SortOrder
+    targetBatch?: SortOrder
     date?: SortOrder
     deadline?: SortOrder
     title?: SortOrder
@@ -50344,6 +50367,7 @@ export namespace Prisma {
     id?: string
     weekNumber: number
     targetYear: number
+    targetBatch?: string | null
     date: Date | string
     deadline: Date | string
     title: string
@@ -50358,6 +50382,7 @@ export namespace Prisma {
     id?: string
     weekNumber: number
     targetYear: number
+    targetBatch?: string | null
     date: Date | string
     deadline: Date | string
     title: string
@@ -50485,6 +50510,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     weekNumber?: IntFieldUpdateOperationsInput | number
     targetYear?: IntFieldUpdateOperationsInput | number
+    targetBatch?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     deadline?: DateTimeFieldUpdateOperationsInput | Date | string
     title?: StringFieldUpdateOperationsInput | string
@@ -50499,6 +50525,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     weekNumber?: IntFieldUpdateOperationsInput | number
     targetYear?: IntFieldUpdateOperationsInput | number
+    targetBatch?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     deadline?: DateTimeFieldUpdateOperationsInput | Date | string
     title?: StringFieldUpdateOperationsInput | string

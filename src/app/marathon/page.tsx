@@ -25,10 +25,13 @@ export default async function MarathonDashboard() {
     where: { id: session.user.id },
   });
 
-  const targetYear = user?.year || 2; // Default to 2 if not set
+  const currentUserBatch = user ? getBatchForUser(user) : null;
+  const userIs3rdYear = currentUserBatch === "3A1" || currentUserBatch === "3A2" || user?.year === 3;
+  const userTargetYear = userIs3rdYear ? 3 : 2;
+  const targetYear = userTargetYear;
 
   // Ineligible / Restricted View for 4th Year or non-eligible students
-  if (targetYear >= 4) {
+  if (user?.year && user.year >= 4) {
     return (
       <main className="min-h-dvh px-4 pt-32 pb-20 flex items-center justify-center relative overflow-hidden bg-background bg-blueprint-grid text-foreground">
         <div className="absolute top-0 inset-x-0 h-96 bg-gradient-to-b from-brand/15 via-brand/5 to-transparent pointer-events-none" />
@@ -134,42 +137,17 @@ export default async function MarathonDashboard() {
     orderBy: { date: "desc" },
   });
 
-  // Fetch Current Active or Upcoming Weekly Sprint Contest
-  // 1. Check for ongoing contest (started <= now, deadline > now)
-  let currentWeeklyContest = await db.marathonWeeklyContest.findFirst({
+  // Fetch Weekly Sprint Contests for this student's year
+  // For 2nd year students: includes 2A, 2B, and general 2nd year contests (2nd years can attempt each other's batch)
+  // For 3rd year students: includes 3rd year contests
+  const weeklyContests = await db.marathonWeeklyContest.findMany({
     where: {
-      targetYear,
-      date: { lte: now },
-      deadline: { gt: now },
+      targetYear: userTargetYear,
     },
-    orderBy: { date: "desc" },
+    orderBy: [
+      { date: "desc" },
+    ],
   });
-
-  // 2. If no active contest, check for upcoming scheduled contest in the future (date > now)
-  if (!currentWeeklyContest) {
-    currentWeeklyContest = await db.marathonWeeklyContest.findFirst({
-      where: {
-        targetYear,
-        date: { gt: now },
-      },
-      orderBy: { date: "asc" },
-    });
-  }
-
-  // 3. Fallback: most recent contest (concluded)
-  if (!currentWeeklyContest) {
-    currentWeeklyContest = await db.marathonWeeklyContest.findFirst({
-      where: {
-        targetYear,
-      },
-      orderBy: { date: "desc" },
-    });
-  }
-
-  // User year detection (defaults to 2nd year if unassigned)
-  const currentUserBatch = user ? getBatchForUser(user) : null;
-  const userIs3rdYear = currentUserBatch === "3A1" || currentUserBatch === "3A2" || user?.year === 3;
-  const userTargetYear = userIs3rdYear ? 3 : 2;
 
   // Fetch all AIML students with attendance records
   const allAimlStudentsForRanking = await db.user.findMany({
@@ -377,7 +355,7 @@ export default async function MarathonDashboard() {
           
           {/* LEFT SIDE: Large Current/Upcoming Weekly Sprint Card */}
           <div className="lg:col-span-7 flex flex-col">
-            <WeeklySprintCard contest={currentWeeklyContest} />
+            <WeeklySprintCard contests={weeklyContests} userBatch={currentUserBatch} />
           </div>
 
           {/* RIGHT SIDE: Minimalist Monthly Calendar Grid */}
