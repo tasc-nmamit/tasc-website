@@ -11,7 +11,16 @@ import {
   CpuIcon,
   CheckCircle2Icon,
   XCircleIcon,
+  Edit3Icon,
 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 interface User {
   id: string;
@@ -21,8 +30,10 @@ interface User {
   image: string | null;
   role: string;
   isAiml: boolean;
+  isLateral?: boolean;
   year: number | null;
   branch: string | null;
+  bio?: string | null;
   onboardingComplete: boolean;
   createdAt: Date;
   marathonAttendance?: any[];
@@ -49,6 +60,95 @@ export default function UserRoleManager({ users: initialUsers, isOwner = true }:
   const [updating, setUpdating] = useState<string | null>(null);
   const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
   const [filter, setFilter] = useState<"ALL" | "AIML" | "NON_AIML" | "ADMIN">("ALL");
+
+  // Edit User Modal State
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [formName, setFormName] = useState("");
+  const [formDisplayName, setFormDisplayName] = useState("");
+  const [formUsn, setFormUsn] = useState("");
+  const [formPhone, setFormPhone] = useState("");
+  const [formYear, setFormYear] = useState<number | "">("");
+  const [formBranch, setFormBranch] = useState("");
+  const [formIsAiml, setFormIsAiml] = useState(false);
+  const [formIsLateral, setFormIsLateral] = useState(false);
+  const [formHackerRank, setFormHackerRank] = useState("");
+  const [formLeetCode, setFormLeetCode] = useState("");
+  const [formGitHub, setFormGitHub] = useState("");
+  const [formCareerIntent, setFormCareerIntent] = useState("");
+  const [formSkills, setFormSkills] = useState("");
+  const [formLanguages, setFormLanguages] = useState("");
+  const [formBio, setFormBio] = useState("");
+  const [savingUser, setSavingUser] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+
+  function openEditModal(user: User) {
+    setEditingUser(user);
+    setFormName(user.name || "");
+    setFormDisplayName(user.displayName || "");
+    setFormUsn(user.usn || "");
+    setFormPhone(user.phone || "");
+    setFormYear(user.year ?? "");
+    setFormBranch(user.branch || "");
+    setFormIsAiml(!!user.isAiml);
+    setFormIsLateral(!!user.isLateral);
+    setFormHackerRank(user.hackerrankUsername || "");
+    setFormLeetCode(user.leetcodeProfile || "");
+    setFormGitHub(user.githubProfile || "");
+    setFormCareerIntent(user.careerIntent || "");
+    setFormSkills((user.skills || []).join(", "));
+    setFormLanguages((user.languages || []).join(", "));
+    setFormBio(user.bio || "");
+    setSaveError(null);
+  }
+
+  async function handleSaveUser(e: React.FormEvent) {
+    e.preventDefault();
+    if (!editingUser) return;
+
+    setSavingUser(true);
+    setSaveError(null);
+
+    try {
+      const res = await fetch("/api/admin/users", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: editingUser.id,
+          name: formName,
+          displayName: formDisplayName,
+          usn: formUsn,
+          phone: formPhone,
+          year: formYear === "" ? null : Number(formYear),
+          branch: formBranch,
+          isAiml: formIsAiml,
+          isLateral: formIsLateral,
+          hackerrankUsername: formHackerRank,
+          leetcodeProfile: formLeetCode,
+          githubProfile: formGitHub,
+          careerIntent: formCareerIntent || null,
+          skills: formSkills.split(",").map((s) => s.trim()).filter(Boolean),
+          languages: formLanguages.split(",").map((l) => l.trim()).filter(Boolean),
+          bio: formBio,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to update user details");
+      }
+
+      setUsers((prev) =>
+        prev.map((u) => (u.id === editingUser.id ? { ...u, ...data.user } : u))
+      );
+
+      setEditingUser(null);
+    } catch (err: any) {
+      console.error("Save user error:", err);
+      setSaveError(err.message || "Failed to save user details");
+    } finally {
+      setSavingUser(false);
+    }
+  }
 
   const filtered = users.filter((user) => {
     const searchTarget = `${user.name || ""} ${user.displayName || ""} ${user.email} ${user.usn || ""}`.toLowerCase();
@@ -278,6 +378,18 @@ export default function UserRoleManager({ users: initialUsers, isOwner = true }:
                 className="flex flex-wrap items-center gap-2 shrink-0 self-end sm:self-auto mb-4 sm:mb-0"
                 onClick={(e) => e.stopPropagation()}
               >
+                {/* Edit Student Details Button */}
+                <button
+                  type="button"
+                  onClick={() => openEditModal(user)}
+                  disabled={updating === user.id}
+                  className="rounded-xl border border-brand/40 bg-brand/10 hover:bg-brand/20 text-brand-accent px-3 py-1.5 text-xs font-bold font-space-grotesk transition-all disabled:opacity-50 flex items-center gap-1.5 cursor-pointer shadow-sm"
+                  title="Edit Student Details"
+                >
+                  <Edit3Icon className="w-3.5 h-3.5" />
+                  <span>Edit</span>
+                </button>
+
                 {/* AIML Toggle Action Button */}
                 <button
                   onClick={() => toggleAiml(user.id, !user.isAiml)}
@@ -404,16 +516,28 @@ export default function UserRoleManager({ users: initialUsers, isOwner = true }:
                     </div>
                   </div>
                   
-                  <div className="mt-4">
+                  <div className="mt-4 flex flex-wrap gap-2">
                     <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openEditModal(user);
+                      }}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-brand-accent/40 bg-brand-accent/15 hover:bg-brand-accent/25 text-xs font-mono-tech text-brand-accent transition-colors cursor-pointer"
+                    >
+                      <Edit3Icon className="w-3.5 h-3.5" />
+                      Edit Student Details
+                    </button>
+                    <button
+                      type="button"
                       onClick={(e) => {
                         e.stopPropagation();
                         exportUserHistory(user);
                       }}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-brand-accent/30 bg-brand-accent/10 hover:bg-brand-accent/20 text-xs font-mono-tech text-brand-accent transition-colors cursor-pointer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-brand/30 bg-card/60 hover:bg-card/90 text-xs font-mono-tech text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                     >
                       <DownloadIcon className="w-3.5 h-3.5" />
-                      Export Marathon History
+                      Export History
                     </button>
                   </div>
                 </div>
@@ -428,6 +552,247 @@ export default function UserRoleManager({ users: initialUsers, isOwner = true }:
           </div>
         )}
       </div>
+      {/* EDIT STUDENT DETAILS MODAL */}
+      <Dialog open={!!editingUser} onOpenChange={(open) => { if (!open) setEditingUser(null); }}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto border border-brand/30 bg-card/95 text-foreground backdrop-blur-2xl p-6 sm:p-7 shadow-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold font-space-grotesk flex items-center gap-2">
+              <Edit3Icon className="w-5 h-5 text-brand-accent" />
+              <span>Edit Student Profile</span>
+            </DialogTitle>
+            <DialogDescription className="text-xs font-mono-tech text-muted-foreground">
+              Modify identity records, USN, college year, contact, and competitive coding handles for {editingUser?.email}.
+            </DialogDescription>
+          </DialogHeader>
+
+          <form onSubmit={handleSaveUser} className="space-y-5 mt-2">
+            {saveError && (
+              <div className="p-3 rounded-lg bg-red-500/15 border border-red-500/30 text-red-400 text-xs font-space-grotesk">
+                {saveError}
+              </div>
+            )}
+
+            {/* Academic & Identity */}
+            <div className="space-y-3">
+              <h4 className="text-xs font-bold font-mono-tech uppercase tracking-wider text-brand-accent border-b border-border/50 pb-1">
+                1. Academic & Identity
+              </h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">Full Name</label>
+                  <input
+                    type="text"
+                    value={formName}
+                    onChange={(e) => setFormName(e.target.value)}
+                    placeholder="e.g. Rahul Sharma"
+                    className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-brand-accent"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">Display Name</label>
+                  <input
+                    type="text"
+                    value={formDisplayName}
+                    onChange={(e) => setFormDisplayName(e.target.value)}
+                    placeholder="e.g. Rahul S"
+                    className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-brand-accent"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">USN / Roll Number</label>
+                  <input
+                    type="text"
+                    value={formUsn}
+                    onChange={(e) => setFormUsn(e.target.value)}
+                    placeholder="e.g. NN25AIM045 or 26DIPAM01"
+                    className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground uppercase font-mono-tech outline-none focus:border-brand-accent"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">Academic Year</label>
+                  <select
+                    value={formYear}
+                    onChange={(e) => setFormYear(e.target.value ? Number(e.target.value) : "")}
+                    className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-brand-accent"
+                  >
+                    <option value="">Unassigned</option>
+                    <option value="1">1st Year</option>
+                    <option value="2">2nd Year</option>
+                    <option value="3">3rd Year</option>
+                    <option value="4">4th Year</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">Branch</label>
+                  <input
+                    type="text"
+                    value={formBranch}
+                    onChange={(e) => setFormBranch(e.target.value)}
+                    placeholder="e.g. AIML, CSE, ISE"
+                    className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-brand-accent"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">Phone Number</label>
+                  <input
+                    type="tel"
+                    value={formPhone}
+                    onChange={(e) => setFormPhone(e.target.value)}
+                    placeholder="e.g. 9876543210"
+                    className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-brand-accent"
+                  />
+                </div>
+              </div>
+
+              {/* Status Toggles */}
+              <div className="flex flex-wrap gap-4 pt-1">
+                <label className="inline-flex items-center gap-2 cursor-pointer text-xs font-medium text-foreground select-none">
+                  <input
+                    type="checkbox"
+                    checked={formIsAiml}
+                    onChange={(e) => setFormIsAiml(e.target.checked)}
+                    className="rounded border-border text-brand-accent focus:ring-brand-accent h-4 w-4"
+                  />
+                  <span>AIML Department Student</span>
+                </label>
+                <label className="inline-flex items-center gap-2 cursor-pointer text-xs font-medium text-foreground select-none">
+                  <input
+                    type="checkbox"
+                    checked={formIsLateral}
+                    onChange={(e) => setFormIsLateral(e.target.checked)}
+                    className="rounded border-border text-brand-accent focus:ring-brand-accent h-4 w-4"
+                  />
+                  <span>Lateral Entry (Diploma) Student</span>
+                </label>
+              </div>
+            </div>
+
+            {/* Coding Profiles */}
+            <div className="space-y-3">
+              <h4 className="text-xs font-bold font-mono-tech uppercase tracking-wider text-purple-400 border-b border-border/50 pb-1">
+                2. Coding & Competitive Profiles
+              </h4>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">
+                    HackerRank Username
+                  </label>
+                  <input
+                    type="text"
+                    value={formHackerRank}
+                    onChange={(e) => setFormHackerRank(e.target.value)}
+                    placeholder="username or URL"
+                    className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-purple-400 font-mono-tech"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">
+                    LeetCode Profile
+                  </label>
+                  <input
+                    type="text"
+                    value={formLeetCode}
+                    onChange={(e) => setFormLeetCode(e.target.value)}
+                    placeholder="username or URL"
+                    className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-purple-400 font-mono-tech"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">
+                    GitHub Profile
+                  </label>
+                  <input
+                    type="text"
+                    value={formGitHub}
+                    onChange={(e) => setFormGitHub(e.target.value)}
+                    placeholder="username or URL"
+                    className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-purple-400 font-mono-tech"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Career & Skills */}
+            <div className="space-y-3">
+              <h4 className="text-xs font-bold font-mono-tech uppercase tracking-wider text-emerald-400 border-b border-border/50 pb-1">
+                3. Career & Skills
+              </h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">
+                    Career Intent
+                  </label>
+                  <select
+                    value={formCareerIntent}
+                    onChange={(e) => setFormCareerIntent(e.target.value)}
+                    className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-emerald-400"
+                  >
+                    <option value="">Unspecified</option>
+                    <option value="PLACEMENT">Placement (Corporate Jobs)</option>
+                    <option value="HIGHER_STUDIES">Higher Studies (MS / M.Tech / MBA)</option>
+                    <option value="ENTREPRENEURSHIP">Entrepreneurship / Startup</option>
+                    <option value="GOVERNMENT_EXAMS">Government Exams</option>
+                    <option value="OTHER">Other</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">
+                    Technical Skills (comma separated)
+                  </label>
+                  <input
+                    type="text"
+                    value={formSkills}
+                    onChange={(e) => setFormSkills(e.target.value)}
+                    placeholder="e.g. React, Python, PyTorch, Docker"
+                    className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-emerald-400"
+                  />
+                </div>
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">
+                    Programming Languages (comma separated)
+                  </label>
+                  <input
+                    type="text"
+                    value={formLanguages}
+                    onChange={(e) => setFormLanguages(e.target.value)}
+                    placeholder="e.g. Python, C++, Java, TypeScript"
+                    className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-emerald-400"
+                  />
+                </div>
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">
+                    Bio
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={formBio}
+                    onChange={(e) => setFormBio(e.target.value)}
+                    placeholder="Short bio or summary..."
+                    className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-emerald-400"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <DialogFooter className="pt-3 border-t border-border flex items-center justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setEditingUser(null)}
+                className="rounded-lg border border-border px-4 py-2 text-xs font-semibold text-muted-foreground hover:bg-muted transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={savingUser}
+                className="rounded-lg bg-brand px-5 py-2 text-xs font-bold text-white hover:bg-brand/90 transition-colors disabled:opacity-50 cursor-pointer shadow-md"
+              >
+                {savingUser ? "Saving Changes..." : "Save Student Details"}
+              </button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
