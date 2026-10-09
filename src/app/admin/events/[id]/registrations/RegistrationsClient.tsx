@@ -27,6 +27,8 @@ import ClientPortal from "@/components/ui/ClientPortal";
 import CircuitTrace from "@/components/ui/circuit-ink/CircuitTrace";
 import TechnicalLabel from "@/components/ui/circuit-ink/TechnicalLabel";
 import { downloadCSV, downloadExcel } from "@/lib/export";
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { storage } from "@/lib/firebase";
 
 interface OnSpotMember {
   id: string;
@@ -54,9 +56,12 @@ export default function RegistrationsClient({
   const router = useRouter();
   const [currentTeams, setCurrentTeams] = useState<any[]>(initialTeams);
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState<"ALL" | "PRESENT" | "ABSENT">("ALL");
+  const [statusFilter, setStatusFilter] = useState<
+    "ALL" | "CONFIRMED" | "PENDING_ROSTER" | "PRESENT" | "ABSENT"
+  >("ALL");
   const [loading, setLoading] = useState(false);
   const [verifyingTeamId, setVerifyingTeamId] = useState<string | null>(null);
+  const [updatingStatusTeamId, setUpdatingStatusTeamId] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
@@ -96,6 +101,7 @@ export default function RegistrationsClient({
   const [newMemberYear, setNewMemberYear] = useState("3");
   const [newMemberResponses, setNewMemberResponses] = useState<Record<string, any>>({});
   const [isAddingTeammateOpen, setIsAddingTeammateOpen] = useState(false);
+  const [uploadingFiles, setUploadingFiles] = useState<Record<string, boolean>>({});
 
   // Lock body scroll during modals
   useEffect(() => {
@@ -175,10 +181,14 @@ export default function RegistrationsClient({
     });
   }, [event.customFields, onSpotFormat, event.type]);
 
-  // Attendance stats
+  // Roster and Attendance stats
   const totalTeamsCount = currentTeams.length;
+  const confirmedTeamsCount = currentTeams.filter(
+    (t) => t.status === "CONFIRMED" || t.isConfirmed
+  ).length;
+  const pendingRosterTeamsCount = totalTeamsCount - confirmedTeamsCount;
   const verifiedTeamsCount = currentTeams.filter((t) => t.attended).length;
-  const pendingTeamsCount = totalTeamsCount - verifiedTeamsCount;
+  const pendingCheckInTeamsCount = totalTeamsCount - verifiedTeamsCount;
   const totalParticipantsCount = currentTeams.reduce((acc, t) => acc + (t.registrations?.length || 0), 0);
   const verifiedParticipantsCount = currentTeams.reduce((acc, t) => {
     if (t.attended) {
@@ -188,10 +198,14 @@ export default function RegistrationsClient({
   }, 0);
   const attendanceRate = totalTeamsCount > 0 ? Math.round((verifiedTeamsCount / totalTeamsCount) * 100) : 0;
 
-  // Filter teams by search term & attendance filter
+  // Filter teams by search term & status filter
   const filteredTeams = useMemo(() => {
     return currentTeams.filter((team) => {
+      const isRosterConfirmed = team.status === "CONFIRMED" || team.isConfirmed;
+
       // 1. Status Filter
+      if (statusFilter === "CONFIRMED" && !isRosterConfirmed) return false;
+      if (statusFilter === "PENDING_ROSTER" && isRosterConfirmed) return false;
       if (statusFilter === "PRESENT" && !team.attended) return false;
       if (statusFilter === "ABSENT" && team.attended) return false;
 
@@ -284,6 +298,46 @@ export default function RegistrationsClient({
       setCurrentTeams(initialTeams);
     } finally {
       setVerifyingTeamId(null);
+    }
+  };
+
+  // Handle Toggle Team Confirmation (CONFIRMED vs PENDING)
+  const handleToggleTeamConfirmation = async (
+    teamId: string,
+    targetStatus: "CONFIRMED" | "PENDING"
+  ) => {
+    const isConfirmedBool = targetStatus === "CONFIRMED";
+    setUpdatingStatusTeamId(teamId);
+
+    // Optimistic UI update
+    setCurrentTeams((prev) =>
+      prev.map((t) =>
+        t.id === teamId
+          ? { ...t, status: targetStatus, isConfirmed: isConfirmedBool }
+          : t
+      )
+    );
+
+    try {
+      const res = await fetch(`/api/admin/events/${event.id}/registrations`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          teamId,
+          status: targetStatus,
+          isConfirmed: isConfirmedBool,
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error(await res.text());
+      }
+    } catch (err: any) {
+      alert("Failed to update roster confirmation status: " + err.message);
+      // Rollback on failure
+      setCurrentTeams(initialTeams);
+    } finally {
+      setUpdatingStatusTeamId(null);
     }
   };
 
@@ -469,12 +523,17 @@ export default function RegistrationsClient({
     setNewMemberPhone("");
     setNewMemberResponses({});
     setIsAddingTeammateOpen(false);
+    setUploadingFiles({});
     setOnSpotMarkPresent(true);
   };
 
   // Submit On-Spot Registration
   const handleOnSpotSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (Object.values(uploadingFiles).some(Boolean)) {
+      alert("Please wait for all file attachments to finish uploading before submitting.");
+      return;
+    }
     if (!onSpotLeaderName.trim() || !onSpotLeaderEmail.trim()) {
       alert("Participant name and email are required.");
       return;
@@ -579,13 +638,65 @@ export default function RegistrationsClient({
     }
   };
 
+  // Handle Cloud File Upload
+  const handleFileUpload = async (
+    fieldId: string,
+    file: File,
+    onSuccess: (url: string) => void,
+    uploadKey: string
+  ) => {
+    if (!file) return;
+
+    if (file.size > 15 * 1024 * 1024) {
+      alert("File is too large. Please select a file smaller than 15MB.");
+      return;
+    }
+
+    setUploadingFiles((prev) => ({ ...prev, [uploadKey]: true }));
+    try {
+      const ext = file.name.split(".").pop() || "bin";
+      const uniqueId = `onspot_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+      const fileName = `registration-uploads/${event.id}/${uniqueId}.${ext}`;
+      const storageRef = ref(storage, fileName);
+      const uploadTask = uploadBytesResumable(storageRef, file);
+
+      await new Promise<void>((resolve, reject) => {
+        uploadTask.on(
+          "state_changed",
+          () => {},
+          (error) => {
+            alert("File upload failed: " + error.message);
+            reject(error);
+          },
+          async () => {
+            try {
+              const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
+              onSuccess(downloadUrl);
+              resolve();
+            } catch (err) {
+              reject(err);
+            }
+          }
+        );
+      });
+    } catch (err: any) {
+      console.error("Upload error:", err);
+      alert("File upload error: " + (err.message || "Unknown error"));
+    } finally {
+      setUploadingFiles((prev) => ({ ...prev, [uploadKey]: false }));
+    }
+  };
+
   // Reusable custom field renderer
   const renderCustomField = (
     field: any,
     value: any,
-    onChange: (val: any) => void
+    onChange: (val: any) => void,
+    uploadKey?: string
   ) => {
     const opts = (field.options as { min?: number | null; max?: number | null }) || {};
+    const key = uploadKey || field.id;
+    const isUploading = !!uploadingFiles[key];
 
     return (
       <div key={field.id} className="space-y-1">
@@ -664,6 +775,52 @@ export default function RegistrationsClient({
             })}
           </div>
         )}
+
+        {field.fieldType === "FILE_UPLOAD" && (
+          <div className="space-y-2">
+            {value ? (
+              <div className="flex items-center justify-between rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-2.5">
+                <div className="flex items-center gap-2 min-w-0">
+                  <CheckCircle2Icon className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <a
+                    href={value}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs font-mono-tech text-emerald-300 underline truncate hover:text-emerald-200"
+                  >
+                    Attachment Uploaded (View ↗)
+                  </a>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => onChange("")}
+                  className="text-xs text-red-400 hover:text-red-300 hover:underline shrink-0 ml-2 font-mono-tech cursor-pointer"
+                >
+                  Replace
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <input
+                  type="file"
+                  accept="image/*,application/pdf"
+                  disabled={isUploading}
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files[0]) {
+                      handleFileUpload(field.id, e.target.files[0], (url) => onChange(url), key);
+                    }
+                  }}
+                  className="w-full text-xs file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-brand/20 file:text-brand-accent hover:file:bg-brand/30 cursor-pointer border border-brand/30 rounded-lg p-1 bg-background/70 font-space-grotesk text-foreground"
+                />
+                {isUploading && (
+                  <span className="text-xs text-amber-300 font-mono-tech animate-pulse shrink-0">
+                    Uploading...
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     );
   };
@@ -685,9 +842,29 @@ export default function RegistrationsClient({
           </p>
         </div>
 
+        <div className="rounded-2xl border border-blue-500/30 bg-blue-500/10 backdrop-blur-sm p-4 relative overflow-hidden">
+          <div className="flex items-center justify-between text-blue-400 mb-1">
+            <span className="text-[11px] font-mono-tech uppercase">Roster Status</span>
+            <ShieldCheckIcon className="w-4 h-4 text-blue-400" />
+          </div>
+          <div className="flex items-baseline gap-2">
+            <p className="text-2xl font-bold font-space-grotesk text-blue-400">
+              {confirmedTeamsCount}
+              <span className="text-xs font-mono-tech font-normal text-blue-300/80 ml-1">
+                Confirmed
+              </span>
+            </p>
+            {pendingRosterTeamsCount > 0 && (
+              <span className="text-xs font-mono-tech text-amber-400">
+                / {pendingRosterTeamsCount} Pending
+              </span>
+            )}
+          </div>
+        </div>
+
         <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 backdrop-blur-sm p-4 relative overflow-hidden">
           <div className="flex items-center justify-between text-emerald-400 mb-1">
-            <span className="text-[11px] font-mono-tech uppercase">Verified Present</span>
+            <span className="text-[11px] font-mono-tech uppercase">Checked In</span>
             <CheckCircle2Icon className="w-4 h-4 text-emerald-400" />
           </div>
           <p className="text-2xl font-bold font-space-grotesk text-emerald-400">
@@ -695,16 +872,6 @@ export default function RegistrationsClient({
             <span className="text-xs font-normal text-emerald-300/70 ml-1.5">
               ({verifiedParticipantsCount} students)
             </span>
-          </p>
-        </div>
-
-        <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 backdrop-blur-sm p-4 relative overflow-hidden">
-          <div className="flex items-center justify-between text-amber-400 mb-1">
-            <span className="text-[11px] font-mono-tech uppercase">Pending Check-in</span>
-            <ClockIcon className="w-4 h-4 text-amber-400" />
-          </div>
-          <p className="text-2xl font-bold font-space-grotesk text-amber-400">
-            {pendingTeamsCount}
           </p>
         </div>
 
@@ -783,7 +950,7 @@ export default function RegistrationsClient({
         </div>
       </div>
 
-      {/* 3. SEGMENTED ATTENDANCE FILTER TABS */}
+      {/* 3. SEGMENTED ROSTER & ATTENDANCE FILTER TABS */}
       <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
         <button
           onClick={() => setStatusFilter("ALL")}
@@ -793,9 +960,43 @@ export default function RegistrationsClient({
               : "bg-card/40 text-muted-foreground border border-brand/10 hover:text-foreground"
           }`}
         >
-          <span>ALL PARTICIPANTS</span>
+          <span>ALL TEAMS</span>
           <span className="bg-background/80 px-1.5 py-0.2 rounded text-[10px]">
             {currentTeams.length}
+          </span>
+        </button>
+
+        <button
+          onClick={() => setStatusFilter("CONFIRMED")}
+          className={`px-3.5 py-1.5 rounded-lg text-xs font-mono-tech transition-all flex items-center gap-2 cursor-pointer ${
+            statusFilter === "CONFIRMED"
+              ? "bg-blue-500/25 text-blue-400 border border-blue-500/40 font-bold shadow-sm"
+              : "bg-card/40 text-muted-foreground border border-brand/10 hover:text-foreground"
+          }`}
+        >
+          <span className="flex items-center gap-1.5">
+            <ShieldCheckIcon className="w-3.5 h-3.5 text-blue-400" />
+            ROSTER CONFIRMED
+          </span>
+          <span className="bg-blue-500/20 text-blue-400 px-1.5 py-0.2 rounded text-[10px]">
+            {confirmedTeamsCount}
+          </span>
+        </button>
+
+        <button
+          onClick={() => setStatusFilter("PENDING_ROSTER")}
+          className={`px-3.5 py-1.5 rounded-lg text-xs font-mono-tech transition-all flex items-center gap-2 cursor-pointer ${
+            statusFilter === "PENDING_ROSTER"
+              ? "bg-amber-500/25 text-amber-400 border border-amber-500/40 font-bold shadow-sm"
+              : "bg-card/40 text-muted-foreground border border-brand/10 hover:text-foreground"
+          }`}
+        >
+          <span className="flex items-center gap-1.5">
+            <ClockIcon className="w-3.5 h-3.5 text-amber-400" />
+            ROSTER PENDING
+          </span>
+          <span className="bg-amber-500/20 text-amber-400 px-1.5 py-0.2 rounded text-[10px]">
+            {pendingRosterTeamsCount}
           </span>
         </button>
 
@@ -809,7 +1010,7 @@ export default function RegistrationsClient({
         >
           <span className="flex items-center gap-1.5">
             <CheckCircle2Icon className="w-3.5 h-3.5 text-emerald-400" />
-            PRESENT / VERIFIED
+            CHECKED IN
           </span>
           <span className="bg-emerald-500/20 text-emerald-400 px-1.5 py-0.2 rounded text-[10px]">
             {verifiedTeamsCount}
@@ -820,16 +1021,16 @@ export default function RegistrationsClient({
           onClick={() => setStatusFilter("ABSENT")}
           className={`px-3.5 py-1.5 rounded-lg text-xs font-mono-tech transition-all flex items-center gap-2 cursor-pointer ${
             statusFilter === "ABSENT"
-              ? "bg-amber-500/25 text-amber-400 border border-amber-500/40 font-bold shadow-sm"
+              ? "bg-zinc-500/25 text-zinc-300 border border-zinc-500/40 font-bold shadow-sm"
               : "bg-card/40 text-muted-foreground border border-brand/10 hover:text-foreground"
           }`}
         >
           <span className="flex items-center gap-1.5">
-            <ClockIcon className="w-3.5 h-3.5 text-amber-400" />
+            <span className="w-2 h-2 rounded-full bg-muted-foreground/60" />
             PENDING CHECK-IN
           </span>
-          <span className="bg-amber-500/20 text-amber-400 px-1.5 py-0.2 rounded text-[10px]">
-            {pendingTeamsCount}
+          <span className="bg-zinc-500/20 text-zinc-300 px-1.5 py-0.2 rounded text-[10px]">
+            {pendingCheckInTeamsCount}
           </span>
         </button>
       </div>
@@ -851,8 +1052,10 @@ export default function RegistrationsClient({
         ) : (
           filteredTeams.map((team) => {
             const members = team.registrations || [];
+            const isRosterConfirmed = team.status === "CONFIRMED" || team.isConfirmed;
             const isAttended = !!team.attended;
             const isVerifying = verifyingTeamId === team.id;
+            const isUpdatingStatus = updatingStatusTeamId === team.id;
 
             return (
               <div
@@ -860,28 +1063,51 @@ export default function RegistrationsClient({
                 className={`rounded-2xl border transition-all p-4 md:p-5 relative overflow-hidden backdrop-blur-sm ${
                   isAttended
                     ? "border-emerald-500/40 bg-emerald-500/5 shadow-sm shadow-emerald-500/5"
-                    : "border-brand/20 bg-card/50 hover:border-brand/40"
+                    : isRosterConfirmed
+                    ? "border-blue-500/30 bg-card/60 hover:border-blue-500/50"
+                    : "border-amber-500/30 bg-amber-500/5 hover:border-amber-500/40"
                 }`}
               >
                 {/* Header Row */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-brand/10 mb-4">
                   <div className="flex flex-wrap items-center gap-2.5">
-                    {/* Status Badge */}
+                    {/* 1. Roster Status Badge */}
+                    <span
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-mono-tech uppercase font-bold tracking-wider ${
+                        isRosterConfirmed
+                          ? "bg-blue-500/20 text-blue-400 border border-blue-500/40"
+                          : "bg-amber-500/20 text-amber-400 border border-amber-500/40"
+                      }`}
+                    >
+                      {isRosterConfirmed ? (
+                        <>
+                          <ShieldCheckIcon className="w-3.5 h-3.5" />
+                          <span>ROSTER CONFIRMED</span>
+                        </>
+                      ) : (
+                        <>
+                          <ClockIcon className="w-3.5 h-3.5" />
+                          <span>ROSTER PENDING</span>
+                        </>
+                      )}
+                    </span>
+
+                    {/* 2. Attendance Status Badge */}
                     <span
                       className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-mono-tech uppercase font-bold tracking-wider ${
                         isAttended
                           ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40"
-                          : "bg-amber-500/15 text-amber-400 border border-amber-500/30"
+                          : "bg-background/80 text-muted-foreground border border-brand/20"
                       }`}
                     >
                       {isAttended ? (
                         <>
                           <CheckCircle2Icon className="w-3.5 h-3.5" />
-                          <span>VERIFIED PRESENT</span>
+                          <span>CHECKED IN</span>
                         </>
                       ) : (
                         <>
-                          <ClockIcon className="w-3.5 h-3.5" />
+                          <span className="w-2 h-2 rounded-full bg-muted-foreground/40" />
                           <span>PENDING CHECK-IN</span>
                         </>
                       )}
@@ -920,6 +1146,29 @@ export default function RegistrationsClient({
 
                   {/* Top-Right Quick Actions */}
                   <div className="flex items-center gap-2 self-end sm:self-auto">
+                    {/* Toggle Roster Confirmation */}
+                    {isRosterConfirmed ? (
+                      <button
+                        onClick={() => handleToggleTeamConfirmation(team.id, "PENDING")}
+                        disabled={isUpdatingStatus}
+                        className="rounded-xl border border-blue-500/30 bg-blue-500/10 hover:bg-amber-500/20 hover:text-amber-300 hover:border-amber-500/30 px-3 py-1.5 text-xs font-bold font-space-grotesk text-blue-300 transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                        title="Team roster is confirmed. Click to revert to pending."
+                      >
+                        <ShieldCheckIcon className="w-3.5 h-3.5 text-blue-400" />
+                        <span>Confirmed ✓</span>
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleToggleTeamConfirmation(team.id, "CONFIRMED")}
+                        disabled={isUpdatingStatus}
+                        className="rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white px-3 py-1.5 text-xs font-bold font-space-grotesk uppercase tracking-wider transition-all flex items-center gap-1.5 shadow-md shadow-blue-600/20 cursor-pointer disabled:opacity-50 hover:scale-[1.02] active:scale-95"
+                        title="Click to confirm this team roster"
+                      >
+                        <CheckIcon className="w-3.5 h-3.5" />
+                        <span>Confirm Roster</span>
+                      </button>
+                    )}
+
                     {/* Mark Present / Absent Button */}
                     {isAttended ? (
                       <button
@@ -1041,9 +1290,20 @@ export default function RegistrationsClient({
                                 return (
                                   <div key={cf.id} className="flex items-baseline justify-between gap-1 text-muted-foreground">
                                     <span className="truncate">{cf.label}:</span>
-                                    <span className="text-foreground font-semibold shrink-0">
-                                      {Array.isArray(val) ? val.join(", ") : String(val)}
-                                    </span>
+                                    {String(val).startsWith("http://") || String(val).startsWith("https://") ? (
+                                      <a
+                                        href={String(val)}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-brand-accent underline hover:text-foreground text-[10px] font-mono-tech flex items-center gap-1 shrink-0"
+                                      >
+                                        View File ↗
+                                      </a>
+                                    ) : (
+                                      <span className="text-foreground font-semibold shrink-0">
+                                        {Array.isArray(val) ? val.join(", ") : String(val)}
+                                      </span>
+                                    )}
                                   </div>
                                 );
                               })}
@@ -1159,32 +1419,48 @@ export default function RegistrationsClient({
                     </div>
 
                     {/* Quick Search from Existing Users */}
-                    <div className="relative">
-                      <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-                      <input
-                        placeholder="Search existing student to autofill (or type manual details below)..."
-                        value={onSpotLeaderSearch}
-                        onChange={(e) => setOnSpotLeaderSearch(e.target.value)}
-                        className="w-full rounded-lg border border-brand/25 bg-background/90 pl-9 pr-3 py-1.5 text-xs text-foreground outline-none focus:border-brand-accent font-space-grotesk"
-                      />
+                    <div className="space-y-1.5">
+                      <div className="relative">
+                        <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                        <input
+                          placeholder="Search existing student to autofill (or type manual details below)..."
+                          value={onSpotLeaderSearch}
+                          onChange={(e) => setOnSpotLeaderSearch(e.target.value)}
+                          className="w-full rounded-lg border border-brand/25 bg-background/90 pl-9 pr-8 py-1.5 text-xs text-foreground outline-none focus:border-brand-accent font-space-grotesk"
+                        />
+                        {onSpotLeaderSearch && (
+                          <button
+                            type="button"
+                            onClick={() => setOnSpotLeaderSearch("")}
+                            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-0.5 cursor-pointer"
+                          >
+                            <XIcon className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
+
                       {availableUsersForLeader.length > 0 && (
-                        <div className="absolute top-full mt-1 inset-x-0 z-30 rounded-lg border border-brand/30 bg-card p-1 shadow-xl max-h-48 overflow-y-auto space-y-1">
+                        <div className="rounded-xl border border-brand/30 bg-background/95 p-1.5 shadow-md max-h-48 overflow-y-auto space-y-1">
+                          <div className="px-2 py-0.5 text-[10px] font-mono-tech uppercase font-bold text-brand-accent flex items-center justify-between">
+                            <span>Matching Students ({availableUsersForLeader.length}):</span>
+                            <span className="text-muted-foreground font-normal">Click to autofill</span>
+                          </div>
                           {availableUsersForLeader.map((u) => (
                             <button
                               key={u.id}
                               type="button"
                               onClick={() => handleSelectLeaderUser(u)}
-                              className="w-full text-left p-2 rounded-md hover:bg-brand/15 flex items-center justify-between text-xs transition-colors cursor-pointer"
+                              className="w-full text-left p-2 rounded-lg hover:bg-brand/15 border border-transparent hover:border-brand/25 flex items-center justify-between text-xs transition-colors cursor-pointer group"
                             >
-                              <div>
-                                <span className="font-bold text-foreground">
+                              <div className="min-w-0 pr-2">
+                                <span className="font-bold text-foreground group-hover:text-brand-accent transition-colors">
                                   {u.displayName || u.name}
                                 </span>
-                                <span className="text-[11px] font-mono-tech text-muted-foreground ml-2">
-                                  {u.email} {u.usn ? `• ${u.usn}` : ""}
-                                </span>
+                                <div className="text-[11px] font-mono-tech text-muted-foreground truncate">
+                                  {u.email} {u.usn ? `• ${u.usn}` : ""}{u.branch ? ` • ${u.branch}` : ""}
+                                </div>
                               </div>
-                              <span className="text-[10px] font-mono-tech text-brand-accent uppercase font-bold">
+                              <span className="text-[10px] font-mono-tech text-brand-accent uppercase font-bold shrink-0 bg-brand/15 px-2 py-0.5 rounded">
                                 Select ↵
                               </span>
                             </button>
@@ -1389,7 +1665,8 @@ export default function RegistrationsClient({
                                           renderCustomField(
                                             field,
                                             m.responses?.[field.id],
-                                            (val) => handleUpdateTeammateResponse(m.id, field.id, val)
+                                            (val) => handleUpdateTeammateResponse(m.id, field.id, val),
+                                            `member_${m.id}_${field.id}`
                                           )
                                         )}
                                       </div>
@@ -1431,23 +1708,46 @@ export default function RegistrationsClient({
 
                               {/* Search Existing Teammate */}
                               <div className="space-y-1">
-                                <input
-                                  placeholder="Autofill from registered students..."
-                                  value={newMemberSearch}
-                                  onChange={(e) => setNewMemberSearch(e.target.value)}
-                                  className="w-full rounded-lg border border-brand/20 bg-background/80 px-2.5 py-1 text-xs text-foreground outline-none focus:border-brand-accent"
-                                />
+                                <div className="relative">
+                                  <input
+                                    placeholder="Autofill from registered students..."
+                                    value={newMemberSearch}
+                                    onChange={(e) => setNewMemberSearch(e.target.value)}
+                                    className="w-full rounded-lg border border-brand/20 bg-background/80 pl-2.5 pr-7 py-1 text-xs text-foreground outline-none focus:border-brand-accent"
+                                  />
+                                  {newMemberSearch && (
+                                    <button
+                                      type="button"
+                                      onClick={() => setNewMemberSearch("")}
+                                      className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-0.5 cursor-pointer"
+                                    >
+                                      <XIcon className="w-3 h-3" />
+                                    </button>
+                                  )}
+                                </div>
                                 {availableUsersForTeammate.length > 0 && (
-                                  <div className="max-h-28 overflow-y-auto space-y-1 border border-brand/20 rounded p-1 bg-background">
+                                  <div className="max-h-32 overflow-y-auto space-y-1 border border-brand/25 rounded-lg p-1.5 bg-background/95">
+                                    <div className="px-1 py-0.5 text-[10px] font-mono-tech uppercase font-bold text-brand-accent">
+                                      Matching Teammates ({availableUsersForTeammate.length}):
+                                    </div>
                                     {availableUsersForTeammate.map((u) => (
                                       <button
                                         key={u.id}
                                         type="button"
                                         onClick={() => handleAddTeammateToList(u)}
-                                        className="w-full text-left p-1.5 hover:bg-brand/15 rounded flex justify-between text-xs cursor-pointer"
+                                        className="w-full text-left p-1.5 hover:bg-brand/15 rounded-md flex justify-between items-center text-xs cursor-pointer group"
                                       >
-                                        <span>{u.displayName || u.name} ({u.usn || u.email})</span>
-                                        <span className="text-brand-accent font-bold">Add ↵</span>
+                                        <div className="min-w-0 pr-2">
+                                          <span className="font-semibold text-foreground group-hover:text-brand-accent">
+                                            {u.displayName || u.name}
+                                          </span>
+                                          <div className="text-[10px] font-mono-tech text-muted-foreground truncate">
+                                            {u.email} {u.usn ? `• ${u.usn}` : ""}
+                                          </div>
+                                        </div>
+                                        <span className="text-[10px] font-mono-tech text-brand-accent uppercase font-bold shrink-0 bg-brand/15 px-2 py-0.5 rounded">
+                                          Add ↵
+                                        </span>
                                       </button>
                                     ))}
                                   </div>
@@ -1524,7 +1824,8 @@ export default function RegistrationsClient({
                                       renderCustomField(
                                         field,
                                         newMemberResponses[field.id],
-                                        (val) => setNewMemberResponses((prev) => ({ ...prev, [field.id]: val }))
+                                        (val) => setNewMemberResponses((prev) => ({ ...prev, [field.id]: val })),
+                                        `new_member_${field.id}`
                                       )
                                     )}
                                   </div>
@@ -1562,7 +1863,8 @@ export default function RegistrationsClient({
                           renderCustomField(
                             field,
                             leaderResponses[field.id],
-                            (val) => setLeaderResponses((prev) => ({ ...prev, [field.id]: val }))
+                            (val) => setLeaderResponses((prev) => ({ ...prev, [field.id]: val })),
+                            `leader_${field.id}`
                           )
                         )}
                       </div>
@@ -1601,11 +1903,17 @@ export default function RegistrationsClient({
 
                     <button
                       type="submit"
-                      disabled={loading || !onSpotLeaderName || !onSpotLeaderEmail}
+                      disabled={loading || Object.values(uploadingFiles).some(Boolean) || !onSpotLeaderName || !onSpotLeaderEmail}
                       className="flex-1 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-lg shadow-emerald-600/25 transition-all disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
                     >
                       <ZapIcon className="w-4 h-4 text-amber-300" />
-                      <span>{loading ? "Registering..." : "Complete On-Spot Registration"}</span>
+                      <span>
+                        {Object.values(uploadingFiles).some(Boolean)
+                          ? "Uploading File..."
+                          : loading
+                          ? "Registering..."
+                          : "Complete On-Spot Registration"}
+                      </span>
                     </button>
                   </div>
                 </form>

@@ -431,7 +431,7 @@ export async function PATCH(
 
     const { id } = await params;
     const body = await req.json();
-    const { teamId, attended, userId } = body;
+    const { teamId, attended, userId, status, isConfirmed } = body;
 
     if (!teamId) {
       return NextResponse.json({ error: "Team ID is required" }, { status: 400 });
@@ -444,6 +444,26 @@ export async function PATCH(
 
     if (!team) {
       return NextResponse.json({ error: "Team not found" }, { status: 404 });
+    }
+
+    // Update Team Roster Confirmation status (CONFIRMED / PENDING)
+    if (status !== undefined || isConfirmed !== undefined) {
+      const newStatus = status || (isConfirmed ? "CONFIRMED" : "PENDING");
+      const confirmedBool = newStatus === "CONFIRMED";
+      const updatedTeam = await db.team.update({
+        where: { id: teamId },
+        data: {
+          status: newStatus,
+          isConfirmed: confirmedBool,
+        },
+      });
+
+      return NextResponse.json({
+        success: true,
+        status: updatedTeam.status,
+        isConfirmed: updatedTeam.isConfirmed,
+        teamId,
+      });
     }
 
     // Individual member verification
