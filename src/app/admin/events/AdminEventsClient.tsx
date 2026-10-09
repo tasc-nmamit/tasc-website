@@ -9,6 +9,12 @@ import { slugify } from "@/lib/slug";
 import CustomFieldsEditor from "./CustomFieldsEditor";
 import ClientPortal from "@/components/ui/ClientPortal";
 import {
+  formatDateForDateInput,
+  formatDateForDateTimeLocal,
+  parseContestDate,
+  getEventDateTimes,
+} from "@/lib/date-utils";
+import {
   PlusIcon,
   FileSpreadsheetIcon,
   UsersIcon,
@@ -166,8 +172,7 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
         throw new Error("Please upload an image or provide a valid poster image URL.");
       }
 
-      const eventDate = new Date(date);
-      const isPast = eventDate < new Date();
+      const { isPast } = getEventDateTimes({ date, time, endDate });
       
       let status = "UPCOMING";
       let isPublished = true;
@@ -186,7 +191,7 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
         image,
         date,
         time,
-        endDate: endDate ? new Date(endDate).toISOString() : null,
+        endDate: endDate ? parseContestDate(endDate).toISOString() : null,
         venue,
         type,
         status,
@@ -195,7 +200,7 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
         maxTeamSize: type === "SOLO" ? 1 : Number(maxTeamSize),
         maxTeams: maxTeams ? Number(maxTeams) : null,
         registrationsAvailable,
-        registrationStartTime: publishMode === "SCHEDULED" && registrationStartTime ? new Date(registrationStartTime).toISOString() : null,
+        registrationStartTime: publishMode === "SCHEDULED" && registrationStartTime ? parseContestDate(registrationStartTime).toISOString() : null,
         customFields: formatCustomFieldsPayload(customFields),
       };
 
@@ -305,9 +310,9 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
     setEditSlug(ev.slug || slugify(ev.title || ""));
     setEditDescription(ev.description || "");
     setEditImage(ev.image || "");
-    setEditDate(ev.date ? new Date(ev.date).toISOString().split("T")[0] : "");
+    setEditDate(formatDateForDateInput(ev.date));
     setEditTime(ev.time || "");
-    setEditEndDate(ev.endDate ? new Date(ev.endDate).toISOString().slice(0, 16) : "");
+    setEditEndDate(formatDateForDateTimeLocal(ev.endDate));
     setEditVenue(ev.venue || "");
     setEditType(ev.type || "SOLO");
     setEditMinTeamSize(ev.minTeamSize || 1);
@@ -324,9 +329,7 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
     }
     setEditPublishMode(initialMode);
     setEditRegistrationStartTime(
-      ev.registrationStartTime
-        ? new Date(ev.registrationStartTime).toISOString().slice(0, 16)
-        : ""
+      formatDateForDateTimeLocal(ev.registrationStartTime)
     );
 
     const mappedFields = (ev.customFields || []).map((cf: any) => {
@@ -369,7 +372,7 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
         image: editImage,
         date: editDate,
         time: editTime,
-        endDate: editEndDate ? new Date(editEndDate).toISOString() : null,
+        endDate: editEndDate ? parseContestDate(editEndDate).toISOString() : null,
         venue: editVenue,
         type: editType,
         minTeamSize: editType === "SOLO" ? 1 : Number(editMinTeamSize),
@@ -379,7 +382,7 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
         published: isPublished,
         registrationStartTime:
           editPublishMode === "SCHEDULED" && editRegistrationStartTime
-            ? new Date(editRegistrationStartTime).toISOString()
+            ? parseContestDate(editRegistrationStartTime).toISOString()
             : null,
         registrationsAvailable: editRegistrationsAvailable,
         customFields: formatCustomFieldsPayload(editCustomFields),

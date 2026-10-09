@@ -23,8 +23,10 @@ export function EventsView({ initialEvents }: EventsViewProps) {
 
       const events = initialEvents.filter((e) => {
         const d = new Date(e.date);
-        const m = d.getMonth();
-        const yr = d.getFullYear();
+        const formatter = new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Kolkata", year: "numeric", month: "numeric" });
+        const parts = formatter.formatToParts(d);
+        const yr = Number(parts.find((p) => p.type === "year")?.value || d.getFullYear());
+        const m = Number(parts.find((p) => p.type === "month")?.value || (d.getMonth() + 1)) - 1;
         if (yr === start && m >= 6) return true;
         if (yr === end && m < 6) return true;
         return false;

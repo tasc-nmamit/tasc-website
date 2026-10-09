@@ -22,6 +22,7 @@ import {
 import CircuitTrace from "@/components/ui/circuit-ink/CircuitTrace";
 import { MarathonBatch, BATCH_DETAILS, MARATHON_BATCHES } from "@/lib/marathon-batches";
 import ClientPortal from "@/components/ui/ClientPortal";
+import { formatDateForDateInput } from "@/lib/date-utils";
 
 interface Student {
   id: string;
@@ -75,7 +76,7 @@ export default function AttendanceClient({
   const [currentYear, setCurrentYear] = useState<number>(today.getFullYear());
   const [currentMonth, setCurrentMonth] = useState<number>(today.getMonth()); // 0-indexed
   const [selectedDateStr, setSelectedDateStr] = useState<string>(
-    today.toISOString().split("T")[0]
+    formatDateForDateInput(today)
   );
 
   // Active Class Selection
@@ -97,7 +98,7 @@ export default function AttendanceClient({
     };
   }, [isScheduleOpen]);
   const [schedDate, setSchedDate] = useState<string>(
-    today.toISOString().split("T")[0]
+    formatDateForDateInput(today)
   );
   const [schedBatches, setSchedBatches] = useState<MarathonBatch[]>([
     "2A",
@@ -151,7 +152,7 @@ export default function AttendanceClient({
   const classesByDate = useMemo(() => {
     const map: Record<string, MarathonClass[]> = {};
     for (const c of classes) {
-      const d = new Date(c.date).toISOString().split("T")[0];
+      const d = formatDateForDateInput(c.date);
       if (!map[d]) map[d] = [];
       map[d].push(c);
     }
@@ -442,7 +443,7 @@ export default function AttendanceClient({
           </div>
           <button
             onClick={() => {
-              setSchedDate(selectedDateStr || today.toISOString().split("T")[0]);
+              setSchedDate(selectedDateStr || formatDateForDateInput(today));
               setIsScheduleOpen(true);
             }}
             className="mt-3 w-full inline-flex items-center justify-center gap-2 rounded-xl bg-brand hover:bg-brand/90 px-4 py-2.5 font-space-grotesk font-bold text-xs uppercase tracking-wider text-white shadow-md shadow-brand/20 transition-all cursor-pointer"
@@ -487,7 +488,7 @@ export default function AttendanceClient({
               onClick={() => {
                 setCurrentMonth(today.getMonth());
                 setCurrentYear(today.getFullYear());
-                setSelectedDateStr(today.toISOString().split("T")[0]);
+                setSelectedDateStr(formatDateForDateInput(today));
               }}
               className="px-3 py-1.5 rounded-xl border border-brand/20 bg-background/80 hover:bg-card text-xs font-mono-tech text-foreground transition-colors cursor-pointer"
             >
@@ -873,7 +874,7 @@ export default function AttendanceClient({
           </p>
           <button
             onClick={() => {
-              setSchedDate(selectedDateStr || today.toISOString().split("T")[0]);
+              setSchedDate(selectedDateStr || formatDateForDateInput(today));
               setIsScheduleOpen(true);
             }}
             className="mt-4 inline-flex items-center gap-2 rounded-xl bg-brand hover:bg-brand/90 px-4 py-2 font-space-grotesk font-bold text-xs uppercase tracking-wider text-white shadow-md transition-all cursor-pointer"

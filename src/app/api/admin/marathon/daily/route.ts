@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { parseContestDate } from "@/lib/date-utils";
 
 export async function POST(request: Request) {
   const session = await auth();
@@ -19,7 +20,7 @@ export async function POST(request: Request) {
       data: {
         dayNumber: Number(dayNumber),
         targetYear: Number(targetYear),
-        date: new Date(date),
+        date: parseContestDate(date),
         title,
         description,
         link,

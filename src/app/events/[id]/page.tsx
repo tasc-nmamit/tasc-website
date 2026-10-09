@@ -8,6 +8,7 @@ import { getSession } from "@/lib/auth-guards";
 import CircuitTrace from "@/components/ui/circuit-ink/CircuitTrace";
 import TechnicalLabel from "@/components/ui/circuit-ink/TechnicalLabel";
 import EventPhotoGallery from "@/components/events/EventPhotoGallery";
+import { getEventDateTimes } from "@/lib/date-utils";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -42,24 +43,14 @@ export default async function EventDetailsPage({ params }: PageProps) {
 
   if (!event) return notFound();
 
-  let eventStartDateTime = new Date(event.date);
-  if (event.time) {
-    const [hours, minutes] = event.time.split(':').map(Number);
-    if (!isNaN(hours) && !isNaN(minutes)) {
-      eventStartDateTime.setHours(hours, minutes, 0, 0);
-    }
-  }
-
-  let eventEndDateTime: Date | null = event.endDate ? new Date(event.endDate) : null;
-  if (!eventEndDateTime) {
-    // Default to 3 hours after start time if end time wasn't specified
-    eventEndDateTime = new Date(eventStartDateTime.getTime() + 3 * 60 * 60 * 1000);
-  }
-
-  const now = new Date();
-  const isUpcoming = now < eventStartDateTime;
-  const isLive = now >= eventStartDateTime && now <= eventEndDateTime;
-  const isPast = now > eventEndDateTime;
+  const {
+    startDateTime: eventStartDateTime,
+    endDateTime: eventEndDateTime,
+    isUpcoming,
+    isLive,
+    isPast,
+    isScheduled,
+  } = getEventDateTimes(event);
   
   let isRegistered = false;
   let userTeam = null;
@@ -221,7 +212,7 @@ export default async function EventDetailsPage({ params }: PageProps) {
                   <div>
                     <p className="text-[10px] text-muted-foreground font-mono-tech uppercase tracking-widest">Date</p>
                     <p className="font-semibold text-foreground text-sm font-space-grotesk">
-                      {event.date.toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}
+                      {event.date.toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', timeZone: 'Asia/Kolkata' })}
                     </p>
                   </div>
                 </div>

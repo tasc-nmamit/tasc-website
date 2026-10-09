@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { EventStatus, EventType } from "@prisma";
+import { combineDateAndTimeIST, parseContestDate } from "@/lib/date-utils";
 
 export async function POST(request: Request) {
   const session = await auth();
@@ -54,9 +55,9 @@ export async function POST(request: Request) {
         slug: finalSlug,
         description,
         image,
-        date: new Date(date),
+        date: combineDateAndTimeIST(date, time),
         time,
-        endDate: endDate ? new Date(endDate) : null,
+        endDate: endDate ? parseContestDate(endDate) : null,
         venue,
         type: type as EventType,
         status: status as EventStatus,
@@ -65,7 +66,7 @@ export async function POST(request: Request) {
         maxTeams: maxTeams ? parseInt(maxTeams) : null,
         brief: "",
         registrationsAvailable,
-        registrationStartTime: registrationStartTime ? new Date(registrationStartTime) : null,
+        registrationStartTime: registrationStartTime ? parseContestDate(registrationStartTime) : null,
         published: isPublished,
         organizers: {
           connect: { id: session.user.id }

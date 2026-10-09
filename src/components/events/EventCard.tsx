@@ -25,8 +25,8 @@ export function EventIndexRow({ event, index }: EventIndexRowProps) {
   const formattedIndex = String(index + 1).padStart(2, "0");
 
   const eventDate = new Date(event.date);
-  const dayNum = eventDate.getDate();
-  const monthStr = eventDate.toLocaleString("en-US", { month: "short" }).toUpperCase();
+  const dayNum = new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Kolkata", day: "numeric" }).format(eventDate);
+  const monthStr = new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Kolkata", month: "short" }).format(eventDate).toUpperCase();
   const dateDisplay = `${dayNum} ${monthStr}`;
 
   const normStatus = (event.status || "UPCOMING").toUpperCase();

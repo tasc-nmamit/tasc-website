@@ -1,6 +1,7 @@
 import { db } from "@/lib/db";
 import { EventsView } from "@/components/events/EventsView";
 import { Event } from "@/lib/types/Event";
+import { getEventDateTimes } from "@/lib/date-utils";
 
 export const revalidate = 60; // ISR: revalidate every 60 seconds
 
@@ -35,15 +36,16 @@ export default async function EventsPage() {
   });
 
   const events: Event[] = eventsData.map((e) => {
-    let eventDateTime = new Date(e.date);
-    if (e.time) {
-      const [hours, minutes] = e.time.split(':').map(Number);
-      if (!isNaN(hours) && !isNaN(minutes)) {
-        eventDateTime.setHours(hours, minutes, 0, 0);
-      }
-    }
-    const isPast = eventDateTime < new Date();
-    const isScheduled = e.registrationStartTime ? new Date() < new Date(e.registrationStartTime) : false;
+    const { isLive, isPast, isScheduled } = getEventDateTimes(e);
+    const resolvedStatus = e.status === "DRAFT"
+      ? "DRAFT"
+      : isScheduled
+      ? "SCHEDULED"
+      : isPast
+      ? "COMPLETED"
+      : isLive
+      ? "ONGOING"
+      : (e.status || "UPCOMING");
 
     return {
       id: e.id,
@@ -57,7 +59,7 @@ export default async function EventsPage() {
       venue: e.venue,
       description: e.description,
       brief: e.brief,
-      status: isScheduled ? "SCHEDULED" : e.status,
+      status: resolvedStatus,
       minTeamSize: e.minTeamSize,
       maxTeamSize: e.maxTeamSize,
       maxTeamCount: e.maxTeams,

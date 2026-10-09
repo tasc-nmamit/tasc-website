@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import NoticeBoardClient, { NoticeItem } from "@/components/announcements/NoticeBoardClient";
 import TechnicalLabel from "@/components/ui/circuit-ink/TechnicalLabel";
 import CircuitTrace from "@/components/ui/circuit-ink/CircuitTrace";
+import { getEventDateTimes } from "@/lib/date-utils";
 
 
 
@@ -52,14 +53,8 @@ export default async function AnnouncementsPage() {
   // Map events
   const eventNotices: NoticeItem[] = [];
   eventsFromDb.forEach((e) => {
-    let eventDateTime = new Date(e.date);
-    if (e.time) {
-      const [h, m] = e.time.split(":").map(Number);
-      if (!isNaN(h) && !isNaN(m)) eventDateTime.setHours(h, m, 0, 0);
-    }
-    const endDateTime = e.endDate ? new Date(e.endDate) : new Date(eventDateTime.getTime() + 3 * 3600000);
-    const isLive = now >= eventDateTime && now <= endDateTime;
-    const isCompleted = now > endDateTime;
+    const { isLive, isPast } = getEventDateTimes(e);
+    const isCompleted = isPast;
 
     // If event is upcoming or live, add Event Notice
     if (!isCompleted || isLive) {

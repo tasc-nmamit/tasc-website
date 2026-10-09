@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getBatchForUser, MarathonBatch } from "@/lib/marathon-batches";
 import { recalculateTotalScores } from "@/lib/marathon-streak";
+import { parseContestDate } from "@/lib/date-utils";
 
 export async function GET(request: Request) {
   const session = await auth();
@@ -112,7 +113,7 @@ export async function POST(request: Request) {
     }
 
     // 1. Create MarathonClass
-    const classDate = new Date(date);
+    const classDate = parseContestDate(date);
     const newClass = await db.marathonClass.create({
       data: {
         date: classDate,

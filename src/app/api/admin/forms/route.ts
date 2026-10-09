@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { parseContestDate } from "@/lib/date-utils";
 
 export async function POST(request: Request) {
   const session = await auth();
@@ -25,8 +26,8 @@ export async function POST(request: Request) {
         title,
         description,
         published,
-        startTime: startTime ? new Date(startTime) : null,
-        endTime: endTime ? new Date(endTime) : null,
+        startTime: startTime ? parseContestDate(startTime) : null,
+        endTime: endTime ? parseContestDate(endTime) : null,
         requireAiml,
         fields: {
           create: fields.map((f: any, index: number) => ({

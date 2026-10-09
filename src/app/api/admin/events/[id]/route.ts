@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { EventStatus, EventType } from "@prisma";
 import { slugify } from "@/lib/slug";
+import { combineDateAndTimeIST, parseContestDate } from "@/lib/date-utils";
 
 export async function PATCH(
   request: Request,
@@ -54,7 +55,7 @@ export async function PATCH(
     }
     if (body.registrationStartTime !== undefined) {
       updateData.registrationStartTime = body.registrationStartTime
-        ? new Date(body.registrationStartTime)
+        ? parseContestDate(body.registrationStartTime)
         : null;
     }
     if (body.registrationsAvailable !== undefined) {
@@ -62,11 +63,11 @@ export async function PATCH(
     }
 
     if (body.date !== undefined && body.date) {
-      updateData.date = new Date(body.date);
+      updateData.date = combineDateAndTimeIST(body.date, body.time ?? undefined);
     }
 
     if (body.endDate !== undefined) {
-      updateData.endDate = body.endDate ? new Date(body.endDate) : null;
+      updateData.endDate = body.endDate ? parseContestDate(body.endDate) : null;
     }
 
     if (body.type !== undefined) {

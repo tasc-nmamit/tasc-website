@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { generateUniqueTeamCode } from "@/lib/team-code";
+import { getEventDateTimes } from "@/lib/date-utils";
 
 interface Context {
   params: Promise<{ id: string }>;
@@ -88,14 +89,8 @@ export async function POST(request: Request, context: Context) {
     }
 
     // Check if event is concluded
-    let eventEndDateTime: Date | null = event.endDate ? new Date(event.endDate) : null;
-    if (!eventEndDateTime && event.date && event.time) {
-      const [hours, minutes] = event.time.split(":").map(Number);
-      const start = new Date(event.date);
-      start.setHours(hours || 0, minutes || 0, 0, 0);
-      eventEndDateTime = new Date(start.getTime() + 3 * 60 * 60 * 1000);
-    }
-    if (eventEndDateTime && new Date() > eventEndDateTime) {
+    const { isPast, isScheduled } = getEventDateTimes(event);
+    if (isPast) {
       return NextResponse.json(
         { error: "Event has already concluded" },
         { status: 400 }
@@ -306,7 +301,7 @@ export async function POST(request: Request, context: Context) {
       );
     }
 
-    if (event.registrationStartTime && new Date() < new Date(event.registrationStartTime)) {
+    if (isScheduled) {
       return NextResponse.json(
         { error: "Registrations have not opened yet for this event" },
         { status: 400 }

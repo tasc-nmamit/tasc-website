@@ -5,6 +5,7 @@ import { downloadCSV, downloadExcel } from "@/lib/export";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { storage } from "@/lib/firebase";
 import { Trash2Icon, PlusIcon, FileSpreadsheetIcon, Edit3Icon, UploadCloudIcon } from "lucide-react";
+import { parseContestDate } from "@/lib/date-utils";
 
 export default function AdminFormsClient({ initialForms }: { initialForms: any[] }) {
   const [activeTab, setActiveTab] = useState<"LIST" | "CREATE">("LIST");
@@ -121,8 +122,8 @@ export default function AdminFormsClient({ initialForms }: { initialForms: any[]
         title,
         description,
         published: true,
-        startTime: startTime ? new Date(startTime).toISOString() : null,
-        endTime: endTime ? new Date(endTime).toISOString() : null,
+        startTime: startTime ? parseContestDate(startTime).toISOString() : null,
+        endTime: endTime ? parseContestDate(endTime).toISOString() : null,
         requireAiml,
         allowEdit,
         fields: fields.map((f) => {
