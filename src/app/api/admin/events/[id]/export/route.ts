@@ -41,6 +41,7 @@ export async function GET(
           "Team Name": team.name || "N/A",
           "Team Code": team.teamCode || "N/A",
           "Team Status": team.status,
+          "Attendance / Verified": team.attended ? "Present" : "Absent",
           "Is Leader": team.leaderId === reg.userId ? "Yes" : "No",
           "Name": reg.user.name || reg.user.email,
           "Email": reg.user.email,

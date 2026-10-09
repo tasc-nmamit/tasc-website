@@ -47,6 +47,8 @@ export default async function AdminEventRegistrationsPage({
       email: true,
       usn: true,
       branch: true,
+      year: true,
+      phone: true,
     },
     orderBy: { name: "asc" },
   });
