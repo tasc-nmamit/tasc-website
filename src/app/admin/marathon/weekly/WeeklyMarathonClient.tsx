@@ -55,31 +55,64 @@ export default function WeeklyMarathonClient({ initialContests, aimlUsers }: { i
       header: true,
       skipEmptyLines: true,
       complete: async (results) => {
+        const fields =
+          results.meta.fields && results.meta.fields.length > 0
+            ? results.meta.fields
+            : results.data.length > 0
+            ? Object.keys(results.data[0] || {})
+            : [];
+
+        // Check mail ID in CSV: search for column containing "Username" (fallback to email / mail)
+        const emailKey =
+          fields.find((k) => k.toLowerCase().includes("username")) ||
+          fields.find((k) => k.toLowerCase().includes("email") || k.toLowerCase().includes("mail"));
+
+        // Check score in CSV: search for column containing "Total score" (fallback to score)
+        const scoreKey =
+          fields.find((k) => k.toLowerCase().includes("total score")) ||
+          fields.find((k) => k.toLowerCase().includes("score"));
+
+        if (!emailKey || !scoreKey) {
+          alert(
+            `Could not find required columns in the CSV.\n` +
+            `Columns found: ${fields.length > 0 ? fields.join(", ") : "None"}\n\n` +
+            `Please ensure the CSV has a column containing "Username" (for mail ID) and "Total score" (for score).`
+          );
+          e.target.value = '';
+          return;
+        }
+
         const scores: any[] = [];
         results.data.forEach((row: any) => {
-          const keys = Object.keys(row);
-          // Look for 'mail' or 'email' or fallback to the first key
-          const emailKey = keys.find(k => k.toLowerCase().includes("mail") || k.toLowerCase().includes("email")) || keys[0];
-          const scoreKey = keys.find(k => k.toLowerCase().includes("score")) || keys[1] || "";
-          
-          if (row[emailKey] && row[scoreKey] !== undefined) {
-            let rawScore = row[scoreKey].toString();
+          const rawEmail = row[emailKey]?.toString().trim();
+          const rawScoreVal = row[scoreKey];
+
+          if (rawEmail && rawScoreVal !== undefined && rawScoreVal !== null && rawScoreVal !== "") {
+            let rawScore = rawScoreVal.toString().trim();
             if (rawScore.includes('/')) {
               rawScore = rawScore.split('/')[0].trim();
             }
             const score = parseFloat(rawScore);
             if (!isNaN(score)) {
-              scores.push({ email: row[emailKey], score });
+              scores.push({ email: rawEmail, score });
             }
           }
         });
 
         if (scores.length === 0) {
-          alert("Could not parse any scores from the CSV. Ensure there is an email and score column.");
+          alert(
+            `Could not parse any scores from the CSV.\n` +
+            `Columns used: "${emailKey}" for email, "${scoreKey}" for score.\n` +
+            `Ensure rows contain valid email addresses and numbers.`
+          );
+          e.target.value = '';
           return;
         }
 
-        if (!confirm(`Found ${scores.length} scores. Upload to backend?`)) return;
+        if (!confirm(`Found ${scores.length} scores (using "${emailKey}" for email and "${scoreKey}" for score). Upload to backend?`)) {
+          e.target.value = '';
+          return;
+        }
         
         setScoreLoading(true);
         try {
@@ -90,7 +123,12 @@ export default function WeeklyMarathonClient({ initialContests, aimlUsers }: { i
           });
           const data = await res.json();
           if (!res.ok) throw new Error(data.error);
-          alert(`Successfully updated ${data.matchedCount} quiz scores! ${data.unmatchedEmails?.length > 0 ? 'Some emails were not matched.' : ''}`);
+          alert(
+            `Successfully updated ${data.matchedCount} quiz scores!` +
+            (data.unmatchedEmails?.length > 0
+              ? `\n\nNotice: ${data.unmatchedEmails.length} email(s) were not matched:\n${data.unmatchedEmails.slice(0, 5).join(", ")}${data.unmatchedEmails.length > 5 ? ` and ${data.unmatchedEmails.length - 5} more...` : ""}`
+              : "")
+          );
           // Refresh scores
           const scoresRes = await fetch(`/api/admin/marathon/weekly/${selectedContest}/scores`);
           const scoresData = await scoresRes.json();
@@ -412,7 +450,9 @@ export default function WeeklyMarathonClient({ initialContests, aimlUsers }: { i
                 
                 <div className="border border-border/50 rounded-xl p-4 bg-muted/20">
                   <h4 className="font-bold text-sm mb-2">1. Upload Aptitude Quiz CSV</h4>
-                  <p className="text-xs text-muted-foreground mb-4">Upload the Google Form CSV. It will automatically parse the scores.</p>
+                  <p className="text-xs text-muted-foreground mb-4">
+                    Upload the Google Form CSV. It automatically detects &quot;Username&quot; for the student mail ID and &quot;Total score&quot; for the score.
+                  </p>
                   <input type="file" accept=".csv" onChange={handleCsvUpload} disabled={scoreLoading} className="block w-full text-sm text-foreground file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-brand/10 file:text-brand hover:file:bg-brand/20" />
                 </div>
                 

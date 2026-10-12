@@ -28,11 +28,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Scores for this contest have already been confirmed." }, { status: 400 });
     }
     // Find users by email who are AIML students
-    const emails = scores.map(s => s.email.toLowerCase().trim());
+    const rawEmails = scores.map((s) => s.email?.toString().trim()).filter(Boolean);
+    const emails = Array.from(new Set(rawEmails.map((e) => e.toLowerCase())));
     
     const users = await db.user.findMany({
       where: {
-        email: { in: emails },
+        OR: [
+          { email: { in: emails } },
+          { email: { in: rawEmails } }
+        ],
         isAiml: true,
         role: "USER"
       },
@@ -49,8 +53,8 @@ export async function POST(request: Request) {
       return u.year === contest.targetYear;
     });
 
-    const emailToUserId = new Map(eligibleUsers.map(u => [u.email.toLowerCase(), u.id]));
-    const matchedEmails = new Set(eligibleUsers.map(u => u.email.toLowerCase()));
+    const emailToUserId = new Map(eligibleUsers.map(u => [u.email.toLowerCase().trim(), u.id]));
+    const matchedEmails = new Set(eligibleUsers.map(u => u.email.toLowerCase().trim()));
     
     const unmatchedEmails = emails.filter(e => !matchedEmails.has(e));
     let updatedCount = 0;

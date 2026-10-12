@@ -313,6 +313,7 @@ exports.Prisma.AnnouncementScalarFieldEnum = {
   id: 'id',
   title: 'title',
   content: 'content',
+  imageUrl: 'imageUrl',
   published: 'published',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',

@@ -29,6 +29,7 @@ export interface NoticeItem {
   type: "ANNOUNCEMENT" | "EVENT" | "FORM" | "GALLERY";
   title: string;
   content?: string | null;
+  imageUrl?: string | null;
   date: Date | string;
   badge: string;
   badgeVariant?: "gold" | "primary" | "muted";
@@ -239,6 +240,24 @@ export default function NoticeBoardClient({ initialNotices }: NoticeBoardClientP
                   </p>
                 )}
               </div>
+
+              {/* Announcement / Notice Photo Attachment */}
+              {item.imageUrl && (
+                <div
+                  onClick={() => openLightbox([item.imageUrl!], 0)}
+                  className="rounded-xl overflow-hidden border border-brand/25 bg-black/40 cursor-pointer group relative shadow-md hover:border-brand-accent/60 transition-all max-h-[480px]"
+                >
+                  <img
+                    src={item.imageUrl}
+                    alt={item.title}
+                    className="w-full h-full object-cover max-h-[480px] group-hover:scale-[1.015] transition-transform duration-500"
+                  />
+                  <div className="absolute bottom-3 right-3 bg-black/75 backdrop-blur-md border border-white/20 text-white text-[11px] font-mono-tech px-2.5 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1.5 pointer-events-none">
+                    <ImageIcon className="w-3.5 h-3.5 text-brand-accent" />
+                    <span>Click to view full image</span>
+                  </div>
+                </div>
+              )}
 
               {/* Event Alert Details */}
               {item.type === "EVENT" && item.eventMeta && (

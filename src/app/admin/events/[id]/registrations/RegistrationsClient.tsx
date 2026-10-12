@@ -493,12 +493,12 @@ export default function RegistrationsClient({
       prev.map((m) =>
         m.id === memberId
           ? {
-              ...m,
-              responses: {
-                ...m.responses,
-                [fieldId]: val,
-              },
-            }
+            ...m,
+            responses: {
+              ...m.responses,
+              [fieldId]: val,
+            },
+          }
           : m
       )
     );
@@ -602,15 +602,15 @@ export default function RegistrationsClient({
         },
         members: isTeam
           ? onSpotMembers.map((m) => ({
-              userId: m.userId || undefined,
-              name: m.name,
-              email: m.email,
-              usn: m.usn || undefined,
-              phone: m.phone || undefined,
-              branch: m.branch || undefined,
-              year: m.year ? Number(m.year) : undefined,
-              responses: m.responses || {},
-            }))
+            userId: m.userId || undefined,
+            name: m.name,
+            email: m.email,
+            usn: m.usn || undefined,
+            phone: m.phone || undefined,
+            branch: m.branch || undefined,
+            year: m.year ? Number(m.year) : undefined,
+            responses: m.responses || {},
+          }))
           : [],
         responses: leaderResponses,
       };
@@ -663,7 +663,7 @@ export default function RegistrationsClient({
       await new Promise<void>((resolve, reject) => {
         uploadTask.on(
           "state_changed",
-          () => {},
+          () => { },
           (error) => {
             alert("File upload failed: " + error.message);
             reject(error);
@@ -954,11 +954,10 @@ export default function RegistrationsClient({
       <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
         <button
           onClick={() => setStatusFilter("ALL")}
-          className={`px-3.5 py-1.5 rounded-lg text-xs font-mono-tech transition-all flex items-center gap-2 cursor-pointer ${
-            statusFilter === "ALL"
+          className={`px-3.5 py-1.5 rounded-lg text-xs font-mono-tech transition-all flex items-center gap-2 cursor-pointer ${statusFilter === "ALL"
               ? "bg-brand/25 text-brand-accent border border-brand/40 font-bold shadow-sm"
               : "bg-card/40 text-muted-foreground border border-brand/10 hover:text-foreground"
-          }`}
+            }`}
         >
           <span>ALL TEAMS</span>
           <span className="bg-background/80 px-1.5 py-0.2 rounded text-[10px]">
@@ -968,11 +967,10 @@ export default function RegistrationsClient({
 
         <button
           onClick={() => setStatusFilter("CONFIRMED")}
-          className={`px-3.5 py-1.5 rounded-lg text-xs font-mono-tech transition-all flex items-center gap-2 cursor-pointer ${
-            statusFilter === "CONFIRMED"
+          className={`px-3.5 py-1.5 rounded-lg text-xs font-mono-tech transition-all flex items-center gap-2 cursor-pointer ${statusFilter === "CONFIRMED"
               ? "bg-blue-500/25 text-blue-400 border border-blue-500/40 font-bold shadow-sm"
               : "bg-card/40 text-muted-foreground border border-brand/10 hover:text-foreground"
-          }`}
+            }`}
         >
           <span className="flex items-center gap-1.5">
             <ShieldCheckIcon className="w-3.5 h-3.5 text-blue-400" />
@@ -985,11 +983,10 @@ export default function RegistrationsClient({
 
         <button
           onClick={() => setStatusFilter("PENDING_ROSTER")}
-          className={`px-3.5 py-1.5 rounded-lg text-xs font-mono-tech transition-all flex items-center gap-2 cursor-pointer ${
-            statusFilter === "PENDING_ROSTER"
+          className={`px-3.5 py-1.5 rounded-lg text-xs font-mono-tech transition-all flex items-center gap-2 cursor-pointer ${statusFilter === "PENDING_ROSTER"
               ? "bg-amber-500/25 text-amber-400 border border-amber-500/40 font-bold shadow-sm"
               : "bg-card/40 text-muted-foreground border border-brand/10 hover:text-foreground"
-          }`}
+            }`}
         >
           <span className="flex items-center gap-1.5">
             <ClockIcon className="w-3.5 h-3.5 text-amber-400" />
@@ -1002,11 +999,10 @@ export default function RegistrationsClient({
 
         <button
           onClick={() => setStatusFilter("PRESENT")}
-          className={`px-3.5 py-1.5 rounded-lg text-xs font-mono-tech transition-all flex items-center gap-2 cursor-pointer ${
-            statusFilter === "PRESENT"
+          className={`px-3.5 py-1.5 rounded-lg text-xs font-mono-tech transition-all flex items-center gap-2 cursor-pointer ${statusFilter === "PRESENT"
               ? "bg-emerald-500/25 text-emerald-400 border border-emerald-500/40 font-bold shadow-sm"
               : "bg-card/40 text-muted-foreground border border-brand/10 hover:text-foreground"
-          }`}
+            }`}
         >
           <span className="flex items-center gap-1.5">
             <CheckCircle2Icon className="w-3.5 h-3.5 text-emerald-400" />
@@ -1019,11 +1015,10 @@ export default function RegistrationsClient({
 
         <button
           onClick={() => setStatusFilter("ABSENT")}
-          className={`px-3.5 py-1.5 rounded-lg text-xs font-mono-tech transition-all flex items-center gap-2 cursor-pointer ${
-            statusFilter === "ABSENT"
+          className={`px-3.5 py-1.5 rounded-lg text-xs font-mono-tech transition-all flex items-center gap-2 cursor-pointer ${statusFilter === "ABSENT"
               ? "bg-zinc-500/25 text-zinc-300 border border-zinc-500/40 font-bold shadow-sm"
               : "bg-card/40 text-muted-foreground border border-brand/10 hover:text-foreground"
-          }`}
+            }`}
         >
           <span className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-muted-foreground/60" />
@@ -1060,24 +1055,22 @@ export default function RegistrationsClient({
             return (
               <div
                 key={team.id}
-                className={`rounded-2xl border transition-all p-4 md:p-5 relative overflow-hidden backdrop-blur-sm ${
-                  isAttended
+                className={`rounded-2xl border transition-all p-4 md:p-5 relative overflow-hidden backdrop-blur-sm ${isAttended
                     ? "border-emerald-500/40 bg-emerald-500/5 shadow-sm shadow-emerald-500/5"
                     : isRosterConfirmed
-                    ? "border-blue-500/30 bg-card/60 hover:border-blue-500/50"
-                    : "border-amber-500/30 bg-amber-500/5 hover:border-amber-500/40"
-                }`}
+                      ? "border-blue-500/30 bg-card/60 hover:border-blue-500/50"
+                      : "border-amber-500/30 bg-amber-500/5 hover:border-amber-500/40"
+                  }`}
               >
                 {/* Header Row */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-brand/10 mb-4">
                   <div className="flex flex-wrap items-center gap-2.5">
                     {/* 1. Roster Status Badge */}
                     <span
-                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-mono-tech uppercase font-bold tracking-wider ${
-                        isRosterConfirmed
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-mono-tech uppercase font-bold tracking-wider ${isRosterConfirmed
                           ? "bg-blue-500/20 text-blue-400 border border-blue-500/40"
                           : "bg-amber-500/20 text-amber-400 border border-amber-500/40"
-                      }`}
+                        }`}
                     >
                       {isRosterConfirmed ? (
                         <>
@@ -1094,11 +1087,10 @@ export default function RegistrationsClient({
 
                     {/* 2. Attendance Status Badge */}
                     <span
-                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-mono-tech uppercase font-bold tracking-wider ${
-                        isAttended
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-mono-tech uppercase font-bold tracking-wider ${isAttended
                           ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40"
                           : "bg-background/80 text-muted-foreground border border-brand/20"
-                      }`}
+                        }`}
                     >
                       {isAttended ? (
                         <>
@@ -1212,11 +1204,10 @@ export default function RegistrationsClient({
                     return (
                       <div
                         key={reg.id}
-                        className={`p-3 rounded-xl border transition-colors space-y-2 ${
-                          isMemberVerified
+                        className={`p-3 rounded-xl border transition-colors space-y-2 ${isMemberVerified
                             ? "border-emerald-500/25 bg-background/70"
                             : "border-brand/15 bg-background/50"
-                        }`}
+                          }`}
                       >
                         <div className="flex items-start justify-between gap-2">
                           <div className="min-w-0 flex-1 space-y-1">
@@ -1258,11 +1249,10 @@ export default function RegistrationsClient({
                             {event.type === "TEAM" && (
                               <button
                                 onClick={() => handleToggleAttendance(team.id, !isMemberVerified, reg.userId)}
-                                className={`text-[10px] font-mono-tech px-2 py-0.5 rounded border transition-colors cursor-pointer flex items-center gap-1 ${
-                                  isMemberVerified
+                                className={`text-[10px] font-mono-tech px-2 py-0.5 rounded border transition-colors cursor-pointer flex items-center gap-1 ${isMemberVerified
                                     ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/40"
                                     : "bg-muted text-muted-foreground border-border hover:text-foreground"
-                                }`}
+                                  }`}
                                 title="Toggle individual student attendance"
                               >
                                 {isMemberVerified ? "✓ PRESENT" : "MARK PRESENT"}
@@ -1369,11 +1359,10 @@ export default function RegistrationsClient({
                         type="button"
                         onClick={() => setOnSpotFormat("SOLO")}
                         disabled={event.type === "TEAM"}
-                        className={`px-3 py-1 text-xs font-mono-tech rounded font-bold transition-all cursor-pointer ${
-                          onSpotFormat === "SOLO"
+                        className={`px-3 py-1 text-xs font-mono-tech rounded font-bold transition-all cursor-pointer ${onSpotFormat === "SOLO"
                             ? "bg-brand/30 text-brand-accent shadow-sm"
                             : "text-muted-foreground hover:text-foreground disabled:opacity-40"
-                        }`}
+                          }`}
                       >
                         SOLO
                       </button>
@@ -1381,11 +1370,10 @@ export default function RegistrationsClient({
                         type="button"
                         onClick={() => setOnSpotFormat("TEAM")}
                         disabled={event.type === "SOLO"}
-                        className={`px-3 py-1 text-xs font-mono-tech rounded font-bold transition-all cursor-pointer ${
-                          onSpotFormat === "TEAM"
+                        className={`px-3 py-1 text-xs font-mono-tech rounded font-bold transition-all cursor-pointer ${onSpotFormat === "TEAM"
                             ? "bg-brand/30 text-brand-accent shadow-sm"
                             : "text-muted-foreground hover:text-foreground disabled:opacity-40"
-                        }`}
+                          }`}
                       >
                         TEAM
                       </button>
@@ -1616,11 +1604,10 @@ export default function RegistrationsClient({
                               return (
                                 <div
                                   key={m.id}
-                                  className={`p-3 rounded-xl border transition-colors space-y-2.5 ${
-                                    missingRequiredCount > 0
+                                  className={`p-3 rounded-xl border transition-colors space-y-2.5 ${missingRequiredCount > 0
                                       ? "border-amber-500/40 bg-amber-500/5"
                                       : "border-brand/20 bg-background/70"
-                                  }`}
+                                    }`}
                                 >
                                   <div className="flex items-start justify-between gap-2">
                                     <div>
@@ -1911,8 +1898,8 @@ export default function RegistrationsClient({
                         {Object.values(uploadingFiles).some(Boolean)
                           ? "Uploading File..."
                           : loading
-                          ? "Registering..."
-                          : "Complete On-Spot Registration"}
+                            ? "Registering..."
+                            : "Complete On-Spot Registration"}
                       </span>
                     </button>
                   </div>

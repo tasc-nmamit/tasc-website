@@ -1,7 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { PlusIcon, Edit3Icon, Trash2Icon, MegaphoneIcon } from "lucide-react";
+import {
+  PlusIcon,
+  Edit3Icon,
+  Trash2Icon,
+  MegaphoneIcon,
+  ImageIcon,
+  UploadCloudIcon,
+  Loader2Icon,
+} from "lucide-react";
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { storage } from "@/lib/firebase";
 
 export default function AdminAnnouncementsClient({ initialAnnouncements }: { initialAnnouncements: any[] }) {
   const [activeTab, setActiveTab] = useState<"LIST" | "CREATE">("LIST");
@@ -9,14 +19,61 @@ export default function AdminAnnouncementsClient({ initialAnnouncements }: { ini
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
   const [published, setPublished] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   // Edit State
   const [editingId, setEditingId] = useState<string | null>(null);
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    const file = e.target.files[0];
+
+    if (!file.type.startsWith("image/")) {
+      alert("Please select a valid image file (PNG, JPG, WEBP, GIF, etc.)");
+      return;
+    }
+
+    if (file.size > 15 * 1024 * 1024) {
+      alert("Image is too large. Please select an image smaller than 15MB.");
+      return;
+    }
+
+    const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
+    const storageRef = ref(storage, `announcements/${Date.now()}_${safeName}`);
+    const uploadTask = uploadBytesResumable(storageRef, file);
+
+    setUploadingImage(true);
+    setUploadProgress(0);
+
+    uploadTask.on(
+      "state_changed",
+      (snapshot) => {
+        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        setUploadProgress(Math.round(progress));
+      },
+      (error) => {
+        alert("Image upload failed: " + error.message);
+        setUploadingImage(false);
+      },
+      async () => {
+        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+        setImageUrl(downloadURL);
+        setUploadingImage(false);
+      }
+    );
+  };
+
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (uploadingImage) {
+      alert("Please wait for the photo to finish uploading.");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -26,7 +83,12 @@ export default function AdminAnnouncementsClient({ initialAnnouncements }: { ini
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, content, published }),
+        body: JSON.stringify({
+          title,
+          content,
+          published,
+          imageUrl: imageUrl.trim() || null,
+        }),
       });
 
       if (!res.ok) throw new Error(await res.text());
@@ -56,6 +118,7 @@ export default function AdminAnnouncementsClient({ initialAnnouncements }: { ini
   const handleEdit = (announcement: any) => {
     setTitle(announcement.title);
     setContent(announcement.content);
+    setImageUrl(announcement.imageUrl || "");
     setPublished(announcement.published);
     setEditingId(announcement.id);
     setActiveTab("CREATE");
@@ -71,6 +134,9 @@ export default function AdminAnnouncementsClient({ initialAnnouncements }: { ini
             setEditingId(null);
             setTitle("");
             setContent("");
+            setImageUrl("");
+            setUploadingImage(false);
+            setUploadProgress(0);
             setPublished(true);
           }}
           className={`px-5 py-2.5 rounded-xl font-space-grotesk font-semibold text-sm transition-all ${
@@ -82,7 +148,17 @@ export default function AdminAnnouncementsClient({ initialAnnouncements }: { ini
           All Announcements ({announcements.length})
         </button>
         <button
-          onClick={() => setActiveTab("CREATE")}
+          onClick={() => {
+            if (!editingId) {
+              setTitle("");
+              setContent("");
+              setImageUrl("");
+              setUploadingImage(false);
+              setUploadProgress(0);
+              setPublished(true);
+            }
+            setActiveTab("CREATE");
+          }}
           className={`px-5 py-2.5 rounded-xl font-space-grotesk font-semibold text-sm transition-all flex items-center gap-2 ${
             activeTab === "CREATE"
               ? "bg-brand/20 text-brand-accent border border-brand/40 shadow-sm"
@@ -118,6 +194,12 @@ export default function AdminAnnouncementsClient({ initialAnnouncements }: { ini
                       >
                         {announcement.published ? "PUBLISHED" : "DRAFT"}
                       </span>
+                      {announcement.imageUrl && (
+                        <span className="rounded-lg px-2 py-0.5 text-[10px] font-mono-tech text-brand-accent bg-brand/15 border border-brand/30 flex items-center gap-1">
+                          <ImageIcon className="w-3 h-3" />
+                          <span>HAS PHOTO</span>
+                        </span>
+                      )}
                     </div>
 
                     <h3 className="text-xl font-bold font-space-grotesk text-foreground">
@@ -150,6 +232,17 @@ export default function AdminAnnouncementsClient({ initialAnnouncements }: { ini
                     </button>
                   </div>
                 </div>
+
+                {/* Announcement Image Preview in Card */}
+                {announcement.imageUrl && (
+                  <div className="mb-4 rounded-xl overflow-hidden border border-brand/20 max-h-72 bg-black/40 shadow-sm">
+                    <img
+                      src={announcement.imageUrl}
+                      alt={announcement.title}
+                      className="w-full h-full object-cover max-h-72 hover:scale-[1.01] transition-transform"
+                    />
+                  </div>
+                )}
 
                 <div className="rounded-xl border border-brand/10 bg-background/40 p-4 text-sm text-muted-foreground font-space-grotesk whitespace-pre-wrap leading-relaxed">
                   {announcement.content}
@@ -193,6 +286,94 @@ export default function AdminAnnouncementsClient({ initialAnnouncements }: { ini
             />
           </div>
 
+          {/* Photo / Poster Upload Section */}
+          <div className="space-y-2">
+            <label className="block text-sm font-semibold font-space-grotesk text-foreground">
+              Notice / Announcement Photo (Optional)
+            </label>
+
+            {imageUrl ? (
+              <div className="relative rounded-2xl border border-brand/30 bg-background/60 p-3.5 flex flex-col sm:flex-row items-center gap-4">
+                <div className="relative w-full sm:w-48 h-32 rounded-xl overflow-hidden border border-brand/20 bg-black/40 shrink-0 shadow-sm">
+                  <img
+                    src={imageUrl}
+                    alt="Notice preview"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="flex-1 space-y-2 text-center sm:text-left min-w-0">
+                  <p className="text-xs font-mono-tech text-emerald-400 font-bold flex items-center justify-center sm:justify-start gap-1.5">
+                    <span>✓</span> Photo attached to notice
+                  </p>
+                  <p className="text-[11px] font-mono-tech text-muted-foreground truncate max-w-md">
+                    {imageUrl}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setImageUrl("")}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-red-500/30 bg-red-500/10 text-xs font-mono-tech text-red-400 hover:bg-red-500/20 transition-all cursor-pointer"
+                  >
+                    <Trash2Icon className="w-3.5 h-3.5" />
+                    <span>Remove Photo</span>
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <label className="flex flex-col items-center justify-center border-2 border-dashed border-brand/30 hover:border-brand-accent/60 bg-background/50 hover:bg-background/80 rounded-2xl p-6 transition-all cursor-pointer group">
+                  <div className="p-3 rounded-full bg-brand/10 group-hover:bg-brand/20 transition-colors mb-2">
+                    <UploadCloudIcon className="w-6 h-6 text-brand-accent" />
+                  </div>
+                  <span className="text-sm font-space-grotesk font-semibold text-foreground group-hover:text-brand-accent transition-colors">
+                    Click to upload a notice photo or poster
+                  </span>
+                  <span className="text-xs font-mono-tech text-muted-foreground mt-1">
+                    PNG, JPG, WEBP, GIF up to 15MB
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    disabled={uploadingImage}
+                    className="hidden"
+                  />
+                </label>
+
+                {uploadingImage && (
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between text-xs font-mono-tech text-muted-foreground">
+                      <span className="flex items-center gap-1.5 text-brand-accent">
+                        <Loader2Icon className="w-3.5 h-3.5 animate-spin" />
+                        Uploading photo to cloud...
+                      </span>
+                      <span>{uploadProgress}%</span>
+                    </div>
+                    <div className="h-1.5 w-full bg-background rounded-full overflow-hidden border border-brand/20">
+                      <div
+                        className="h-full bg-gradient-to-r from-brand to-brand-accent transition-all duration-300"
+                        style={{ width: `${uploadProgress}%` }}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Direct image URL input option */}
+                <div className="flex items-center gap-2 pt-1">
+                  <span className="text-[11px] font-mono-tech text-muted-foreground uppercase shrink-0">
+                    Or Image URL:
+                  </span>
+                  <input
+                    type="url"
+                    value={imageUrl}
+                    onChange={(e) => setImageUrl(e.target.value)}
+                    placeholder="https://example.com/poster.jpg"
+                    className="flex-1 rounded-xl border border-brand/20 bg-background/50 px-3 py-1.5 text-xs text-foreground outline-none focus:border-brand-accent font-mono-tech"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+
           <label className="flex items-center gap-3 text-sm font-semibold font-space-grotesk text-foreground cursor-pointer">
             <input
               type="checkbox"
@@ -205,7 +386,7 @@ export default function AdminAnnouncementsClient({ initialAnnouncements }: { ini
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || uploadingImage}
             className="w-full rounded-2xl bg-brand py-4 text-center font-space-grotesk font-bold text-white shadow-xl shadow-brand/20 transition-all hover:bg-brand/90 hover:scale-[1.005] disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
           >
             <MegaphoneIcon className="w-5 h-5" />

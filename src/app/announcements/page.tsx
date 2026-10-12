@@ -40,6 +40,7 @@ export default async function AnnouncementsPage() {
     type: "ANNOUNCEMENT",
     title: a.title,
     content: a.content,
+    imageUrl: a.imageUrl,
     date: a.createdAt,
     badge: "Official Bulletin",
     badgeVariant: "primary",

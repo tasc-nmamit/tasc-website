@@ -9,7 +9,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const { title, content, published } = await request.json();
+    const { title, content, published, imageUrl } = await request.json();
 
     if (!title || !content) {
       return NextResponse.json({ error: "Title and content are required" }, { status: 400 });
@@ -19,6 +19,7 @@ export async function POST(request: Request) {
       data: {
         title,
         content,
+        imageUrl: imageUrl || null,
         published: published ?? false,
         authorId: session.user.id,
       },

@@ -9,6 +9,7 @@ export interface AnnouncementItem {
   id: string;
   title: string;
   content: string;
+  imageUrl?: string | null;
   createdAt: Date | string;
   author: {
     name: string | null;
@@ -223,6 +224,17 @@ export default function LinkedListTimeline({ announcements }: LinkedListTimeline
                         <div className="text-sm sm:text-base text-slate-200 leading-relaxed whitespace-pre-wrap font-normal">
                           {item.content}
                         </div>
+
+                        {/* Attached Image */}
+                        {item.imageUrl && (
+                          <div className="rounded-lg overflow-hidden border border-white/20 max-h-96 bg-black/40">
+                            <img
+                              src={item.imageUrl}
+                              alt={item.title}
+                              className="w-full h-full object-cover max-h-96"
+                            />
+                          </div>
+                        )}
 
                         {/* Node Metadata Footer */}
                         <div className="pt-3 border-t border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-slate-400">
