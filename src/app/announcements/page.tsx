@@ -35,21 +35,31 @@ export default async function AnnouncementsPage() {
   const now = new Date();
 
   // Map announcements
-  const announcementNotices: NoticeItem[] = announcementsFromDb.map((a) => ({
-    id: `announcement-${a.id}`,
-    type: "ANNOUNCEMENT",
-    title: a.title,
-    content: a.content,
-    imageUrl: a.imageUrl,
-    date: a.createdAt,
-    badge: "Official Bulletin",
-    badgeVariant: "primary",
-    author: {
-      name: a.author.name,
-      image: a.author.image,
-      role: a.author.role,
-    },
-  }));
+  const announcementNotices: NoticeItem[] = announcementsFromDb.map((a) => {
+    const rawImageUrls = (a as any).imageUrls;
+    const cleanImageUrls: string[] = Array.isArray(rawImageUrls) && rawImageUrls.length > 0
+      ? rawImageUrls.filter((url: any) => typeof url === "string" && (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("/")))
+      : a.imageUrl
+      ? [a.imageUrl]
+      : [];
+
+    return {
+      id: `announcement-${a.id}`,
+      type: "ANNOUNCEMENT",
+      title: a.title,
+      content: a.content,
+      imageUrl: cleanImageUrls[0] || null,
+      imageUrls: cleanImageUrls,
+      date: a.createdAt,
+      badge: "Official Bulletin",
+      badgeVariant: "primary",
+      author: {
+        name: a.author.name,
+        image: a.author.image,
+        role: a.author.role,
+      },
+    };
+  });
 
   // Map events
   const eventNotices: NoticeItem[] = [];
@@ -81,7 +91,10 @@ export default async function AnnouncementsPage() {
     }
 
     // If event has gallery published, add Gallery Showcase Notice!
-    const hasGallery = Array.isArray(e.guests) && e.guests.length > 0;
+    const cleanGalleryPhotos = Array.isArray(e.guests)
+      ? e.guests.filter((p) => typeof p === "string" && (p.startsWith("http://") || p.startsWith("https://") || p.startsWith("/")))
+      : [];
+    const hasGallery = cleanGalleryPhotos.length > 0;
     const isGalleryPublished = e.notification === "GALLERY_PUBLISHED";
 
     if (hasGallery && isGalleryPublished) {
@@ -98,7 +111,7 @@ export default async function AnnouncementsPage() {
         eventMeta: {
           date: e.date,
           venue: e.venue,
-          photos: e.guests,
+          photos: cleanGalleryPhotos,
           isCompleted: true,
         },
       });

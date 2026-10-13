@@ -10,6 +10,7 @@ export interface AnnouncementItem {
   title: string;
   content: string;
   imageUrl?: string | null;
+  imageUrls?: string[];
   createdAt: Date | string;
   author: {
     name: string | null;
@@ -225,16 +226,44 @@ export default function LinkedListTimeline({ announcements }: LinkedListTimeline
                           {item.content}
                         </div>
 
-                        {/* Attached Image */}
-                        {item.imageUrl && (
-                          <div className="rounded-lg overflow-hidden border border-white/20 max-h-96 bg-black/40">
-                            <img
-                              src={item.imageUrl}
-                              alt={item.title}
-                              className="w-full h-full object-cover max-h-96"
-                            />
-                          </div>
-                        )}
+                        {/* Attached Image(s) */}
+                        {(() => {
+                          const photos = Array.isArray(item.imageUrls) && item.imageUrls.length > 0
+                            ? item.imageUrls
+                            : item.imageUrl
+                            ? [item.imageUrl]
+                            : [];
+                          if (photos.length === 0) return null;
+
+                          if (photos.length === 1) {
+                            return (
+                              <div className="rounded-lg overflow-hidden border border-white/20 max-h-96 bg-black/40">
+                                <img
+                                  src={photos[0]}
+                                  alt={item.title}
+                                  className="w-full h-full object-cover max-h-96"
+                                />
+                              </div>
+                            );
+                          }
+
+                          return (
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                              {photos.map((url, idx) => (
+                                <div
+                                  key={idx}
+                                  className="relative aspect-video rounded-lg overflow-hidden border border-white/20 bg-black/40"
+                                >
+                                  <img
+                                    src={url}
+                                    alt={`${item.title} - photo ${idx + 1}`}
+                                    className="w-full h-full object-cover"
+                                  />
+                                </div>
+                              ))}
+                            </div>
+                          );
+                        })()}
 
                         {/* Node Metadata Footer */}
                         <div className="pt-3 border-t border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-slate-400">

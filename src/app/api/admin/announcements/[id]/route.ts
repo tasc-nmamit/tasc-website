@@ -33,7 +33,19 @@ export async function PATCH(
 
   try {
     const { id } = await params;
-    const data = await request.json();
+    const body = await request.json();
+    
+    const data: any = { ...body };
+    if (Array.isArray(body.imageUrls)) {
+      data.imageUrls = body.imageUrls.filter((url: any) => typeof url === "string" && url.trim().length > 0);
+      data.imageUrl = data.imageUrls[0] || null;
+    } else if (body.imageUrl !== undefined) {
+      const trimmed = body.imageUrl ? body.imageUrl.trim() : null;
+      data.imageUrl = trimmed;
+      if (trimmed && (!body.imageUrls || body.imageUrls.length === 0)) {
+        data.imageUrls = [trimmed];
+      }
+    }
     
     const updated = await db.announcement.update({
       where: { id },

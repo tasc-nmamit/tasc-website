@@ -9,17 +9,26 @@ export async function POST(request: Request) {
   }
 
   try {
-    const { title, content, published, imageUrl } = await request.json();
+    const { title, content, published, imageUrl, imageUrls } = await request.json();
 
     if (!title || !content) {
       return NextResponse.json({ error: "Title and content are required" }, { status: 400 });
     }
 
+    const cleanImageUrls: string[] = Array.isArray(imageUrls)
+      ? imageUrls.filter((url: any) => typeof url === "string" && url.trim().length > 0)
+      : imageUrl
+      ? [imageUrl.trim()]
+      : [];
+
+    const primaryImageUrl = cleanImageUrls.length > 0 ? cleanImageUrls[0] : (imageUrl?.trim() || null);
+
     const announcement = await db.announcement.create({
       data: {
         title,
         content,
-        imageUrl: imageUrl || null,
+        imageUrl: primaryImageUrl,
+        imageUrls: cleanImageUrls,
         published: published ?? false,
         authorId: session.user.id,
       },

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -30,6 +30,7 @@ export interface NoticeItem {
   title: string;
   content?: string | null;
   imageUrl?: string | null;
+  imageUrls?: string[];
   date: Date | string;
   badge: string;
   badgeVariant?: "gold" | "primary" | "muted";
@@ -62,41 +63,95 @@ export default function NoticeBoardClient({ initialNotices }: NoticeBoardClientP
   const [selectedTab, setSelectedTab] = useState<NoticeType>("ALL");
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Lightbox State for Photo Galleries
-  const [activeGalleryPhotos, setActiveGalleryPhotos] = useState<string[] | null>(null);
-  const [galleryPhotoIndex, setGalleryPhotoIndex] = useState(0);
+  // Lightbox State for Photo Galleries & Multi-image Bulletins
+  const [lightboxState, setLightboxState] = useState<{
+    photos: string[];
+    title: string;
+    currentIndex: number;
+  } | null>(null);
+  const [isImageLoading, setIsImageLoading] = useState(false);
 
+  const openLightbox = useCallback((photos: string[], index: number = 0, title: string = "Photo Preview") => {
+    const validPhotos = photos.filter(
+      (p) => typeof p === "string" && (p.startsWith("http://") || p.startsWith("https://") || p.startsWith("/"))
+    );
+    if (validPhotos.length === 0) return;
+    const safeIndex = Math.max(0, Math.min(index, validPhotos.length - 1));
+    setIsImageLoading(true);
+    setLightboxState({
+      photos: validPhotos,
+      title,
+      currentIndex: safeIndex,
+    });
+  }, []);
+
+  const closeLightbox = useCallback(() => {
+    setLightboxState(null);
+    setIsImageLoading(false);
+  }, []);
+
+  const nextPhoto = useCallback(() => {
+    setLightboxState((prev) => {
+      if (!prev || prev.photos.length <= 1) return prev;
+      const nextIdx = (prev.currentIndex + 1) % prev.photos.length;
+      return { ...prev, currentIndex: nextIdx };
+    });
+    setIsImageLoading(true);
+  }, []);
+
+  const prevPhoto = useCallback(() => {
+    setLightboxState((prev) => {
+      if (!prev || prev.photos.length <= 1) return prev;
+      const prevIdx = (prev.currentIndex - 1 + prev.photos.length) % prev.photos.length;
+      return { ...prev, currentIndex: prevIdx };
+    });
+    setIsImageLoading(true);
+  }, []);
+
+  const goToPhoto = useCallback((index: number) => {
+    setLightboxState((prev) => {
+      if (!prev || index < 0 || index >= prev.photos.length) return prev;
+      return { ...prev, currentIndex: index };
+    });
+    setIsImageLoading(true);
+  }, []);
+
+  // Preload adjacent photos for seamless transitions
   useEffect(() => {
-    if (activeGalleryPhotos) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
+    if (!lightboxState || lightboxState.photos.length <= 1) return;
+    const { photos, currentIndex } = lightboxState;
+    const nextUrl = photos[(currentIndex + 1) % photos.length];
+    const prevUrl = photos[(currentIndex - 1 + photos.length) % photos.length];
+    if (nextUrl) {
+      const img = new window.Image();
+      img.src = nextUrl;
     }
+    if (prevUrl) {
+      const img = new window.Image();
+      img.src = prevUrl;
+    }
+  }, [lightboxState]);
+
+  // Lock body & Keyboard navigation
+  useEffect(() => {
+    if (!lightboxState) {
+      document.body.style.overflow = "";
+      return;
+    }
+    document.body.style.overflow = "hidden";
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeLightbox();
+      if (e.key === "ArrowRight") nextPhoto();
+      if (e.key === "ArrowLeft") prevPhoto();
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
     return () => {
       document.body.style.overflow = "";
+      window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [activeGalleryPhotos]);
-
-  const openLightbox = (photos: string[], index: number = 0) => {
-    setActiveGalleryPhotos(photos);
-    setGalleryPhotoIndex(index);
-  };
-
-  const closeLightbox = () => {
-    setActiveGalleryPhotos(null);
-  };
-
-  const nextPhoto = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (!activeGalleryPhotos) return;
-    setGalleryPhotoIndex((prev) => (prev + 1) % activeGalleryPhotos.length);
-  };
-
-  const prevPhoto = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (!activeGalleryPhotos) return;
-    setGalleryPhotoIndex((prev) => (prev - 1 + activeGalleryPhotos.length) % activeGalleryPhotos.length);
-  };
+  }, [lightboxState, closeLightbox, nextPhoto, prevPhoto]);
 
   // Filter Notices
   const filteredNotices = useMemo(() => {
@@ -241,23 +296,123 @@ export default function NoticeBoardClient({ initialNotices }: NoticeBoardClientP
                 )}
               </div>
 
-              {/* Announcement / Notice Photo Attachment */}
-              {item.imageUrl && (
-                <div
-                  onClick={() => openLightbox([item.imageUrl!], 0)}
-                  className="rounded-xl overflow-hidden border border-brand/25 bg-black/40 cursor-pointer group relative shadow-md hover:border-brand-accent/60 transition-all max-h-[480px]"
-                >
-                  <img
-                    src={item.imageUrl}
-                    alt={item.title}
-                    className="w-full h-full object-cover max-h-[480px] group-hover:scale-[1.015] transition-transform duration-500"
-                  />
-                  <div className="absolute bottom-3 right-3 bg-black/75 backdrop-blur-md border border-white/20 text-white text-[11px] font-mono-tech px-2.5 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1.5 pointer-events-none">
-                    <ImageIcon className="w-3.5 h-3.5 text-brand-accent" />
-                    <span>Click to view full image</span>
+              {/* Announcement / Notice Photo Attachment(s) */}
+              {(() => {
+                const photos = Array.isArray(item.imageUrls) && item.imageUrls.length > 0
+                  ? item.imageUrls
+                  : item.imageUrl
+                  ? [item.imageUrl]
+                  : [];
+                if (photos.length === 0) return null;
+
+                if (photos.length === 1) {
+                  return (
+                    <div
+                      onClick={() => openLightbox(photos, 0, item.title)}
+                      className="rounded-xl overflow-hidden border border-brand/25 bg-black/40 cursor-pointer group relative shadow-md hover:border-brand-accent/60 transition-all max-h-[480px]"
+                    >
+                      <img
+                        src={photos[0]}
+                        alt={item.title}
+                        className="w-full h-full object-cover max-h-[480px] group-hover:scale-[1.015] transition-transform duration-500"
+                      />
+                      <div className="absolute bottom-3 right-3 bg-black/75 backdrop-blur-md border border-white/20 text-white text-[11px] font-mono-tech px-2.5 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1.5 pointer-events-none">
+                        <ImageIcon className="w-3.5 h-3.5 text-brand-accent" />
+                        <span>Click to view full image</span>
+                      </div>
+                    </div>
+                  );
+                }
+
+                if (photos.length === 2) {
+                  return (
+                    <div className="space-y-2 pt-1">
+                      <div className="flex items-center justify-between text-xs font-mono-tech uppercase text-muted-foreground">
+                        <span>Attached Photos</span>
+                        <span className="text-brand-accent font-bold">2 Photos</span>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        {photos.map((url, idx) => (
+                          <div
+                            key={idx}
+                            onClick={() => openLightbox(photos, idx, item.title)}
+                            className="relative aspect-video rounded-xl overflow-hidden border border-brand/20 cursor-pointer group bg-black/40 shadow-sm hover:border-brand-accent/60 transition-all"
+                          >
+                            <img
+                              src={url}
+                              alt={`${item.title} - Photo ${idx + 1}`}
+                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            />
+                            <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded bg-black/60 backdrop-blur-xs text-[10px] font-mono-tech text-white/90">
+                              #{idx + 1}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                }
+
+                if (photos.length === 3) {
+                  return (
+                    <div className="space-y-2 pt-1">
+                      <div className="flex items-center justify-between text-xs font-mono-tech uppercase text-muted-foreground">
+                        <span>Attached Photos</span>
+                        <span className="text-brand-accent font-bold">3 Photos</span>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                        {photos.map((url, idx) => (
+                          <div
+                            key={idx}
+                            onClick={() => openLightbox(photos, idx, item.title)}
+                            className="relative aspect-video rounded-xl overflow-hidden border border-brand/20 cursor-pointer group bg-black/40 shadow-sm hover:border-brand-accent/60 transition-all"
+                          >
+                            <img
+                              src={url}
+                              alt={`${item.title} - Photo ${idx + 1}`}
+                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            />
+                            <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded bg-black/60 backdrop-blur-xs text-[10px] font-mono-tech text-white/90">
+                              #{idx + 1}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                }
+
+                // 4 or more photos
+                return (
+                  <div className="space-y-2 pt-1">
+                    <div className="flex items-center justify-between text-xs font-mono-tech uppercase text-muted-foreground">
+                      <span>Attached Photos</span>
+                      <span className="text-brand-accent font-bold">{photos.length} Photos</span>
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                      {photos.slice(0, 4).map((url, idx) => (
+                        <div
+                          key={idx}
+                          onClick={() => openLightbox(photos, idx, item.title)}
+                          className="relative aspect-video rounded-lg overflow-hidden border border-brand/20 cursor-pointer group bg-black/40 shadow-sm hover:border-brand-accent/60 transition-all"
+                        >
+                          <img
+                            src={url}
+                            alt={`${item.title} - Photo ${idx + 1}`}
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          />
+                          {idx === 3 && photos.length > 4 && (
+                            <div className="absolute inset-0 bg-black/60 hover:bg-black/70 flex flex-col items-center justify-center text-white font-mono-tech font-bold text-sm transition-colors">
+                              <span>+{photos.length - 4} MORE</span>
+                              <span className="text-[10px] text-brand-accent font-normal mt-0.5">View all</span>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                );
+              })()}
 
               {/* Event Alert Details */}
               {item.type === "EVENT" && item.eventMeta && (
@@ -289,17 +444,18 @@ export default function NoticeBoardClient({ initialNotices }: NoticeBoardClientP
                     {item.eventMeta.photos.slice(0, 4).map((photoUrl, idx) => (
                       <div
                         key={idx}
-                        onClick={() => openLightbox(item.eventMeta!.photos!, idx)}
+                        onClick={() => openLightbox(item.eventMeta!.photos!, idx, item.title)}
                         className="relative aspect-video rounded-lg overflow-hidden border border-brand/20 cursor-pointer group bg-black/40 shadow-sm hover:border-brand-accent/60 transition-all"
                       >
                         <img
                           src={photoUrl}
-                          alt="Event highlight"
+                          alt={`${item.title} - Highlight ${idx + 1}`}
                           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                         />
                         {idx === 3 && item.eventMeta!.photos!.length > 4 && (
-                          <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-white font-mono-tech font-bold text-sm">
-                            +{item.eventMeta!.photos!.length - 4} MORE
+                          <div className="absolute inset-0 bg-black/60 hover:bg-black/70 flex flex-col items-center justify-center text-white font-mono-tech font-bold text-sm transition-colors">
+                            <span>+{item.eventMeta!.photos!.length - 4} MORE</span>
+                            <span className="text-[10px] text-gold font-normal mt-0.5">View all photos</span>
                           </div>
                         )}
                       </div>
@@ -353,60 +509,127 @@ export default function NoticeBoardClient({ initialNotices }: NoticeBoardClientP
         )}
       </div>
 
-      {/* Lightbox Modal for Photo Gallery */}
-      {activeGalleryPhotos && (
+      {/* Lightbox Modal for Photo Gallery & Multi-image Bulletins */}
+      {lightboxState && (
         <ClientPortal>
           <div
+            role="dialog"
+            aria-modal="true"
             onClick={closeLightbox}
-            className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-fadeIn"
+            className="fixed inset-0 z-[9999] flex flex-col items-center justify-between p-3 sm:p-5 bg-black/95 backdrop-blur-md animate-fadeIn select-none"
           >
+            {/* Top Bar */}
             <div
               onClick={(e) => e.stopPropagation()}
-              className="relative w-full max-w-4xl max-h-[90vh] flex flex-col items-center justify-center"
+              className="w-full max-w-6xl flex items-center justify-between py-2 text-white z-20 shrink-0"
             >
-              {/* Close Button */}
-              <button
-                onClick={closeLightbox}
-                className="absolute -top-12 right-0 text-white hover:text-red-400 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors cursor-pointer"
-                aria-label="Close lightbox"
-              >
-                <XIcon className="w-6 h-6" />
-              </button>
-
-              {/* Photo Container */}
-              <div className="relative w-full aspect-video rounded-xl overflow-hidden border border-white/20 shadow-2xl bg-black">
-                <img
-                  src={activeGalleryPhotos[galleryPhotoIndex]}
-                  alt="Highlight preview"
-                  className="w-full h-full object-contain"
-                />
-
-                {/* Prev / Next Controls */}
-                {activeGalleryPhotos.length > 1 && (
-                  <>
-                    <button
-                      onClick={prevPhoto}
-                      className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/60 hover:bg-black/80 text-white transition-all border border-white/20 cursor-pointer"
-                      aria-label="Previous photo"
-                    >
-                      <ChevronLeftIcon className="w-5 h-5" />
-                    </button>
-                    <button
-                      onClick={nextPhoto}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/60 hover:bg-black/80 text-white transition-all border border-white/20 cursor-pointer"
-                      aria-label="Next photo"
-                    >
-                      <ChevronRightIcon className="w-5 h-5" />
-                    </button>
-                  </>
-                )}
+              <div className="flex items-center gap-3 min-w-0 pr-4">
+                <span className="font-mono-tech text-xs text-brand-accent uppercase tracking-wider truncate max-w-md hidden sm:inline">
+                  {lightboxState.title}
+                </span>
+                <span className="px-2.5 py-0.5 rounded-full bg-brand/20 border border-brand/40 font-mono-tech text-xs text-brand-accent shrink-0">
+                  PHOTO {lightboxState.currentIndex + 1} OF {lightboxState.photos.length}
+                </span>
               </div>
 
-              {/* Counter Footer */}
-              <div className="mt-3 text-xs font-mono-tech text-slate-400">
-                PHOTO {galleryPhotoIndex + 1} OF {activeGalleryPhotos.length}
+              <div className="flex items-center gap-2 shrink-0">
+                <a
+                  href={lightboxState.photos[lightboxState.currentIndex]}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Open original image"
+                  className="p-2 rounded-lg bg-white/10 hover:bg-white/20 text-white/80 hover:text-white transition-colors"
+                  title="Open full image in new tab"
+                >
+                  <ExternalLinkIcon className="w-4 h-4" />
+                </a>
+                <button
+                  onClick={closeLightbox}
+                  aria-label="Close photo preview"
+                  className="p-2 rounded-lg bg-white/10 hover:bg-red-500/80 text-white/80 hover:text-white transition-colors cursor-pointer"
+                >
+                  <XIcon className="w-5 h-5" />
+                </button>
               </div>
             </div>
+
+            {/* Main Photo Viewport */}
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className="relative w-full max-w-5xl flex-1 flex items-center justify-center min-h-0 my-2"
+            >
+              {/* Prev Button */}
+              {lightboxState.photos.length > 1 && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    prevPhoto();
+                  }}
+                  aria-label="Previous photo"
+                  className="absolute left-1 sm:left-3 z-30 p-2.5 sm:p-3 rounded-full bg-black/60 hover:bg-brand/80 border border-white/10 hover:border-brand-accent text-white shadow-xl backdrop-blur-sm transition-all hover:scale-105 cursor-pointer"
+                >
+                  <ChevronLeftIcon className="w-5 h-5 sm:w-6 sm:h-6" />
+                </button>
+              )}
+
+              {/* Photo Container */}
+              <div className="relative w-full h-[60vh] sm:h-[72vh] flex items-center justify-center">
+                {isImageLoading && (
+                  <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+                    <div className="w-8 h-8 rounded-full border-2 border-brand-accent border-t-transparent animate-spin" />
+                  </div>
+                )}
+                <img
+                  key={lightboxState.photos[lightboxState.currentIndex]}
+                  src={lightboxState.photos[lightboxState.currentIndex]}
+                  alt={`${lightboxState.title} - Photo ${lightboxState.currentIndex + 1}`}
+                  onLoad={() => setIsImageLoading(false)}
+                  className={`max-h-full max-w-full object-contain rounded-lg shadow-2xl transition-opacity duration-200 select-none ${
+                    isImageLoading ? "opacity-0" : "opacity-100"
+                  }`}
+                />
+              </div>
+
+              {/* Next Button */}
+              {lightboxState.photos.length > 1 && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    nextPhoto();
+                  }}
+                  aria-label="Next photo"
+                  className="absolute right-1 sm:right-3 z-30 p-2.5 sm:p-3 rounded-full bg-black/60 hover:bg-brand/80 border border-white/10 hover:border-brand-accent text-white shadow-xl backdrop-blur-sm transition-all hover:scale-105 cursor-pointer"
+                >
+                  <ChevronRightIcon className="w-5 h-5 sm:w-6 sm:h-6" />
+                </button>
+              )}
+            </div>
+
+            {/* Bottom Filmstrip Thumbnails */}
+            {lightboxState.photos.length > 1 && (
+              <div
+                onClick={(e) => e.stopPropagation()}
+                className="w-full max-w-4xl flex items-center justify-center gap-2 overflow-x-auto py-2 px-4 no-scrollbar z-20 shrink-0"
+              >
+                {lightboxState.photos.map((url, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => goToPhoto(idx)}
+                    className={`relative shrink-0 w-14 h-10 sm:w-16 sm:h-12 rounded-md overflow-hidden border-2 transition-all cursor-pointer ${
+                      idx === lightboxState.currentIndex
+                        ? "border-brand-accent scale-105 shadow-md shadow-brand/40"
+                        : "border-white/20 opacity-50 hover:opacity-100"
+                    }`}
+                  >
+                    <img
+                      src={url}
+                      alt={`Thumbnail ${idx + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </ClientPortal>
       )}
