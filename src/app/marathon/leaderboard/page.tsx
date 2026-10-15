@@ -75,8 +75,8 @@ export default async function MarathonLeaderboard() {
         return (b.attendancePercentage ?? 0) - (a.attendancePercentage ?? 0);
       }
       // 3. Day streak as secondary tie breaker (desc)
-      if (b.marathonStreak !== a.marathonStreak) {
-        return b.marathonStreak - a.marathonStreak;
+      if ((b.marathonStreak ?? 0) !== (a.marathonStreak ?? 0)) {
+        return (b.marathonStreak ?? 0) - (a.marathonStreak ?? 0);
       }
       // 4. Alphabetical by name
       return (a.name || "").localeCompare(b.name || "");

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import LeaderboardPodium, { PodiumUser } from "@/components/marathon/LeaderboardPodium";
 import CircularLeaderboard, { LeaderboardStudent } from "@/components/marathon/CircularLeaderboard";
-import { TrophyIcon, UsersIcon, ShieldCheckIcon } from "lucide-react";
+import { TrophyIcon, UsersIcon } from "lucide-react";
 
 interface MarathonLeaderboardTabsProps {
   year2Students: LeaderboardStudent[];
@@ -64,13 +64,6 @@ export default function MarathonLeaderboardTabs({
         </button>
       </div>
 
-      {/* Rules & Tie-breaker Notice */}
-      <div className="max-w-2xl mx-auto bg-card/40 border border-brand/20 rounded-xl px-4 py-2.5 flex items-center justify-center gap-2 text-center text-xs font-mono-tech text-muted-foreground">
-        <ShieldCheckIcon className="w-4 h-4 text-emerald-400 shrink-0" />
-        <span>
-          Points are based exclusively on weekly engineering sprints. Class attendance percentage acts as the primary tie-breaker.
-        </span>
-      </div>
 
       {/* Empty State */}
       {activeStudents.length === 0 ? (

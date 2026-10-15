@@ -3,18 +3,12 @@ import { db } from "@/lib/db";
 import Link from "next/link";
 import {
   TrophyIcon,
-  FlameIcon,
-  ZapIcon,
   ArrowRightIcon,
-  SparklesIcon,
   AlertCircleIcon,
-  TimerIcon,
 } from "lucide-react";
-import CountdownTimer from "@/components/marathon/CountdownTimer";
 import WeeklySprintCard from "@/components/marathon/WeeklySprintCard";
 import MarathonCalendarGrid, { CalendarContest, CalendarAttendanceRecord } from "@/components/marathon/MarathonCalendarGrid";
-import MarathonJourney, { JourneyDay } from "@/components/marathon/MarathonJourney";
-import { startOfMonth, endOfMonth, eachDayOfInterval, isSameDay } from "date-fns";
+import MarathonAttendanceSection from "@/components/marathon/MarathonAttendanceSection";
 import { getUserAttendanceStats } from "@/lib/marathon-streak";
 import { getBatchForUser } from "@/lib/marathon-batches";
 
@@ -52,13 +46,13 @@ export default async function MarathonDashboard() {
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link
               href="/"
-              className="w-full sm:w-auto bg-muted hover:bg-muted/80 dark:bg-white/10 dark:hover:bg-white/20 border border-border dark:border-white/20 px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-foreground dark:text-white transition-colors"
+              className="w-full sm:w-auto bg-muted hover:bg-muted/80 dark:bg-white/10 dark:hover:bg-white/20 border border-border dark:border-white/20 px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-foreground dark:text-white transition-colors rounded-lg"
             >
               Return Home
             </Link>
             <Link
               href="/profile"
-              className="w-full sm:w-auto bg-purple-600 hover:bg-purple-500 px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-white transition-colors"
+              className="w-full sm:w-auto bg-purple-600 hover:bg-purple-500 px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-white transition-colors rounded-lg"
             >
               Edit Profile
             </Link>
@@ -69,77 +63,16 @@ export default async function MarathonDashboard() {
   }
 
   const now = new Date();
-  const startMonth = startOfMonth(now);
-  const endMonth = endOfMonth(now);
-  const daysInMonth = eachDayOfInterval({ start: startMonth, end: endMonth });
 
-  // Fetch all daily contests for this month
-  const monthlyDailyContests = await db.marathonDailyContest.findMany({
+  // Fetch all daily contests for this target year across all months
+  const allDailyContests = await db.marathonDailyContest.findMany({
     where: {
       targetYear,
-      date: {
-        gte: startMonth,
-        lte: endMonth,
-      },
     },
     orderBy: { date: "asc" },
   });
 
-  // Fetch current user's daily scores for this month
-  const userMonthlyScores = user?.id
-    ? await db.marathonDailyScore.findMany({
-        where: {
-          userId: user.id,
-          contest: {
-            date: {
-              gte: startMonth,
-              lte: endMonth,
-            },
-          },
-        },
-        select: {
-          contestId: true,
-          score: true,
-        },
-      })
-    : [];
-
-  const scoreMap = new Map(userMonthlyScores.map((s) => [s.contestId, s.score]));
-
-  // Build Journey Timeline Data
-  const journeyDays: JourneyDay[] = daysInMonth.map((day) => {
-    const contest = monthlyDailyContests.find((c) => isSameDay(c.date, day));
-    return {
-      date: day,
-      contestTitle: contest?.title,
-      dayNumber: contest?.dayNumber,
-      hasContest: Boolean(contest),
-      score: contest ? scoreMap.get(contest.id) : undefined,
-      link: contest?.link,
-    };
-  });
-
-  // Calendar contests data
-  const calendarContests: CalendarContest[] = monthlyDailyContests.map((c) => ({
-    id: c.id,
-    title: c.title,
-    dayNumber: c.dayNumber,
-    date: new Date(c.date),
-    link: c.link,
-  }));
-
-  // Fetch Today's Daily Contest
-  const todayContest = await db.marathonDailyContest.findFirst({
-    where: {
-      targetYear,
-      date: { lte: now },
-    },
-    orderBy: { date: "desc" },
-  });
-
   // Fetch Weekly Sprint Contests for this student's year
-  // For 2nd year students: includes 2A, 2B, and general 2nd year contests (2nd years can attempt each other's batch)
-  // For 3rd year students: includes 3rd year contests
   const weeklyContests = await db.marathonWeeklyContest.findMany({
     where: {
       targetYear: userTargetYear,
@@ -149,7 +82,27 @@ export default async function MarathonDashboard() {
     ],
   });
 
-  // Fetch all AIML students with attendance records
+  // Calendar contests data (includes all weekly sprints and daily contests across months)
+  const calendarContests: CalendarContest[] = [
+    ...weeklyContests.map((c) => ({
+      id: c.id,
+      title: c.title,
+      date: new Date(c.date),
+      deadline: c.deadline ? new Date(c.deadline) : undefined,
+      type: "WEEKLY" as const,
+      link: c.link,
+    })),
+    ...allDailyContests.map((c) => ({
+      id: c.id,
+      title: c.title,
+      dayNumber: c.dayNumber,
+      date: new Date(c.date),
+      type: "DAILY" as const,
+      link: c.link,
+    })),
+  ];
+
+  // Fetch all AIML students with attendance records to determine user rank
   const allAimlStudentsForRanking = await db.user.findMany({
     where: {
       isAiml: true,
@@ -171,7 +124,7 @@ export default async function MarathonDashboard() {
   const mappedAimlStudents = allAimlStudentsForRanking
     .map((u) => {
       const batch = getBatchForUser(u);
-      if (!batch) return null; // Exclude non-batch emails
+      if (!batch) return null;
 
       const totalClasses = u.marathonAttendance?.length || 0;
       const presentClasses = u.marathonAttendance?.filter((a) => a.present).length || 0;
@@ -229,7 +182,7 @@ export default async function MarathonDashboard() {
   // Fetch Attendance Statistics for current student
   const attendanceStats = user?.id ? await getUserAttendanceStats(user.id) : null;
 
-  // Calendar attendance data
+  // Calendar attendance data (passes all recorded dates)
   const calendarAttendance: CalendarAttendanceRecord[] = (attendanceStats?.records || []).map((r: any) => ({
     id: r.id,
     classId: r.class.id,
@@ -238,9 +191,6 @@ export default async function MarathonDashboard() {
     batch: r.batch,
     present: r.present,
   }));
-
-  // Fetch Top 5 Performers for current user's year
-  const topLeaders = relevantRankedList.slice(0, 5);
 
   return (
     <main className="min-h-dvh px-4 pt-28 pb-20 relative bg-background bg-blueprint-grid overflow-x-hidden text-foreground">
@@ -253,12 +203,12 @@ export default async function MarathonDashboard() {
         {/* ========================================================================= */}
         {/* TOP HERO & PERFORMANCE METRICS */}
         {/* ========================================================================= */}
-        <section className="border border-border dark:border-white/20 bg-card/90 dark:bg-black/75 backdrop-blur-md p-6 sm:p-8 shadow-sm">
+        <section className="border border-border dark:border-white/20 bg-card/90 dark:bg-black/75 backdrop-blur-md p-6 sm:p-8 shadow-sm rounded-2xl">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             
             {/* Left: Competition Title */}
             <div className="lg:col-span-7 space-y-3">
-              <div className="inline-flex items-center gap-2 border border-border dark:border-white/20 bg-muted/60 dark:bg-white/5 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-muted-foreground dark:text-slate-300">
+              <div className="inline-flex items-center gap-2 border border-border dark:border-white/20 bg-muted/60 dark:bg-white/5 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-muted-foreground dark:text-slate-300 rounded-lg">
                 <span>YEAR {targetYear} ARENA</span>
               </div>
 
@@ -267,13 +217,13 @@ export default async function MarathonDashboard() {
               </h1>
 
               <p className="text-sm text-muted-foreground dark:text-slate-300 max-w-xl leading-relaxed">
-                Take on daily coding challenges, build your streak, and climb the university rankings at TASC.
+                Compete in weekly engineering sprints, attend mentoring sessions, and climb the university rankings at TASC.
               </p>
 
               <div className="pt-2 flex flex-wrap items-center gap-3">
                 <Link
                   href="/marathon/leaderboard"
-                  className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-500 px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white transition-colors"
+                  className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-500 px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white transition-colors rounded-lg shadow-sm"
                 >
                   <TrophyIcon className="h-4 w-4" />
                   <span>VIEW LEADERBOARD</span>
@@ -283,7 +233,7 @@ export default async function MarathonDashboard() {
                 {!user?.hackerrankUsername && (
                   <Link
                     href="/profile"
-                    className="inline-flex items-center gap-2 border border-amber-500/40 bg-amber-500/15 px-3.5 py-2 text-xs font-semibold text-amber-700 dark:text-amber-300 hover:bg-amber-500/25 transition-colors"
+                    className="inline-flex items-center gap-2 border border-amber-500/40 bg-amber-500/15 px-3.5 py-2 text-xs font-semibold text-amber-700 dark:text-amber-300 hover:bg-amber-500/25 transition-colors rounded-lg"
                   >
                     <AlertCircleIcon className="h-4 w-4 shrink-0 text-amber-500 dark:text-amber-400" />
                     <span>Link HackerRank ID to Sync</span>
@@ -292,10 +242,10 @@ export default async function MarathonDashboard() {
               </div>
             </div>
 
-            {/* Right: Sharp Editorial Stats */}
-            <div className="lg:col-span-5 grid grid-cols-2 sm:grid-cols-4 gap-2 bg-muted/40 dark:bg-black/60 border border-border dark:border-white/15 p-4">
+            {/* Right: Sharp Editorial Stats (Clean 3-Column Grid without Streak) */}
+            <div className="lg:col-span-5 grid grid-cols-3 gap-2 bg-muted/40 dark:bg-black/60 border border-border dark:border-white/15 p-4 rounded-xl">
               {/* Total Points */}
-              <div className="flex flex-col items-center justify-center text-center p-2 border border-border/60 dark:border-white/5">
+              <div className="flex flex-col items-center justify-center text-center p-3 border border-border/60 dark:border-white/5 rounded-lg bg-card/50 dark:bg-black/30">
                 <span className="font-sans text-xl sm:text-2xl font-extrabold text-foreground dark:text-white tracking-tight">
                   {(user?.marathonTotalScore || 0).toLocaleString()}
                 </span>
@@ -304,21 +254,8 @@ export default async function MarathonDashboard() {
                 </span>
               </div>
 
-              {/* Day Streak */}
-              <div className="flex flex-col items-center justify-center text-center p-2 border border-border/60 dark:border-white/5">
-                <div className="flex items-center gap-1">
-                  <FlameIcon className="h-4 w-4 fill-amber-500 text-amber-500" />
-                  <span className="font-sans text-xl sm:text-2xl font-extrabold text-amber-600 dark:text-amber-400 tracking-tight">
-                    {user?.marathonStreak || 0}
-                  </span>
-                </div>
-                <span className="mt-1 text-[9px] font-bold uppercase tracking-widest text-muted-foreground dark:text-slate-400">
-                  DAY STREAK
-                </span>
-              </div>
-
               {/* Attendance */}
-              <div className="flex flex-col items-center justify-center text-center p-2 border border-border/60 dark:border-white/5">
+              <div className="flex flex-col items-center justify-center text-center p-3 border border-border/60 dark:border-white/5 rounded-lg bg-card/50 dark:bg-black/30">
                 <span className="font-sans text-xl sm:text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 tracking-tight">
                   {attendanceStats?.percentage ?? 100}%
                 </span>
@@ -333,7 +270,7 @@ export default async function MarathonDashboard() {
               </div>
 
               {/* Year Rank */}
-              <div className="flex flex-col items-center justify-center text-center p-2 border border-border/60 dark:border-white/5">
+              <div className="flex flex-col items-center justify-center text-center p-3 border border-border/60 dark:border-white/5 rounded-lg bg-card/50 dark:bg-black/30">
                 <span className="font-sans text-xl sm:text-2xl font-extrabold text-purple-600 dark:text-purple-400 tracking-tight">
                   {userRank ? `#${userRank}` : "—"}
                 </span>
@@ -349,7 +286,7 @@ export default async function MarathonDashboard() {
         {/* ========================================================================= */}
         {/* MAIN CONTENT (SPLIT VIEW) */}
         {/* Left: Large Current Weekly Sprint Card */}
-        {/* Right: Minimalist Monthly Calendar Grid */}
+        {/* Right: Interactive Monthly Calendar Grid (Navigable across previous/future months) */}
         {/* ========================================================================= */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
           
@@ -358,13 +295,11 @@ export default async function MarathonDashboard() {
             <WeeklySprintCard contests={weeklyContests} userBatch={currentUserBatch} />
           </div>
 
-          {/* RIGHT SIDE: Minimalist Monthly Calendar Grid */}
+          {/* RIGHT SIDE: Interactive Monthly Calendar Grid */}
           <div className="lg:col-span-5 flex flex-col">
-            <div className="flex-1 border border-border dark:border-white/20 bg-card/90 dark:bg-black/75 backdrop-blur-md p-6 shadow-sm">
+            <div className="flex-1 border border-border dark:border-white/20 bg-card/90 dark:bg-black/75 backdrop-blur-md p-6 shadow-sm rounded-2xl">
               <MarathonCalendarGrid
                 currentDate={now}
-                startMonth={startMonth}
-                daysInMonth={daysInMonth}
                 contests={calendarContests}
                 attendance={calendarAttendance}
                 userBatch={attendanceStats?.batch}
@@ -375,257 +310,17 @@ export default async function MarathonDashboard() {
         </div>
 
         {/* ========================================================================= */}
-        {/* TODAY'S DAILY CHALLENGE */}
-        {/* ========================================================================= */}
-        {todayContest && (
-          <section className="border border-border dark:border-white/20 bg-card/90 dark:bg-black/75 backdrop-blur-md p-6 shadow-sm">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-              <div className="space-y-1.5 max-w-2xl">
-                <div className="flex items-center gap-2">
-                  <span className="h-2 w-2 bg-emerald-500 rounded-full" />
-                  <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
-                    TODAY&apos;S DAILY CHALLENGE • DAY {todayContest.dayNumber}
-                  </span>
-                </div>
-
-                <h3 className="font-valley text-xl sm:text-2xl font-bold text-foreground dark:text-white">
-                  {todayContest.title}
-                </h3>
-
-                {todayContest.description && (
-                  <p className="text-sm text-muted-foreground dark:text-slate-300 line-clamp-2">
-                    {todayContest.description}
-                  </p>
-                )}
-              </div>
-
-              <div className="flex items-center gap-4 shrink-0">
-                <div className="text-right hidden sm:block">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground dark:text-slate-400 block">
-                    REWARD
-                  </span>
-                  <span className="font-sans text-base font-bold text-foreground dark:text-white">
-                    +100 PTS
-                  </span>
-                </div>
-
-                <a
-                  href={todayContest.link}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-500 px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white transition-colors"
-                >
-                  <span>SOLVE TODAY</span>
-                  <ArrowRightIcon className="h-3.5 w-3.5" />
-                </a>
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* ========================================================================= */}
-        {/* ACTIVITY TIMELINE / MARATHON JOURNEY */}
-        {/* ========================================================================= */}
-        <section className="space-y-3">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-            <div>
-              <h2 className="font-valley text-xl sm:text-2xl font-bold tracking-tight text-foreground dark:text-white">
-                Marathon Journey
-              </h2>
-              <p className="text-xs text-muted-foreground dark:text-slate-400">
-                Track your active streaks, solved problems, and upcoming contests across the month.
-              </p>
-            </div>
-            <div className="flex items-center gap-4 text-xs text-muted-foreground dark:text-slate-400 pt-1 sm:pt-0">
-              <span className="flex items-center gap-1.5">
-                <span className="h-2 w-2 bg-purple-500" /> Solved
-              </span>
-              <span className="flex items-center gap-1.5">
-                <span className="h-2 w-2 bg-emerald-500" /> Live
-              </span>
-              <span className="flex items-center gap-1.5">
-                <span className="h-2 w-2 border border-border dark:border-white/40" /> Scheduled
-              </span>
-            </div>
-          </div>
-
-          <div className="border border-border dark:border-white/20 bg-card/90 dark:bg-black/75 backdrop-blur-md p-5 shadow-sm">
-            <MarathonJourney days={journeyDays} />
-          </div>
-        </section>
-
-        {/* ========================================================================= */}
-        {/* ATTENDANCE & CLASS SESSIONS */}
+        {/* ATTENDANCE & CLASS SESSIONS (Filterable by Current & Previous Months) */}
         {/* ========================================================================= */}
         {attendanceStats && (
-          <section className="space-y-3">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <div>
-                <div className="flex items-center gap-2">
-                  <h2 className="font-valley text-xl sm:text-2xl font-bold tracking-tight text-foreground dark:text-white">
-                    Class Attendance & Sessions
-                  </h2>
-                  {attendanceStats.batch && (
-                    <span className="text-[10px] font-mono-tech font-bold px-2 py-0.5 rounded bg-purple-500/10 border border-purple-500/30 text-purple-700 dark:bg-purple-600/30 dark:border-purple-500/50 dark:text-purple-300">
-                      BATCH {attendanceStats.batch}
-                    </span>
-                  )}
-                </div>
-                <p className="text-xs text-muted-foreground dark:text-slate-400">
-                  Attendance logs for scheduled marathon workshops and mentoring classes.
-                </p>
-              </div>
-              <div className="text-xs font-mono-tech text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 rounded-md self-start sm:self-auto">
-                {attendanceStats.percentage}% Attended ({attendanceStats.presentClasses}/{attendanceStats.totalClasses} Present)
-              </div>
-            </div>
-
-            <div className="border border-border dark:border-white/20 bg-card/90 dark:bg-black/75 backdrop-blur-md p-5 shadow-sm">
-              {attendanceStats.records.length === 0 ? (
-                <div className="text-center py-6 text-muted-foreground dark:text-slate-400 text-xs">
-                  <p className="font-semibold text-foreground dark:text-slate-300">No marathon classes scheduled yet{attendanceStats.batch ? ` for Batch ${attendanceStats.batch}` : ""}.</p>
-                  <p className="text-muted-foreground dark:text-slate-500 mt-1">When coordinators schedule classes for your batch, your session history and attendance status will appear here.</p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                  {attendanceStats.records.map((rec: any) => (
-                    <div
-                      key={rec.id}
-                      className={`p-3.5 border rounded-lg flex items-center justify-between gap-3 ${
-                        rec.present
-                          ? "border-emerald-500/30 bg-emerald-500/10 dark:bg-emerald-500/5"
-                          : "border-red-500/30 bg-red-500/10 dark:bg-red-500/5"
-                      }`}
-                    >
-                      <div className="min-w-0">
-                        <span className="text-[10px] font-mono-tech text-muted-foreground dark:text-slate-400 block">
-                          {new Date(rec.class.date).toLocaleDateString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                          })}
-                        </span>
-                        <h4 className="text-xs font-bold text-foreground dark:text-white truncate mt-0.5">
-                          {rec.class.topic || "Marathon Class Session"}
-                        </h4>
-                        <span className="text-[10px] font-mono-tech text-purple-600 dark:text-purple-400">
-                          Batch {rec.batch}
-                        </span>
-                      </div>
-
-                      <span
-                        className={`shrink-0 text-[10px] font-mono-tech font-bold px-2.5 py-1 rounded border ${
-                          rec.present
-                            ? "border-emerald-500/40 bg-emerald-500/20 text-emerald-700 dark:text-emerald-300"
-                            : "border-red-500/40 bg-red-500/20 text-red-700 dark:text-red-300"
-                        }`}
-                      >
-                        {rec.present ? "✓ PRESENT" : "✗ ABSENT"}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </section>
+          <MarathonAttendanceSection
+            records={attendanceStats.records}
+            userBatch={attendanceStats.batch}
+            overallPercentage={attendanceStats.percentage}
+            overallPresent={attendanceStats.presentClasses}
+            overallTotal={attendanceStats.totalClasses}
+          />
         )}
-
-        {/* ========================================================================= */}
-        {/* LIVE RANKINGS STANDINGS PREVIEW */}
-        {/* ========================================================================= */}
-        <section className="space-y-3">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
-            <div>
-              <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground dark:text-slate-400">
-                STANDINGS • YEAR {userTargetYear}
-              </span>
-              <h2 className="font-valley text-xl sm:text-2xl font-bold tracking-tight text-foreground dark:text-white mt-0.5">
-                Who&apos;s Leading? (Batch {userTargetYear === 3 ? "3A1 & 3A2" : "2A & 2B"})
-              </h2>
-            </div>
-
-            <Link
-              href="/marathon/leaderboard"
-              className="inline-flex items-center gap-2 border border-border dark:border-white/20 bg-muted/60 hover:bg-muted dark:bg-white/5 dark:hover:bg-white/10 px-4 py-2 text-xs font-bold uppercase tracking-wider text-foreground dark:text-white transition-colors shrink-0"
-            >
-              <span>VIEW FULL LEADERBOARD</span>
-              <ArrowRightIcon className="h-3.5 w-3.5" />
-            </Link>
-          </div>
-
-          {topLeaders.length === 0 ? (
-            <div className="border border-border dark:border-white/15 bg-card dark:bg-black/60 p-8 text-center text-muted-foreground dark:text-slate-400 text-sm rounded">
-              No scores recorded yet. Complete today&apos;s contest to claim the top spot!
-            </div>
-          ) : (
-            <div className="border border-border dark:border-white/20 bg-card/90 dark:bg-black/75 backdrop-blur-md overflow-hidden divide-y divide-border dark:divide-white/10 shadow-sm">
-              {topLeaders.map((leader, index) => {
-                const isCurrentUser = leader.id === user?.id;
-                const isTop3 = index < 3;
-                const medals = ["🥇", "🥈", "🥉"];
-
-                return (
-                  <div
-                    key={leader.id}
-                    className={`flex items-center justify-between p-4 transition-colors ${
-                      isCurrentUser
-                        ? "bg-purple-500/10 dark:bg-purple-600/15 border-l-4 border-l-purple-500"
-                        : "hover:bg-muted/50 dark:hover:bg-white/5"
-                    }`}
-                  >
-                    {/* Rank & User Info */}
-                    <div className="flex items-center gap-4 sm:gap-6 min-w-0">
-                      <div className="flex h-7 w-7 rounded-full items-center justify-center bg-muted dark:bg-white/10 border border-border dark:border-white/15 font-sans font-bold text-xs text-foreground dark:text-white shrink-0">
-                        {isTop3 ? (
-                          <span>{medals[index]}</span>
-                        ) : (
-                          index + 1
-                        )}
-                      </div>
-
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="font-sans font-bold text-foreground dark:text-white truncate text-sm sm:text-base">
-                            {leader.name}
-                          </span>
-                          {isCurrentUser && (
-                            <span className="text-[10px] font-bold text-purple-600 dark:text-purple-400 shrink-0 uppercase tracking-wider">
-                              (YOU)
-                            </span>
-                          )}
-                        </div>
-                        <span className="text-xs text-muted-foreground dark:text-slate-400 truncate block">
-                          {leader.usn || "AIML STUDENT"}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Score, Attendance & Streak */}
-                    <div className="flex items-center gap-4 sm:gap-6 shrink-0 text-right">
-                      <div className="hidden sm:flex items-center gap-1 font-sans text-xs font-semibold text-emerald-600 dark:text-emerald-400">
-                        <span>{leader.attendancePercentage}% att</span>
-                      </div>
-
-                      <div className="flex items-center gap-1 font-sans text-xs sm:text-sm font-semibold text-amber-600 dark:text-amber-400">
-                        <FlameIcon className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
-                        <span>{leader.marathonStreak}d</span>
-                      </div>
-
-                      <div>
-                        <span className="font-sans text-sm sm:text-base font-extrabold text-foreground dark:text-white">
-                          {leader.marathonTotalScore.toLocaleString()}
-                        </span>
-                        <span className="hidden sm:inline text-[10px] font-bold text-muted-foreground dark:text-slate-400 uppercase ml-1">
-                          pts
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </section>
 
       </div>
     </main>
