@@ -160,6 +160,7 @@ export const ALLOWED_EXTERNAL_EMAILS = new Set([
   "samarthpai9870@gmail.com",
   "sanidhyadatt26@gmail.com",
   "buggykurrrie610@gmail.com",
+  "lakshminarayanaigal@gmail.com"
 ]);
 
 /**
