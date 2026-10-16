@@ -196,6 +196,23 @@ export async function POST(
         );
       }
 
+      if (event.requireAiml) {
+        if (!leaderUser.isAiml) {
+          return NextResponse.json(
+            { error: `Participant "${leaderUser.displayName || leaderUser.name || leaderUser.email}" is not an AIML student. This event is restricted to AIML students only.` },
+            { status: 400 }
+          );
+        }
+        for (const item of memberUsers) {
+          if (!item.user.isAiml) {
+            return NextResponse.json(
+              { error: `Team member "${item.user.displayName || item.user.name || item.user.email}" is not an AIML student. This event is restricted to AIML students only.` },
+              { status: 400 }
+            );
+          }
+        }
+      }
+
       const isPresent = markPresent !== false;
       const teamCode = (format === "SOLO" || event.type === "SOLO") ? null : await generateUniqueTeamCode();
       const assignedName = (format === "SOLO" || event.type === "SOLO")

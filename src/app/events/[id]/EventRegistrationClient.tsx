@@ -533,26 +533,54 @@ export default function EventRegistrationClient({
 
   const showCustomFields = activeFields.length > 0;
 
+  const isAimlRestricted = event.requireAiml && !session?.user?.isAiml;
+
   return (
     <>
       {/* Ready to Participate Technical Card */}
-      <div className="relative rounded-xl border border-brand/30 bg-card/85 p-6 text-center shadow-xl backdrop-blur-md space-y-4">
-        <CircuitTrace corners={true} />
-        <h3 className="font-bold font-space-grotesk text-base text-foreground">Ready to participate?</h3>
-        <p className="text-xs text-muted-foreground font-space-grotesk">
-          {event.type === "SOLO_OR_TEAM"
-            ? "Secure your registration spot as an individual or create/join a team."
-            : isSolo
-            ? "Secure your individual registration spot now."
-            : "Create your team or join with an invite code."}
-        </p>
-        <button
-          onClick={() => setModalOpen(true)}
-          className="w-full rounded-lg bg-brand py-3 font-bold font-space-grotesk text-xs uppercase tracking-wider text-white shadow-lg shadow-brand/25 transition-all hover:bg-brand/90 hover:scale-[1.01] cursor-pointer"
-        >
-          Register Now
-        </button>
-      </div>
+      {isAimlRestricted ? (
+        <div className="relative rounded-xl border border-purple-500/30 bg-purple-500/10 p-6 text-center shadow-lg backdrop-blur-md space-y-3">
+          <CircuitTrace corners={true} />
+          <div className="mx-auto w-10 h-10 rounded-full bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-purple-300">
+            <LockIcon className="w-5 h-5" />
+          </div>
+          <div>
+            <span className="text-[10px] font-mono-tech text-purple-400 uppercase tracking-widest font-bold block mb-1">
+              AIML EXCLUSIVE EVENT
+            </span>
+            <h3 className="font-bold font-space-grotesk text-base text-foreground mb-1">
+              AIML Department Only
+            </h3>
+            <p className="text-xs text-muted-foreground font-space-grotesk leading-relaxed">
+              Registration for this event is exclusively reserved for AIML department students. If you believe your profile branch is incorrect, please contact the TASC coordinators.
+            </p>
+          </div>
+          <button
+            disabled
+            className="w-full rounded-lg bg-muted text-muted-foreground py-2.5 font-bold font-space-grotesk text-xs uppercase tracking-wider cursor-not-allowed opacity-60"
+          >
+            Registration Restricted
+          </button>
+        </div>
+      ) : (
+        <div className="relative rounded-xl border border-brand/30 bg-card/85 p-6 text-center shadow-xl backdrop-blur-md space-y-4">
+          <CircuitTrace corners={true} />
+          <h3 className="font-bold font-space-grotesk text-base text-foreground">Ready to participate?</h3>
+          <p className="text-xs text-muted-foreground font-space-grotesk">
+            {event.type === "SOLO_OR_TEAM"
+              ? "Secure your registration spot as an individual or create/join a team."
+              : isSolo
+              ? "Secure your individual registration spot now."
+              : "Create your team or join with an invite code."}
+          </p>
+          <button
+            onClick={() => setModalOpen(true)}
+            className="w-full rounded-lg bg-brand py-3 font-bold font-space-grotesk text-xs uppercase tracking-wider text-white shadow-lg shadow-brand/25 transition-all hover:bg-brand/90 hover:scale-[1.01] cursor-pointer"
+          >
+            Register Now
+          </button>
+        </div>
+      )}
 
       {/* Registration Modal: Square Technical Blueprint Styling */}
       {modalOpen && (

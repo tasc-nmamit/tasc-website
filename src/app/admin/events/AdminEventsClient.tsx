@@ -49,6 +49,7 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
   const [maxTeamSize, setMaxTeamSize] = useState(1);
   const [maxTeams, setMaxTeams] = useState("");
   const [registrationsAvailable, setRegistrationsAvailable] = useState(true);
+  const [requireAiml, setRequireAiml] = useState(false);
 
   // Publish / Visibility State
   const [publishMode, setPublishMode] = useState<"IMMEDIATE" | "DRAFT" | "SCHEDULED">("IMMEDIATE");
@@ -72,6 +73,7 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
   const [editPublishMode, setEditPublishMode] = useState<"IMMEDIATE" | "DRAFT" | "SCHEDULED">("IMMEDIATE");
   const [editRegistrationStartTime, setEditRegistrationStartTime] = useState("");
   const [editRegistrationsAvailable, setEditRegistrationsAvailable] = useState(true);
+  const [editRequireAiml, setEditRequireAiml] = useState(false);
 
   // Event Gallery Modal State
   const [galleryEvent, setGalleryEvent] = useState<any | null>(null);
@@ -201,6 +203,7 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
         maxTeams: maxTeams ? Number(maxTeams) : null,
         registrationsAvailable,
         registrationStartTime: publishMode === "SCHEDULED" && registrationStartTime ? parseContestDate(registrationStartTime).toISOString() : null,
+        requireAiml,
         customFields: formatCustomFieldsPayload(customFields),
       };
 
@@ -320,6 +323,7 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
     setEditMaxTeams(ev.maxTeams ? String(ev.maxTeams) : "");
     setEditStatus(ev.status || "UPCOMING");
     setEditRegistrationsAvailable(ev.registrationsAvailable ?? true);
+    setEditRequireAiml(!!ev.requireAiml);
 
     let initialMode: "IMMEDIATE" | "SCHEDULED" | "DRAFT" = "IMMEDIATE";
     if (!ev.published || ev.status === "DRAFT") {
@@ -385,6 +389,7 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
             ? parseContestDate(editRegistrationStartTime).toISOString()
             : null,
         registrationsAvailable: editRegistrationsAvailable,
+        requireAiml: editRequireAiml,
         customFields: formatCustomFieldsPayload(editCustomFields),
       };
 
@@ -577,6 +582,12 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
                     >
                       {event.registrationsAvailable ? "REGISTRATIONS OPEN" : "REGISTRATIONS PAUSED"}
                     </span>
+
+                    {event.requireAiml && (
+                      <span className="rounded-lg px-3 py-1 text-[10px] font-bold font-mono-tech uppercase tracking-wider border bg-purple-500/15 text-purple-400 border-purple-500/40">
+                        AIML ONLY
+                      </span>
+                    )}
                   </div>
 
                   <h3 className="text-xl font-bold font-space-grotesk text-foreground flex flex-wrap items-center gap-2">
@@ -1012,6 +1023,21 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
                 />
                 Accept Registrations (Can be toggled off anytime)
               </label>
+
+              <label className="flex items-center gap-3 text-sm font-semibold font-space-grotesk text-foreground cursor-pointer pt-1">
+                <input
+                  type="checkbox"
+                  checked={requireAiml}
+                  onChange={(e) => setRequireAiml(e.target.checked)}
+                  className="h-5 w-5 rounded border-brand/30 text-brand focus:ring-brand-accent"
+                />
+                <span className="flex items-center gap-2">
+                  <span>Allow Only AIML Students to Register</span>
+                  <span className="text-[10px] font-mono-tech px-2 py-0.5 rounded bg-purple-500/15 text-purple-600 dark:text-purple-300 border border-purple-500/30 uppercase font-bold">
+                    AIML Exclusive
+                  </span>
+                </span>
+              </label>
             </div>
           </div>
 
@@ -1332,6 +1358,21 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
                   className="h-5 w-5 rounded border-brand/30 text-brand focus:ring-brand-accent"
                 />
                 Accept Registrations (Checked = Open, Unchecked = Paused)
+              </label>
+
+              <label className="flex items-center gap-3 text-sm font-semibold font-space-grotesk text-foreground cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={editRequireAiml}
+                  onChange={(e) => setEditRequireAiml(e.target.checked)}
+                  className="h-5 w-5 rounded border-brand/30 text-brand focus:ring-brand-accent"
+                />
+                <span className="flex items-center gap-2">
+                  <span>Allow Only AIML Students to Register</span>
+                  <span className="text-[10px] font-mono-tech px-2 py-0.5 rounded bg-purple-500/15 text-purple-600 dark:text-purple-300 border border-purple-500/30 uppercase font-bold">
+                    AIML Exclusive
+                  </span>
+                </span>
               </label>
 
               {/* Editable Dynamic Registration Fields in Edit Modal */}

@@ -320,6 +320,20 @@ export async function POST(request: Request, context: Context) {
       );
     }
 
+    // Validate AIML department restriction if enabled
+    if (event.requireAiml) {
+      const currentUser = await db.user.findUnique({
+        where: { id: session.user.id },
+        select: { isAiml: true },
+      });
+      if (!currentUser?.isAiml) {
+        return NextResponse.json(
+          { error: "Registration for this event is restricted to AIML department students only." },
+          { status: 403 }
+        );
+      }
+    }
+
     // Validate max teams / total size
     if (event.maxTeams && event.participants.length >= event.maxTeams) {
       return NextResponse.json(

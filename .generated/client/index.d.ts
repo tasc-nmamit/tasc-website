@@ -12570,6 +12570,7 @@ export namespace Prisma {
     endDate: Date | null
     maxTeams: number | null
     notification: string | null
+    requireAiml: boolean | null
   }
 
   export type EventMaxAggregateOutputType = {
@@ -12595,6 +12596,7 @@ export namespace Prisma {
     endDate: Date | null
     maxTeams: number | null
     notification: string | null
+    requireAiml: boolean | null
   }
 
   export type EventCountAggregateOutputType = {
@@ -12621,6 +12623,7 @@ export namespace Prisma {
     endDate: number
     maxTeams: number
     notification: number
+    requireAiml: number
     _all: number
   }
 
@@ -12660,6 +12663,7 @@ export namespace Prisma {
     endDate?: true
     maxTeams?: true
     notification?: true
+    requireAiml?: true
   }
 
   export type EventMaxAggregateInputType = {
@@ -12685,6 +12689,7 @@ export namespace Prisma {
     endDate?: true
     maxTeams?: true
     notification?: true
+    requireAiml?: true
   }
 
   export type EventCountAggregateInputType = {
@@ -12711,6 +12716,7 @@ export namespace Prisma {
     endDate?: true
     maxTeams?: true
     notification?: true
+    requireAiml?: true
     _all?: true
   }
 
@@ -12824,6 +12830,7 @@ export namespace Prisma {
     endDate: Date | null
     maxTeams: number | null
     notification: string | null
+    requireAiml: boolean
     _count: EventCountAggregateOutputType | null
     _avg: EventAvgAggregateOutputType | null
     _sum: EventSumAggregateOutputType | null
@@ -12869,6 +12876,7 @@ export namespace Prisma {
     endDate?: boolean
     maxTeams?: boolean
     notification?: boolean
+    requireAiml?: boolean
     participants?: boolean | Event$participantsArgs<ExtArgs>
     winners?: boolean | Event$winnersArgs<ExtArgs>
     organizers?: boolean | Event$organizersArgs<ExtArgs>
@@ -12900,6 +12908,7 @@ export namespace Prisma {
     endDate?: boolean
     maxTeams?: boolean
     notification?: boolean
+    requireAiml?: boolean
   }, ExtArgs["result"]["event"]>
 
   export type EventSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -12926,6 +12935,7 @@ export namespace Prisma {
     endDate?: boolean
     maxTeams?: boolean
     notification?: boolean
+    requireAiml?: boolean
   }, ExtArgs["result"]["event"]>
 
   export type EventSelectScalar = {
@@ -12952,9 +12962,10 @@ export namespace Prisma {
     endDate?: boolean
     maxTeams?: boolean
     notification?: boolean
+    requireAiml?: boolean
   }
 
-  export type EventOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "slug" | "title" | "description" | "image" | "date" | "time" | "reportLink" | "venue" | "guests" | "published" | "type" | "status" | "maxTeamSize" | "minTeamSize" | "brief" | "entryFee" | "qr" | "registrationsAvailable" | "registrationStartTime" | "endDate" | "maxTeams" | "notification", ExtArgs["result"]["event"]>
+  export type EventOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "slug" | "title" | "description" | "image" | "date" | "time" | "reportLink" | "venue" | "guests" | "published" | "type" | "status" | "maxTeamSize" | "minTeamSize" | "brief" | "entryFee" | "qr" | "registrationsAvailable" | "registrationStartTime" | "endDate" | "maxTeams" | "notification" | "requireAiml", ExtArgs["result"]["event"]>
   export type EventInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     participants?: boolean | Event$participantsArgs<ExtArgs>
     winners?: boolean | Event$winnersArgs<ExtArgs>
@@ -12997,6 +13008,7 @@ export namespace Prisma {
       endDate: Date | null
       maxTeams: number | null
       notification: string | null
+      requireAiml: boolean
     }, ExtArgs["result"]["event"]>
     composites: {}
   }
@@ -13447,6 +13459,7 @@ export namespace Prisma {
     readonly endDate: FieldRef<"Event", 'DateTime'>
     readonly maxTeams: FieldRef<"Event", 'Int'>
     readonly notification: FieldRef<"Event", 'String'>
+    readonly requireAiml: FieldRef<"Event", 'Boolean'>
   }
     
 
@@ -37489,7 +37502,8 @@ export namespace Prisma {
     registrationStartTime: 'registrationStartTime',
     endDate: 'endDate',
     maxTeams: 'maxTeams',
-    notification: 'notification'
+    notification: 'notification',
+    requireAiml: 'requireAiml'
   };
 
   export type EventScalarFieldEnum = (typeof EventScalarFieldEnum)[keyof typeof EventScalarFieldEnum]
@@ -38635,6 +38649,7 @@ export namespace Prisma {
     endDate?: DateTimeNullableFilter<"Event"> | Date | string | null
     maxTeams?: IntNullableFilter<"Event"> | number | null
     notification?: StringNullableFilter<"Event"> | string | null
+    requireAiml?: BoolFilter<"Event"> | boolean
     participants?: TeamListRelationFilter
     winners?: WinnersListRelationFilter
     organizers?: UserListRelationFilter
@@ -38665,6 +38680,7 @@ export namespace Prisma {
     endDate?: SortOrderInput | SortOrder
     maxTeams?: SortOrderInput | SortOrder
     notification?: SortOrderInput | SortOrder
+    requireAiml?: SortOrder
     participants?: TeamOrderByRelationAggregateInput
     winners?: WinnersOrderByRelationAggregateInput
     organizers?: UserOrderByRelationAggregateInput
@@ -38698,6 +38714,7 @@ export namespace Prisma {
     endDate?: DateTimeNullableFilter<"Event"> | Date | string | null
     maxTeams?: IntNullableFilter<"Event"> | number | null
     notification?: StringNullableFilter<"Event"> | string | null
+    requireAiml?: BoolFilter<"Event"> | boolean
     participants?: TeamListRelationFilter
     winners?: WinnersListRelationFilter
     organizers?: UserListRelationFilter
@@ -38728,6 +38745,7 @@ export namespace Prisma {
     endDate?: SortOrderInput | SortOrder
     maxTeams?: SortOrderInput | SortOrder
     notification?: SortOrderInput | SortOrder
+    requireAiml?: SortOrder
     _count?: EventCountOrderByAggregateInput
     _avg?: EventAvgOrderByAggregateInput
     _max?: EventMaxOrderByAggregateInput
@@ -38762,6 +38780,7 @@ export namespace Prisma {
     endDate?: DateTimeNullableWithAggregatesFilter<"Event"> | Date | string | null
     maxTeams?: IntNullableWithAggregatesFilter<"Event"> | number | null
     notification?: StringNullableWithAggregatesFilter<"Event"> | string | null
+    requireAiml?: BoolWithAggregatesFilter<"Event"> | boolean
   }
 
   export type EventCustomFieldWhereInput = {
@@ -40909,6 +40928,7 @@ export namespace Prisma {
     endDate?: Date | string | null
     maxTeams?: number | null
     notification?: string | null
+    requireAiml?: boolean
     participants?: TeamCreateNestedManyWithoutEventInput
     winners?: WinnersCreateNestedManyWithoutEventInput
     organizers?: UserCreateNestedManyWithoutOrganizersInput
@@ -40939,6 +40959,7 @@ export namespace Prisma {
     endDate?: Date | string | null
     maxTeams?: number | null
     notification?: string | null
+    requireAiml?: boolean
     participants?: TeamUncheckedCreateNestedManyWithoutEventInput
     winners?: WinnersUncheckedCreateNestedManyWithoutEventInput
     organizers?: UserUncheckedCreateNestedManyWithoutOrganizersInput
@@ -40969,6 +40990,7 @@ export namespace Prisma {
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     maxTeams?: NullableIntFieldUpdateOperationsInput | number | null
     notification?: NullableStringFieldUpdateOperationsInput | string | null
+    requireAiml?: BoolFieldUpdateOperationsInput | boolean
     participants?: TeamUpdateManyWithoutEventNestedInput
     winners?: WinnersUpdateManyWithoutEventNestedInput
     organizers?: UserUpdateManyWithoutOrganizersNestedInput
@@ -40999,6 +41021,7 @@ export namespace Prisma {
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     maxTeams?: NullableIntFieldUpdateOperationsInput | number | null
     notification?: NullableStringFieldUpdateOperationsInput | string | null
+    requireAiml?: BoolFieldUpdateOperationsInput | boolean
     participants?: TeamUncheckedUpdateManyWithoutEventNestedInput
     winners?: WinnersUncheckedUpdateManyWithoutEventNestedInput
     organizers?: UserUncheckedUpdateManyWithoutOrganizersNestedInput
@@ -41029,6 +41052,7 @@ export namespace Prisma {
     endDate?: Date | string | null
     maxTeams?: number | null
     notification?: string | null
+    requireAiml?: boolean
   }
 
   export type EventUpdateManyMutationInput = {
@@ -41055,6 +41079,7 @@ export namespace Prisma {
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     maxTeams?: NullableIntFieldUpdateOperationsInput | number | null
     notification?: NullableStringFieldUpdateOperationsInput | string | null
+    requireAiml?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type EventUncheckedUpdateManyInput = {
@@ -41081,6 +41106,7 @@ export namespace Prisma {
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     maxTeams?: NullableIntFieldUpdateOperationsInput | number | null
     notification?: NullableStringFieldUpdateOperationsInput | string | null
+    requireAiml?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type EventCustomFieldCreateInput = {
@@ -43367,6 +43393,7 @@ export namespace Prisma {
     endDate?: SortOrder
     maxTeams?: SortOrder
     notification?: SortOrder
+    requireAiml?: SortOrder
   }
 
   export type EventAvgOrderByAggregateInput = {
@@ -43398,6 +43425,7 @@ export namespace Prisma {
     endDate?: SortOrder
     maxTeams?: SortOrder
     notification?: SortOrder
+    requireAiml?: SortOrder
   }
 
   export type EventMinOrderByAggregateInput = {
@@ -43423,6 +43451,7 @@ export namespace Prisma {
     endDate?: SortOrder
     maxTeams?: SortOrder
     notification?: SortOrder
+    requireAiml?: SortOrder
   }
 
   export type EventSumOrderByAggregateInput = {
@@ -46739,6 +46768,7 @@ export namespace Prisma {
     endDate?: Date | string | null
     maxTeams?: number | null
     notification?: string | null
+    requireAiml?: boolean
     participants?: TeamCreateNestedManyWithoutEventInput
     winners?: WinnersCreateNestedManyWithoutEventInput
     customFields?: EventCustomFieldCreateNestedManyWithoutEventInput
@@ -46768,6 +46798,7 @@ export namespace Prisma {
     endDate?: Date | string | null
     maxTeams?: number | null
     notification?: string | null
+    requireAiml?: boolean
     participants?: TeamUncheckedCreateNestedManyWithoutEventInput
     winners?: WinnersUncheckedCreateNestedManyWithoutEventInput
     customFields?: EventCustomFieldUncheckedCreateNestedManyWithoutEventInput
@@ -47133,6 +47164,7 @@ export namespace Prisma {
     endDate?: DateTimeNullableFilter<"Event"> | Date | string | null
     maxTeams?: IntNullableFilter<"Event"> | number | null
     notification?: StringNullableFilter<"Event"> | string | null
+    requireAiml?: BoolFilter<"Event"> | boolean
   }
 
   export type EventRegistrationUpsertWithWhereUniqueWithoutUserInput = {
@@ -48622,6 +48654,7 @@ export namespace Prisma {
     endDate?: Date | string | null
     maxTeams?: number | null
     notification?: string | null
+    requireAiml?: boolean
     participants?: TeamCreateNestedManyWithoutEventInput
     winners?: WinnersCreateNestedManyWithoutEventInput
     organizers?: UserCreateNestedManyWithoutOrganizersInput
@@ -48651,6 +48684,7 @@ export namespace Prisma {
     endDate?: Date | string | null
     maxTeams?: number | null
     notification?: string | null
+    requireAiml?: boolean
     participants?: TeamUncheckedCreateNestedManyWithoutEventInput
     winners?: WinnersUncheckedCreateNestedManyWithoutEventInput
     organizers?: UserUncheckedCreateNestedManyWithoutOrganizersInput
@@ -48696,6 +48730,7 @@ export namespace Prisma {
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     maxTeams?: NullableIntFieldUpdateOperationsInput | number | null
     notification?: NullableStringFieldUpdateOperationsInput | string | null
+    requireAiml?: BoolFieldUpdateOperationsInput | boolean
     participants?: TeamUpdateManyWithoutEventNestedInput
     winners?: WinnersUpdateManyWithoutEventNestedInput
     organizers?: UserUpdateManyWithoutOrganizersNestedInput
@@ -48725,6 +48760,7 @@ export namespace Prisma {
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     maxTeams?: NullableIntFieldUpdateOperationsInput | number | null
     notification?: NullableStringFieldUpdateOperationsInput | string | null
+    requireAiml?: BoolFieldUpdateOperationsInput | boolean
     participants?: TeamUncheckedUpdateManyWithoutEventNestedInput
     winners?: WinnersUncheckedUpdateManyWithoutEventNestedInput
     organizers?: UserUncheckedUpdateManyWithoutOrganizersNestedInput
@@ -48942,6 +48978,7 @@ export namespace Prisma {
     endDate?: Date | string | null
     maxTeams?: number | null
     notification?: string | null
+    requireAiml?: boolean
     winners?: WinnersCreateNestedManyWithoutEventInput
     organizers?: UserCreateNestedManyWithoutOrganizersInput
     customFields?: EventCustomFieldCreateNestedManyWithoutEventInput
@@ -48971,6 +49008,7 @@ export namespace Prisma {
     endDate?: Date | string | null
     maxTeams?: number | null
     notification?: string | null
+    requireAiml?: boolean
     winners?: WinnersUncheckedCreateNestedManyWithoutEventInput
     organizers?: UserUncheckedCreateNestedManyWithoutOrganizersInput
     customFields?: EventCustomFieldUncheckedCreateNestedManyWithoutEventInput
@@ -49057,6 +49095,7 @@ export namespace Prisma {
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     maxTeams?: NullableIntFieldUpdateOperationsInput | number | null
     notification?: NullableStringFieldUpdateOperationsInput | string | null
+    requireAiml?: BoolFieldUpdateOperationsInput | boolean
     winners?: WinnersUpdateManyWithoutEventNestedInput
     organizers?: UserUpdateManyWithoutOrganizersNestedInput
     customFields?: EventCustomFieldUpdateManyWithoutEventNestedInput
@@ -49086,6 +49125,7 @@ export namespace Prisma {
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     maxTeams?: NullableIntFieldUpdateOperationsInput | number | null
     notification?: NullableStringFieldUpdateOperationsInput | string | null
+    requireAiml?: BoolFieldUpdateOperationsInput | boolean
     winners?: WinnersUncheckedUpdateManyWithoutEventNestedInput
     organizers?: UserUncheckedUpdateManyWithoutOrganizersNestedInput
     customFields?: EventCustomFieldUncheckedUpdateManyWithoutEventNestedInput
@@ -50627,6 +50667,7 @@ export namespace Prisma {
     endDate?: Date | string | null
     maxTeams?: number | null
     notification?: string | null
+    requireAiml?: boolean
     participants?: TeamCreateNestedManyWithoutEventInput
     organizers?: UserCreateNestedManyWithoutOrganizersInput
     customFields?: EventCustomFieldCreateNestedManyWithoutEventInput
@@ -50656,6 +50697,7 @@ export namespace Prisma {
     endDate?: Date | string | null
     maxTeams?: number | null
     notification?: string | null
+    requireAiml?: boolean
     participants?: TeamUncheckedCreateNestedManyWithoutEventInput
     organizers?: UserUncheckedCreateNestedManyWithoutOrganizersInput
     customFields?: EventCustomFieldUncheckedCreateNestedManyWithoutEventInput
@@ -50734,6 +50776,7 @@ export namespace Prisma {
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     maxTeams?: NullableIntFieldUpdateOperationsInput | number | null
     notification?: NullableStringFieldUpdateOperationsInput | string | null
+    requireAiml?: BoolFieldUpdateOperationsInput | boolean
     participants?: TeamUpdateManyWithoutEventNestedInput
     organizers?: UserUpdateManyWithoutOrganizersNestedInput
     customFields?: EventCustomFieldUpdateManyWithoutEventNestedInput
@@ -50763,6 +50806,7 @@ export namespace Prisma {
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     maxTeams?: NullableIntFieldUpdateOperationsInput | number | null
     notification?: NullableStringFieldUpdateOperationsInput | string | null
+    requireAiml?: BoolFieldUpdateOperationsInput | boolean
     participants?: TeamUncheckedUpdateManyWithoutEventNestedInput
     organizers?: UserUncheckedUpdateManyWithoutOrganizersNestedInput
     customFields?: EventCustomFieldUncheckedUpdateManyWithoutEventNestedInput
@@ -51732,6 +51776,7 @@ export namespace Prisma {
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     maxTeams?: NullableIntFieldUpdateOperationsInput | number | null
     notification?: NullableStringFieldUpdateOperationsInput | string | null
+    requireAiml?: BoolFieldUpdateOperationsInput | boolean
     participants?: TeamUpdateManyWithoutEventNestedInput
     winners?: WinnersUpdateManyWithoutEventNestedInput
     customFields?: EventCustomFieldUpdateManyWithoutEventNestedInput
@@ -51761,6 +51806,7 @@ export namespace Prisma {
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     maxTeams?: NullableIntFieldUpdateOperationsInput | number | null
     notification?: NullableStringFieldUpdateOperationsInput | string | null
+    requireAiml?: BoolFieldUpdateOperationsInput | boolean
     participants?: TeamUncheckedUpdateManyWithoutEventNestedInput
     winners?: WinnersUncheckedUpdateManyWithoutEventNestedInput
     customFields?: EventCustomFieldUncheckedUpdateManyWithoutEventNestedInput
@@ -51790,6 +51836,7 @@ export namespace Prisma {
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     maxTeams?: NullableIntFieldUpdateOperationsInput | number | null
     notification?: NullableStringFieldUpdateOperationsInput | string | null
+    requireAiml?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type EventRegistrationUpdateWithoutUserInput = {

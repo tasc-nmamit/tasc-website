@@ -83,11 +83,18 @@ export function EventIndexRow({ event, index }: EventIndexRowProps) {
               </h3>
             </NextLink>
 
-            {event.type && (
-              <p className="text-[10px] md:text-[11px] font-mono-tech text-muted-foreground/80 uppercase tracking-wider line-clamp-1 mt-0.5">
-                {event.type}
-              </p>
-            )}
+            <div className="flex flex-wrap items-center gap-2 mt-0.5">
+              {event.type && (
+                <span className="text-[10px] md:text-[11px] font-mono-tech text-muted-foreground/80 uppercase tracking-wider line-clamp-1">
+                  {event.type}
+                </span>
+              )}
+              {event.requireAiml && (
+                <span className="text-[9px] font-mono-tech font-bold px-1.5 py-0.2 rounded bg-purple-500/15 border border-purple-500/30 text-purple-600 dark:text-purple-300 uppercase">
+                  AIML Exclusive
+                </span>
+              )}
+            </div>
           </div>
         </div>
 

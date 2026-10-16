@@ -1,7 +1,7 @@
 import { db } from "@/lib/db";
 import { notFound } from "next/navigation";
 import Image from "next/image";
-import { CalendarIcon, ClockIcon, MapPinIcon, UsersIcon, ShieldAlert } from "lucide-react";
+import { CalendarIcon, ClockIcon, MapPinIcon, UsersIcon, ShieldAlert, Sparkles } from "lucide-react";
 import EventRegistrationClient from "./EventRegistrationClient";
 import CountdownTimer from "./CountdownTimer";
 import { getSession } from "@/lib/auth-guards";
@@ -133,6 +133,13 @@ export default async function EventDetailsPage({ params }: PageProps) {
                 <span className="rounded border border-gold/50 bg-gold/20 px-2.5 sm:px-3 py-1 text-xs font-bold font-mono-tech uppercase tracking-widest text-gold">
                   FORMAT: {event.type}
                 </span>
+
+                {event.requireAiml && (
+                  <span className="rounded border border-purple-500/50 bg-purple-500/20 px-2.5 sm:px-3 py-1 text-xs font-bold font-mono-tech uppercase tracking-widest text-purple-300 flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+                    AIML EXCLUSIVE
+                  </span>
+                )}
 
                 {!event.registrationsAvailable && !isPast && (
                   <span className="rounded border border-amber-500/50 bg-amber-500/20 px-2.5 sm:px-3 py-1 text-xs font-bold font-mono-tech uppercase tracking-widest text-amber-400">

@@ -30,6 +30,7 @@ export async function POST(request: Request) {
       published,
       registrationsAvailable,
       registrationStartTime,
+      requireAiml,
       customFields,
     } = body;
 
@@ -67,6 +68,7 @@ export async function POST(request: Request) {
         brief: "",
         registrationsAvailable,
         registrationStartTime: registrationStartTime ? parseContestDate(registrationStartTime) : null,
+        requireAiml: !!requireAiml,
         published: isPublished,
         organizers: {
           connect: { id: session.user.id }

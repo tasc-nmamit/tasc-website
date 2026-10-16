@@ -232,7 +232,8 @@ exports.Prisma.EventScalarFieldEnum = {
   registrationStartTime: 'registrationStartTime',
   endDate: 'endDate',
   maxTeams: 'maxTeams',
-  notification: 'notification'
+  notification: 'notification',
+  requireAiml: 'requireAiml'
 };
 
 exports.Prisma.EventCustomFieldScalarFieldEnum = {

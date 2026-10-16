@@ -163,6 +163,7 @@ model Event {
   endDate                DateTime?
   maxTeams               Int?
   notification           String?
+  requireAiml            Boolean            @default(false)
   participants           Team[]
   winners                Winners[]
   organizers             User[]             @relation("EventToUser")

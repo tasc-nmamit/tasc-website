@@ -19,4 +19,5 @@ export interface Event {
   published?: boolean;
   registrationsAvailable?: boolean;
   registrationStartTime?: Date | null;
+  requireAiml?: boolean;
 }

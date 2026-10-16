@@ -32,6 +32,7 @@ export default async function EventsPage() {
       published: true,
       registrationStartTime: true,
       registrationsAvailable: true,
+      requireAiml: true,
     },
   });
 
@@ -68,6 +69,7 @@ export default async function EventsPage() {
       published: e.published,
       registrationStartTime: e.registrationStartTime,
       registrationsAvailable: e.registrationsAvailable && !isPast && !isScheduled,
+      requireAiml: e.requireAiml,
     };
   });
 

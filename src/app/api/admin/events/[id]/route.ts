@@ -61,6 +61,9 @@ export async function PATCH(
     if (body.registrationsAvailable !== undefined) {
       updateData.registrationsAvailable = !!body.registrationsAvailable;
     }
+    if (body.requireAiml !== undefined) {
+      updateData.requireAiml = !!body.requireAiml;
+    }
 
     if (body.date !== undefined && body.date) {
       updateData.date = combineDateAndTimeIST(body.date, body.time ?? undefined);
