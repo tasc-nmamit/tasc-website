@@ -52,23 +52,29 @@ export async function DELETE(request: Request, context: { params: Promise<{ id: 
 
     if (!contest) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-    await db.$transaction(async (tx) => {
-      // Deduct points if confirmed
-      if (contest.isConfirmed) {
-        for (const score of contest.scores) {
-          if (score.score > 0) {
-            await tx.user.update({
-              where: { id: score.userId },
-              data: { marathonTotalScore: { decrement: score.score } }
-            });
+    await db.$transaction(
+      async (tx) => {
+        // Deduct points if confirmed
+        if (contest.isConfirmed) {
+          for (const score of contest.scores) {
+            if (score.score > 0) {
+              await tx.user.update({
+                where: { id: score.userId },
+                data: { marathonTotalScore: { decrement: score.score } }
+              });
+            }
           }
         }
-      }
 
-      await tx.marathonWeeklyContest.delete({
-        where: { id: params.id }
-      });
-    });
+        await tx.marathonWeeklyContest.delete({
+          where: { id: params.id }
+        });
+      },
+      {
+        maxWait: 15000,
+        timeout: 60000,
+      }
+    );
 
     return NextResponse.json({ success: true });
   } catch (error: any) {

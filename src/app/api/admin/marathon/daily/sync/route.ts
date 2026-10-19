@@ -55,32 +55,42 @@ export async function POST(request: Request) {
       score: hr.score,
       matched: matchedUsernames.has(hr.hacker)
     }));
+    const validUsersToUpdate = hrLeaderboard
+      .map((hrUser) => ({
+        userId: hrToUserId.get(hrUser.hacker),
+        score: hrUser.score,
+      }))
+      .filter((u): u is { userId: string; score: number } => Boolean(u.userId));
+
     let updatedCount = 0;
 
-    await db.$transaction(async (tx) => {
-      for (const hrUser of hrLeaderboard) {
-        const userId = hrToUserId.get(hrUser.hacker);
-        if (!userId) continue;
+    await db.$transaction(
+      async (tx) => {
+        for (const hrUser of validUsersToUpdate) {
+          await tx.marathonDailyScore.upsert({
+            where: {
+              userId_contestId: { userId: hrUser.userId, contestId }
+            },
+            create: {
+              userId: hrUser.userId,
+              contestId,
+              score: hrUser.score,
+              completed: hrUser.score > 0
+            },
+            update: {
+              score: hrUser.score,
+              completed: hrUser.score > 0
+            }
+          });
 
-        await tx.marathonDailyScore.upsert({
-          where: {
-            userId_contestId: { userId, contestId }
-          },
-          create: {
-            userId,
-            contestId,
-            score: hrUser.score,
-            completed: hrUser.score > 0
-          },
-          update: {
-            score: hrUser.score,
-            completed: hrUser.score > 0
-          }
-        });
-
-        updatedCount++;
+          updatedCount++;
+        }
+      },
+      {
+        maxWait: 15000,
+        timeout: 60000,
       }
-    });
+    );
 
     return NextResponse.json({ 
       success: true, 

@@ -42,31 +42,37 @@ export async function POST(request: Request) {
     let updatedCount = 0;
     const skippedNonStudents: string[] = [];
 
-    await db.$transaction(async (tx) => {
-      for (const score of contest.scores) {
-        if (score.user.role === "ADMIN" || score.user.role === "OWNER") {
-          if (score.user.hackerrankUsername) {
-            skippedNonStudents.push(score.user.hackerrankUsername);
-          }
-          continue; // Skip counting scores for admin/owner
-        }
-
-        if (score.score > 0) {
-          await tx.user.update({
-            where: { id: score.userId },
-            data: {
-              marathonTotalScore: { increment: score.score },
+    await db.$transaction(
+      async (tx) => {
+        for (const score of contest.scores) {
+          if (score.user.role === "ADMIN" || score.user.role === "OWNER") {
+            if (score.user.hackerrankUsername) {
+              skippedNonStudents.push(score.user.hackerrankUsername);
             }
-          });
-          updatedCount++;
-        }
-      }
+            continue; // Skip counting scores for admin/owner
+          }
 
-      await tx.marathonWeeklyContest.update({
-        where: { id: contestId },
-        data: { isConfirmed: true }
-      });
-    });
+          if (score.score > 0) {
+            await tx.user.update({
+              where: { id: score.userId },
+              data: {
+                marathonTotalScore: { increment: score.score },
+              }
+            });
+            updatedCount++;
+          }
+        }
+
+        await tx.marathonWeeklyContest.update({
+          where: { id: contestId },
+          data: { isConfirmed: true }
+        });
+      },
+      {
+        maxWait: 15000,
+        timeout: 60000,
+      }
+    );
 
     return NextResponse.json({ success: true, updatedCount, skippedNonStudents });
   } catch (error: any) {

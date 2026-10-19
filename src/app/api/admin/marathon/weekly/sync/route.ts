@@ -64,41 +64,60 @@ export async function POST(request: Request) {
       score: hr.score,
       matched: matchedUsernames.has(hr.hacker)
     }));
+    // Pre-fetch existing scores to avoid inside-transaction read queries
+    const existingScores = await db.marathonWeeklyScore.findMany({
+      where: { contestId },
+      select: { userId: true, quizScore: true },
+    });
+    const existingMap = new Map(existingScores.map((s) => [s.userId, s]));
+
+    const validScoresToUpdate: { userId: string; contestScore: number; totalScore: number }[] = [];
+    for (const hrUser of hrLeaderboard) {
+      const userId = hrToUserId.get(hrUser.hacker);
+      if (!userId) continue;
+
+      const existing = existingMap.get(userId);
+      const currentQuizScore = existing?.quizScore || 0;
+      const totalScore = currentQuizScore + hrUser.score;
+
+      validScoresToUpdate.push({
+        userId,
+        contestScore: hrUser.score,
+        totalScore,
+      });
+    }
+
     let updatedCount = 0;
 
-    await db.$transaction(async (tx) => {
-      for (const hrUser of hrLeaderboard) {
-        const userId = hrToUserId.get(hrUser.hacker);
-        if (!userId) continue; 
-
-        const existing = await tx.marathonWeeklyScore.findUnique({
-          where: { userId_contestId: { userId, contestId } }
-        });
-
-        const currentQuizScore = existing?.quizScore || 0;
-        const totalScore = currentQuizScore + hrUser.score;
-
-        await tx.marathonWeeklyScore.upsert({
-          where: {
-            userId_contestId: { userId, contestId }
-          },
-          create: {
-            userId,
-            contestId,
-            quizScore: 0,
-            contestScore: hrUser.score,
-            score: totalScore,
-            completed: totalScore > 0
-          },
-          update: {
-            contestScore: hrUser.score,
-            score: totalScore,
-            completed: totalScore > 0
-          }
-        });
-        updatedCount++;
+    await db.$transaction(
+      async (tx) => {
+        for (const item of validScoresToUpdate) {
+          await tx.marathonWeeklyScore.upsert({
+            where: {
+              userId_contestId: { userId: item.userId, contestId }
+            },
+            create: {
+              userId: item.userId,
+              contestId,
+              quizScore: 0,
+              contestScore: item.contestScore,
+              score: item.totalScore,
+              completed: item.totalScore > 0
+            },
+            update: {
+              contestScore: item.contestScore,
+              score: item.totalScore,
+              completed: item.totalScore > 0
+            }
+          });
+          updatedCount++;
+        }
+      },
+      {
+        maxWait: 15000,
+        timeout: 60000,
       }
-    });
+    );
 
     return NextResponse.json({ 
       success: true, 

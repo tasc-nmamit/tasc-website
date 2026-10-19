@@ -59,42 +59,62 @@ export async function POST(request: Request) {
     const unmatchedEmails = emails.filter(e => !matchedEmails.has(e));
     let updatedCount = 0;
 
-    await db.$transaction(async (tx) => {
-      for (const item of scores) {
-        const email = item.email.toLowerCase().trim();
-        const userId = emailToUserId.get(email);
-        if (!userId) continue; 
-        
-        const quizScore = Math.round(Number(item.score)) || 0;
-
-        const existing = await tx.marathonWeeklyScore.findUnique({
-          where: { userId_contestId: { userId, contestId } }
-        });
-
-        const currentContestScore = existing?.contestScore || 0;
-        const totalScore = quizScore + currentContestScore;
-
-        await tx.marathonWeeklyScore.upsert({
-          where: {
-            userId_contestId: { userId, contestId }
-          },
-          create: {
-            userId,
-            contestId,
-            quizScore,
-            contestScore: 0,
-            score: quizScore,
-            completed: quizScore > 0
-          },
-          update: {
-            quizScore,
-            score: totalScore,
-            completed: totalScore > 0
-          }
-        });
-        updatedCount++;
-      }
+    // Pre-fetch all existing weekly scores for this contest in a single query
+    const existingScores = await db.marathonWeeklyScore.findMany({
+      where: { contestId },
+      select: { userId: true, contestScore: true, quizScore: true },
     });
+    const existingMap = new Map(existingScores.map((s) => [s.userId, s]));
+
+    // Filter valid scores for eligible students
+    const validScoresToUpdate: { userId: string; quizScore: number; totalScore: number }[] = [];
+    for (const item of scores) {
+      const email = item.email?.toString().toLowerCase().trim();
+      const userId = emailToUserId.get(email);
+      if (!userId) continue;
+
+      const quizScore = Math.round(Number(item.score)) || 0;
+      const existing = existingMap.get(userId);
+      const currentContestScore = existing?.contestScore || 0;
+      const totalScore = quizScore + currentContestScore;
+
+      validScoresToUpdate.push({
+        userId,
+        quizScore,
+        totalScore,
+      });
+    }
+
+    // Execute upserts with increased transaction timeout (60s)
+    await db.$transaction(
+      async (tx) => {
+        for (const item of validScoresToUpdate) {
+          await tx.marathonWeeklyScore.upsert({
+            where: {
+              userId_contestId: { userId: item.userId, contestId },
+            },
+            create: {
+              userId: item.userId,
+              contestId,
+              quizScore: item.quizScore,
+              contestScore: 0,
+              score: item.quizScore,
+              completed: item.quizScore > 0,
+            },
+            update: {
+              quizScore: item.quizScore,
+              score: item.totalScore,
+              completed: item.totalScore > 0,
+            },
+          });
+          updatedCount++;
+        }
+      },
+      {
+        maxWait: 15000,
+        timeout: 60000,
+      }
+    );
 
     return NextResponse.json({ 
       success: true, 

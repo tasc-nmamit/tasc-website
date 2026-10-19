@@ -47,20 +47,26 @@ export async function POST(request: Request) {
     const skippedNonStudents: string[] = [];
     let streakResult = { totalEvaluated: 0, streaksUpdated: 0 };
 
-    await db.$transaction(async (tx) => {
-      // 1. Mark contest as confirmed
-      await tx.marathonDailyContest.update({
-        where: { id: contestId },
-        data: { isConfirmed: true }
-      });
+    await db.$transaction(
+      async (tx) => {
+        // 1. Mark contest as confirmed
+        await tx.marathonDailyContest.update({
+          where: { id: contestId },
+          data: { isConfirmed: true }
+        });
 
-      // 2. Streaks will be maintained; points are reserved exclusively for weekly contests
+        // 2. Streaks will be maintained; points are reserved exclusively for weekly contests
 
-      // 3. Recalculate streaks for the entire targetYear
-      // This ensures all students who completed continue their streak,
-      // and any student who missed this confirmed contest has their streak reset to 0!
-      streakResult = await recalculateYearStreaks(contest.targetYear, tx);
-    });
+        // 3. Recalculate streaks for the entire targetYear
+        // This ensures all students who completed continue their streak,
+        // and any student who missed this confirmed contest has their streak reset to 0!
+        streakResult = await recalculateYearStreaks(contest.targetYear, tx);
+      },
+      {
+        maxWait: 15000,
+        timeout: 60000,
+      }
+    );
 
     return NextResponse.json({ 
       success: true, 
