@@ -22,6 +22,7 @@ import {
   FilterIcon,
   AlertCircleIcon,
   ChevronDownIcon,
+  UserPlusIcon,
 } from "lucide-react";
 import ClientPortal from "@/components/ui/ClientPortal";
 import CircuitTrace from "@/components/ui/circuit-ink/CircuitTrace";
@@ -103,9 +104,24 @@ export default function RegistrationsClient({
   const [isAddingTeammateOpen, setIsAddingTeammateOpen] = useState(false);
   const [uploadingFiles, setUploadingFiles] = useState<Record<string, boolean>>({});
 
+  // Add Member to Existing Team Modal State
+  const [isAddMemberModalOpen, setIsAddMemberModalOpen] = useState(false);
+  const [addMemberTargetTeam, setAddMemberTargetTeam] = useState<any | null>(null);
+  const [addMemberUser, setAddMemberUser] = useState<any | null>(null);
+  const [addMemberSearch, setAddMemberSearch] = useState("");
+  const [addMemberName, setAddMemberName] = useState("");
+  const [addMemberEmail, setAddMemberEmail] = useState("");
+  const [addMemberUsn, setAddMemberUsn] = useState("");
+  const [addMemberPhone, setAddMemberPhone] = useState("");
+  const [addMemberBranch, setAddMemberBranch] = useState("AIML");
+  const [addMemberYear, setAddMemberYear] = useState("3");
+  const [addMemberResponses, setAddMemberResponses] = useState<Record<string, any>>({});
+  const [addMemberMarkPresent, setAddMemberMarkPresent] = useState(true);
+  const [isSubmittingAddMember, setIsSubmittingAddMember] = useState(false);
+
   // Lock body scroll during modals
   useEffect(() => {
-    if (isOnSpotModalOpen) {
+    if (isOnSpotModalOpen || isAddMemberModalOpen) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
@@ -113,7 +129,7 @@ export default function RegistrationsClient({
     return () => {
       document.body.style.overflow = "";
     };
-  }, [isOnSpotModalOpen]);
+  }, [isOnSpotModalOpen, isAddMemberModalOpen]);
 
   // Set of registered user IDs across all teams
   const registeredUserIds = useMemo(() => {
@@ -157,6 +173,27 @@ export default function RegistrationsClient({
       )
       .slice(0, 8);
   }, [allUsers, registeredUserIds, onSpotLeaderUser, onSpotMembers, newMemberSearch]);
+
+  // Filter available users for add member to existing team
+  const availableUsersForAddMember = useMemo(() => {
+    if (!addMemberSearch.trim()) return [];
+    const term = addMemberSearch.toLowerCase();
+    const teamUserIds = new Set(
+      (addMemberTargetTeam?.registrations || []).map((r: any) => r.userId)
+    );
+
+    return allUsers
+      .filter(
+        (u) =>
+          !registeredUserIds.has(u.id) &&
+          !teamUserIds.has(u.id) &&
+          ((u.name || "").toLowerCase().includes(term) ||
+            (u.email || "").toLowerCase().includes(term) ||
+            (u.displayName || "").toLowerCase().includes(term) ||
+            (u.usn || "").toLowerCase().includes(term))
+      )
+      .slice(0, 8);
+  }, [allUsers, registeredUserIds, addMemberTargetTeam, addMemberSearch]);
 
   // Teammate applicable custom fields (for team events, fields not restricted to leader only)
   const teammateCustomFields = useMemo(() => {
@@ -635,6 +672,141 @@ export default function RegistrationsClient({
       alert("On-Spot Error: " + err.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // =========================================================================
+  // Add Member to Existing Team Handlers
+  // =========================================================================
+  const handleOpenAddMemberModal = (team: any) => {
+    setAddMemberTargetTeam(team);
+    setAddMemberUser(null);
+    setAddMemberSearch("");
+    setAddMemberName("");
+    setAddMemberEmail("");
+    setAddMemberUsn("");
+    setAddMemberPhone("");
+    setAddMemberBranch("AIML");
+    setAddMemberYear("3");
+    setAddMemberResponses({});
+    setAddMemberMarkPresent(team.attended ?? true);
+    setIsAddMemberModalOpen(true);
+  };
+
+  const handleSelectUserForAddMember = (u: any) => {
+    setAddMemberUser(u);
+    setAddMemberSearch("");
+    setAddMemberName(u.displayName || u.name || "");
+    setAddMemberEmail(u.email || "");
+    setAddMemberUsn(u.usn || "");
+    setAddMemberPhone(u.phone || "");
+    setAddMemberBranch(u.branch || (u.isAiml ? "AIML" : ""));
+    setAddMemberYear(u.year ? String(u.year) : "3");
+  };
+
+  const handleClearSelectedUserForAddMember = () => {
+    setAddMemberUser(null);
+    setAddMemberName("");
+    setAddMemberEmail("");
+    setAddMemberUsn("");
+    setAddMemberPhone("");
+    setAddMemberBranch("AIML");
+    setAddMemberYear("3");
+  };
+
+  const handleSubmitAddMember = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!addMemberTargetTeam) return;
+
+    if (!addMemberEmail.trim()) {
+      alert("Please enter the student's email.");
+      return;
+    }
+
+    if (!addMemberName.trim()) {
+      alert("Please enter the student's name.");
+      return;
+    }
+
+    // Check AIML restriction if applicable
+    if (event.requireAiml) {
+      const isAiml = addMemberUser
+        ? addMemberUser.isAiml
+        : addMemberBranch.trim().toUpperCase() === "AIML" || addMemberEmail.toLowerCase().includes("am");
+      if (!isAiml && addMemberUser && !addMemberUser.isAiml) {
+        if (!confirm(`Warning: Student "${addMemberName}" is marked as non-AIML, but this event is restricted to AIML students only. Do you still want to proceed?`)) {
+          return;
+        }
+      }
+    }
+
+    // Validate teammate required questions
+    for (const field of teammateCustomFields) {
+      if (field.isRequired) {
+        const val = addMemberResponses[field.id];
+        if (
+          val === undefined ||
+          val === null ||
+          val === "" ||
+          (Array.isArray(val) && val.length === 0)
+        ) {
+          alert(`Please answer required question "${field.label}" for teammate "${addMemberName}".`);
+          return;
+        }
+      }
+    }
+
+    setIsSubmittingAddMember(true);
+    try {
+      const payload = {
+        action: "ADD_MEMBER",
+        teamId: addMemberTargetTeam.id,
+        userId: addMemberUser?.id || undefined,
+        markPresent: addMemberMarkPresent,
+        member: {
+          userId: addMemberUser?.id || undefined,
+          name: addMemberName.trim(),
+          email: addMemberEmail.trim().toLowerCase(),
+          usn: addMemberUsn.trim().toUpperCase() || undefined,
+          phone: addMemberPhone.trim() || undefined,
+          branch: addMemberBranch.trim() || undefined,
+          year: addMemberYear ? Number(addMemberYear) : undefined,
+          responses: addMemberResponses,
+        },
+        responses: addMemberResponses,
+      };
+
+      const res = await fetch(`/api/admin/events/${event.id}/registrations`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to add member to team");
+      }
+
+      alert(`✓ Successfully added "${addMemberName}" to ${addMemberTargetTeam.name || "the team"}!`);
+      setIsAddMemberModalOpen(false);
+
+      if (data.registration) {
+        setCurrentTeams((prev) =>
+          prev.map((t) => {
+            if (t.id !== addMemberTargetTeam.id) return t;
+            return {
+              ...t,
+              registrations: [...(t.registrations || []), data.registration],
+            };
+          })
+        );
+      }
+      router.refresh();
+    } catch (err: any) {
+      alert("Error adding member: " + err.message);
+    } finally {
+      setIsSubmittingAddMember(false);
     }
   };
 
@@ -1183,6 +1355,18 @@ export default function RegistrationsClient({
                       </button>
                     )}
 
+                    {/* Add Member Button */}
+                    {(!event.maxTeamSize || members.length < event.maxTeamSize) && (
+                      <button
+                        onClick={() => handleOpenAddMemberModal(team)}
+                        className="rounded-xl border border-brand/40 bg-brand/10 hover:bg-brand/20 px-3 py-1.5 text-xs font-bold font-space-grotesk text-foreground transition-all flex items-center gap-1.5 cursor-pointer hover:border-brand/60"
+                        title="Add a student to this team"
+                      >
+                        <UserPlusIcon className="w-3.5 h-3.5 text-brand-accent" />
+                        <span>Add Member</span>
+                      </button>
+                    )}
+
                     {/* Delete Team Button */}
                     <button
                       onClick={() => handleDeleteTeam(team.id)}
@@ -1302,6 +1486,23 @@ export default function RegistrationsClient({
                       </div>
                     );
                   })}
+
+                  {/* Quick Add Member Card inside grid */}
+                  {(!event.maxTeamSize || members.length < event.maxTeamSize) && (
+                    <button
+                      onClick={() => handleOpenAddMemberModal(team)}
+                      className="border border-dashed border-brand/30 hover:border-brand-accent hover:bg-brand/5 rounded-xl p-3 flex flex-col items-center justify-center gap-1.5 text-muted-foreground hover:text-foreground transition-all cursor-pointer min-h-[110px] group"
+                      title="Add a new member to this team"
+                    >
+                      <div className="w-8 h-8 rounded-full bg-brand/10 group-hover:bg-brand/20 flex items-center justify-center transition-colors">
+                        <UserPlusIcon className="w-4 h-4 text-brand-accent" />
+                      </div>
+                      <span className="text-xs font-bold font-space-grotesk">Add Member</span>
+                      <span className="text-[10px] font-mono-tech text-muted-foreground">
+                        {members.length} / {event.maxTeamSize || "∞"} members
+                      </span>
+                    </button>
+                  )}
                 </div>
               </div>
             );
@@ -1900,6 +2101,337 @@ export default function RegistrationsClient({
                           : loading
                             ? "Registering..."
                             : "Complete On-Spot Registration"}
+                      </span>
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </ClientPortal>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 6. ADD MEMBER TO EXISTING TEAM MODAL */}
+      {/* ========================================================================= */}
+      {isAddMemberModalOpen && addMemberTargetTeam && (
+        <ClientPortal>
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+            <div
+              className="fixed inset-0 bg-background/80 backdrop-blur-md"
+              onClick={() => setIsAddMemberModalOpen(false)}
+            />
+            <div className="relative w-full max-w-xl rounded-2xl border border-brand/30 bg-card p-5 sm:p-7 shadow-2xl max-h-[90vh] overflow-y-auto backdrop-blur-xl bg-blueprint-grid my-auto">
+              <CircuitTrace corners={true} />
+
+              <div className="relative z-10 space-y-5">
+                {/* Header */}
+                <div className="flex items-start justify-between pb-3 border-b border-brand/20">
+                  <div>
+                    <TechnicalLabel variant="gold" className="text-[10px] mb-1">
+                      [ TEAM_OPERATIONS // ADD_MEMBER ]
+                    </TechnicalLabel>
+                    <h3 className="text-xl font-bold font-space-grotesk text-foreground">
+                      Add Member to Team
+                    </h3>
+                    <p className="text-xs text-muted-foreground font-mono-tech mt-0.5">
+                      Induct a student into{" "}
+                      <span className="text-brand-accent font-bold">
+                        {addMemberTargetTeam.name || "this team"}
+                      </span>
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setIsAddMemberModalOpen(false)}
+                    className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer"
+                  >
+                    <XIcon className="w-5 h-5" />
+                  </button>
+                </div>
+
+                {/* Team Info Banner */}
+                <div className="rounded-xl border border-brand/25 bg-background/60 p-3 flex flex-wrap items-center justify-between gap-2 text-xs font-mono-tech">
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-foreground">
+                      {addMemberTargetTeam.name || "Team"}
+                    </span>
+                    {addMemberTargetTeam.teamCode && (
+                      <span className="bg-brand/20 text-brand-accent border border-brand/30 px-2 py-0.5 rounded text-[11px] font-bold">
+                        CODE: {addMemberTargetTeam.teamCode}
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-muted-foreground">
+                    Current Roster:{" "}
+                    <strong className="text-foreground">
+                      {addMemberTargetTeam.registrations?.length || 0}
+                    </strong>{" "}
+                    / {event.maxTeamSize || "∞"} members
+                  </span>
+                </div>
+
+                <form onSubmit={handleSubmitAddMember} className="space-y-4">
+                  {/* Student Search & Autocomplete */}
+                  <div className="space-y-2">
+                    <label className="block text-xs font-mono-tech uppercase font-bold text-foreground">
+                      1. Select Registered Student (Optional Search)
+                    </label>
+
+                    {addMemberUser ? (
+                      <div className="flex items-center justify-between rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3">
+                        <div className="min-w-0 space-y-0.5">
+                          <div className="flex items-center gap-2">
+                            <CheckCircle2Icon className="w-4 h-4 text-emerald-400 shrink-0" />
+                            <p className="font-bold text-xs font-space-grotesk text-foreground truncate">
+                              {addMemberUser.displayName || addMemberUser.name || "Student"}
+                            </p>
+                            {addMemberUser.isAiml && (
+                              <span className="bg-brand/20 text-brand-accent border border-brand/30 text-[9px] font-mono-tech uppercase px-1.5 py-0.2 rounded font-bold">
+                                AIML
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-[11px] font-mono-tech text-muted-foreground truncate">
+                            {addMemberUser.email}
+                            {addMemberUser.usn ? ` • ${addMemberUser.usn}` : ""}
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleClearSelectedUserForAddMember}
+                          className="rounded-lg p-1.5 text-xs text-red-400 hover:bg-red-500/10 hover:text-red-300 font-mono-tech flex items-center gap-1 cursor-pointer transition-colors"
+                        >
+                          <XIcon className="w-3.5 h-3.5" />
+                          <span>Change</span>
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="relative">
+                        <div className="relative">
+                          <SearchIcon className="absolute left-3 top-2.5 w-4 h-4 text-muted-foreground pointer-events-none" />
+                          <input
+                            type="text"
+                            value={addMemberSearch}
+                            onChange={(e) => setAddMemberSearch(e.target.value)}
+                            placeholder="Type student name, email, or USN to auto-fill..."
+                            className="w-full rounded-xl border border-brand/30 bg-background/80 pl-9 pr-3 py-2 text-xs text-foreground placeholder:text-muted-foreground outline-none focus:border-brand-accent transition-colors"
+                          />
+                        </div>
+
+                        {/* Autocomplete Dropdown */}
+                        {availableUsersForAddMember.length > 0 && (
+                          <div className="absolute top-full left-0 right-0 mt-1 z-30 rounded-xl border border-brand/30 bg-card p-1 shadow-2xl max-h-48 overflow-y-auto space-y-1">
+                            {availableUsersForAddMember.map((u) => (
+                              <button
+                                key={u.id}
+                                type="button"
+                                onClick={() => handleSelectUserForAddMember(u)}
+                                className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-brand/10 transition-colors text-left cursor-pointer group"
+                              >
+                                <div className="min-w-0 pr-2">
+                                  <div className="flex items-center gap-1.5">
+                                    <p className="text-xs font-bold font-space-grotesk text-foreground truncate group-hover:text-brand-accent transition-colors">
+                                      {u.displayName || u.name || "Student"}
+                                    </p>
+                                    {u.isAiml && (
+                                      <span className="bg-brand/20 text-brand-accent text-[9px] font-mono-tech px-1 rounded">
+                                        AIML
+                                      </span>
+                                    )}
+                                  </div>
+                                  <p className="text-[10px] font-mono-tech text-muted-foreground truncate">
+                                    {u.email}
+                                    {u.usn ? ` • ${u.usn}` : ""}
+                                  </p>
+                                </div>
+                                <span className="text-[10px] font-mono-tech text-brand-accent bg-brand/10 px-2 py-0.5 rounded shrink-0">
+                                  Select ↵
+                                </span>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Student Details Inputs */}
+                  <div className="space-y-3 pt-1">
+                    <label className="block text-xs font-mono-tech uppercase font-bold text-foreground">
+                      2. Student Information
+                    </label>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <label className="block text-[11px] font-mono-tech text-muted-foreground uppercase">
+                          Full Name <span className="text-red-400 font-bold">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={addMemberName}
+                          onChange={(e) => setAddMemberName(e.target.value)}
+                          placeholder="e.g. John Doe"
+                          className="w-full rounded-lg border border-brand/30 bg-background/80 px-3 py-1.5 text-xs text-foreground outline-none focus:border-brand-accent transition-colors"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="block text-[11px] font-mono-tech text-muted-foreground uppercase">
+                          College Email <span className="text-red-400 font-bold">*</span>
+                        </label>
+                        <input
+                          type="email"
+                          required
+                          value={addMemberEmail}
+                          onChange={(e) => setAddMemberEmail(e.target.value)}
+                          placeholder="student@nmamit.in"
+                          className="w-full rounded-lg border border-brand/30 bg-background/80 px-3 py-1.5 text-xs text-foreground outline-none focus:border-brand-accent transition-colors"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <label className="block text-[11px] font-mono-tech text-muted-foreground uppercase">
+                          USN (Optional)
+                        </label>
+                        <input
+                          type="text"
+                          value={addMemberUsn}
+                          onChange={(e) => setAddMemberUsn(e.target.value.toUpperCase())}
+                          placeholder="e.g. 4NM22AI001"
+                          className="w-full rounded-lg border border-brand/30 bg-background/80 px-3 py-1.5 text-xs text-foreground outline-none focus:border-brand-accent transition-colors"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="block text-[11px] font-mono-tech text-muted-foreground uppercase">
+                          Phone Number (Optional)
+                        </label>
+                        <input
+                          type="tel"
+                          value={addMemberPhone}
+                          onChange={(e) => setAddMemberPhone(e.target.value)}
+                          placeholder="e.g. +91 9876543210"
+                          className="w-full rounded-lg border border-brand/30 bg-background/80 px-3 py-1.5 text-xs text-foreground outline-none focus:border-brand-accent transition-colors"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <label className="block text-[11px] font-mono-tech text-muted-foreground uppercase">
+                          Branch
+                        </label>
+                        <select
+                          value={addMemberBranch}
+                          onChange={(e) => setAddMemberBranch(e.target.value)}
+                          className="w-full rounded-lg border border-brand/30 bg-card px-3 py-1.5 text-xs text-foreground outline-none focus:border-brand-accent transition-colors"
+                        >
+                          <option value="AIML">AI & Machine Learning (AIML)</option>
+                          <option value="CSE">Computer Science (CSE)</option>
+                          <option value="ISE">Information Science (ISE)</option>
+                          <option value="CCE">Computer & Communication (CCE)</option>
+                          <option value="ECE">Electronics & Communication (ECE)</option>
+                          <option value="EEE">Electrical & Electronics (EEE)</option>
+                          <option value="MECH">Mechanical (MECH)</option>
+                          <option value="CIVIL">Civil (CIVIL)</option>
+                          <option value="BIOTECH">Biotechnology (BT)</option>
+                          <option value="OTHER">Other</option>
+                        </select>
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="block text-[11px] font-mono-tech text-muted-foreground uppercase">
+                          Academic Year
+                        </label>
+                        <select
+                          value={addMemberYear}
+                          onChange={(e) => setAddMemberYear(e.target.value)}
+                          className="w-full rounded-lg border border-brand/30 bg-card px-3 py-1.5 text-xs text-foreground outline-none focus:border-brand-accent transition-colors"
+                        >
+                          <option value="1">1st Year</option>
+                          <option value="2">2nd Year</option>
+                          <option value="3">3rd Year</option>
+                          <option value="4">4th Year</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Teammate Custom Fields Questionnaire (if any) */}
+                  {teammateCustomFields.length > 0 && (
+                    <div className="rounded-xl border border-brand/20 bg-background/50 p-4 space-y-3">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-brand-accent" />
+                        <h4 className="font-bold text-xs uppercase tracking-wider text-foreground font-mono-tech">
+                          Teammate Questionnaire
+                        </h4>
+                      </div>
+
+                      <div className="space-y-3">
+                        {teammateCustomFields.map((field: any) =>
+                          renderCustomField(
+                            field,
+                            addMemberResponses[field.id],
+                            (val) => setAddMemberResponses((prev) => ({ ...prev, [field.id]: val })),
+                            `add_member_${field.id}`
+                          )
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Mark as Present Toggle */}
+                  <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3.5 flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2.5">
+                      <CheckCircle2Icon className="w-5 h-5 text-emerald-400 shrink-0" />
+                      <div>
+                        <p className="text-xs font-bold text-foreground">
+                          Mark Present & Checked In Immediately
+                        </p>
+                        <p className="text-[11px] text-muted-foreground font-mono-tech">
+                          Set student's attendance to checked-in alongside this team
+                        </p>
+                      </div>
+                    </div>
+
+                    <input
+                      type="checkbox"
+                      checked={addMemberMarkPresent}
+                      onChange={(e) => setAddMemberMarkPresent(e.target.checked)}
+                      className="w-5 h-5 rounded border-emerald-500 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
+                    />
+                  </div>
+
+                  {/* Modal Action Buttons */}
+                  <div className="flex items-center gap-3 pt-3 border-t border-brand/20">
+                    <button
+                      type="button"
+                      onClick={() => setIsAddMemberModalOpen(false)}
+                      className="flex-1 rounded-xl border border-brand/30 bg-background/60 py-2.5 text-xs font-bold text-foreground hover:bg-muted transition-colors cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+
+                    <button
+                      type="submit"
+                      disabled={
+                        isSubmittingAddMember ||
+                        Object.values(uploadingFiles).some(Boolean) ||
+                        !addMemberName ||
+                        !addMemberEmail
+                      }
+                      className="flex-1 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-lg shadow-blue-600/25 transition-all disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
+                    >
+                      <UserPlusIcon className="w-4 h-4" />
+                      <span>
+                        {Object.values(uploadingFiles).some(Boolean)
+                          ? "Uploading File..."
+                          : isSubmittingAddMember
+                            ? "Adding Member..."
+                            : "Add Member to Team"}
                       </span>
                     </button>
                   </div>

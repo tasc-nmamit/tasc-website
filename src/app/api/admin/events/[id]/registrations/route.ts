@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/auth-guards";
 import { generateUniqueTeamCode } from "@/lib/team-code";
+import { isAimlStudent } from "@/lib/email-parser";
 
 // Add user or create team manually by Admin
 export async function POST(
@@ -29,6 +30,65 @@ export async function POST(
       return new NextResponse("Event not found", { status: 404 });
     }
 
+    // Helper to resolve or create user
+    const resolveOrCreateUser = async (data: {
+      userId?: string;
+      name?: string;
+      email?: string;
+      usn?: string;
+      phone?: string;
+      branch?: string;
+      year?: number | string;
+    }) => {
+      if (data.userId) {
+        const existing = await db.user.findUnique({ where: { id: data.userId } });
+        if (existing) return existing;
+      }
+
+      const normalizedEmail = (data.email || "").trim().toLowerCase();
+      if (!normalizedEmail) {
+        throw new Error("Student email is required for registration.");
+      }
+
+      let user = await db.user.findUnique({ where: { email: normalizedEmail } });
+      const isAiml = isAimlStudent(normalizedEmail);
+
+      if (!user) {
+        user = await db.user.create({
+          data: {
+            email: normalizedEmail,
+            name: data.name?.trim() || null,
+            displayName: data.name?.trim() || null,
+            usn: data.usn?.trim().toUpperCase() || null,
+            phone: data.phone?.trim() || null,
+            branch: data.branch?.trim() || (isAiml ? "AIML" : null),
+            year: data.year ? Number(data.year) : null,
+            role: "USER",
+            isAiml,
+          },
+        });
+      } else {
+        // Update missing profile fields
+        const updateData: any = {};
+        if (!user.name && data.name) updateData.name = data.name.trim();
+        if (!user.displayName && data.name) updateData.displayName = data.name.trim();
+        if (!user.usn && data.usn) updateData.usn = data.usn.trim().toUpperCase();
+        if (!user.phone && data.phone) updateData.phone = data.phone.trim();
+        if (!user.branch && data.branch) updateData.branch = data.branch.trim();
+        if (!user.year && data.year) updateData.year = Number(data.year);
+        if (isAiml && !user.isAiml) updateData.isAiml = true;
+
+        if (Object.keys(updateData).length > 0) {
+          user = await db.user.update({
+            where: { id: user.id },
+            data: updateData,
+          });
+        }
+      }
+
+      return user;
+    };
+
     // ACTION: On-Spot Registration by Admin
     if (action === "ON_SPOT_REGISTRATION") {
       const {
@@ -46,61 +106,6 @@ export async function POST(
           { status: 400 }
         );
       }
-
-      // Helper to resolve or create user
-      const resolveOrCreateUser = async (data: {
-        userId?: string;
-        name: string;
-        email: string;
-        usn?: string;
-        phone?: string;
-        branch?: string;
-        year?: number | string;
-      }) => {
-        if (data.userId) {
-          const existing = await db.user.findUnique({ where: { id: data.userId } });
-          if (existing) return existing;
-        }
-
-        const normalizedEmail = (data.email || "").trim().toLowerCase();
-        if (!normalizedEmail) {
-          throw new Error("Student email is required for registration.");
-        }
-
-        let user = await db.user.findUnique({ where: { email: normalizedEmail } });
-        if (!user) {
-          user = await db.user.create({
-            data: {
-              email: normalizedEmail,
-              name: data.name?.trim() || null,
-              displayName: data.name?.trim() || null,
-              usn: data.usn?.trim().toUpperCase() || null,
-              phone: data.phone?.trim() || null,
-              branch: data.branch?.trim() || null,
-              year: data.year ? Number(data.year) : null,
-              role: "USER",
-            },
-          });
-        } else {
-          // Update missing profile fields
-          const updateData: any = {};
-          if (!user.name && data.name) updateData.name = data.name.trim();
-          if (!user.displayName && data.name) updateData.displayName = data.name.trim();
-          if (!user.usn && data.usn) updateData.usn = data.usn.trim().toUpperCase();
-          if (!user.phone && data.phone) updateData.phone = data.phone.trim();
-          if (!user.branch && data.branch) updateData.branch = data.branch.trim();
-          if (!user.year && data.year) updateData.year = Number(data.year);
-
-          if (Object.keys(updateData).length > 0) {
-            user = await db.user.update({
-              where: { id: user.id },
-              data: updateData,
-            });
-          }
-        }
-
-        return user;
-      };
 
       // 1. Resolve leader user
       const leaderUser = await resolveOrCreateUser(leader);
@@ -272,43 +277,119 @@ export async function POST(
 
     // ACTION: Add member to an existing team
     if (action === "ADD_MEMBER") {
-      const targetUserId = userId;
-      if (!targetUserId || !teamId) {
-        return new NextResponse("User ID and Team ID are required", { status: 400 });
+      const { member, markPresent } = body;
+      const targetUserId = userId || member?.userId;
+      const targetEmail = member?.email;
+
+      if (!targetUserId && !targetEmail) {
+        return NextResponse.json({ error: "Student selection or email is required" }, { status: 400 });
       }
 
-      const user = await db.user.findUnique({ where: { id: targetUserId } });
-      if (!user) return new NextResponse("User not found", { status: 404 });
+      if (!teamId) {
+        return NextResponse.json({ error: "Team ID is required" }, { status: 400 });
+      }
 
       const team = await db.team.findUnique({
         where: { id: teamId },
         include: { registrations: true },
       });
-      if (!team) return new NextResponse("Team not found", { status: 404 });
+      if (!team) return NextResponse.json({ error: "Team not found" }, { status: 404 });
 
-      // Check if user is already registered for this event
+      if (event.maxTeamSize && team.registrations.length >= event.maxTeamSize) {
+        return NextResponse.json(
+          { error: `Team is already full (maximum capacity is ${event.maxTeamSize} members)` },
+          { status: 400 }
+        );
+      }
+
+      const user = await resolveOrCreateUser(member || { userId: targetUserId, email: targetEmail });
+      if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
+
+      // Check if user is already in this team
+      if (team.registrations.some((r) => r.userId === user.id)) {
+        return NextResponse.json(
+          { error: `Student "${user.displayName || user.name || user.email}" is already a member of this team.` },
+          { status: 400 }
+        );
+      }
+
+      // Check if user is already registered in another team for this event
       const existingReg = await db.eventRegistration.findFirst({
         where: {
-          userId: targetUserId,
+          userId: user.id,
           team: { eventId: id },
         },
+        include: { team: true },
       });
       if (existingReg) {
-        return new NextResponse("User already registered in this event", { status: 400 });
+        return NextResponse.json(
+          { error: `Student "${user.displayName || user.name || user.email}" is already registered in this event (Team: "${existingReg.team?.name || existingReg.team?.teamCode || "Another Team"}").` },
+          { status: 400 }
+        );
       }
 
-      if (team.registrations.length >= event.maxTeamSize) {
-        return new NextResponse("Team is already full", { status: 400 });
+      // Check AIML requirement if event requires AIML
+      if (event.requireAiml && !user.isAiml) {
+        return NextResponse.json(
+          { error: `Student "${user.displayName || user.name || user.email}" is not an AIML student. This event is restricted to AIML students only.` },
+          { status: 400 }
+        );
       }
 
-      await db.eventRegistration.create({
+      // Applicable custom fields for teammates
+      const teammateFields = (event.customFields || []).filter((cf: any) => {
+        if (cf.fieldType === "DISPLAY_IMAGE") return false;
+        if (cf.registrationMode === "SOLO") return false;
+        if (cf.targetRole === "LEADER_ONLY") return false;
+        return true;
+      });
+
+      const memberResponses = responses || member?.responses || {};
+
+      // Validate required custom fields for this teammate
+      for (const field of teammateFields) {
+        const val = memberResponses[field.id];
+        if (field.isRequired && (val === undefined || val === null || val === "" || (Array.isArray(val) && val.length === 0))) {
+          return NextResponse.json(
+            { error: `Required question "${field.label}" is missing for member "${user.displayName || user.name || user.email}".` },
+            { status: 400 }
+          );
+        }
+
+        if (field.fieldType === "NUMBER" && val !== undefined && val !== null && val !== "") {
+          const numVal = Number(val);
+          if (isNaN(numVal)) {
+            return NextResponse.json(
+              { error: `Field "${field.label}" must be a valid number.` },
+              { status: 400 }
+            );
+          }
+        }
+      }
+
+      const isPresent = markPresent !== undefined ? !!markPresent : !!team.attended;
+
+      const newRegistration = await db.eventRegistration.create({
         data: {
-          userId: targetUserId,
+          userId: user.id,
           teamId,
+          customFieldResponses: {
+            ...(memberResponses || {}),
+            verified: isPresent,
+            verifiedAt: isPresent ? new Date().toISOString() : null,
+            onSpot: true,
+          },
+        },
+        include: {
+          user: true,
         },
       });
 
-      return NextResponse.json({ message: "Member added to team successfully" });
+      return NextResponse.json({
+        success: true,
+        message: "Member added to team successfully",
+        registration: newRegistration,
+      });
     }
 
     // ACTION: Create new team (or register solo user)

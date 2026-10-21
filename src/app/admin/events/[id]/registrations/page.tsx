@@ -49,6 +49,7 @@ export default async function AdminEventRegistrationsPage({
       branch: true,
       year: true,
       phone: true,
+      isAiml: true,
     },
     orderBy: { name: "asc" },
   });
