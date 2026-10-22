@@ -7,6 +7,7 @@ import { storage } from "@/lib/firebase";
 import { ensureFirebaseAuth } from "@/lib/firebase-client-auth";
 import { Trash2Icon, PlusIcon, FileSpreadsheetIcon, Edit3Icon, UploadCloudIcon } from "lucide-react";
 import { parseContestDate } from "@/lib/date-utils";
+import AppCheckImage from "@/components/ui/AppCheckImage";
 
 export default function AdminFormsClient({ initialForms }: { initialForms: any[] }) {
   const [activeTab, setActiveTab] = useState<"LIST" | "CREATE">("LIST");
@@ -566,7 +567,7 @@ export default function AdminFormsClient({ initialForms }: { initialForms: any[]
 
                             {opt.imageUrl ? (
                               <div className="flex-1 flex items-center gap-2 overflow-hidden bg-background/50 border border-brand/20 rounded-lg p-1.5">
-                                <img
+                                <AppCheckImage
                                   src={opt.imageUrl}
                                   alt="preview"
                                   className="h-8 w-8 object-cover rounded border border-brand/30"

@@ -8,7 +8,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import Image from "next/image";
+import AppCheckImage from "@/components/ui/AppCheckImage";
 import { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Faculty } from "@prisma";
@@ -33,8 +33,9 @@ export default function FacultyCard({ faculty }: FacultyCardProps) {
               {isLoading && (
                 <Skeleton className="absolute inset-0 rounded-full bg-muted/40" />
               )}
-              <Image
+              <AppCheckImage
                 src={image}
+                fallbackSrc="/fallback_profile.png"
                 alt={name}
                 fill
                 className={`rounded-full object-cover transition-transform duration-500 group-hover:scale-110 ${
@@ -74,7 +75,7 @@ export default function FacultyCard({ faculty }: FacultyCardProps) {
         <div className="flex flex-col justify-center lg:flex-row gap-6 lg:gap-8 pt-4">
           <div className="flex min-w-0 md:min-w-[16rem] justify-center object-cover md:shrink-0 lg:min-w-[20rem]">
             <div className="relative aspect-square w-48 md:shrink-0 lg:w-72 rounded-lg overflow-hidden border-2 border-brand/40 shadow-md">
-              <Image src={image} alt={name} fill className="object-cover" />
+              <AppCheckImage src={image} fallbackSrc="/fallback_profile.png" alt={name} fill className="object-cover" />
             </div>
           </div>
 

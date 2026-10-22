@@ -9,6 +9,7 @@ import { ensureFirebaseAuth } from "@/lib/firebase-client-auth";
 import { slugify } from "@/lib/slug";
 import CustomFieldsEditor from "./CustomFieldsEditor";
 import ClientPortal from "@/components/ui/ClientPortal";
+import AppCheckImage from "@/components/ui/AppCheckImage";
 import {
   formatDateForDateInput,
   formatDateForDateTimeLocal,
@@ -829,7 +830,7 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
               </div>
               {image && (
                 <div className="mt-4 max-w-sm rounded-2xl overflow-hidden border border-brand/30 shadow-lg">
-                  <img src={image} alt="Preview" className="w-full h-auto object-cover" />
+                  <AppCheckImage src={image} alt="Preview" className="w-full h-auto object-cover" />
                 </div>
               )}
             </div>
@@ -1490,7 +1491,7 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-64 overflow-y-auto p-1">
                   {galleryPhotos.map((url, idx) => (
                     <div key={idx} className="relative group rounded-xl overflow-hidden border border-brand/25 aspect-video bg-black/40">
-                      <img src={url} alt={`Photo ${idx + 1}`} className="w-full h-full object-cover" />
+                      <AppCheckImage src={url} alt={`Photo ${idx + 1}`} className="w-full h-full object-cover" />
                       <button
                         type="button"
                         onClick={() => handleRemoveGalleryPhoto(idx)}

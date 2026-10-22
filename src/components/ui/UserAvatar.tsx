@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
+import AppCheckImage from "@/components/ui/AppCheckImage";
 
 interface UserAvatarProps {
   src?: string | null;
@@ -38,12 +38,11 @@ export default function UserAvatar({
   }
 
   return (
-    <Image
+    <AppCheckImage
       src={src}
       alt={name || "User avatar"}
       width={size}
       height={size}
-      unoptimized
       referrerPolicy="no-referrer"
       onError={() => setHasError(true)}
       className={`${className} shrink-0 object-cover`}

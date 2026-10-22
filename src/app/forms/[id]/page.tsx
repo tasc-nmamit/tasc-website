@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import Image from "next/image";
+import AppCheckImage from "@/components/ui/AppCheckImage";
 import { ArrowLeftIcon, CheckCircle2Icon, AlertCircleIcon, SendIcon } from "lucide-react";
 import Link from "next/link";
 import CircuitTrace from "@/components/ui/circuit-ink/CircuitTrace";
@@ -308,7 +308,7 @@ export default function FormPage() {
                     >
                       <div className="relative aspect-video w-full overflow-hidden bg-black/40">
                         {option.image ? (
-                          <Image
+                          <AppCheckImage
                             src={option.image}
                             alt={option.label || "Poll Option"}
                             fill

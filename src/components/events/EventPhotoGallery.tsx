@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import Image from "next/image";
+import AppCheckImage from "@/components/ui/AppCheckImage";
 import { Camera, ChevronLeft, ChevronRight, X, Maximize2, ExternalLink } from "lucide-react";
 import CircuitTrace from "@/components/ui/circuit-ink/CircuitTrace";
 import ClientPortal from "@/components/ui/ClientPortal";
@@ -100,11 +100,10 @@ export default function EventPhotoGallery({ photos, eventTitle }: EventPhotoGall
           onClick={() => openLightbox(0)}
           className="group relative w-full aspect-video md:aspect-[21/9] max-h-[500px] rounded-xl overflow-hidden border border-brand/25 bg-background/60 cursor-pointer shadow-lg hover:border-brand-accent/70 transition-all duration-300"
         >
-          <Image
+          <AppCheckImage
             src={validPhotos[0]}
             alt={`${eventTitle} - Photo 1`}
             fill
-            unoptimized
             className="object-cover transition-transform duration-700 group-hover:scale-105"
             sizes="(max-width: 1200px) 100vw, 1200px"
           />
@@ -123,11 +122,10 @@ export default function EventPhotoGallery({ photos, eventTitle }: EventPhotoGall
               onClick={() => openLightbox(index)}
               className="group relative aspect-[4/3] rounded-xl overflow-hidden border border-brand/20 bg-background/60 cursor-pointer shadow-md transition-all duration-300 hover:border-brand-accent/70 hover:shadow-xl hover:scale-[1.02]"
             >
-              <Image
+              <AppCheckImage
                 src={photoUrl}
                 alt={`${eventTitle} - Photo ${index + 1}`}
                 fill
-                unoptimized
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
                 sizes="(max-width: 768px) 100vw, 50vw"
               />
@@ -157,11 +155,10 @@ export default function EventPhotoGallery({ photos, eventTitle }: EventPhotoGall
                     : "aspect-[4/3]"
                 }`}
               >
-                <Image
+                <AppCheckImage
                   src={photoUrl}
                   alt={`${eventTitle} - Photo ${index + 1}`}
                   fill
-                  unoptimized
                   className="object-cover transition-transform duration-500 group-hover:scale-105"
                   sizes={isFeatured ? "(max-width: 768px) 100vw, 50vw" : "(max-width: 640px) 50vw, 25vw"}
                 />
@@ -240,11 +237,10 @@ export default function EventPhotoGallery({ photos, eventTitle }: EventPhotoGall
 
             {/* Photo Container */}
             <div className="relative w-full h-[65vh] md:h-[72vh] flex items-center justify-center">
-              <Image
+              <AppCheckImage
                 src={validPhotos[lightboxIndex]}
                 alt={`${eventTitle} - Photo ${lightboxIndex + 1}`}
                 fill
-                unoptimized
                 className="object-contain select-none"
                 priority
                 sizes="(max-width: 1280px) 100vw, 1280px"
@@ -279,11 +275,10 @@ export default function EventPhotoGallery({ photos, eventTitle }: EventPhotoGall
                       : "border-white/20 opacity-50 hover:opacity-100"
                   }`}
                 >
-                  <Image
+                  <AppCheckImage
                     src={url}
                     alt={`Thumbnail ${idx + 1}`}
                     fill
-                    unoptimized
                     className="object-cover"
                   />
                 </button>

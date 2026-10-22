@@ -15,6 +15,7 @@ import {
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { storage } from "@/lib/firebase";
 import { ensureFirebaseAuth } from "@/lib/firebase-client-auth";
+import AppCheckImage from "@/components/ui/AppCheckImage";
 
 export default function AdminAnnouncementsClient({ initialAnnouncements }: { initialAnnouncements: any[] }) {
   const [activeTab, setActiveTab] = useState<"LIST" | "CREATE">("LIST");
@@ -324,7 +325,7 @@ export default function AdminAnnouncementsClient({ initialAnnouncements }: { ini
                   if (cardImages.length === 1) {
                     return (
                       <div className="mb-4 rounded-xl overflow-hidden border border-brand/20 max-h-72 bg-black/40 shadow-sm">
-                        <img
+                        <AppCheckImage
                           src={cardImages[0]}
                           alt={announcement.title}
                           className="w-full h-full object-cover max-h-72 hover:scale-[1.01] transition-transform"
@@ -341,7 +342,7 @@ export default function AdminAnnouncementsClient({ initialAnnouncements }: { ini
                             key={idx}
                             className="relative aspect-video rounded-lg overflow-hidden border border-brand/20 bg-black/40 shadow-sm"
                           >
-                            <img
+                            <AppCheckImage
                               src={url}
                               alt={`${announcement.title} photo ${idx + 1}`}
                               className="w-full h-full object-cover"
@@ -426,7 +427,7 @@ export default function AdminAnnouncementsClient({ initialAnnouncements }: { ini
                     className="relative rounded-xl border border-brand/25 bg-background/60 p-2.5 flex flex-col gap-2 group shadow-sm"
                   >
                     <div className="relative aspect-video rounded-lg overflow-hidden border border-brand/20 bg-black/40">
-                      <img
+                      <AppCheckImage
                         src={url}
                         alt={`Preview ${idx + 1}`}
                         className="w-full h-full object-cover"

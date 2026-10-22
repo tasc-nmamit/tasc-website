@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Event } from "@/lib/types/Event";
-import Image from "next/image";
+import AppCheckImage from "@/components/ui/AppCheckImage";
 import NextLink from "next/link";
 import {
   CalendarIcon,
@@ -20,7 +20,7 @@ interface EventIndexRowProps {
 
 export function EventIndexRow({ event, index }: EventIndexRowProps) {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [imgSrc, setImgSrc] = useState(event.image || "/fallback-image.jpg");
+
 
   const formattedIndex = String(index + 1).padStart(2, "0");
 
@@ -62,13 +62,13 @@ export function EventIndexRow({ event, index }: EventIndexRowProps) {
 
           {/* Small Photo Thumbnail */}
           <div className="relative w-14 h-10 md:w-20 md:h-13 rounded-md overflow-hidden shrink-0 border border-brand/20 bg-black/40 shadow-sm transition-all duration-300 group-hover:scale-[1.03] group-hover:border-brand-accent/40">
-            <Image
-              src={imgSrc}
+            <AppCheckImage
+              src={event.image}
+              fallbackSrc="/fallback-image.jpg"
               alt={event.title}
               fill
               sizes="(max-width: 768px) 56px, 80px"
               className="object-cover transition-transform duration-300"
-              onError={() => setImgSrc("/fallback-image.jpg")}
             />
           </div>
 

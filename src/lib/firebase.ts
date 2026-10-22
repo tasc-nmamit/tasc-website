@@ -15,11 +15,35 @@ const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const storage = getStorage(app);
 
 // Initialize App Check only in the browser
+let appCheckInstance: any = null;
+
 if (typeof window !== "undefined" && process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY) {
-  initializeAppCheck(app, {
-    provider: new ReCaptchaV3Provider(process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY),
-    isTokenAutoRefreshEnabled: true,
-  });
+  try {
+    appCheckInstance = initializeAppCheck(app, {
+      provider: new ReCaptchaV3Provider(process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY),
+      isTokenAutoRefreshEnabled: true,
+    });
+  } catch (err) {
+    console.warn("App Check initialization error:", err);
+  }
 }
 
-export { app, storage };
+/**
+ * Safely fetches a valid App Check token for outgoing requests (e.g. Firebase Storage)
+ */
+export async function getAppCheckToken(forceRefresh = false): Promise<string | null> {
+  if (typeof window === "undefined" || !appCheckInstance) {
+    return null;
+  }
+  try {
+    const { getToken } = await import("firebase/app-check");
+    const tokenResult = await getToken(appCheckInstance, forceRefresh);
+    return tokenResult?.token || null;
+  } catch (err) {
+    console.warn("Could not retrieve App Check token:", err);
+    return null;
+  }
+}
+
+export { app, storage, appCheckInstance };
+
