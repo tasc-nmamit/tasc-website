@@ -30,6 +30,7 @@ import TechnicalLabel from "@/components/ui/circuit-ink/TechnicalLabel";
 import { downloadCSV, downloadExcel } from "@/lib/export";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { storage } from "@/lib/firebase";
+import { ensureFirebaseAuth } from "@/lib/firebase-client-auth";
 
 interface OnSpotMember {
   id: string;
@@ -830,6 +831,7 @@ export default function RegistrationsClient({
       const uniqueId = `onspot_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
       const fileName = `registration-uploads/${event.id}/${uniqueId}.${ext}`;
       const storageRef = ref(storage, fileName);
+      await ensureFirebaseAuth();
       const uploadTask = uploadBytesResumable(storageRef, file);
 
       await new Promise<void>((resolve, reject) => {

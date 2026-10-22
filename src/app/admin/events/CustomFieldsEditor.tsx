@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { PlusIcon, Trash2Icon, ArrowUpIcon, ArrowDownIcon } from "lucide-react";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "@/lib/firebase";
+import { ensureFirebaseAuth } from "@/lib/firebase-client-auth";
 
 interface CustomFieldsEditorProps {
   fields: any[];
@@ -155,6 +156,7 @@ export default function CustomFieldsEditor({
         .toString(36)
         .substring(7)}.${fileExtension}`;
       const storageRef = ref(storage, fileName);
+      await ensureFirebaseAuth();
       const snapshot = await uploadBytes(storageRef, file);
       const url = await getDownloadURL(snapshot.ref);
       updateImageOption(fieldIndex, optIndex, "imageUrl", url);
@@ -175,6 +177,7 @@ export default function CustomFieldsEditor({
         .toString(36)
         .substring(7)}.${fileExtension}`;
       const storageRef = ref(storage, fileName);
+      await ensureFirebaseAuth();
       const snapshot = await uploadBytes(storageRef, file);
       const url = await getDownloadURL(snapshot.ref);
       updateField(fieldIndex, "imageUrl", url);

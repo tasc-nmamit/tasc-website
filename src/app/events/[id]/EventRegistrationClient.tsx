@@ -22,6 +22,7 @@ import CircuitTrace from "@/components/ui/circuit-ink/CircuitTrace";
 import ClientPortal from "@/components/ui/ClientPortal";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { storage } from "@/lib/firebase";
+import { ensureFirebaseAuth } from "@/lib/firebase-client-auth";
 
 interface EventRegistrationClientProps {
   event: any;
@@ -72,10 +73,19 @@ export default function EventRegistrationClient({
 
   const handleFileUpload = async (fieldId: string, file: File) => {
     if (!file) return;
+    if (!session?.user?.id) {
+      alert("Please sign in to upload files.");
+      return;
+    }
+    if (file.size > 15 * 1024 * 1024) {
+      alert("File is too large. Please select a file smaller than 15MB.");
+      return;
+    }
     setUploadingFiles((prev) => ({ ...prev, [fieldId]: true }));
     try {
+      await ensureFirebaseAuth();
       const ext = file.name.split(".").pop();
-      const fileName = `registration-uploads/${event.id}/${session?.user?.id || "anon"}_${file.lastModified || "upload"}.${ext}`;
+      const fileName = `registration-uploads/${event.id}/${session.user.id}_${file.lastModified || "upload"}.${ext}`;
       const storageRef = ref(storage, fileName);
       const uploadTask = uploadBytesResumable(storageRef, file);
 
@@ -96,6 +106,7 @@ export default function EventRegistrationClient({
       });
     } catch (err: any) {
       console.error("Upload error:", err);
+      alert("File upload failed: " + (err?.message || "Unknown error"));
     } finally {
       setUploadingFiles((prev) => ({ ...prev, [fieldId]: false }));
     }

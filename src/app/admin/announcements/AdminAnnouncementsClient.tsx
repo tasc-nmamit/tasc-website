@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { storage } from "@/lib/firebase";
+import { ensureFirebaseAuth } from "@/lib/firebase-client-auth";
 
 export default function AdminAnnouncementsClient({ initialAnnouncements }: { initialAnnouncements: any[] }) {
   const [activeTab, setActiveTab] = useState<"LIST" | "CREATE">("LIST");
@@ -50,6 +51,13 @@ export default function AdminAnnouncementsClient({ initialAnnouncements }: { ini
     }
 
     if (validFiles.length === 0) return;
+
+    try {
+      await ensureFirebaseAuth();
+    } catch (err: any) {
+      alert("Upload failed: " + err.message);
+      return;
+    }
 
     setUploadingImages(true);
     setUploadProgress(0);

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { downloadCSV, downloadExcel } from "@/lib/export";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { storage } from "@/lib/firebase";
+import { ensureFirebaseAuth } from "@/lib/firebase-client-auth";
 import { Trash2Icon, PlusIcon, FileSpreadsheetIcon, Edit3Icon, UploadCloudIcon } from "lucide-react";
 import { parseContestDate } from "@/lib/date-utils";
 
@@ -95,6 +96,13 @@ export default function AdminFormsClient({ initialForms }: { initialForms: any[]
 
     const fileExtension = file.name.split(".").pop();
     const fileName = `poll-images/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExtension}`;
+    try {
+      await ensureFirebaseAuth();
+    } catch (err: any) {
+      alert("Upload failed: " + err.message);
+      setUploadingImage(null);
+      return;
+    }
     const storageRef = ref(storage, fileName);
     const uploadTask = uploadBytesResumable(storageRef, file);
 

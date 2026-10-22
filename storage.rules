@@ -1,0 +1,105 @@
+rules_version = '2';
+
+// Firebase Storage security rules for tasc-8df79.appspot.com
+//
+// Deploy with:  npx firebase-tools deploy --only storage --project tasc-8df79
+// or paste into: Firebase Console → Storage → Rules → Publish
+//
+// Model:
+//   • Nobody can LIST the bucket (blocks enumeration / scraping).
+//   • Public site assets are readable one object at a time (`get`) only.
+//   • Only admins (custom claim `admin == true`, minted by /api/firebase-token)
+//     can upload site assets, and only images under 10 MB.
+//   • Signed-in students can upload ONE kind of thing: their own registration
+//     attachment, under their own uid prefix, max 15 MB.
+//   • Everything else (DB backups, unknown folders) is denied by default.
+//
+// NOTE: URLs containing `?alt=media&token=...` bypass these rules by design.
+// Revoke the token on an object (Console → file → "Revoke") to kill such a URL.
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return signedIn() && request.auth.token.admin == true;
+    }
+
+    function isImageUnder(mb) {
+      return request.resource.size < mb * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+    }
+
+    // ---------------------------------------------------------------
+    // Default: deny everything (incl. final_db_backup2/, newbackup/)
+    // ---------------------------------------------------------------
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+
+    // ---------------------------------------------------------------
+    // Public read-only assets (single-object get, never list)
+    // ---------------------------------------------------------------
+    match /{rootFile} {
+      allow get: if true;
+    }
+    match /Images/{path=**} {
+      allow get: if true;
+    }
+    match /snh2023/{path=**} {
+      allow get: if true;
+    }
+    match /profile/{path=**} {
+      allow get: if true;
+    }
+
+    // ---------------------------------------------------------------
+    // Admin-managed image folders
+    // ---------------------------------------------------------------
+    match /events/{path=**} {
+      allow get: if true;
+      allow create, update: if isAdmin() && isImageUnder(10);
+      allow delete: if isAdmin();
+    }
+    match /announcements/{path=**} {
+      allow get: if true;
+      allow create, update: if isAdmin() && isImageUnder(10);
+      allow delete: if isAdmin();
+    }
+    match /poll-images/{path=**} {
+      allow get: if true;
+      allow create, update: if isAdmin() && isImageUnder(10);
+      allow delete: if isAdmin();
+    }
+    match /event-display-images/{path=**} {
+      allow get: if true;
+      allow create, update: if isAdmin() && isImageUnder(10);
+      allow delete: if isAdmin();
+    }
+    match /event-field-images/{path=**} {
+      allow get: if true;
+      allow create, update: if isAdmin() && isImageUnder(10);
+      allow delete: if isAdmin();
+    }
+
+    // ---------------------------------------------------------------
+    // Registration attachments
+    //   students: registration-uploads/{eventId}/{uid}_{anything}
+    //   admins:   anything under registration-uploads/
+    // ---------------------------------------------------------------
+    match /registration-uploads/{eventId}/{fileName} {
+      allow get: if isAdmin()
+        || (signedIn() && fileName.matches(request.auth.uid + '_.*'));
+
+      allow create: if signedIn()
+        && fileName.matches(request.auth.uid + '_.*')
+        && request.resource.size < 15 * 1024 * 1024;
+
+      allow create, update, delete: if isAdmin()
+        && (request.resource == null || request.resource.size < 15 * 1024 * 1024);
+    }
+  }
+}

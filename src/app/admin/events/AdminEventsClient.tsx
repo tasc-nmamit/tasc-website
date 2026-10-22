@@ -5,6 +5,7 @@ import { downloadCSV, downloadExcel } from "@/lib/export";
 import Link from "next/link";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { storage } from "@/lib/firebase";
+import { ensureFirebaseAuth } from "@/lib/firebase-client-auth";
 import { slugify } from "@/lib/slug";
 import CustomFieldsEditor from "./CustomFieldsEditor";
 import ClientPortal from "@/components/ui/ClientPortal";
@@ -133,9 +134,16 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
     });
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, target: "create" | "edit") => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, target: "create" | "edit") => {
     if (!e.target.files || e.target.files.length === 0) return;
     const file = e.target.files[0];
+
+    try {
+      await ensureFirebaseAuth();
+    } catch (err: any) {
+      alert("Upload failed: " + err.message);
+      return;
+    }
 
     const storageRef = ref(storage, `events/${Date.now()}_${file.name}`);
     const uploadTask = uploadBytesResumable(storageRef, file);
@@ -418,11 +426,18 @@ export default function AdminEventsClient({ initialEvents }: { initialEvents: an
     setGalleryPublished(ev.notification === "GALLERY_PUBLISHED");
   };
 
-  const handleUploadGalleryFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleUploadGalleryFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0 || !galleryEvent) return;
     const file = e.target.files[0];
 
     setUploadingGalleryPhoto(true);
+    try {
+      await ensureFirebaseAuth();
+    } catch (err: any) {
+      alert("Upload failed: " + err.message);
+      setUploadingGalleryPhoto(false);
+      return;
+    }
     const storageRef = ref(storage, `events/${galleryEvent.id}/gallery/${Date.now()}_${file.name}`);
     const uploadTask = uploadBytesResumable(storageRef, file);
 
