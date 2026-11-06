@@ -108,15 +108,13 @@ export default function FormPage() {
   };
 
   useEffect(() => {
-    if (status !== "loading") {
-      fetchForm();
-    }
-  }, [status, id]);
+    fetchForm();
+  }, [id, status]);
 
   async function fetchForm() {
     try {
       setLoading(true);
-      const res = await fetch(`/api/forms/${id}`);
+      const res = await fetch(`/api/forms/${id}`, { cache: "no-store" });
       const data = await res.json();
 
       if (res.status === 401) {

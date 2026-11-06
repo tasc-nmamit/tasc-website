@@ -5,12 +5,16 @@ import Link from "next/link";
 import TechnicalLabel from "@/components/ui/circuit-ink/TechnicalLabel";
 import { ArrowLeft } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function AdminFormsPage() {
   await requireAdmin();
 
   const forms = await db.form.findMany({
     orderBy: { createdAt: "desc" },
     include: {
+      fields: { orderBy: { order: "asc" } },
       _count: {
         select: { responses: true },
       },

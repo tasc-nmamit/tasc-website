@@ -62,6 +62,7 @@ export async function GET(request: Request) {
     const forms = await db.form.findMany({
       orderBy: { createdAt: "desc" },
       include: {
+        fields: { orderBy: { order: "asc" } },
         _count: {
           select: { responses: true },
         },

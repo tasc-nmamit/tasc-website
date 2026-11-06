@@ -5,8 +5,16 @@ import { downloadCSV, downloadExcel } from "@/lib/export";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { storage } from "@/lib/firebase";
 import { ensureFirebaseAuth } from "@/lib/firebase-client-auth";
-import { Trash2Icon, PlusIcon, FileSpreadsheetIcon, Edit3Icon, UploadCloudIcon } from "lucide-react";
-import { parseContestDate } from "@/lib/date-utils";
+import {
+  Trash2Icon,
+  PlusIcon,
+  FileSpreadsheetIcon,
+  Edit2Icon,
+  UploadCloudIcon,
+  CheckIcon,
+  XIcon,
+} from "lucide-react";
+import { parseContestDate, formatDateForDateTimeLocal } from "@/lib/date-utils";
 import AppCheckImage from "@/components/ui/AppCheckImage";
 
 export default function AdminFormsClient({ initialForms }: { initialForms: any[] }) {
@@ -21,9 +29,13 @@ export default function AdminFormsClient({ initialForms }: { initialForms: any[]
   const [requireAiml, setRequireAiml] = useState(false);
   const [allowEdit, setAllowEdit] = useState(false);
   const [allowAnonymous, setAllowAnonymous] = useState(false);
+  const [published, setPublished] = useState(true);
 
   // Custom Fields State
   const [fields, setFields] = useState<any[]>([]);
+
+  // Edit Mode State
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const [loading, setLoading] = useState(false);
   const [exporting, setExporting] = useState<string | null>(null);
@@ -123,7 +135,61 @@ export default function AdminFormsClient({ initialForms }: { initialForms: any[]
     );
   };
 
-  const handleCreate = async (e: React.FormEvent) => {
+  // Start Editing an Existing Form
+  const handleStartEdit = (form: any) => {
+    setEditingId(form.id);
+    setTitle(form.title || "");
+    setDescription(form.description || "");
+    setStartTime(form.startTime ? formatDateForDateTimeLocal(form.startTime) : "");
+    setEndTime(form.endTime ? formatDateForDateTimeLocal(form.endTime) : "");
+    setRequireAiml(Boolean(form.requireAiml));
+    setAllowEdit(Boolean(form.allowEdit));
+    setAllowAnonymous(Boolean(form.allowAnonymous));
+    setPublished(form.published ?? true);
+
+    if (form.fields && Array.isArray(form.fields)) {
+      setFields(
+        form.fields.map((f: any) => ({
+          id: f.id,
+          label: f.label || "",
+          type: f.type || "TEXT",
+          isRequired: Boolean(f.isRequired),
+          options: f.options || [],
+          min:
+            f.options && typeof f.options === "object" && "min" in f.options && f.options.min !== null
+              ? String(f.options.min)
+              : "",
+          max:
+            f.options && typeof f.options === "object" && "max" in f.options && f.options.max !== null
+              ? String(f.options.max)
+              : "",
+        }))
+      );
+    } else {
+      setFields([]);
+    }
+
+    setActiveTab("CREATE");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  // Cancel Edit Mode
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setTitle("");
+    setDescription("");
+    setStartTime("");
+    setEndTime("");
+    setRequireAiml(false);
+    setAllowEdit(false);
+    setAllowAnonymous(false);
+    setPublished(true);
+    setFields([]);
+    setActiveTab("LIST");
+  };
+
+  // Create or Update Form
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
@@ -131,12 +197,12 @@ export default function AdminFormsClient({ initialForms }: { initialForms: any[]
       const payload = {
         title,
         description,
-        published: true,
+        published,
         startTime: startTime ? parseContestDate(startTime).toISOString() : null,
         endTime: endTime ? parseContestDate(endTime).toISOString() : null,
         requireAiml,
         allowEdit,
-        allowAnonymous,
+        allowAnonymous: requireAiml ? false : allowAnonymous,
         fields: fields.map((f) => {
           let fieldOptions: any = null;
           if (f.type === "SELECT" || f.type === "MULTI_SELECT" || f.type === "IMAGE_POLL") {
@@ -148,6 +214,7 @@ export default function AdminFormsClient({ initialForms }: { initialForms: any[]
             };
           }
           return {
+            id: f.id,
             label: f.label,
             type: f.type,
             isRequired: f.isRequired,
@@ -156,18 +223,28 @@ export default function AdminFormsClient({ initialForms }: { initialForms: any[]
         }),
       };
 
-      const res = await fetch("/api/admin/forms", {
-        method: "POST",
+      const url = editingId ? `/api/admin/forms/${editingId}` : "/api/admin/forms";
+      const method = editingId ? "PATCH" : "POST";
+
+      const res = await fetch(url, {
+        method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
       if (!res.ok) throw new Error(await res.text());
+      const saved = await res.json();
 
-      alert("Form created successfully");
-      window.location.reload();
+      alert(editingId ? "Form details updated successfully!" : "Form created successfully!");
+
+      if (editingId) {
+        setForms((prev: any[]) => prev.map((f) => (f.id === editingId ? { ...f, ...saved } : f)));
+        handleCancelEdit();
+      } else {
+        window.location.reload();
+      }
     } catch (err: any) {
-      alert("Error creating form: " + err.message);
+      alert(`Error ${editingId ? "updating" : "creating"} form: ` + err.message);
     } finally {
       setLoading(false);
     }
@@ -185,17 +262,20 @@ export default function AdminFormsClient({ initialForms }: { initialForms: any[]
     }
   };
 
-  const handleToggleEdit = async (id: string, currentVal: boolean) => {
+  // Quick Toggles
+  const handleToggleAiml = async (id: string, currentVal: boolean) => {
     try {
+      const nextVal = !currentVal;
       const res = await fetch(`/api/admin/forms/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ allowEdit: !currentVal }),
+        body: JSON.stringify({ requireAiml: nextVal }),
       });
       if (!res.ok) throw new Error("Failed to update");
-      setForms(forms.map((f: any) => (f.id === id ? { ...f, allowEdit: !currentVal } : f)));
-    } catch (err) {
-      alert("Error updating form.");
+      const updated = await res.json();
+      setForms(forms.map((f: any) => (f.id === id ? { ...f, ...updated } : f)));
+    } catch (err: any) {
+      alert("Error updating AIML restriction: " + err.message);
     }
   };
 
@@ -207,9 +287,40 @@ export default function AdminFormsClient({ initialForms }: { initialForms: any[]
         body: JSON.stringify({ allowAnonymous: !currentVal }),
       });
       if (!res.ok) throw new Error("Failed to update");
-      setForms(forms.map((f: any) => (f.id === id ? { ...f, allowAnonymous: !currentVal } : f)));
-    } catch (err) {
-      alert("Error updating form.");
+      const updated = await res.json();
+      setForms(forms.map((f: any) => (f.id === id ? { ...f, ...updated } : f)));
+    } catch (err: any) {
+      alert("Error updating guest access: " + err.message);
+    }
+  };
+
+  const handleToggleEdit = async (id: string, currentVal: boolean) => {
+    try {
+      const res = await fetch(`/api/admin/forms/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ allowEdit: !currentVal }),
+      });
+      if (!res.ok) throw new Error("Failed to update");
+      const updated = await res.json();
+      setForms(forms.map((f: any) => (f.id === id ? { ...f, ...updated } : f)));
+    } catch (err: any) {
+      alert("Error updating edit permission: " + err.message);
+    }
+  };
+
+  const handleTogglePublished = async (id: string, currentVal: boolean) => {
+    try {
+      const res = await fetch(`/api/admin/forms/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ published: !currentVal }),
+      });
+      if (!res.ok) throw new Error("Failed to update");
+      const updated = await res.json();
+      setForms(forms.map((f: any) => (f.id === id ? { ...f, ...updated } : f)));
+    } catch (err: any) {
+      alert("Error updating published status: " + err.message);
     }
   };
 
@@ -242,7 +353,10 @@ export default function AdminFormsClient({ initialForms }: { initialForms: any[]
       {/* Tab Controls */}
       <div className="flex gap-3 border-b border-brand/20 pb-4">
         <button
-          onClick={() => setActiveTab("LIST")}
+          onClick={() => {
+            if (editingId) handleCancelEdit();
+            else setActiveTab("LIST");
+          }}
           className={`px-5 py-2.5 rounded-xl font-space-grotesk font-semibold text-sm transition-all ${
             activeTab === "LIST"
               ? "bg-brand/20 text-brand-accent border border-brand/40 shadow-sm"
@@ -252,15 +366,37 @@ export default function AdminFormsClient({ initialForms }: { initialForms: any[]
           Manage Forms ({forms.length})
         </button>
         <button
-          onClick={() => setActiveTab("CREATE")}
+          onClick={() => {
+            if (!editingId) {
+              setTitle("");
+              setDescription("");
+              setStartTime("");
+              setEndTime("");
+              setRequireAiml(false);
+              setAllowEdit(false);
+              setAllowAnonymous(false);
+              setPublished(true);
+              setFields([]);
+            }
+            setActiveTab("CREATE");
+          }}
           className={`px-5 py-2.5 rounded-xl font-space-grotesk font-semibold text-sm transition-all flex items-center gap-2 ${
             activeTab === "CREATE"
               ? "bg-brand/20 text-brand-accent border border-brand/40 shadow-sm"
               : "text-muted-foreground hover:text-foreground hover:bg-card/40"
           }`}
         >
-          <PlusIcon className="w-4 h-4" />
-          Create New Form
+          {editingId ? (
+            <>
+              <Edit2Icon className="w-4 h-4" />
+              Edit Form Details
+            </>
+          ) : (
+            <>
+              <PlusIcon className="w-4 h-4" />
+              Create New Form
+            </>
+          )}
         </button>
       </div>
 
@@ -274,7 +410,7 @@ export default function AdminFormsClient({ initialForms }: { initialForms: any[]
             forms.map((form: any) => (
               <div
                 key={form.id}
-                className="group relative flex flex-col justify-between gap-4 rounded-2xl border border-brand/20 bg-card/70 backdrop-blur-xl p-6 shadow-lg transition-all duration-300 hover:border-brand-accent/50 sm:flex-row sm:items-center"
+                className="group relative flex flex-col justify-between gap-6 rounded-2xl border border-brand/20 bg-card/70 backdrop-blur-xl p-6 shadow-lg transition-all duration-300 hover:border-brand-accent/50 lg:flex-row lg:items-center"
               >
                 <div className="space-y-2 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
@@ -287,14 +423,18 @@ export default function AdminFormsClient({ initialForms }: { initialForms: any[]
                     >
                       {form.published ? "PUBLISHED" : "DRAFT"}
                     </span>
+                    {form.requireAiml ? (
+                      <span className="rounded-lg bg-blue-500/15 text-blue-400 border border-blue-500/40 px-3 py-1 text-[10px] font-bold font-mono-tech uppercase tracking-wider">
+                        AIML ONLY
+                      </span>
+                    ) : (
+                      <span className="rounded-lg bg-indigo-500/15 text-indigo-300 border border-indigo-500/40 px-3 py-1 text-[10px] font-bold font-mono-tech uppercase tracking-wider">
+                        ALL BRANCHES
+                      </span>
+                    )}
                     {form.allowAnonymous && (
                       <span className="rounded-lg bg-teal-500/15 text-teal-400 border border-teal-500/40 px-3 py-1 text-[10px] font-bold font-mono-tech uppercase tracking-wider">
                         GUEST ALLOWED
-                      </span>
-                    )}
-                    {form.requireAiml && (
-                      <span className="rounded-lg bg-blue-500/15 text-blue-400 border border-blue-500/40 px-3 py-1 text-[10px] font-bold font-mono-tech uppercase tracking-wider">
-                        AIML ONLY
                       </span>
                     )}
                     {form.allowEdit && (
@@ -312,52 +452,137 @@ export default function AdminFormsClient({ initialForms }: { initialForms: any[]
                     </p>
                   )}
 
-                  <p className="font-mono-tech text-xs text-muted-foreground">
-                    RESPONSES: <span className="text-gold font-bold">{form._count.responses}</span> | CREATED:{" "}
-                    {new Date(form.createdAt).toLocaleDateString()}
-                  </p>
+                  <div className="flex flex-wrap items-center gap-3 font-mono-tech text-xs text-muted-foreground pt-1">
+                    <span>
+                      RESPONSES: <strong className="text-gold font-bold">{form._count?.responses ?? 0}</strong>
+                    </span>
+                    <span>•</span>
+                    <span>
+                      QUESTIONS: <strong className="text-foreground">{form.fields?.length ?? 0}</strong>
+                    </span>
+                    <span>•</span>
+                    <span>CREATED: {new Date(form.createdAt).toLocaleDateString()}</span>
+                  </div>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-2 shrink-0">
-                  <button
-                    onClick={() => handleToggleAnonymous(form.id, form.allowAnonymous)}
-                    className={`rounded-xl border px-3.5 py-2 text-xs font-semibold transition-all ${
-                      form.allowAnonymous
-                        ? "border-teal-500/40 bg-teal-500/10 text-teal-300 hover:bg-teal-500/20"
-                        : "border-brand/30 bg-background/60 text-foreground hover:bg-brand/10 hover:border-brand-accent/50"
-                    }`}
-                  >
-                    {form.allowAnonymous ? "Disable Guest Access" : "Allow Guests"}
-                  </button>
-                  <button
-                    onClick={() => handleToggleEdit(form.id, form.allowEdit)}
-                    className="rounded-xl border border-brand/30 bg-background/60 px-3.5 py-2 text-xs font-semibold text-foreground transition-all hover:bg-brand/10 hover:border-brand-accent/50"
-                  >
-                    {form.allowEdit ? "Lock Submissions" : "Allow Edits"}
-                  </button>
-                  <button
-                    onClick={() => handleExport(form.id, "csv")}
-                    disabled={exporting === form.id}
-                    className="rounded-xl border border-brand/30 bg-background/60 px-3.5 py-2 text-xs font-semibold text-foreground transition-all hover:bg-brand/10 hover:border-brand-accent/50 flex items-center gap-1.5 disabled:opacity-50"
-                  >
-                    <FileSpreadsheetIcon className="w-3.5 h-3.5 text-brand-accent" />
-                    CSV
-                  </button>
-                  <button
-                    onClick={() => handleExport(form.id, "excel")}
-                    disabled={exporting === form.id}
-                    className="rounded-xl border border-brand/30 bg-background/60 px-3.5 py-2 text-xs font-semibold text-foreground transition-all hover:bg-brand/10 hover:border-brand-accent/50 flex items-center gap-1.5 disabled:opacity-50"
-                  >
-                    <FileSpreadsheetIcon className="w-3.5 h-3.5 text-emerald-400" />
-                    Excel
-                  </button>
-                  <button
-                    onClick={() => handleDelete(form.id)}
-                    className="rounded-xl border border-red-500/30 bg-red-500/10 p-2 text-red-400 transition-all hover:bg-red-500/20"
-                    title="Delete Form"
-                  >
-                    <Trash2Icon className="w-4 h-4" />
-                  </button>
+                <div className="flex flex-col sm:items-end gap-3 shrink-0">
+                  {/* Quick Toggles Toolbar */}
+                  <div className="flex flex-wrap items-center gap-1.5 bg-background/50 border border-brand/20 p-1.5 rounded-xl">
+                    {/* AIML Only Toggle */}
+                    <button
+                      type="button"
+                      onClick={() => handleToggleAiml(form.id, form.requireAiml)}
+                      className={`rounded-lg px-2.5 py-1 text-[11px] font-bold font-mono-tech uppercase transition-all ${
+                        form.requireAiml
+                          ? "bg-blue-500/20 text-blue-300 border border-blue-500/40"
+                          : "text-muted-foreground hover:text-foreground hover:bg-white/5 border border-transparent"
+                      }`}
+                      title={
+                        form.requireAiml
+                          ? "Restricted to AIML branch. Click to toggle to All Students."
+                          : "Open to all branches. Click to restrict to AIML students only."
+                      }
+                    >
+                      AIML: {form.requireAiml ? "ON" : "OFF"}
+                    </button>
+
+                    {/* Guest Access Toggle */}
+                    <button
+                      type="button"
+                      onClick={() => handleToggleAnonymous(form.id, form.allowAnonymous)}
+                      disabled={form.requireAiml}
+                      className={`rounded-lg px-2.5 py-1 text-[11px] font-bold font-mono-tech uppercase transition-all ${
+                        form.allowAnonymous
+                          ? "bg-teal-500/20 text-teal-300 border border-teal-500/40"
+                          : "text-muted-foreground hover:text-foreground hover:bg-white/5 border border-transparent"
+                      } disabled:opacity-40 disabled:cursor-not-allowed`}
+                      title={
+                        form.requireAiml
+                          ? "AIML Only forms require authenticated students; guests cannot be enabled."
+                          : form.allowAnonymous
+                          ? "Guest submissions enabled. Click to require student sign-in."
+                          : "Click to allow submissions without signing in."
+                      }
+                    >
+                      Guests: {form.allowAnonymous ? "YES" : "NO"}
+                    </button>
+
+                    {/* Allow Edits Toggle */}
+                    <button
+                      type="button"
+                      onClick={() => handleToggleEdit(form.id, form.allowEdit)}
+                      className={`rounded-lg px-2.5 py-1 text-[11px] font-bold font-mono-tech uppercase transition-all ${
+                        form.allowEdit
+                          ? "bg-purple-500/20 text-purple-300 border border-purple-500/40"
+                          : "text-muted-foreground hover:text-foreground hover:bg-white/5 border border-transparent"
+                      }`}
+                      title={
+                        form.allowEdit
+                          ? "Users can edit their answers. Click to lock submissions after submit."
+                          : "Submissions locked. Click to allow users to edit their previous response."
+                      }
+                    >
+                      Edits: {form.allowEdit ? "YES" : "NO"}
+                    </button>
+
+                    {/* Publish / Draft Toggle */}
+                    <button
+                      type="button"
+                      onClick={() => handleTogglePublished(form.id, form.published)}
+                      className={`rounded-lg px-2.5 py-1 text-[11px] font-bold font-mono-tech uppercase transition-all ${
+                        form.published
+                          ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
+                          : "bg-amber-500/20 text-amber-300 border border-amber-500/40"
+                      }`}
+                      title={form.published ? "Live. Click to unpublish as draft." : "Draft. Click to publish live."}
+                    >
+                      {form.published ? "Published" : "Draft"}
+                    </button>
+                  </div>
+
+                  {/* Actions: Edit Details, Export, Delete */}
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleStartEdit(form)}
+                      className="rounded-xl border border-brand/40 bg-brand/15 px-3 py-1.5 text-xs font-bold text-brand-accent transition-all hover:bg-brand/25 flex items-center gap-1.5"
+                      title="Edit full form details, schedule, and questions"
+                    >
+                      <Edit2Icon className="w-3.5 h-3.5" />
+                      Edit Details
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleExport(form.id, "csv")}
+                      disabled={exporting === form.id}
+                      className="rounded-xl border border-brand/30 bg-background/60 px-3 py-1.5 text-xs font-semibold text-foreground transition-all hover:bg-brand/10 hover:border-brand-accent/50 flex items-center gap-1.5 disabled:opacity-50"
+                      title="Export Responses to CSV"
+                    >
+                      <FileSpreadsheetIcon className="w-3.5 h-3.5 text-brand-accent" />
+                      CSV
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleExport(form.id, "excel")}
+                      disabled={exporting === form.id}
+                      className="rounded-xl border border-brand/30 bg-background/60 px-3 py-1.5 text-xs font-semibold text-foreground transition-all hover:bg-brand/10 hover:border-brand-accent/50 flex items-center gap-1.5 disabled:opacity-50"
+                      title="Export Responses to Excel"
+                    >
+                      <FileSpreadsheetIcon className="w-3.5 h-3.5 text-emerald-400" />
+                      Excel
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(form.id)}
+                      className="rounded-xl border border-red-500/30 bg-red-500/10 p-2 text-red-400 transition-all hover:bg-red-500/20"
+                      title="Delete Form and Responses"
+                    >
+                      <Trash2Icon className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
               </div>
             ))
@@ -367,9 +592,29 @@ export default function AdminFormsClient({ initialForms }: { initialForms: any[]
 
       {activeTab === "CREATE" && (
         <form
-          onSubmit={handleCreate}
+          onSubmit={handleSubmit}
           className="space-y-8 rounded-3xl border border-brand/20 bg-card/70 backdrop-blur-xl p-6 sm:p-8 shadow-2xl"
         >
+          {/* Edit Mode Active Banner */}
+          {editingId && (
+            <div className="flex flex-wrap items-center justify-between gap-3 p-4 rounded-2xl border border-brand/40 bg-brand/10 text-brand-accent">
+              <div className="flex items-center gap-2">
+                <Edit2Icon className="w-4 h-4 text-brand-accent" />
+                <span className="font-space-grotesk font-semibold text-sm">
+                  Editing Form: <strong className="text-foreground">{title || "Untitled Form"}</strong>
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={handleCancelEdit}
+                className="text-xs font-mono-tech uppercase font-bold text-muted-foreground hover:text-foreground underline cursor-pointer flex items-center gap-1"
+              >
+                <XIcon className="w-3.5 h-3.5" />
+                Cancel Edit
+              </button>
+            </div>
+          )}
+
           <div className="grid gap-6 sm:grid-cols-2">
             <div className="sm:col-span-2">
               <label className="mb-2 block text-sm font-semibold font-space-grotesk text-foreground">
@@ -422,23 +667,9 @@ export default function AdminFormsClient({ initialForms }: { initialForms: any[]
               />
             </div>
 
+            {/* Form Behavior & Access Toggles */}
             <div className="flex flex-col sm:flex-row flex-wrap gap-6 sm:col-span-2 border border-brand/20 p-5 rounded-2xl bg-background/40">
-              <label className="flex items-start gap-3 text-sm font-semibold font-space-grotesk text-foreground cursor-pointer flex-1 min-w-[240px]">
-                <input
-                  type="checkbox"
-                  checked={allowAnonymous}
-                  disabled={requireAiml}
-                  onChange={(e) => setAllowAnonymous(e.target.checked)}
-                  className="mt-0.5 h-5 w-5 rounded border-brand/30 text-brand focus:ring-brand-accent disabled:opacity-40"
-                />
-                <div>
-                  <span>Allow Guest Submissions (No sign-in)</span>
-                  <p className="text-xs text-muted-foreground font-normal">
-                    Anyone with the link can fill and submit this form without signing in.
-                  </p>
-                </div>
-              </label>
-
+              {/* AIML Only Toggle */}
               <label className="flex items-start gap-3 text-sm font-semibold font-space-grotesk text-foreground cursor-pointer flex-1 min-w-[240px]">
                 <input
                   type="checkbox"
@@ -453,11 +684,29 @@ export default function AdminFormsClient({ initialForms }: { initialForms: any[]
                 <div>
                   <span>AIML Students Only</span>
                   <p className="text-xs text-muted-foreground font-normal">
-                    Requires sign-in and verifies AIML student status.
+                    Restricts form submissions to verified AIML department students.
                   </p>
                 </div>
               </label>
 
+              {/* Guest Submissions Toggle */}
+              <label className="flex items-start gap-3 text-sm font-semibold font-space-grotesk text-foreground cursor-pointer flex-1 min-w-[240px]">
+                <input
+                  type="checkbox"
+                  checked={allowAnonymous}
+                  disabled={requireAiml}
+                  onChange={(e) => setAllowAnonymous(e.target.checked)}
+                  className="mt-0.5 h-5 w-5 rounded border-brand/30 text-brand focus:ring-brand-accent disabled:opacity-40"
+                />
+                <div>
+                  <span>Allow Guest Submissions</span>
+                  <p className="text-xs text-muted-foreground font-normal">
+                    Anyone with the link can fill and submit this form without signing in.
+                  </p>
+                </div>
+              </label>
+
+              {/* Allow Edits Toggle */}
               <label className="flex items-start gap-3 text-sm font-semibold font-space-grotesk text-foreground cursor-pointer flex-1 min-w-[240px]">
                 <input
                   type="checkbox"
@@ -468,7 +717,23 @@ export default function AdminFormsClient({ initialForms }: { initialForms: any[]
                 <div>
                   <span>Allow Users to Edit Responses</span>
                   <p className="text-xs text-muted-foreground font-normal">
-                    Signed-in users can update their previous submission.
+                    Signed-in respondents can return and update their previous answers.
+                  </p>
+                </div>
+              </label>
+
+              {/* Published Toggle */}
+              <label className="flex items-start gap-3 text-sm font-semibold font-space-grotesk text-foreground cursor-pointer flex-1 min-w-[240px]">
+                <input
+                  type="checkbox"
+                  checked={published}
+                  onChange={(e) => setPublished(e.target.checked)}
+                  className="mt-0.5 h-5 w-5 rounded border-brand/30 text-brand focus:ring-brand-accent"
+                />
+                <div>
+                  <span>Published / Live</span>
+                  <p className="text-xs text-muted-foreground font-normal">
+                    When checked, the form is published and active for respondents.
                   </p>
                 </div>
               </label>
@@ -497,87 +762,92 @@ export default function AdminFormsClient({ initialForms }: { initialForms: any[]
             <div className="space-y-4">
               {fields.map((cf, index) => (
                 <div
-                  key={index}
-                  className="flex flex-col gap-4 rounded-2xl border border-brand/20 bg-background/60 backdrop-blur-md p-5 sm:flex-row sm:items-start relative group"
+                  key={cf.id || index}
+                  className="flex gap-4 items-start rounded-2xl border border-brand/20 bg-background/60 p-5 shadow-sm"
                 >
                   <div className="flex-1 space-y-4">
-                    <div className="grid gap-4 sm:grid-cols-3">
-                      <div className="sm:col-span-2">
-                        <label className="mb-1 text-xs font-mono-tech text-muted-foreground uppercase">
-                          Label / Question
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <div>
+                        <label className="mb-1 block text-xs font-mono-tech uppercase text-muted-foreground">
+                          Question Label *
                         </label>
                         <input
                           type="text"
                           required
                           value={cf.label}
                           onChange={(e) => updateField(index, "label", e.target.value)}
-                          className="w-full rounded-xl border border-brand/30 bg-card/60 px-3.5 py-2 text-sm text-foreground outline-none focus:border-brand-accent"
-                          placeholder="e.g., Which topic do you prefer?"
+                          placeholder="e.g. Which project did you like most?"
+                          className="w-full rounded-lg border border-brand/30 bg-background/80 px-3.5 py-2 text-sm text-foreground outline-none focus:border-brand-accent"
                         />
                       </div>
+
                       <div>
-                        <label className="mb-1 text-xs font-mono-tech text-muted-foreground uppercase">
-                          Field Type
+                        <label className="mb-1 block text-xs font-mono-tech uppercase text-muted-foreground">
+                          Response Type
                         </label>
                         <select
                           value={cf.type}
-                          onChange={(e) => updateField(index, "type", e.target.value)}
-                          className="w-full rounded-xl border border-brand/30 bg-card/60 px-3.5 py-2 text-sm text-foreground outline-none focus:border-brand-accent"
+                          onChange={(e) => {
+                            const newType = e.target.value;
+                            updateField(index, "type", newType);
+                            if (newType === "SELECT" || newType === "MULTI_SELECT") {
+                              if (!Array.isArray(cf.options) || cf.options.length === 0) {
+                                updateField(index, "options", ["Option 1", "Option 2"]);
+                              }
+                            } else if (newType === "IMAGE_POLL") {
+                              if (!Array.isArray(cf.options) || cf.options.length === 0) {
+                                updateField(index, "options", [{ label: "Candidate A", imageUrl: "" }]);
+                              }
+                            }
+                          }}
+                          className="w-full rounded-lg border border-brand/30 bg-background/80 px-3.5 py-2 text-sm text-foreground outline-none focus:border-brand-accent cursor-pointer"
                         >
-                          <option value="TEXT">Short Text</option>
-                          <option value="NUMBER">Number (With Min/Max)</option>
-                          <option value="SELECT">Dropdown (Single Select)</option>
-                          <option value="MULTI_SELECT">Checkboxes (Multi Select)</option>
-                          <option value="FILE_UPLOAD">File Upload (Images, Documents, PDFs)</option>
-                          <option value="IMAGE_POLL">Image Poll (Voting)</option>
+                          <option value="TEXT">Short Text Answer</option>
+                          <option value="NUMBER">Number (With min/max limits)</option>
+                          <option value="SELECT">Single Choice Dropdown</option>
+                          <option value="MULTI_SELECT">Multiple Choice Selection</option>
+                          <option value="FILE_UPLOAD">File Upload (Images, PDFs, Docs)</option>
+                          <option value="IMAGE_POLL">Visual Image Poll (Voting Cards)</option>
                         </select>
                       </div>
                     </div>
 
-                    {/* Numeric Min/Max Threshold Controls */}
+                    {/* Numeric Min / Max Limits */}
                     {cf.type === "NUMBER" && (
-                      <div className="grid grid-cols-2 gap-4 rounded-xl border border-brand/20 bg-card/40 p-4">
-                        <div>
-                          <label className="mb-1 text-xs font-mono-tech text-muted-foreground uppercase">
-                            Minimum Value (Threshold)
+                      <div className="flex gap-4 p-4 rounded-xl border border-brand/20 bg-card/40">
+                        <div className="flex-1">
+                          <label className="mb-1 block text-xs font-mono-tech uppercase text-muted-foreground">
+                            Minimum Value (Optional)
                           </label>
                           <input
                             type="number"
-                            value={cf.min ?? ""}
+                            value={cf.min}
                             onChange={(e) => updateField(index, "min", e.target.value)}
                             placeholder="e.g. 1"
-                            className="w-full rounded-lg border border-brand/30 bg-background/70 px-3 py-1.5 text-sm text-foreground outline-none focus:border-brand-accent"
+                            className="w-full rounded-lg border border-brand/30 bg-background/80 px-3 py-1.5 text-sm text-foreground outline-none focus:border-brand-accent"
                           />
                         </div>
-                        <div>
-                          <label className="mb-1 text-xs font-mono-tech text-muted-foreground uppercase">
-                            Maximum Value (Threshold)
+                        <div className="flex-1">
+                          <label className="mb-1 block text-xs font-mono-tech uppercase text-muted-foreground">
+                            Maximum Value (Optional)
                           </label>
                           <input
                             type="number"
-                            value={cf.max ?? ""}
+                            value={cf.max}
                             onChange={(e) => updateField(index, "max", e.target.value)}
                             placeholder="e.g. 100"
-                            className="w-full rounded-lg border border-brand/30 bg-background/70 px-3 py-1.5 text-sm text-foreground outline-none focus:border-brand-accent"
+                            className="w-full rounded-lg border border-brand/30 bg-background/80 px-3 py-1.5 text-sm text-foreground outline-none focus:border-brand-accent"
                           />
                         </div>
                       </div>
                     )}
 
-                    {/* Information for File Upload */}
-                    {cf.type === "FILE_UPLOAD" && (
-                      <div className="rounded-xl border border-brand/20 bg-card/40 p-3.5 text-xs font-mono-tech text-muted-foreground flex items-center gap-2">
-                        <UploadCloudIcon className="w-4 h-4 text-brand-accent shrink-0" />
-                        <span>Allows respondents to upload images, documents, PDFs, or other files (up to 15MB).</span>
-                      </div>
-                    )}
-
-                    {/* Options for Select and Multi Select */}
+                    {/* Options for SELECT and MULTI_SELECT */}
                     {(cf.type === "SELECT" || cf.type === "MULTI_SELECT") && (
                       <div className="space-y-3 rounded-xl border border-brand/20 bg-card/40 p-4">
                         <div className="flex items-center justify-between">
                           <h4 className="text-xs font-mono-tech uppercase font-bold text-brand-accent">
-                            {cf.type === "SELECT" ? "Dropdown Choices" : "Checkbox Choices"}
+                            Dropdown Choices
                           </h4>
                           <button
                             type="button"
@@ -719,9 +989,10 @@ export default function AdminFormsClient({ initialForms }: { initialForms: any[]
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-2xl bg-brand py-4 text-center font-space-grotesk font-bold text-white shadow-xl shadow-brand/20 transition-all hover:bg-brand/90 hover:scale-[1.005] disabled:opacity-50 cursor-pointer"
+            className="w-full rounded-2xl bg-brand py-4 text-center font-space-grotesk font-bold text-white shadow-xl shadow-brand/20 transition-all hover:bg-brand/90 hover:scale-[1.005] disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
           >
-            {loading ? "Publishing Form..." : "Create & Launch Form"}
+            {editingId ? <CheckIcon className="w-5 h-5" /> : <PlusIcon className="w-5 h-5" />}
+            {loading ? "Saving..." : editingId ? "Update Form Details" : "Create & Launch Form"}
           </button>
         </form>
       )}
