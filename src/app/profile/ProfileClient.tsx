@@ -80,14 +80,11 @@ export default function ProfileClient({ user }: { user: any }) {
 
     if (isAiml) {
       if (
-        !hrTrimmed ||
-        !lcTrimmed ||
-        !ghTrimmed ||
         skillsList.length === 0 ||
         languagesList.length === 0 ||
         !formData.careerIntent
       ) {
-        alert("All AIML fields are mandatory. Please make sure not to leave any field blank.");
+        alert("Skills, Languages Known, and Career Plan are mandatory.");
         return;
       }
     }
@@ -241,28 +238,26 @@ export default function ProfileClient({ user }: { user: any }) {
           <>
             <div className="sm:col-span-2">
               <label className="mb-1.5 block text-xs font-mono-tech text-muted-foreground uppercase">
-                HackerRank Username {isAiml && <span className="text-red-500">*</span>}
+                HackerRank Username <span className="text-[11px] text-muted-foreground lowercase">(optional)</span>
               </label>
               <input
                 type="text"
                 name="hackerrankUsername"
-                required={isAiml}
                 value={formData.hackerrankUsername}
                 onChange={handleChange}
                 placeholder="e.g. johndoe123 or profile URL"
                 className="w-full rounded-lg border border-brand/30 bg-background px-4 py-2.5 outline-none focus:border-brand-accent text-sm font-mono-tech text-foreground"
               />
-              <p className="mt-1 text-[11px] font-mono-tech text-gold">Required for Marathon score syncing</p>
+              <p className="mt-1 text-[11px] font-mono-tech text-gold">Used for Marathon score syncing</p>
             </div>
 
             <div>
               <label className="mb-1.5 block text-xs font-mono-tech text-muted-foreground uppercase">
-                LeetCode Profile URL / Username {isAiml && <span className="text-red-500">*</span>}
+                LeetCode Profile URL / Username <span className="text-[11px] text-muted-foreground lowercase">(optional)</span>
               </label>
               <input
                 type="text"
                 name="leetcodeProfile"
-                required={isAiml}
                 value={formData.leetcodeProfile}
                 onChange={handleChange}
                 placeholder="https://leetcode.com/u/... or username"
@@ -272,12 +267,11 @@ export default function ProfileClient({ user }: { user: any }) {
 
             <div>
               <label className="mb-1.5 block text-xs font-mono-tech text-muted-foreground uppercase">
-                GitHub Profile URL / Username {isAiml && <span className="text-red-500">*</span>}
+                GitHub Profile URL / Username <span className="text-[11px] text-muted-foreground lowercase">(optional)</span>
               </label>
               <input
                 type="text"
                 name="githubProfile"
-                required={isAiml}
                 value={formData.githubProfile}
                 onChange={handleChange}
                 placeholder="https://github.com/... or username"

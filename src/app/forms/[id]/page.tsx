@@ -4,10 +4,21 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import AppCheckImage from "@/components/ui/AppCheckImage";
-import { ArrowLeftIcon, CheckCircle2Icon, AlertCircleIcon, SendIcon } from "lucide-react";
+import {
+  ArrowLeftIcon,
+  CheckCircle2Icon,
+  AlertCircleIcon,
+  SendIcon,
+  UploadCloudIcon,
+  FileTextIcon,
+  ExternalLinkIcon,
+} from "lucide-react";
 import Link from "next/link";
 import CircuitTrace from "@/components/ui/circuit-ink/CircuitTrace";
 import TechnicalLabel from "@/components/ui/circuit-ink/TechnicalLabel";
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { storage } from "@/lib/firebase";
+import { ensureFirebaseAuth } from "@/lib/firebase-client-auth";
 
 export default function FormPage() {
   const { id } = useParams() as { id: string };
@@ -20,6 +31,79 @@ export default function FormPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const [uploadingFiles, setUploadingFiles] = useState<Record<string, boolean>>({});
+  const [uploadProgress, setUploadProgress] = useState<Record<string, number>>({});
+
+  const isImageUrl = (url: string) => {
+    if (!url || typeof url !== "string") return false;
+    const clean = url.split("?")[0].toLowerCase();
+    return (
+      clean.endsWith(".jpg") ||
+      clean.endsWith(".jpeg") ||
+      clean.endsWith(".png") ||
+      clean.endsWith(".webp") ||
+      clean.endsWith(".gif") ||
+      clean.endsWith(".svg")
+    );
+  };
+
+  const handleFileUpload = async (fieldId: string, file: File) => {
+    if (!file) return;
+    if (!session?.user?.id) {
+      alert("Please sign in to upload files.");
+      return;
+    }
+    if (file.size > 15 * 1024 * 1024) {
+      alert("File is too large. Maximum file size is 15MB.");
+      return;
+    }
+
+    setUploadingFiles((prev) => ({ ...prev, [fieldId]: true }));
+    setUploadProgress((prev) => ({ ...prev, [fieldId]: 0 }));
+
+    try {
+      await ensureFirebaseAuth();
+      const ext = file.name.split(".").pop() || "bin";
+      const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+      const fileName = `form-uploads/${id}/${session.user.id}_${fieldId}_${Date.now()}_${safeName}`;
+      const storageRef = ref(storage, fileName);
+      const uploadTask = uploadBytesResumable(storageRef, file);
+
+      await new Promise<void>((resolve, reject) => {
+        uploadTask.on(
+          "state_changed",
+          (snapshot) => {
+            const progress = Math.round(
+              (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+            );
+            setUploadProgress((prev) => ({ ...prev, [fieldId]: progress }));
+          },
+          (error) => {
+            alert("File upload failed: " + error.message);
+            reject(error);
+          },
+          async () => {
+            const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
+            setAnswers((prev) => ({ ...prev, [fieldId]: downloadUrl }));
+            resolve();
+          }
+        );
+      });
+    } catch (err: any) {
+      console.error("Upload error:", err);
+      alert("File upload failed: " + (err?.message || "Unknown error"));
+    } finally {
+      setUploadingFiles((prev) => ({ ...prev, [fieldId]: false }));
+    }
+  };
+
+  const removeUploadedFile = (fieldId: string) => {
+    setAnswers((prev) => {
+      const updated = { ...prev };
+      delete updated[fieldId];
+      return updated;
+    });
+  };
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -51,8 +135,15 @@ export default function FormPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setSubmitting(true);
     setError("");
+
+    const isAnyUploading = Object.values(uploadingFiles).some(Boolean);
+    if (isAnyUploading) {
+      setError("Please wait for all files to finish uploading before submitting.");
+      return;
+    }
+
+    setSubmitting(true);
 
     try {
       const res = await fetch(`/api/forms/${id}/submit`, {
@@ -291,6 +382,89 @@ export default function FormPage() {
                       </label>
                     );
                   })}
+                </div>
+              )}
+
+              {field.type === "FILE_UPLOAD" && (
+                <div className="space-y-3">
+                  {answers[field.id] ? (
+                    <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 space-y-3">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <CheckCircle2Icon className="w-5 h-5 text-emerald-400 shrink-0" />
+                          <span className="text-xs font-mono-tech text-emerald-300 font-bold uppercase tracking-wider">
+                            File Uploaded
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => removeUploadedFile(field.id)}
+                          className="text-xs text-red-400 hover:text-red-300 font-mono-tech underline cursor-pointer shrink-0"
+                        >
+                          Replace File
+                        </button>
+                      </div>
+
+                      {isImageUrl(answers[field.id]) ? (
+                        <div className="relative group max-w-xs rounded-lg overflow-hidden border border-brand/30 bg-black/40 p-1">
+                          <AppCheckImage
+                            src={answers[field.id]}
+                            alt="Uploaded preview"
+                            className="max-h-48 max-w-full object-contain mx-auto rounded"
+                          />
+                          <a
+                            href={answers[field.id]}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity text-white text-xs font-mono-tech gap-1 rounded"
+                          >
+                            <span>Open Full Image</span>
+                            <ExternalLinkIcon className="w-3.5 h-3.5" />
+                          </a>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2 text-xs font-mono-tech text-foreground bg-background/50 border border-brand/20 p-2.5 rounded-lg">
+                          <FileTextIcon className="w-4 h-4 text-brand-accent shrink-0" />
+                          <a
+                            href={answers[field.id]}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-brand-accent hover:underline flex items-center gap-1.5 truncate flex-1"
+                          >
+                            <span className="truncate">View Uploaded File</span>
+                            <ExternalLinkIcon className="w-3 h-3 shrink-0" />
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="file"
+                          required={field.isRequired && !answers[field.id]}
+                          disabled={uploadingFiles[field.id]}
+                          onChange={(e) => {
+                            if (e.target.files && e.target.files[0]) {
+                              handleFileUpload(field.id, e.target.files[0]);
+                            }
+                          }}
+                          className="w-full text-xs file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-brand/20 file:text-brand-accent hover:file:bg-brand/30 cursor-pointer border border-brand/30 rounded-lg p-2 bg-background/70 font-space-grotesk text-foreground disabled:opacity-50"
+                        />
+                      </div>
+                      {uploadingFiles[field.id] && (
+                        <div className="flex items-center gap-2 text-xs font-mono-tech text-gold animate-pulse">
+                          <span className="w-2 h-2 rounded-full bg-gold animate-ping inline-block" />
+                          <span>
+                            UPLOADING_FILE... {uploadProgress[field.id] !== undefined ? `(${uploadProgress[field.id]}%)` : ""}
+                          </span>
+                        </div>
+                      )}
+                      <p className="text-[11px] font-mono-tech text-muted-foreground">
+                        Supports images, documents, PDFs, or other file formats (Max 15MB).
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
 

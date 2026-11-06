@@ -419,7 +419,7 @@ export default function AdminFormsClient({ initialForms }: { initialForms: any[]
               <div>
                 <h3 className="text-xl font-bold font-space-grotesk text-foreground">Form Questions & Fields</h3>
                 <p className="text-xs text-muted-foreground font-space-grotesk mt-0.5">
-                  Configure text inputs, numerical thresholds, multiple choice dropdowns, or visual image polls.
+                  Configure text inputs, numerical thresholds, multiple choice dropdowns, file uploads, or visual image polls.
                 </p>
               </div>
               <button
@@ -463,10 +463,10 @@ export default function AdminFormsClient({ initialForms }: { initialForms: any[]
                           className="w-full rounded-xl border border-brand/30 bg-card/60 px-3.5 py-2 text-sm text-foreground outline-none focus:border-brand-accent"
                         >
                           <option value="TEXT">Short Text</option>
-                          <option value="TEXTAREA">Long Text</option>
                           <option value="NUMBER">Number (With Min/Max)</option>
                           <option value="SELECT">Dropdown (Single Select)</option>
                           <option value="MULTI_SELECT">Checkboxes (Multi Select)</option>
+                          <option value="FILE_UPLOAD">File Upload (Images, Documents, PDFs)</option>
                           <option value="IMAGE_POLL">Image Poll (Voting)</option>
                         </select>
                       </div>
@@ -499,6 +499,14 @@ export default function AdminFormsClient({ initialForms }: { initialForms: any[]
                             className="w-full rounded-lg border border-brand/30 bg-background/70 px-3 py-1.5 text-sm text-foreground outline-none focus:border-brand-accent"
                           />
                         </div>
+                      </div>
+                    )}
+
+                    {/* Information for File Upload */}
+                    {cf.type === "FILE_UPLOAD" && (
+                      <div className="rounded-xl border border-brand/20 bg-card/40 p-3.5 text-xs font-mono-tech text-muted-foreground flex items-center gap-2">
+                        <UploadCloudIcon className="w-4 h-4 text-brand-accent shrink-0" />
+                        <span>Allows respondents to upload images, documents, PDFs, or other files (up to 15MB).</span>
                       </div>
                     )}
 

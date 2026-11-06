@@ -42,9 +42,24 @@ export async function GET(
       };
 
       // Add answers
-      const answers = res.answers as Record<string, string> || {};
+      const answers = (res.answers as Record<string, any>) || {};
       for (const field of form.fields) {
-        row[field.label] = answers[field.id] || "N/A";
+        let val = answers[field.id];
+        if (field.type === "MULTI_SELECT" && val) {
+          try {
+            const parsed = JSON.parse(val);
+            if (Array.isArray(parsed)) {
+              val = parsed.join(", ");
+            }
+          } catch {}
+        } else if (field.type === "IMAGE_POLL" && val && Array.isArray(field.options)) {
+          const opts = field.options as any[];
+          const match = opts.find((opt: any) => opt?.id === val);
+          if (match?.label) {
+            val = match.label;
+          }
+        }
+        row[field.label] = val || "N/A";
       }
 
       exportData.push(row);

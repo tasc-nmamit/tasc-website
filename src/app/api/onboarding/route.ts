@@ -64,15 +64,6 @@ export async function POST(request: Request) {
 
     // Strict validation for AIML
     if (isAiml) {
-      if (!cleanHackerRank) {
-        return NextResponse.json({ error: "HackerRank Username is mandatory for AIML marathon score syncing." }, { status: 400 });
-      }
-      if (!cleanLeetCode) {
-        return NextResponse.json({ error: "LeetCode Profile Link is mandatory and cannot be left blank." }, { status: 400 });
-      }
-      if (!cleanGitHub) {
-        return NextResponse.json({ error: "GitHub Profile Link is mandatory and cannot be left blank." }, { status: 400 });
-      }
       if (cleanSkills.length === 0) {
         return NextResponse.json({ error: "Skills field is mandatory. Please provide at least one skill." }, { status: 400 });
       }
@@ -93,9 +84,9 @@ export async function POST(request: Request) {
     };
 
     if (isAiml) {
-      updateData.hackerrankUsername = cleanHackerRank;
-      updateData.leetcodeProfile = cleanLeetCode;
-      updateData.githubProfile = cleanGitHub;
+      updateData.hackerrankUsername = cleanHackerRank || null;
+      updateData.leetcodeProfile = cleanLeetCode || null;
+      updateData.githubProfile = cleanGitHub || null;
       updateData.skills = cleanSkills;
       updateData.languages = cleanLanguages;
       updateData.careerIntent = careerIntent as CareerIntent;

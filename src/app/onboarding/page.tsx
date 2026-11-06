@@ -87,14 +87,11 @@ export default function OnboardingPage() {
     // Strict validation for AIML users
     if (isAiml) {
       if (
-        !hrTrimmed ||
-        !lcTrimmed ||
-        !ghTrimmed ||
         skillsList.length === 0 ||
         languagesList.length === 0 ||
         !data.careerIntent
       ) {
-        setError("All fields are mandatory. Please make sure not to leave any field blank.");
+        setError("Skills, Languages Known, and Career Plan are mandatory.");
         return;
       }
     }
@@ -242,38 +239,36 @@ export default function OnboardingPage() {
               <div className="space-y-4">
                 <div>
                   <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-                    Coding Profiles <span className="text-red-500">*</span>
+                    Coding Profiles <span className="text-xs font-normal lowercase">(optional)</span>
                   </h3>
                   <p className="text-[11px] text-muted-foreground mt-0.5">
-                    All handles and profile links are mandatory for performance verification and Marathon leaderboard syncing.
+                    Optional. You can provide your profiles now or update them later. Linking HackerRank is recommended for Marathon score syncing.
                   </p>
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
                     <label htmlFor="hackerrank" className="mb-1.5 block text-sm font-medium text-foreground">
-                      HackerRank Username <span className="text-red-500">*</span>
+                      HackerRank Username <span className="text-xs text-muted-foreground font-normal">(Optional)</span>
                     </label>
                     <input
                       id="hackerrank"
                       type="text"
-                      required
                       value={data.hackerrankUsername}
                       onChange={(e) => setData({ ...data, hackerrankUsername: e.target.value })}
                       className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-sm text-foreground outline-none transition-colors focus:border-brand focus:ring-1 focus:ring-brand/30"
                       placeholder="e.g. johndoe123"
                     />
-                    <p className="mt-1 text-[11px] text-brand">Required for automated Marathon score syncing</p>
+                    <p className="mt-1 text-[11px] text-brand">Used for automated Marathon score syncing</p>
                   </div>
 
                   <div>
                     <label htmlFor="leetcode" className="mb-1.5 block text-sm font-medium text-foreground">
-                      LeetCode Profile Link / Username <span className="text-red-500">*</span>
+                      LeetCode Profile Link / Username <span className="text-xs text-muted-foreground font-normal">(Optional)</span>
                     </label>
                     <input
                       id="leetcode"
                       type="text"
-                      required
                       value={data.leetcodeProfile}
                       onChange={(e) => setData({ ...data, leetcodeProfile: e.target.value })}
                       className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-sm text-foreground outline-none transition-colors focus:border-brand focus:ring-1 focus:ring-brand/30"
@@ -284,12 +279,11 @@ export default function OnboardingPage() {
 
                 <div>
                   <label htmlFor="github" className="mb-1.5 block text-sm font-medium text-foreground">
-                    GitHub Profile Link / Username <span className="text-red-500">*</span>
+                    GitHub Profile Link / Username <span className="text-xs text-muted-foreground font-normal">(Optional)</span>
                   </label>
                   <input
                     id="github"
                     type="text"
-                    required
                     value={data.githubProfile}
                     onChange={(e) => setData({ ...data, githubProfile: e.target.value })}
                     className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-sm text-foreground outline-none transition-colors focus:border-brand focus:ring-1 focus:ring-brand/30"

@@ -43,15 +43,6 @@ export async function PATCH(request: Request) {
 
     const isAiml = !!session.user.isAiml;
     if (isAiml) {
-      if (cleanHackerRank !== undefined && !cleanHackerRank) {
-        return NextResponse.json({ error: "HackerRank Username cannot be left blank." }, { status: 400 });
-      }
-      if (cleanLeetCode !== undefined && !cleanLeetCode) {
-        return NextResponse.json({ error: "LeetCode Profile cannot be left blank." }, { status: 400 });
-      }
-      if (cleanGitHub !== undefined && !cleanGitHub) {
-        return NextResponse.json({ error: "GitHub Profile cannot be left blank." }, { status: 400 });
-      }
       if (careerIntent !== undefined && !Object.values(CareerIntent).includes(careerIntent as CareerIntent)) {
         return NextResponse.json({ error: "Career Plan cannot be left blank." }, { status: 400 });
       }

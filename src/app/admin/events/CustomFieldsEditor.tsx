@@ -306,7 +306,6 @@ export default function CustomFieldsEditor({
                     className="w-full rounded-xl border border-brand/30 bg-card px-3.5 py-2 text-sm text-foreground outline-none focus:border-brand-accent"
                   >
                     <option value="TEXT">Short Text</option>
-                    <option value="TEXTAREA">Long Text</option>
                     <option value="NUMBER">Number (With Min/Max)</option>
                     <option value="SELECT">Dropdown (Single Select)</option>
                     <option value="MULTI_SELECT">Checkboxes (Multi Select)</option>
