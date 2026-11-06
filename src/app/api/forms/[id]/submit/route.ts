@@ -8,10 +8,7 @@ interface Context {
 
 export async function POST(request: Request, context: Context) {
   const session = await auth();
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
+  const userId = session?.user?.id;
   const { id } = await context.params;
 
   try {
@@ -32,17 +29,26 @@ export async function POST(request: Request, context: Context) {
       return NextResponse.json({ error: "Form has closed" }, { status: 400 });
     }
 
-    if (form.requireAiml && !session.user.isAiml && session.user.role !== "ADMIN" && session.user.role !== "OWNER") {
-      return NextResponse.json({ error: "This form is restricted to AIML students" }, { status: 403 });
-    }
+    if (!userId) {
+      if (!form.allowAnonymous) {
+        return NextResponse.json({ error: "Please sign in to submit this form" }, { status: 401 });
+      }
+      if (form.requireAiml) {
+        return NextResponse.json({ error: "This form is restricted to verified AIML students" }, { status: 403 });
+      }
+    } else {
+      if (form.requireAiml && !session.user.isAiml && session.user.role !== "ADMIN" && session.user.role !== "OWNER") {
+        return NextResponse.json({ error: "This form is restricted to AIML students" }, { status: 403 });
+      }
 
-    // Check if already responded
-    const existing = await db.formResponse.findUnique({
-      where: { formId_userId: { formId: id, userId: session.user.id } }
-    });
+      // Check if already responded
+      const existing = await db.formResponse.findUnique({
+        where: { formId_userId: { formId: id, userId } }
+      });
 
-    if (existing && !form.allowEdit) {
-      return NextResponse.json({ error: "You have already submitted a response for this form and editing is not allowed." }, { status: 400 });
+      if (existing && !form.allowEdit) {
+        return NextResponse.json({ error: "You have already submitted a response for this form and editing is not allowed." }, { status: 400 });
+      }
     }
 
     const { answers } = await request.json();
@@ -69,17 +75,28 @@ export async function POST(request: Request, context: Context) {
       }
     }
 
-    const response = await db.formResponse.upsert({
-      where: { formId_userId: { formId: id, userId: session.user.id } },
-      update: {
-        answers,
-      },
-      create: {
-        formId: id,
-        userId: session.user.id,
-        answers,
-      }
-    });
+    let response;
+    if (userId) {
+      response = await db.formResponse.upsert({
+        where: { formId_userId: { formId: id, userId } },
+        update: {
+          answers,
+        },
+        create: {
+          formId: id,
+          userId,
+          answers,
+        }
+      });
+    } else {
+      response = await db.formResponse.create({
+        data: {
+          formId: id,
+          userId: null,
+          answers,
+        }
+      });
+    }
 
     return NextResponse.json({ success: true, responseId: response.id });
   } catch (error: any) {

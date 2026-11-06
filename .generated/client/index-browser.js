@@ -289,6 +289,7 @@ exports.Prisma.FormScalarFieldEnum = {
   endTime: 'endTime',
   requireAiml: 'requireAiml',
   allowEdit: 'allowEdit',
+  allowAnonymous: 'allowAnonymous',
   createdAt: 'createdAt'
 };
 

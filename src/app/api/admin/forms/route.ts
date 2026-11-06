@@ -18,6 +18,8 @@ export async function POST(request: Request) {
       startTime,
       endTime,
       requireAiml,
+      allowEdit,
+      allowAnonymous,
       fields,
     } = body;
 
@@ -28,7 +30,9 @@ export async function POST(request: Request) {
         published,
         startTime: startTime ? parseContestDate(startTime) : null,
         endTime: endTime ? parseContestDate(endTime) : null,
-        requireAiml,
+        requireAiml: Boolean(requireAiml),
+        allowEdit: Boolean(allowEdit),
+        allowAnonymous: Boolean(allowAnonymous),
         fields: {
           create: fields.map((f: any, index: number) => ({
             label: f.label,

@@ -18469,6 +18469,7 @@ export namespace Prisma {
     endTime: Date | null
     requireAiml: boolean | null
     allowEdit: boolean | null
+    allowAnonymous: boolean | null
     createdAt: Date | null
   }
 
@@ -18481,6 +18482,7 @@ export namespace Prisma {
     endTime: Date | null
     requireAiml: boolean | null
     allowEdit: boolean | null
+    allowAnonymous: boolean | null
     createdAt: Date | null
   }
 
@@ -18493,6 +18495,7 @@ export namespace Prisma {
     endTime: number
     requireAiml: number
     allowEdit: number
+    allowAnonymous: number
     createdAt: number
     _all: number
   }
@@ -18507,6 +18510,7 @@ export namespace Prisma {
     endTime?: true
     requireAiml?: true
     allowEdit?: true
+    allowAnonymous?: true
     createdAt?: true
   }
 
@@ -18519,6 +18523,7 @@ export namespace Prisma {
     endTime?: true
     requireAiml?: true
     allowEdit?: true
+    allowAnonymous?: true
     createdAt?: true
   }
 
@@ -18531,6 +18536,7 @@ export namespace Prisma {
     endTime?: true
     requireAiml?: true
     allowEdit?: true
+    allowAnonymous?: true
     createdAt?: true
     _all?: true
   }
@@ -18616,6 +18622,7 @@ export namespace Prisma {
     endTime: Date | null
     requireAiml: boolean
     allowEdit: boolean
+    allowAnonymous: boolean
     createdAt: Date
     _count: FormCountAggregateOutputType | null
     _min: FormMinAggregateOutputType | null
@@ -18645,6 +18652,7 @@ export namespace Prisma {
     endTime?: boolean
     requireAiml?: boolean
     allowEdit?: boolean
+    allowAnonymous?: boolean
     createdAt?: boolean
     fields?: boolean | Form$fieldsArgs<ExtArgs>
     responses?: boolean | Form$responsesArgs<ExtArgs>
@@ -18660,6 +18668,7 @@ export namespace Prisma {
     endTime?: boolean
     requireAiml?: boolean
     allowEdit?: boolean
+    allowAnonymous?: boolean
     createdAt?: boolean
   }, ExtArgs["result"]["form"]>
 
@@ -18672,6 +18681,7 @@ export namespace Prisma {
     endTime?: boolean
     requireAiml?: boolean
     allowEdit?: boolean
+    allowAnonymous?: boolean
     createdAt?: boolean
   }, ExtArgs["result"]["form"]>
 
@@ -18684,10 +18694,11 @@ export namespace Prisma {
     endTime?: boolean
     requireAiml?: boolean
     allowEdit?: boolean
+    allowAnonymous?: boolean
     createdAt?: boolean
   }
 
-  export type FormOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "description" | "published" | "startTime" | "endTime" | "requireAiml" | "allowEdit" | "createdAt", ExtArgs["result"]["form"]>
+  export type FormOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "description" | "published" | "startTime" | "endTime" | "requireAiml" | "allowEdit" | "allowAnonymous" | "createdAt", ExtArgs["result"]["form"]>
   export type FormInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     fields?: boolean | Form$fieldsArgs<ExtArgs>
     responses?: boolean | Form$responsesArgs<ExtArgs>
@@ -18711,6 +18722,7 @@ export namespace Prisma {
       endTime: Date | null
       requireAiml: boolean
       allowEdit: boolean
+      allowAnonymous: boolean
       createdAt: Date
     }, ExtArgs["result"]["form"]>
     composites: {}
@@ -19145,6 +19157,7 @@ export namespace Prisma {
     readonly endTime: FieldRef<"Form", 'DateTime'>
     readonly requireAiml: FieldRef<"Form", 'Boolean'>
     readonly allowEdit: FieldRef<"Form", 'Boolean'>
+    readonly allowAnonymous: FieldRef<"Form", 'Boolean'>
     readonly createdAt: FieldRef<"Form", 'DateTime'>
   }
     
@@ -20856,7 +20869,7 @@ export namespace Prisma {
   export type FormResponseGroupByOutputType = {
     id: string
     formId: string
-    userId: string
+    userId: string | null
     answers: JsonValue
     createdAt: Date
     _count: FormResponseCountAggregateOutputType | null
@@ -20885,7 +20898,7 @@ export namespace Prisma {
     answers?: boolean
     createdAt?: boolean
     form?: boolean | FormDefaultArgs<ExtArgs>
-    user?: boolean | UserDefaultArgs<ExtArgs>
+    user?: boolean | FormResponse$userArgs<ExtArgs>
   }, ExtArgs["result"]["formResponse"]>
 
   export type FormResponseSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -20895,7 +20908,7 @@ export namespace Prisma {
     answers?: boolean
     createdAt?: boolean
     form?: boolean | FormDefaultArgs<ExtArgs>
-    user?: boolean | UserDefaultArgs<ExtArgs>
+    user?: boolean | FormResponse$userArgs<ExtArgs>
   }, ExtArgs["result"]["formResponse"]>
 
   export type FormResponseSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -20905,7 +20918,7 @@ export namespace Prisma {
     answers?: boolean
     createdAt?: boolean
     form?: boolean | FormDefaultArgs<ExtArgs>
-    user?: boolean | UserDefaultArgs<ExtArgs>
+    user?: boolean | FormResponse$userArgs<ExtArgs>
   }, ExtArgs["result"]["formResponse"]>
 
   export type FormResponseSelectScalar = {
@@ -20919,27 +20932,27 @@ export namespace Prisma {
   export type FormResponseOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "formId" | "userId" | "answers" | "createdAt", ExtArgs["result"]["formResponse"]>
   export type FormResponseInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     form?: boolean | FormDefaultArgs<ExtArgs>
-    user?: boolean | UserDefaultArgs<ExtArgs>
+    user?: boolean | FormResponse$userArgs<ExtArgs>
   }
   export type FormResponseIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     form?: boolean | FormDefaultArgs<ExtArgs>
-    user?: boolean | UserDefaultArgs<ExtArgs>
+    user?: boolean | FormResponse$userArgs<ExtArgs>
   }
   export type FormResponseIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     form?: boolean | FormDefaultArgs<ExtArgs>
-    user?: boolean | UserDefaultArgs<ExtArgs>
+    user?: boolean | FormResponse$userArgs<ExtArgs>
   }
 
   export type $FormResponsePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "FormResponse"
     objects: {
       form: Prisma.$FormPayload<ExtArgs>
-      user: Prisma.$UserPayload<ExtArgs>
+      user: Prisma.$UserPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       formId: string
-      userId: string
+      userId: string | null
       answers: Prisma.JsonValue
       createdAt: Date
     }, ExtArgs["result"]["formResponse"]>
@@ -21337,7 +21350,7 @@ export namespace Prisma {
   export interface Prisma__FormResponseClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     form<T extends FormDefaultArgs<ExtArgs> = {}>(args?: Subset<T, FormDefaultArgs<ExtArgs>>): Prisma__FormClient<$Result.GetResult<Prisma.$FormPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    user<T extends FormResponse$userArgs<ExtArgs> = {}>(args?: Subset<T, FormResponse$userArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -21770,6 +21783,25 @@ export namespace Prisma {
      * Limit how many FormResponses to delete.
      */
     limit?: number
+  }
+
+  /**
+   * FormResponse.user
+   */
+  export type FormResponse$userArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
   }
 
   /**
@@ -37574,6 +37606,7 @@ export namespace Prisma {
     endTime: 'endTime',
     requireAiml: 'requireAiml',
     allowEdit: 'allowEdit',
+    allowAnonymous: 'allowAnonymous',
     createdAt: 'createdAt'
   };
 
@@ -39087,6 +39120,7 @@ export namespace Prisma {
     endTime?: DateTimeNullableFilter<"Form"> | Date | string | null
     requireAiml?: BoolFilter<"Form"> | boolean
     allowEdit?: BoolFilter<"Form"> | boolean
+    allowAnonymous?: BoolFilter<"Form"> | boolean
     createdAt?: DateTimeFilter<"Form"> | Date | string
     fields?: FormFieldListRelationFilter
     responses?: FormResponseListRelationFilter
@@ -39101,6 +39135,7 @@ export namespace Prisma {
     endTime?: SortOrderInput | SortOrder
     requireAiml?: SortOrder
     allowEdit?: SortOrder
+    allowAnonymous?: SortOrder
     createdAt?: SortOrder
     fields?: FormFieldOrderByRelationAggregateInput
     responses?: FormResponseOrderByRelationAggregateInput
@@ -39118,6 +39153,7 @@ export namespace Prisma {
     endTime?: DateTimeNullableFilter<"Form"> | Date | string | null
     requireAiml?: BoolFilter<"Form"> | boolean
     allowEdit?: BoolFilter<"Form"> | boolean
+    allowAnonymous?: BoolFilter<"Form"> | boolean
     createdAt?: DateTimeFilter<"Form"> | Date | string
     fields?: FormFieldListRelationFilter
     responses?: FormResponseListRelationFilter
@@ -39132,6 +39168,7 @@ export namespace Prisma {
     endTime?: SortOrderInput | SortOrder
     requireAiml?: SortOrder
     allowEdit?: SortOrder
+    allowAnonymous?: SortOrder
     createdAt?: SortOrder
     _count?: FormCountOrderByAggregateInput
     _max?: FormMaxOrderByAggregateInput
@@ -39150,6 +39187,7 @@ export namespace Prisma {
     endTime?: DateTimeNullableWithAggregatesFilter<"Form"> | Date | string | null
     requireAiml?: BoolWithAggregatesFilter<"Form"> | boolean
     allowEdit?: BoolWithAggregatesFilter<"Form"> | boolean
+    allowAnonymous?: BoolWithAggregatesFilter<"Form"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"Form"> | Date | string
   }
 
@@ -39226,17 +39264,17 @@ export namespace Prisma {
     NOT?: FormResponseWhereInput | FormResponseWhereInput[]
     id?: StringFilter<"FormResponse"> | string
     formId?: StringFilter<"FormResponse"> | string
-    userId?: StringFilter<"FormResponse"> | string
+    userId?: StringNullableFilter<"FormResponse"> | string | null
     answers?: JsonFilter<"FormResponse">
     createdAt?: DateTimeFilter<"FormResponse"> | Date | string
     form?: XOR<FormScalarRelationFilter, FormWhereInput>
-    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
   }
 
   export type FormResponseOrderByWithRelationInput = {
     id?: SortOrder
     formId?: SortOrder
-    userId?: SortOrder
+    userId?: SortOrderInput | SortOrder
     answers?: SortOrder
     createdAt?: SortOrder
     form?: FormOrderByWithRelationInput
@@ -39250,17 +39288,17 @@ export namespace Prisma {
     OR?: FormResponseWhereInput[]
     NOT?: FormResponseWhereInput | FormResponseWhereInput[]
     formId?: StringFilter<"FormResponse"> | string
-    userId?: StringFilter<"FormResponse"> | string
+    userId?: StringNullableFilter<"FormResponse"> | string | null
     answers?: JsonFilter<"FormResponse">
     createdAt?: DateTimeFilter<"FormResponse"> | Date | string
     form?: XOR<FormScalarRelationFilter, FormWhereInput>
-    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
   }, "id" | "formId_userId">
 
   export type FormResponseOrderByWithAggregationInput = {
     id?: SortOrder
     formId?: SortOrder
-    userId?: SortOrder
+    userId?: SortOrderInput | SortOrder
     answers?: SortOrder
     createdAt?: SortOrder
     _count?: FormResponseCountOrderByAggregateInput
@@ -39274,7 +39312,7 @@ export namespace Prisma {
     NOT?: FormResponseScalarWhereWithAggregatesInput | FormResponseScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"FormResponse"> | string
     formId?: StringWithAggregatesFilter<"FormResponse"> | string
-    userId?: StringWithAggregatesFilter<"FormResponse"> | string
+    userId?: StringNullableWithAggregatesFilter<"FormResponse"> | string | null
     answers?: JsonWithAggregatesFilter<"FormResponse">
     createdAt?: DateTimeWithAggregatesFilter<"FormResponse"> | Date | string
   }
@@ -41429,6 +41467,7 @@ export namespace Prisma {
     endTime?: Date | string | null
     requireAiml?: boolean
     allowEdit?: boolean
+    allowAnonymous?: boolean
     createdAt?: Date | string
     fields?: FormFieldCreateNestedManyWithoutFormInput
     responses?: FormResponseCreateNestedManyWithoutFormInput
@@ -41443,6 +41482,7 @@ export namespace Prisma {
     endTime?: Date | string | null
     requireAiml?: boolean
     allowEdit?: boolean
+    allowAnonymous?: boolean
     createdAt?: Date | string
     fields?: FormFieldUncheckedCreateNestedManyWithoutFormInput
     responses?: FormResponseUncheckedCreateNestedManyWithoutFormInput
@@ -41457,6 +41497,7 @@ export namespace Prisma {
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireAiml?: BoolFieldUpdateOperationsInput | boolean
     allowEdit?: BoolFieldUpdateOperationsInput | boolean
+    allowAnonymous?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     fields?: FormFieldUpdateManyWithoutFormNestedInput
     responses?: FormResponseUpdateManyWithoutFormNestedInput
@@ -41471,6 +41512,7 @@ export namespace Prisma {
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireAiml?: BoolFieldUpdateOperationsInput | boolean
     allowEdit?: BoolFieldUpdateOperationsInput | boolean
+    allowAnonymous?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     fields?: FormFieldUncheckedUpdateManyWithoutFormNestedInput
     responses?: FormResponseUncheckedUpdateManyWithoutFormNestedInput
@@ -41485,6 +41527,7 @@ export namespace Prisma {
     endTime?: Date | string | null
     requireAiml?: boolean
     allowEdit?: boolean
+    allowAnonymous?: boolean
     createdAt?: Date | string
   }
 
@@ -41497,6 +41540,7 @@ export namespace Prisma {
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireAiml?: BoolFieldUpdateOperationsInput | boolean
     allowEdit?: BoolFieldUpdateOperationsInput | boolean
+    allowAnonymous?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -41509,6 +41553,7 @@ export namespace Prisma {
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireAiml?: BoolFieldUpdateOperationsInput | boolean
     allowEdit?: BoolFieldUpdateOperationsInput | boolean
+    allowAnonymous?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -41586,13 +41631,13 @@ export namespace Prisma {
     answers: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     form: FormCreateNestedOneWithoutResponsesInput
-    user: UserCreateNestedOneWithoutFormResponsesInput
+    user?: UserCreateNestedOneWithoutFormResponsesInput
   }
 
   export type FormResponseUncheckedCreateInput = {
     id?: string
     formId: string
-    userId: string
+    userId?: string | null
     answers: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
   }
@@ -41602,13 +41647,13 @@ export namespace Prisma {
     answers?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     form?: FormUpdateOneRequiredWithoutResponsesNestedInput
-    user?: UserUpdateOneRequiredWithoutFormResponsesNestedInput
+    user?: UserUpdateOneWithoutFormResponsesNestedInput
   }
 
   export type FormResponseUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     formId?: StringFieldUpdateOperationsInput | string
-    userId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
     answers?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -41616,7 +41661,7 @@ export namespace Prisma {
   export type FormResponseCreateManyInput = {
     id?: string
     formId: string
-    userId: string
+    userId?: string | null
     answers: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
   }
@@ -41630,7 +41675,7 @@ export namespace Prisma {
   export type FormResponseUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     formId?: StringFieldUpdateOperationsInput | string
-    userId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
     answers?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -43707,6 +43752,7 @@ export namespace Prisma {
     endTime?: SortOrder
     requireAiml?: SortOrder
     allowEdit?: SortOrder
+    allowAnonymous?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -43719,6 +43765,7 @@ export namespace Prisma {
     endTime?: SortOrder
     requireAiml?: SortOrder
     allowEdit?: SortOrder
+    allowAnonymous?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -43731,6 +43778,7 @@ export namespace Prisma {
     endTime?: SortOrder
     requireAiml?: SortOrder
     allowEdit?: SortOrder
+    allowAnonymous?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -43792,6 +43840,11 @@ export namespace Prisma {
     array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
     array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type UserNullableScalarRelationFilter = {
+    is?: UserWhereInput | null
+    isNot?: UserWhereInput | null
   }
 
   export type FormResponseFormIdUserIdCompoundUniqueInput = {
@@ -45605,10 +45658,12 @@ export namespace Prisma {
     update?: XOR<XOR<FormUpdateToOneWithWhereWithoutResponsesInput, FormUpdateWithoutResponsesInput>, FormUncheckedUpdateWithoutResponsesInput>
   }
 
-  export type UserUpdateOneRequiredWithoutFormResponsesNestedInput = {
+  export type UserUpdateOneWithoutFormResponsesNestedInput = {
     create?: XOR<UserCreateWithoutFormResponsesInput, UserUncheckedCreateWithoutFormResponsesInput>
     connectOrCreate?: UserCreateOrConnectWithoutFormResponsesInput
     upsert?: UserUpsertWithoutFormResponsesInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutFormResponsesInput, UserUpdateWithoutFormResponsesInput>, UserUncheckedUpdateWithoutFormResponsesInput>
   }
@@ -47216,7 +47271,7 @@ export namespace Prisma {
     NOT?: FormResponseScalarWhereInput | FormResponseScalarWhereInput[]
     id?: StringFilter<"FormResponse"> | string
     formId?: StringFilter<"FormResponse"> | string
-    userId?: StringFilter<"FormResponse"> | string
+    userId?: StringNullableFilter<"FormResponse"> | string | null
     answers?: JsonFilter<"FormResponse">
     createdAt?: DateTimeFilter<"FormResponse"> | Date | string
   }
@@ -49462,12 +49517,12 @@ export namespace Prisma {
     id?: string
     answers: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
-    user: UserCreateNestedOneWithoutFormResponsesInput
+    user?: UserCreateNestedOneWithoutFormResponsesInput
   }
 
   export type FormResponseUncheckedCreateWithoutFormInput = {
     id?: string
-    userId: string
+    userId?: string | null
     answers: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
   }
@@ -49536,6 +49591,7 @@ export namespace Prisma {
     endTime?: Date | string | null
     requireAiml?: boolean
     allowEdit?: boolean
+    allowAnonymous?: boolean
     createdAt?: Date | string
     responses?: FormResponseCreateNestedManyWithoutFormInput
   }
@@ -49549,6 +49605,7 @@ export namespace Prisma {
     endTime?: Date | string | null
     requireAiml?: boolean
     allowEdit?: boolean
+    allowAnonymous?: boolean
     createdAt?: Date | string
     responses?: FormResponseUncheckedCreateNestedManyWithoutFormInput
   }
@@ -49578,6 +49635,7 @@ export namespace Prisma {
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireAiml?: BoolFieldUpdateOperationsInput | boolean
     allowEdit?: BoolFieldUpdateOperationsInput | boolean
+    allowAnonymous?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     responses?: FormResponseUpdateManyWithoutFormNestedInput
   }
@@ -49591,6 +49649,7 @@ export namespace Prisma {
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireAiml?: BoolFieldUpdateOperationsInput | boolean
     allowEdit?: BoolFieldUpdateOperationsInput | boolean
+    allowAnonymous?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     responses?: FormResponseUncheckedUpdateManyWithoutFormNestedInput
   }
@@ -49604,6 +49663,7 @@ export namespace Prisma {
     endTime?: Date | string | null
     requireAiml?: boolean
     allowEdit?: boolean
+    allowAnonymous?: boolean
     createdAt?: Date | string
     fields?: FormFieldCreateNestedManyWithoutFormInput
   }
@@ -49617,6 +49677,7 @@ export namespace Prisma {
     endTime?: Date | string | null
     requireAiml?: boolean
     allowEdit?: boolean
+    allowAnonymous?: boolean
     createdAt?: Date | string
     fields?: FormFieldUncheckedCreateNestedManyWithoutFormInput
   }
@@ -49737,6 +49798,7 @@ export namespace Prisma {
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireAiml?: BoolFieldUpdateOperationsInput | boolean
     allowEdit?: BoolFieldUpdateOperationsInput | boolean
+    allowAnonymous?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     fields?: FormFieldUpdateManyWithoutFormNestedInput
   }
@@ -49750,6 +49812,7 @@ export namespace Prisma {
     endTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireAiml?: BoolFieldUpdateOperationsInput | boolean
     allowEdit?: BoolFieldUpdateOperationsInput | boolean
+    allowAnonymous?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     fields?: FormFieldUncheckedUpdateManyWithoutFormNestedInput
   }
@@ -52390,7 +52453,7 @@ export namespace Prisma {
 
   export type FormResponseCreateManyFormInput = {
     id?: string
-    userId: string
+    userId?: string | null
     answers: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
   }
@@ -52426,19 +52489,19 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     answers?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    user?: UserUpdateOneRequiredWithoutFormResponsesNestedInput
+    user?: UserUpdateOneWithoutFormResponsesNestedInput
   }
 
   export type FormResponseUncheckedUpdateWithoutFormInput = {
     id?: StringFieldUpdateOperationsInput | string
-    userId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
     answers?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type FormResponseUncheckedUpdateManyWithoutFormInput = {
     id?: StringFieldUpdateOperationsInput | string
-    userId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
     answers?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

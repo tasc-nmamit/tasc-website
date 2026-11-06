@@ -10,13 +10,17 @@ let pending: Promise<void> | null = null;
  * /api/firebase-token) before any Storage upload. Storage rules reject
  * unauthenticated writes, so call this right before `uploadBytes*`.
  */
-export async function ensureFirebaseAuth(): Promise<void> {
+export async function ensureFirebaseAuth(options?: { formId?: string }): Promise<void> {
   const firebaseAuth = getAuth(app);
   if (firebaseAuth.currentUser) return;
 
   if (!pending) {
     pending = (async () => {
-      const res = await fetch("/api/firebase-token", { method: "POST" });
+      const res = await fetch("/api/firebase-token", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(options || {}),
+      });
       const data = await res.json().catch(() => ({}));
       if (data.notConfigured) {
         // Service account key not added to .env yet; proceed without custom token

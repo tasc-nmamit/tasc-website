@@ -22,6 +22,7 @@ export interface FormItem {
   startTime: Date | string | null;
   endTime: Date | string | null;
   requireAiml: boolean;
+  allowAnonymous?: boolean;
   published: boolean;
   createdAt: Date | string;
   responsesCount: number;
@@ -305,6 +306,11 @@ export default function TerminalAccordionStream({ forms, user }: TerminalAccordi
 
                     {/* Badges */}
                     <div className="flex flex-wrap items-center gap-2">
+                      {form.allowAnonymous && (
+                        <span className="text-[11px] font-mono-tech font-bold text-teal-400 bg-teal-500/15 border border-teal-500/30 px-2.5 py-0.5 rounded uppercase tracking-wider">
+                          Public
+                        </span>
+                      )}
                       {form.requireAiml && (
                         <span className="inline-flex items-center gap-1 text-[11px] font-mono-tech font-bold text-brand-accent bg-brand/15 border border-brand/30 px-2.5 py-0.5 rounded uppercase tracking-wider">
                           <LockIcon className="h-3 w-3" />
@@ -377,7 +383,7 @@ export default function TerminalAccordionStream({ forms, user }: TerminalAccordi
                         </div>
 
                         <div>
-                          {!user ? (
+                          {!user && !form.allowAnonymous ? (
                             <Link
                               href="/auth/signin"
                               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-brand hover:bg-brand/90 text-white font-bold text-xs uppercase tracking-wider transition-all duration-150 shadow-md cursor-pointer font-space-grotesk"
@@ -400,7 +406,7 @@ export default function TerminalAccordionStream({ forms, user }: TerminalAccordi
                               href={`/forms/${form.id}`}
                               className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-brand hover:bg-brand/90 text-white font-bold text-xs uppercase tracking-wider transition-all duration-150 shadow-md hover:scale-[1.02] cursor-pointer font-space-grotesk"
                             >
-                              <span>Fill Response</span>
+                              <span>{!user ? "Fill as Guest" : "Fill Response"}</span>
                               <ArrowRightIcon className="h-3.5 w-3.5" />
                             </Link>
                           )}

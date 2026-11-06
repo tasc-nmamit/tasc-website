@@ -12,6 +12,7 @@ import {
   UploadCloudIcon,
   FileTextIcon,
   ExternalLinkIcon,
+  UserIcon,
 } from "lucide-react";
 import Link from "next/link";
 import CircuitTrace from "@/components/ui/circuit-ink/CircuitTrace";
@@ -49,7 +50,7 @@ export default function FormPage() {
 
   const handleFileUpload = async (fieldId: string, file: File) => {
     if (!file) return;
-    if (!session?.user?.id) {
+    if (!session?.user?.id && !form?.allowAnonymous) {
       alert("Please sign in to upload files.");
       return;
     }
@@ -62,10 +63,11 @@ export default function FormPage() {
     setUploadProgress((prev) => ({ ...prev, [fieldId]: 0 }));
 
     try {
-      await ensureFirebaseAuth();
+      await ensureFirebaseAuth({ formId: id });
       const ext = file.name.split(".").pop() || "bin";
       const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-      const fileName = `form-uploads/${id}/${session.user.id}_${fieldId}_${Date.now()}_${safeName}`;
+      const uploaderId = session?.user?.id || `guest_${Math.random().toString(36).substring(2, 9)}`;
+      const fileName = `form-uploads/${id}/${uploaderId}_${fieldId}_${Date.now()}_${safeName}`;
       const storageRef = ref(storage, fileName);
       const uploadTask = uploadBytesResumable(storageRef, file);
 
@@ -106,22 +108,23 @@ export default function FormPage() {
   };
 
   useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/auth/signin");
-      return;
-    }
-
-    if (status === "authenticated") {
+    if (status !== "loading") {
       fetchForm();
     }
-  }, [status, id, router]);
+  }, [status, id]);
 
   async function fetchForm() {
     try {
+      setLoading(true);
       const res = await fetch(`/api/forms/${id}`);
       const data = await res.json();
 
-      if (!res.ok) throw new Error(data.error);
+      if (res.status === 401) {
+        router.push(`/auth/signin?callbackUrl=/forms/${id}`);
+        return;
+      }
+
+      if (!res.ok) throw new Error(data.error || "Failed to load form");
       setForm(data);
       if (data.existingAnswers) {
         setAnswers(data.existingAnswers);
@@ -258,6 +261,23 @@ export default function FormPage() {
             <h1 className="text-2xl sm:text-3xl font-bold text-foreground font-space-grotesk">{form.title}</h1>
             {form.description && (
               <p className="text-sm sm:text-base text-muted-foreground leading-relaxed whitespace-pre-wrap">{form.description}</p>
+            )}
+
+            {!session?.user?.id && form.allowAnonymous && (
+              <div className="mt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3.5 rounded-lg border border-amber-500/30 bg-amber-500/10 text-amber-200">
+                <div className="flex items-center gap-2.5">
+                  <UserIcon className="w-4 h-4 text-amber-400 shrink-0" />
+                  <span className="text-xs font-space-grotesk">
+                    Filling as <strong>Guest</strong> (not signed in). Want this response linked to your account?
+                  </span>
+                </div>
+                <Link
+                  href={`/auth/signin?callbackUrl=/forms/${id}`}
+                  className="shrink-0 text-xs font-mono-tech font-bold uppercase underline hover:text-white"
+                >
+                  Sign In
+                </Link>
+              </div>
             )}
           </div>
         </div>

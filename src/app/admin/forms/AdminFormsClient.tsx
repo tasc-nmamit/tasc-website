@@ -20,6 +20,7 @@ export default function AdminFormsClient({ initialForms }: { initialForms: any[]
   const [endTime, setEndTime] = useState("");
   const [requireAiml, setRequireAiml] = useState(false);
   const [allowEdit, setAllowEdit] = useState(false);
+  const [allowAnonymous, setAllowAnonymous] = useState(false);
 
   // Custom Fields State
   const [fields, setFields] = useState<any[]>([]);
@@ -135,6 +136,7 @@ export default function AdminFormsClient({ initialForms }: { initialForms: any[]
         endTime: endTime ? parseContestDate(endTime).toISOString() : null,
         requireAiml,
         allowEdit,
+        allowAnonymous,
         fields: fields.map((f) => {
           let fieldOptions: any = null;
           if (f.type === "SELECT" || f.type === "MULTI_SELECT" || f.type === "IMAGE_POLL") {
@@ -192,6 +194,20 @@ export default function AdminFormsClient({ initialForms }: { initialForms: any[]
       });
       if (!res.ok) throw new Error("Failed to update");
       setForms(forms.map((f: any) => (f.id === id ? { ...f, allowEdit: !currentVal } : f)));
+    } catch (err) {
+      alert("Error updating form.");
+    }
+  };
+
+  const handleToggleAnonymous = async (id: string, currentVal: boolean) => {
+    try {
+      const res = await fetch(`/api/admin/forms/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ allowAnonymous: !currentVal }),
+      });
+      if (!res.ok) throw new Error("Failed to update");
+      setForms(forms.map((f: any) => (f.id === id ? { ...f, allowAnonymous: !currentVal } : f)));
     } catch (err) {
       alert("Error updating form.");
     }
@@ -271,6 +287,11 @@ export default function AdminFormsClient({ initialForms }: { initialForms: any[]
                     >
                       {form.published ? "PUBLISHED" : "DRAFT"}
                     </span>
+                    {form.allowAnonymous && (
+                      <span className="rounded-lg bg-teal-500/15 text-teal-400 border border-teal-500/40 px-3 py-1 text-[10px] font-bold font-mono-tech uppercase tracking-wider">
+                        GUEST ALLOWED
+                      </span>
+                    )}
                     {form.requireAiml && (
                       <span className="rounded-lg bg-blue-500/15 text-blue-400 border border-blue-500/40 px-3 py-1 text-[10px] font-bold font-mono-tech uppercase tracking-wider">
                         AIML ONLY
@@ -298,6 +319,16 @@ export default function AdminFormsClient({ initialForms }: { initialForms: any[]
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2 shrink-0">
+                  <button
+                    onClick={() => handleToggleAnonymous(form.id, form.allowAnonymous)}
+                    className={`rounded-xl border px-3.5 py-2 text-xs font-semibold transition-all ${
+                      form.allowAnonymous
+                        ? "border-teal-500/40 bg-teal-500/10 text-teal-300 hover:bg-teal-500/20"
+                        : "border-brand/30 bg-background/60 text-foreground hover:bg-brand/10 hover:border-brand-accent/50"
+                    }`}
+                  >
+                    {form.allowAnonymous ? "Disable Guest Access" : "Allow Guests"}
+                  </button>
                   <button
                     onClick={() => handleToggleEdit(form.id, form.allowEdit)}
                     className="rounded-xl border border-brand/30 bg-background/60 px-3.5 py-2 text-xs font-semibold text-foreground transition-all hover:bg-brand/10 hover:border-brand-accent/50"
@@ -391,24 +422,55 @@ export default function AdminFormsClient({ initialForms }: { initialForms: any[]
               />
             </div>
 
-            <div className="flex flex-wrap gap-6 sm:col-span-2 border border-brand/20 p-5 rounded-2xl bg-background/40">
-              <label className="flex items-center gap-3 text-sm font-semibold font-space-grotesk text-foreground cursor-pointer">
+            <div className="flex flex-col sm:flex-row flex-wrap gap-6 sm:col-span-2 border border-brand/20 p-5 rounded-2xl bg-background/40">
+              <label className="flex items-start gap-3 text-sm font-semibold font-space-grotesk text-foreground cursor-pointer flex-1 min-w-[240px]">
+                <input
+                  type="checkbox"
+                  checked={allowAnonymous}
+                  disabled={requireAiml}
+                  onChange={(e) => setAllowAnonymous(e.target.checked)}
+                  className="mt-0.5 h-5 w-5 rounded border-brand/30 text-brand focus:ring-brand-accent disabled:opacity-40"
+                />
+                <div>
+                  <span>Allow Guest Submissions (No sign-in)</span>
+                  <p className="text-xs text-muted-foreground font-normal">
+                    Anyone with the link can fill and submit this form without signing in.
+                  </p>
+                </div>
+              </label>
+
+              <label className="flex items-start gap-3 text-sm font-semibold font-space-grotesk text-foreground cursor-pointer flex-1 min-w-[240px]">
                 <input
                   type="checkbox"
                   checked={requireAiml}
-                  onChange={(e) => setRequireAiml(e.target.checked)}
-                  className="h-5 w-5 rounded border-brand/30 text-brand focus:ring-brand-accent"
+                  onChange={(e) => {
+                    const checked = e.target.checked;
+                    setRequireAiml(checked);
+                    if (checked) setAllowAnonymous(false);
+                  }}
+                  className="mt-0.5 h-5 w-5 rounded border-brand/30 text-brand focus:ring-brand-accent"
                 />
-                AIML Students Only
+                <div>
+                  <span>AIML Students Only</span>
+                  <p className="text-xs text-muted-foreground font-normal">
+                    Requires sign-in and verifies AIML student status.
+                  </p>
+                </div>
               </label>
-              <label className="flex items-center gap-3 text-sm font-semibold font-space-grotesk text-foreground cursor-pointer">
+
+              <label className="flex items-start gap-3 text-sm font-semibold font-space-grotesk text-foreground cursor-pointer flex-1 min-w-[240px]">
                 <input
                   type="checkbox"
                   checked={allowEdit}
                   onChange={(e) => setAllowEdit(e.target.checked)}
-                  className="h-5 w-5 rounded border-brand/30 text-brand focus:ring-brand-accent"
+                  className="mt-0.5 h-5 w-5 rounded border-brand/30 text-brand focus:ring-brand-accent"
                 />
-                Allow Users to Edit Responses After Submitting
+                <div>
+                  <span>Allow Users to Edit Responses</span>
+                  <p className="text-xs text-muted-foreground font-normal">
+                    Signed-in users can update their previous submission.
+                  </p>
+                </div>
               </label>
             </div>
           </div>

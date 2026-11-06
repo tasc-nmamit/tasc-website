@@ -226,17 +226,18 @@ model EventRegistration {
 }
 
 model Form {
-  id          String         @id @default(cuid())
-  title       String
-  description String?
-  published   Boolean        @default(false)
-  startTime   DateTime?
-  endTime     DateTime?
-  requireAiml Boolean        @default(false)
-  allowEdit   Boolean        @default(false)
-  createdAt   DateTime       @default(now())
-  fields      FormField[]
-  responses   FormResponse[]
+  id             String         @id @default(cuid())
+  title          String
+  description    String?
+  published      Boolean        @default(false)
+  startTime      DateTime?
+  endTime        DateTime?
+  requireAiml    Boolean        @default(false)
+  allowEdit      Boolean        @default(false)
+  allowAnonymous Boolean        @default(false)
+  createdAt      DateTime       @default(now())
+  fields         FormField[]
+  responses      FormResponse[]
 }
 
 model FormField {
@@ -253,11 +254,11 @@ model FormField {
 model FormResponse {
   id        String   @id @default(cuid())
   formId    String
-  userId    String
+  userId    String?
   answers   Json
   createdAt DateTime @default(now())
   form      Form     @relation(fields: [formId], references: [id], onDelete: Cascade)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([formId, userId])
 }

@@ -31,6 +31,7 @@ export default async function FormsListPage() {
     startTime: f.startTime,
     endTime: f.endTime,
     requireAiml: f.requireAiml,
+    allowAnonymous: f.allowAnonymous,
     published: f.published,
     createdAt: f.createdAt,
     responsesCount: f._count.responses,

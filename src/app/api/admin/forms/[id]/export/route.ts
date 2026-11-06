@@ -33,11 +33,11 @@ export async function GET(
 
     for (const res of form.responses) {
       const row: any = {
-        "Name": res.user.name || res.user.email,
-        "Email": res.user.email,
-        "USN": res.user.usn || "N/A",
-        "Branch": res.user.branch || "N/A",
-        "Year": res.user.year || "N/A",
+        "Name": res.user?.name || res.user?.email || "Guest Respondent",
+        "Email": res.user?.email || "Anonymous",
+        "USN": res.user?.usn || "N/A",
+        "Branch": res.user?.branch || "N/A",
+        "Year": res.user?.year || "N/A",
         "Submission Date": res.createdAt.toISOString(),
       };
 

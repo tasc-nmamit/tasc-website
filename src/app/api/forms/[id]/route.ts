@@ -7,10 +7,6 @@ export async function GET(
   context: { params: Promise<{ id: string }> }
 ) {
   const session = await auth();
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
   const { id } = await context.params;
 
   try {
@@ -33,21 +29,34 @@ export async function GET(
       return NextResponse.json({ error: "Form has closed" }, { status: 400 });
     }
 
-    if (form.requireAiml && !session.user.isAiml && session.user.role !== "ADMIN" && session.user.role !== "OWNER") {
-      return NextResponse.json({ error: "This form is restricted to AIML students" }, { status: 403 });
+    // If form does not allow anonymous responses, require authentication
+    if (!form.allowAnonymous && !session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized. Please sign in to fill this form." }, { status: 401 });
     }
 
-    // Check if already responded
-    const existing = await db.formResponse.findUnique({
-      where: { formId_userId: { formId: id, userId: session.user.id } }
-    });
+    // If AIML is required, check student status
+    if (form.requireAiml) {
+      if (!session?.user?.id) {
+        return NextResponse.json({ error: "Unauthorized. Please sign in to fill this form." }, { status: 401 });
+      }
+      if (!session.user.isAiml && session.user.role !== "ADMIN" && session.user.role !== "OWNER") {
+        return NextResponse.json({ error: "This form is restricted to AIML students" }, { status: 403 });
+      }
+    }
 
-    if (existing) {
-      if (!form.allowEdit) {
-        return NextResponse.json({ error: "You have already submitted a response for this form" }, { status: 400 });
-      } else {
-        // Return form with existing answers
-        return NextResponse.json({ ...form, existingAnswers: existing.answers });
+    // Check if already responded (only for signed-in users)
+    if (session?.user?.id) {
+      const existing = await db.formResponse.findUnique({
+        where: { formId_userId: { formId: id, userId: session.user.id } }
+      });
+
+      if (existing) {
+        if (!form.allowEdit) {
+          return NextResponse.json({ error: "You have already submitted a response for this form" }, { status: 400 });
+        } else {
+          // Return form with existing answers
+          return NextResponse.json({ ...form, existingAnswers: existing.answers });
+        }
       }
     }
 
