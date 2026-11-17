@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import AppCheckImage from "@/components/ui/AppCheckImage";
+import OptimizedImage from "@/components/ui/OptimizedImage";
 import {
   ArrowLeftIcon,
   CheckCircle2Icon,
@@ -425,7 +425,7 @@ export default function FormPage() {
 
                       {isImageUrl(answers[field.id]) ? (
                         <div className="relative group max-w-xs rounded-lg overflow-hidden border border-brand/30 bg-black/40 p-1">
-                          <AppCheckImage
+                          <OptimizedImage
                             src={answers[field.id]}
                             alt="Uploaded preview"
                             className="max-h-48 max-w-full object-contain mx-auto rounded"
@@ -500,7 +500,7 @@ export default function FormPage() {
                     >
                       <div className="relative aspect-video w-full overflow-hidden bg-black/40">
                         {option.image ? (
-                          <AppCheckImage
+                          <OptimizedImage
                             src={option.image}
                             alt={option.label || "Poll Option"}
                             fill

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import AppCheckImage from "@/components/ui/AppCheckImage";
+import OptimizedImage from "@/components/ui/OptimizedImage";
 
 interface UserAvatarProps {
   src?: string | null;
@@ -38,7 +38,7 @@ export default function UserAvatar({
   }
 
   return (
-    <AppCheckImage
+    <OptimizedImage
       src={src}
       alt={name || "User avatar"}
       width={size}

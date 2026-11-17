@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect, useCallback } from "react";
 import Link from "next/link";
-import AppCheckImage from "@/components/ui/AppCheckImage";
+import OptimizedImage from "@/components/ui/OptimizedImage";
 import {
   BellIcon,
   CalendarIcon,
@@ -311,7 +311,7 @@ export default function NoticeBoardClient({ initialNotices }: NoticeBoardClientP
                       onClick={() => openLightbox(photos, 0, item.title)}
                       className="rounded-xl overflow-hidden border border-brand/25 bg-black/40 cursor-pointer group relative shadow-md hover:border-brand-accent/60 transition-all max-h-[480px]"
                     >
-                      <AppCheckImage
+                      <OptimizedImage
                         src={photos[0]}
                         alt={item.title}
                         className="w-full h-full object-cover max-h-[480px] group-hover:scale-[1.015] transition-transform duration-500"
@@ -338,7 +338,7 @@ export default function NoticeBoardClient({ initialNotices }: NoticeBoardClientP
                             onClick={() => openLightbox(photos, idx, item.title)}
                             className="relative aspect-video rounded-xl overflow-hidden border border-brand/20 cursor-pointer group bg-black/40 shadow-sm hover:border-brand-accent/60 transition-all"
                           >
-                            <AppCheckImage
+                            <OptimizedImage
                               src={url}
                               alt={`${item.title} - Photo ${idx + 1}`}
                               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
@@ -367,7 +367,7 @@ export default function NoticeBoardClient({ initialNotices }: NoticeBoardClientP
                             onClick={() => openLightbox(photos, idx, item.title)}
                             className="relative aspect-video rounded-xl overflow-hidden border border-brand/20 cursor-pointer group bg-black/40 shadow-sm hover:border-brand-accent/60 transition-all"
                           >
-                            <AppCheckImage
+                            <OptimizedImage
                               src={url}
                               alt={`${item.title} - Photo ${idx + 1}`}
                               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
@@ -396,7 +396,7 @@ export default function NoticeBoardClient({ initialNotices }: NoticeBoardClientP
                           onClick={() => openLightbox(photos, idx, item.title)}
                           className="relative aspect-video rounded-lg overflow-hidden border border-brand/20 cursor-pointer group bg-black/40 shadow-sm hover:border-brand-accent/60 transition-all"
                         >
-                          <AppCheckImage
+                          <OptimizedImage
                             src={url}
                             alt={`${item.title} - Photo ${idx + 1}`}
                             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
@@ -447,7 +447,7 @@ export default function NoticeBoardClient({ initialNotices }: NoticeBoardClientP
                         onClick={() => openLightbox(item.eventMeta!.photos!, idx, item.title)}
                         className="relative aspect-video rounded-lg overflow-hidden border border-brand/20 cursor-pointer group bg-black/40 shadow-sm hover:border-brand-accent/60 transition-all"
                       >
-                        <AppCheckImage
+                        <OptimizedImage
                           src={photoUrl}
                           alt={`${item.title} - Highlight ${idx + 1}`}
                           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
@@ -469,7 +469,7 @@ export default function NoticeBoardClient({ initialNotices }: NoticeBoardClientP
                 {item.author?.name ? (
                   <div className="flex items-center gap-2.5">
                     {item.author.image ? (
-                      <AppCheckImage
+                      <OptimizedImage
                         src={item.author.image}
                         alt={item.author.name}
                         className="w-7 h-7 rounded-full border border-brand/30 object-cover"
@@ -579,11 +579,13 @@ export default function NoticeBoardClient({ initialNotices }: NoticeBoardClientP
                     <div className="w-8 h-8 rounded-full border-2 border-brand-accent border-t-transparent animate-spin" />
                   </div>
                 )}
-                <AppCheckImage
+                <OptimizedImage
                   key={lightboxState.photos[lightboxState.currentIndex]}
                   src={lightboxState.photos[lightboxState.currentIndex]}
                   alt={`${lightboxState.title} - Photo ${lightboxState.currentIndex + 1}`}
+                  priority
                   onLoad={() => setIsImageLoading(false)}
+                  onError={() => setIsImageLoading(false)}
                   className={`max-h-full max-w-full object-contain rounded-lg shadow-2xl transition-opacity duration-200 select-none ${
                     isImageLoading ? "opacity-0" : "opacity-100"
                   }`}
@@ -621,7 +623,7 @@ export default function NoticeBoardClient({ initialNotices }: NoticeBoardClientP
                         : "border-white/20 opacity-50 hover:opacity-100"
                     }`}
                   >
-                    <AppCheckImage
+                    <OptimizedImage
                       src={url}
                       alt={`Thumbnail ${idx + 1}`}
                       className="w-full h-full object-cover"

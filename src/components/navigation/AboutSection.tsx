@@ -1,6 +1,6 @@
 "use client";
 
-import AppCheckImage from "@/components/ui/AppCheckImage";
+import OptimizedImage from "@/components/ui/OptimizedImage";
 import TechnicalCard from "@/components/ui/circuit-ink/TechnicalCard";
 import ScrollReveal from "@/components/ui/ScrollReveal";
 
@@ -62,10 +62,11 @@ export default function AboutSection() {
           <div className="md:col-span-5 flex justify-center h-full items-stretch">
             <ScrollReveal variant="scaleUp" delay={300} className="w-full h-full relative min-h-[300px]">
               <div className="relative w-full h-full rounded-lg overflow-hidden border border-brand/40 shadow-2xl group">
-                <AppCheckImage
+                <OptimizedImage
                   src="https://firebasestorage.googleapis.com/v0/b/tasc-8df79.appspot.com/o/AboutBanner2026.jpeg?alt=media&token=a258cf9b-be51-4160-a773-7917daa50cbc&_gl=1*1h5cmm8*_ga*MTE2MzE3ODExMC4xNjk1Mzg4Nzkx*_ga_CW55HF8NVT*MTY5NjIxODM2NC4xOS4xLjE2OTYyMTg1NTYuNjAuMC4w"
                   alt="AboutBanner"
                   fill
+                  sizes="(max-width: 768px) 100vw, 42vw"
                   className="object-cover transition-transform duration-700 group-hover:scale-105"
                 />
               </div>

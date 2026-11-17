@@ -5,7 +5,7 @@ import { PlusIcon, Trash2Icon, ArrowUpIcon, ArrowDownIcon } from "lucide-react";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "@/lib/firebase";
 import { ensureFirebaseAuth } from "@/lib/firebase-client-auth";
-import AppCheckImage from "@/components/ui/AppCheckImage";
+import OptimizedImage from "@/components/ui/OptimizedImage";
 
 interface CustomFieldsEditorProps {
   fields: any[];
@@ -485,7 +485,7 @@ export default function CustomFieldsEditor({
 
                         {opt.imageUrl ? (
                           <div className="flex-1 flex items-center gap-2 overflow-hidden bg-background/50 border border-brand/20 rounded-lg p-1.5">
-                            <AppCheckImage
+                            <OptimizedImage
                               src={opt.imageUrl}
                               alt="preview"
                               className="h-8 w-8 object-cover rounded border border-brand/30"
@@ -552,7 +552,7 @@ export default function CustomFieldsEditor({
                   <div className="space-y-3">
                     {cf.imageUrl ? (
                       <div className="flex items-center gap-3 bg-background/50 border border-brand/20 rounded-lg p-3">
-                        <AppCheckImage
+                        <OptimizedImage
                           src={cf.imageUrl}
                           alt="preview"
                           className="h-20 w-20 object-contain rounded border border-brand/30 bg-white p-1"

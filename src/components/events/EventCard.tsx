@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Event } from "@/lib/types/Event";
-import AppCheckImage from "@/components/ui/AppCheckImage";
+import OptimizedImage from "@/components/ui/OptimizedImage";
 import NextLink from "next/link";
 import {
   CalendarIcon,
@@ -62,11 +62,12 @@ export function EventIndexRow({ event, index }: EventIndexRowProps) {
 
           {/* Small Photo Thumbnail */}
           <div className="relative w-14 h-10 md:w-20 md:h-13 rounded-md overflow-hidden shrink-0 border border-brand/20 bg-black/40 shadow-sm transition-all duration-300 group-hover:scale-[1.03] group-hover:border-brand-accent/40">
-            <AppCheckImage
+            <OptimizedImage
               src={event.image}
               fallbackSrc="/fallback-image.jpg"
               alt={event.title}
               fill
+              priority={index < 4}
               sizes="(max-width: 768px) 56px, 80px"
               className="object-cover transition-transform duration-300"
             />

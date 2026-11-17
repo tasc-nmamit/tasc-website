@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { format, formatDistanceToNow } from "date-fns";
 import { ChevronDownIcon, ChevronUpIcon, UserIcon, BellIcon, SparklesIcon } from "lucide-react";
-import AppCheckImage from "@/components/ui/AppCheckImage";
+import OptimizedImage from "@/components/ui/OptimizedImage";
 
 export interface AnnouncementItem {
   id: string;
@@ -238,7 +238,7 @@ export default function LinkedListTimeline({ announcements }: LinkedListTimeline
                           if (photos.length === 1) {
                             return (
                               <div className="rounded-lg overflow-hidden border border-white/20 max-h-96 bg-black/40">
-                                <AppCheckImage
+                                <OptimizedImage
                                   src={photos[0]}
                                   alt={item.title}
                                   className="w-full h-full object-cover max-h-96"
@@ -254,7 +254,7 @@ export default function LinkedListTimeline({ announcements }: LinkedListTimeline
                                   key={idx}
                                   className="relative aspect-video rounded-lg overflow-hidden border border-white/20 bg-black/40"
                                 >
-                                  <AppCheckImage
+                                  <OptimizedImage
                                     src={url}
                                     alt={`${item.title} - photo ${idx + 1}`}
                                     className="w-full h-full object-cover"
@@ -270,7 +270,7 @@ export default function LinkedListTimeline({ announcements }: LinkedListTimeline
                           {/* Author info */}
                           <div className="flex items-center gap-2">
                             {item.author.image ? (
-                              <AppCheckImage
+                              <OptimizedImage
                                 src={item.author.image}
                                 alt={item.author.name || "Author"}
                                 width={24}

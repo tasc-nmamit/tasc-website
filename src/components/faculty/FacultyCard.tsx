@@ -8,7 +8,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import AppCheckImage from "@/components/ui/AppCheckImage";
+import OptimizedImage from "@/components/ui/OptimizedImage";
 import { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Faculty } from "@prisma";
@@ -33,15 +33,17 @@ export default function FacultyCard({ faculty }: FacultyCardProps) {
               {isLoading && (
                 <Skeleton className="absolute inset-0 rounded-full bg-muted/40" />
               )}
-              <AppCheckImage
+              <OptimizedImage
                 src={image}
                 fallbackSrc="/fallback_profile.png"
                 alt={name}
                 fill
+                sizes="128px"
                 className={`rounded-full object-cover transition-transform duration-500 group-hover:scale-110 ${
                   isLoading ? "grayscale" : "grayscale-0"
                 }`}
                 onLoad={() => setIsLoading(false)}
+                onError={() => setIsLoading(false)}
               />
             </div>
           </div>
@@ -75,7 +77,7 @@ export default function FacultyCard({ faculty }: FacultyCardProps) {
         <div className="flex flex-col justify-center lg:flex-row gap-6 lg:gap-8 pt-4">
           <div className="flex min-w-0 md:min-w-[16rem] justify-center object-cover md:shrink-0 lg:min-w-[20rem]">
             <div className="relative aspect-square w-48 md:shrink-0 lg:w-72 rounded-lg overflow-hidden border-2 border-brand/40 shadow-md">
-              <AppCheckImage src={image} fallbackSrc="/fallback_profile.png" alt={name} fill className="object-cover" />
+              <OptimizedImage src={image} fallbackSrc="/fallback_profile.png" alt={name} fill sizes="(max-width: 1024px) 192px, 288px" priority className="object-cover" />
             </div>
           </div>
 

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Member } from "@/lib/types/Member";
-import AppCheckImage from "@/components/ui/AppCheckImage";
+import OptimizedImage from "@/components/ui/OptimizedImage";
 import { Github, Linkedin, Instagram, X } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import CircuitTrace from "@/components/ui/circuit-ink/CircuitTrace";
@@ -54,11 +54,12 @@ export function MemberCard({ member, featured = false }: MemberCardProps) {
             {isLoading && (
               <Skeleton className="absolute inset-0 rounded-full bg-muted/40" />
             )}
-            <AppCheckImage
+            <OptimizedImage
               src={imgSrc}
               fallbackSrc="/fallback_profile.png"
               alt={member.name}
               fill
+              sizes={featured ? "160px" : "128px"}
               className={`rounded-full object-cover transition-transform duration-500 group-hover:scale-110 ${
                 isLoading ? "grayscale" : "grayscale-0"
               }`}
@@ -107,11 +108,13 @@ export function MemberCard({ member, featured = false }: MemberCardProps) {
 
               <div className="flex flex-col items-center justify-center relative z-10 pt-2">
                 <div className="relative h-36 w-36 rounded-full overflow-hidden border-2 border-gold shadow-lg mb-4">
-                  <AppCheckImage
+                  <OptimizedImage
                     src={imgSrc}
                     fallbackSrc="/fallback_profile.png"
                     alt={member.name}
                     fill
+                    sizes="144px"
+                    priority
                     className="rounded-full object-cover"
                     onError={() => {
                       setImgSrc("/fallback_profile.png");

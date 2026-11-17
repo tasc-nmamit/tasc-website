@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import AppCheckImage from "@/components/ui/AppCheckImage";
+import OptimizedImage from "@/components/ui/OptimizedImage";
 import {
   CheckCircle2Icon,
   CopyIcon,
@@ -743,7 +743,7 @@ export default function EventRegistrationClient({
                               {opts.imageUrl ? (
                                 <div className="flex flex-col items-center justify-center gap-2">
                                   <div className="relative group max-w-xs overflow-hidden rounded-lg border border-brand/30 bg-white p-2 shadow-sm">
-                                    <AppCheckImage
+                                    <OptimizedImage
                                       src={opts.imageUrl}
                                       alt={field.label || "QR / Info Image"}
                                       className="max-h-56 max-w-full object-contain mx-auto"

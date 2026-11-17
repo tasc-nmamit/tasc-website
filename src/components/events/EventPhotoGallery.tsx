@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import AppCheckImage from "@/components/ui/AppCheckImage";
+import OptimizedImage from "@/components/ui/OptimizedImage";
 import { Camera, ChevronLeft, ChevronRight, X, Maximize2, ExternalLink } from "lucide-react";
 import CircuitTrace from "@/components/ui/circuit-ink/CircuitTrace";
 import ClientPortal from "@/components/ui/ClientPortal";
@@ -100,7 +100,7 @@ export default function EventPhotoGallery({ photos, eventTitle }: EventPhotoGall
           onClick={() => openLightbox(0)}
           className="group relative w-full aspect-video md:aspect-[21/9] max-h-[500px] rounded-xl overflow-hidden border border-brand/25 bg-background/60 cursor-pointer shadow-lg hover:border-brand-accent/70 transition-all duration-300"
         >
-          <AppCheckImage
+          <OptimizedImage
             src={validPhotos[0]}
             alt={`${eventTitle} - Photo 1`}
             fill
@@ -122,7 +122,7 @@ export default function EventPhotoGallery({ photos, eventTitle }: EventPhotoGall
               onClick={() => openLightbox(index)}
               className="group relative aspect-[4/3] rounded-xl overflow-hidden border border-brand/20 bg-background/60 cursor-pointer shadow-md transition-all duration-300 hover:border-brand-accent/70 hover:shadow-xl hover:scale-[1.02]"
             >
-              <AppCheckImage
+              <OptimizedImage
                 src={photoUrl}
                 alt={`${eventTitle} - Photo ${index + 1}`}
                 fill
@@ -155,7 +155,7 @@ export default function EventPhotoGallery({ photos, eventTitle }: EventPhotoGall
                     : "aspect-[4/3]"
                 }`}
               >
-                <AppCheckImage
+                <OptimizedImage
                   src={photoUrl}
                   alt={`${eventTitle} - Photo ${index + 1}`}
                   fill
@@ -237,7 +237,7 @@ export default function EventPhotoGallery({ photos, eventTitle }: EventPhotoGall
 
             {/* Photo Container */}
             <div className="relative w-full h-[65vh] md:h-[72vh] flex items-center justify-center">
-              <AppCheckImage
+              <OptimizedImage
                 src={validPhotos[lightboxIndex]}
                 alt={`${eventTitle} - Photo ${lightboxIndex + 1}`}
                 fill
@@ -275,7 +275,7 @@ export default function EventPhotoGallery({ photos, eventTitle }: EventPhotoGall
                       : "border-white/20 opacity-50 hover:opacity-100"
                   }`}
                 >
-                  <AppCheckImage
+                  <OptimizedImage
                     src={url}
                     alt={`Thumbnail ${idx + 1}`}
                     fill

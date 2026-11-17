@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { notFound } from "next/navigation";
-import AppCheckImage from "@/components/ui/AppCheckImage";
+import OptimizedImage from "@/components/ui/OptimizedImage";
 import { CalendarIcon, ClockIcon, MapPinIcon, UsersIcon, ShieldAlert, Sparkles } from "lucide-react";
 import EventRegistrationClient from "./EventRegistrationClient";
 import CountdownTimer from "./CountdownTimer";
@@ -102,7 +102,7 @@ export default async function EventDetailsPage({ params }: PageProps) {
         <div className="relative w-full min-h-[380px] sm:min-h-[420px] md:h-[440px] rounded-xl overflow-hidden shadow-2xl border border-brand/30 group bg-card">
           <CircuitTrace corners={true} />
 
-          <AppCheckImage
+          <OptimizedImage
             src={event.image}
             fallbackSrc="/fallback-image.jpg"
             alt={event.title}
